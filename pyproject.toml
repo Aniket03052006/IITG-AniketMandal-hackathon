@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "eventshock"
+version = "0.1.0"
+description = "Event-driven financial risk intelligence and portfolio stress-testing engine."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.12"
+authors = [{ name = "Aniket Mandal" }]
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.5",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx2", "ruff>=0.6"]
+# only for `python -m eventshock.modeling probe` (audit probes); the server and the audit itself need none of it
+ml = ["numpy>=2", "scikit-learn>=1.5"]
+
+[project.scripts]
+eventshock = "eventshock.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/eventshock"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008"]  # FastAPI Depends() in defaults is the framework idiom
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*.py" = ["E501"]
+# Stage-2 data-pipeline modules keep dense, table-like argument lists; line length is not enforced there.
+"src/eventshock/pipeline/*.py" = ["E501"]
+"src/eventshock/ingestion/*.py" = ["E501"]
+"src/eventshock/modeling/*.py" = ["E501"]
+"tests/**" = ["E501"]

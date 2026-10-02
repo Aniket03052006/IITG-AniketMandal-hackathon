@@ -1,0 +1,26 @@
+1.Submission Guidelines_External.docx.md
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+
+# Node / web build
+web/node_modules/
+web/dist/
+web/.vite/
+*.tsbuildinfo
+
+# Secrets, local data, OS
+.env
+.DS_Store
+data/raw/
+data/processed/
+data/history/
+# Derived modelling corpora (rebuildable; impact_events.jsonl alone is >100 MB, over GitHub's file limit)
+data/modeling/
+.kilo/
