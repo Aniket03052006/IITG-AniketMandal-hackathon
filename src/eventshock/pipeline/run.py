@@ -205,7 +205,8 @@ def _build_signal(c: Cluster, mentions: dict, audits: dict, resolver: EntityReso
                 for m in members
             ],
         ),
-        status=SignalStatus.COMPLETE,
+        status=SignalStatus.COMPLETE if enr.impact is not None else SignalStatus.PARTIAL,
+        status_reason=enr.status_reason,
         data_origin=enr.data_origin,
         model_versions=ModelVersions(sentiment=enr.versions["sentiment"], event=enr.versions["event"],
                                      impact=enr.versions["impact"], entity_resolver=resolver.version),
@@ -224,6 +225,7 @@ def _build_signal(c: Cluster, mentions: dict, audits: dict, resolver: EntityReso
                                      relation=m.relation, similarity=m.similarity) for m in members]),
             stage_origins=enr.stage_origins,
             sentiment=enr.sentiment_audit,
+            event=enr.event_audit,
         ),
     )
 
@@ -343,7 +345,8 @@ def summarise_fetch_log(entries: list[dict], plan: list[str] | None = None) -> t
             returned=int(e.get("returned", 0)) if ok else (prev.returned if prev else 0),
             added=int(e.get("added", 0)) if ok else (prev.added if prev else 0),
             last_error="" if ok else str(e.get("error", "")).split("sort=hybridrel: ")[-1][-160:])
-    return sorted(rows.values(), key=lambda r: (r.status == "ok", r.query))
+    keep = [r for r in rows.values() if not plan or r.query in plan or r.query.startswith("gkg:")]
+    return sorted(keep, key=lambda r: (r.status == "ok", r.query)), len(rows) - len(keep)
 
 
 def run_snapshot(snapshot: Snapshot, cfg: PipelineConfig, enrich_cfg: EnrichmentConfig,

@@ -1,8 +1,10 @@
 """Enrichment behind the ``Enricher`` protocol: sentiment, event and impact for one document.
 
 ``PlaceholderEnricher`` (placeholder-v0) holds deterministic stand-ins for all three stages. ``ModelSentimentEnricher``
-swaps in the trained sentiment model and leaves event and impact exactly as they were. Every output is labelled in
-``SignalProvenance.stage_origins`` and ``ModelVersions``, so a stage that is still a placeholder can never pass for a model.
+swaps in the trained sentiment model and leaves event and impact exactly as they were. ``ModelEnricher`` adds the trained event
+model; impact is still the placeholder heuristic, and a document the event model judges not to be a market event gets no
+impact at all (a PARTIAL signal), never an invented one. Every output is labelled in ``SignalProvenance.stage_origins`` and
+``ModelVersions``, so a stage that is still a placeholder can never pass for a model.
 """
 
 from __future__ import annotations
@@ -14,8 +16,10 @@ from typing import Protocol
 
 from ..domain import (
     DataOrigin,
+    EventAudit,
     EventCategory,
     EventClassification,
+    EventStatus,
     ImpactAssessment,
     ImpactDriver,
     SentimentAudit,
@@ -23,6 +27,7 @@ from ..domain import (
     StageOrigin,
 )
 from .config import EnrichmentConfig
+from .event_model import EventModel
 from .normalize import match_form
 from .sentiment_model import SentimentModel
 
@@ -38,11 +43,13 @@ class EnrichmentInput:
 class Enrichment:
     sentiment: SentimentResult
     event: EventClassification
-    impact: ImpactAssessment
+    impact: ImpactAssessment | None  # None: not a market event (see ``status_reason``)
     stage_origins: dict[str, str]
     versions: dict[str, str]
     data_origin: DataOrigin = DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP
     sentiment_audit: SentimentAudit | None = None
+    event_audit: EventAudit | None = None
+    status_reason: str | None = None
 
 
 class Enricher(Protocol):
@@ -85,17 +92,26 @@ class PlaceholderEnricher:
     def enrich(self, item: EnrichmentInput) -> Enrichment:
         folded = match_form(item.text)
         sentiment, sent_origin, sent_version, audit = self._sentiment_stage(item, folded)
-        event = self._event(folded)
-        impact = self._impact(event, sentiment, item.unique_domains)
+        event, event_origin, event_version, event_audit = self._event_stage(item, folded)
+        reason = self._no_impact_reason(event)
+        impact = None if reason else self._impact(event, sentiment, item.unique_domains)
         return Enrichment(
             sentiment=sentiment, event=event, impact=impact,
-            stage_origins={"sentiment": sent_origin.value, "event": StageOrigin.PLACEHOLDER_RULES.value,
+            stage_origins={"sentiment": sent_origin.value, "event": event_origin.value,
                            "impact": StageOrigin.PLACEHOLDER_RULES.value},
-            versions={"sentiment": sent_version, "event": f"{self.cfg.version}-keywords",
+            versions={"sentiment": sent_version, "event": event_version,
                       "impact": f"{self.cfg.version}-heuristic"},
-            data_origin=self.data_origin, sentiment_audit=audit)
+            data_origin=self.data_origin, sentiment_audit=audit, event_audit=event_audit, status_reason=reason)
 
     data_origin = DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP
+
+    def _event_stage(self, item: EnrichmentInput, folded: str
+                     ) -> tuple[EventClassification, StageOrigin, str, EventAudit | None]:
+        return self._event(folded), StageOrigin.PLACEHOLDER_RULES, f"{self.cfg.version}-keywords", None
+
+    def _no_impact_reason(self, event: EventClassification) -> str | None:
+        """Why this document gets no impact score (None: it does). Rules cannot say "not an event", so they always score."""
+        return None
 
     def _sentiment_stage(self, item: EnrichmentInput, folded: str
                          ) -> tuple[SentimentResult, StageOrigin, str, SentimentAudit | None]:
@@ -179,3 +195,43 @@ class ModelSentimentEnricher(PlaceholderEnricher):
                                artifact_sha256=self.model.artifact_sha256, confidence=pred.confidence,
                                calibrated=True, seen_in_training=pred.seen_in_training)
         return result, StageOrigin.MODEL, f"{self.model.model_id}+{self.model.artifact_sha256[:8]}", audit
+
+
+class ModelEnricher(ModelSentimentEnricher):
+    """Trained sentiment and trained event models; impact stays the placeholder heuristic (and says so).
+
+    A text the event model judges not to be a market event (NO_EVENT), or one it will not commit to a type for (UNCERTAIN),
+    gets no impact: the heuristic's category prior would otherwise turn chatter into a "severity", and the stress engine would
+    fire on it. Those signals are PARTIAL with the reason stated; the stress engine already reports them as unavailable.
+    """
+
+    def __init__(self, cfg: EnrichmentConfig, sentiment_model: SentimentModel, event_model: EventModel) -> None:
+        super().__init__(cfg, sentiment_model)
+        self.event_model = event_model
+        self.version = f"{cfg.version}+sentiment:{sentiment_model.model_id}+event:{event_model.model_id}"
+
+    @property
+    def report_stage_origins(self) -> dict[str, str]:
+        return {**super().report_stage_origins,
+                "event": f"MODEL ({self.event_model.model_id}, trained on AI-annotated in-domain labels; abstains)"}
+
+    def unscorable(self, text: str) -> str | None:
+        return super().unscorable(text) or self.event_model.unscorable_reason(text)
+
+    def _event_stage(self, item: EnrichmentInput, folded: str
+                     ) -> tuple[EventClassification, StageOrigin, str, EventAudit | None]:
+        d = self.event_model.decide(item.text)  # raises EventInputError: run_documents quarantines such documents first
+        event = EventClassification(category=d.category, probabilities=d.probabilities, status=d.status,
+                                    no_event_probability=d.no_event_probability)
+        audit = EventAudit(model_id=self.event_model.model_id, model_version=self.event_model.model_version,
+                           artifact_sha256=self.event_model.artifact_sha256, confidence=d.confidence,
+                           no_event_probability=d.no_event_probability, calibrated=True, unreliable_class=d.unreliable_class,
+                           seen_in_training=d.seen_in_training)
+        return event, StageOrigin.MODEL, f"{self.event_model.model_id}+{self.event_model.artifact_sha256[:8]}", audit
+
+    def _no_impact_reason(self, event: EventClassification) -> str | None:
+        if event.status is EventStatus.NO_EVENT:
+            return "No market event identified: the event model judged this text not to be a market event"
+        if event.status is EventStatus.UNCERTAIN:
+            return "Event type uncertain: the event model will not commit to a type, so no impact is scored"
+        return None

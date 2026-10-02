@@ -190,6 +190,58 @@ def enricher():
     return ModelSentimentEnricher(ENRICH, model)
 
 
+@pytest.fixture(scope="module")
+def model_enricher(enricher):
+    from eventshock.config import REPO_ROOT
+    from eventshock.pipeline.config import load_event_model_config
+    from eventshock.pipeline.enrich import ModelEnricher
+    from eventshock.pipeline.event_model import EventModel
+
+    ev = EventModel.load(REPO_ROOT / load_event_model_config(REPO_ROOT / "configs").model_dir)
+    return ModelEnricher(ENRICH, enricher.model, ev)
+
+
+class TestModelEnricher:
+    """Trained sentiment and event models; impact is the placeholder heuristic and says so, and a non-event gets no impact."""
+
+    def enrich(self, e, text, domains=1):
+        return e.enrich(EnrichmentInput(text=text, source_label=None, unique_domains=domains))
+
+    def test_stage_origins_versions_and_audit_are_honest(self, model_enricher):
+        r = self.enrich(model_enricher, "Boeing recalls 737 jets after regulator finds door plug defect and halts production")
+        assert r.stage_origins == {"sentiment": "MODEL", "event": "MODEL", "impact": "PLACEHOLDER_RULES"}
+        assert r.versions["event"].startswith("tfidf-lr-event-v1+") and r.versions["impact"].startswith("placeholder")
+        assert r.data_origin is DataOrigin.REAL_SOURCE_MIXED_NLP
+        a = r.event_audit
+        assert a is not None and a.model_id == "tfidf-lr-event-v1" and a.calibrated and 0 < a.confidence <= 1
+        assert r.event.status.value == "CLASSIFIED" and r.event.category.value == "PRODUCT_OPERATIONS"
+        assert r.impact is not None and r.status_reason is None
+
+    def test_a_non_event_gets_no_impact_and_a_reason(self, model_enricher):
+        r = self.enrich(model_enricher, "lol this chart is wild, join the discord for more picks")
+        assert r.event.status.value == "NO_EVENT" and r.impact is None
+        assert r.status_reason and r.status_reason.startswith("No market event")
+        assert r.event.no_event_probability > 0.5
+
+    def test_pipeline_makes_non_events_partial_signals_without_impact(self, model_enricher):
+        from eventshock.domain import SignalStatus
+        from eventshock.pipeline.run import run_documents
+
+        recs = [doc("e1", "Apple recalls iPhone chargers after overheating reports and pauses shipments", hours=5),
+                doc("n1", "Apple stock chart looks wild today lol join the discord", hours=4)]
+        res = run_documents(recs, snapshot_id="t", as_of=AS_OF, window_start=W0, window_end=W1, entities=ENTITIES, cfg=CFG,
+                            enrich_cfg=ENRICH, enricher=model_enricher)
+        by = {s.document.id: s for s in res.signals}
+        assert by["e1"].status is SignalStatus.COMPLETE and by["e1"].impact is not None
+        assert by["n1"].status is SignalStatus.PARTIAL and by["n1"].impact is None and by["n1"].status_reason
+        assert by["n1"].provenance.event is not None and by["n1"].provenance.stage_origins["event"] == "MODEL"
+        assert res.report.stage_origins["event"].startswith("MODEL") and res.report.stage_origins["impact"] == "PLACEHOLDER"
+
+    def test_sentiment_matches_the_sentiment_only_enricher(self, model_enricher, enricher):
+        t = "Fed signals rate cut as inflation cools, markets rally"
+        assert self.enrich(model_enricher, t).sentiment == self.enrich(enricher, t).sentiment
+
+
 class TestModelSentimentEnricher:
     """The trained model replaces only the sentiment stage; event and impact stay placeholder and say so."""
 

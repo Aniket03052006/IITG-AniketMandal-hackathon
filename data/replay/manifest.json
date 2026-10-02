@@ -11,8 +11,8 @@
       "adapter": "gdelt-doc",
       "source_type": "NEWS",
       "file": "gdelt/articles.jsonl",
-      "sha256": "2a857a897a707f3ad56eb472913a0a22ac8c64ada051e995557321b364d0be71",
-      "records": 1479,
+      "sha256": "7df64f2f6894f1972e03e84f497eab16f87bca54428e0804991d3402ea3db693",
+      "records": 1847,
       "license": "GDELT terms: free unrestricted use and redistribution with citation",
       "attribution": "The GDELT Project (https://www.gdeltproject.org)",
       "origin_url": "https://api.gdeltproject.org/api/v2/doc/doc",
@@ -321,6 +321,49 @@
       "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=credit+rating+downgrade+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
       "query": "credit rating downgrade",
       "status": "error"
+    },
+    {
+      "added": 247,
+      "query": "(\"Pfizer Inc\" OR \"Johnson & Johnson\" OR \"UnitedHealth Group\" OR \"Eli Lilly\")",
+      "returned": 250,
+      "status": "ok"
+    },
+    {
+      "added": 49,
+      "query": "\"Federal Reserve\" interest rate",
+      "returned": 50,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=stock+market+selloff+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "stock market selloff",
+      "status": "error"
+    },
+    {
+      "added": 26,
+      "query": "credit rating downgrade",
+      "returned": 26,
+      "status": "ok"
+    },
+    {
+      "added": 46,
+      "query": "stock market selloff",
+      "returned": 50,
+      "status": "ok"
     }
+  ],
+  "fetch_plan": [
+    "(\"JPMorgan Chase\" OR \"JPMorgan\" OR \"Bank of America\" OR \"Goldman Sachs\" OR \"Morgan Stanley\" OR \"Citigroup\" OR \"Wells Fargo\" OR \"Visa Inc\")",
+    "(\"Apple Inc\" OR \"Microsoft Corp\" OR \"Nvidia Corp\" OR \"Alphabet Inc\" OR \"Meta Platforms\" OR \"Amazon.com\" OR \"Intel Corporation\" OR \"Oracle Corporation\")",
+    "(\"Exxon Mobil\" OR \"Chevron Corp\" OR \"Shell plc\" OR \"BP plc\")",
+    "(\"Pfizer Inc\" OR \"Johnson & Johnson\" OR \"UnitedHealth Group\" OR \"Eli Lilly\")",
+    "(\"Boeing Co\" OR \"Caterpillar Inc\" OR \"Lockheed Martin\" OR \"GE Aerospace\")",
+    "(\"Tesla Inc\" OR \"Walmart Inc\" OR \"Coca-Cola Company\" OR \"McDonald's Corp\" OR \"Nike Inc\" OR \"Target Corporation\" OR \"Ford Motor\")",
+    "\"Federal Reserve\" interest rate",
+    "OPEC oil output",
+    "Treasury yields bond market",
+    "stock market selloff",
+    "credit rating downgrade",
+    "tariffs trade war"
   ]
 }
