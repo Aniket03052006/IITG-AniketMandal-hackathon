@@ -5,7 +5,7 @@ GDELT_END ?= 20260930235959
 PRICES_START ?= 2014-01-01
 PRICES_END ?= 2026-10-02
 
-.PHONY: audit probe gold-sample gold-validate gold-score fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
+.PHONY: audit probe gold-sample gold-validate gold-score train-sentiment fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
 
 setup: setup-api setup-web  ## install everything
 
@@ -83,6 +83,9 @@ audit:  ## modeling tables + every leakage check -> data/modeling/ (needs data/r
 
 probe:  ## seconds-long classical baselines on the audit tables (needs `uv pip install -r requirements-ml.txt`)
 	$(PY) -m eventshock.modeling probe
+
+train-sentiment:  ## train + select + calibrate + evaluate the sentiment model -> models/sentiment/ (needs data/modeling/sentiment.jsonl; ~1 min)
+	$(PY) -m eventshock.modeling train-sentiment
 
 gold-sample:  ## draw the blind gold sample into data/gold (refuses to overwrite labels)
 	$(PY) -m eventshock.modeling gold-sample

@@ -1,5 +1,7 @@
 # Modeling readiness report (Stage 3 prep, 2026-10-02)
 
+> **Update:** the sentiment model has since been trained and shipped: see [SENTIMENT_MODEL.md](SENTIMENT_MODEL.md). Event and impact are still as described here; sections 1 to 8 below are the original audit and are not rewritten (the sentiment baselines they quote are reproduced by the new evaluation).
+
 Scope: is the data ready to train the sentiment, event and impact models, what is not, and what we changed. No product model was
 trained. Every number below comes from `python -m eventshock.modeling audit|probe|gold-score`
 (`data/modeling/audit.json`, `probe.json`, `data/gold/gold_scores.json`); rebuild with `make audit probe gold-score`.
@@ -142,7 +144,7 @@ Report timing strata (off-hours, in-session, date-only, first-seen) separately.
 
 1. Human adjudication of `data/gold/adjudication.csv` (60 rows; overrule in `human_*`), then `make gold-score`; expand to 600 if the crosswalk numbers move.
 2. Add GEOPOLITICAL / PRODUCT_OPERATIONS silver data via keyword-gated topic rows; measure the gate on gold.
-3. Train the sentiment baseline properly (calibration, ECE) and score it on gold and PhraseBank; decide on a transformer.
+3. ~~Train the sentiment baseline properly~~ done, see SENTIMENT_MODEL.md. Open: the gap on our own sources (macro-F1 0.44, rank correlation 0.28) is the case for a domain-adapted model (transformer fine-tune or self-training), not yet attempted.
 4. Build the earnings-calendar feature (earnings is the only class with a clear impact lift, and its dates are known in advance): derive it from the scheduling notices, which the audit showed are ~70% of the TFN "Earnings" topic.
 5. Impact ladder (0-4) with rolling-origin evaluation; keep the live GKG test for last.
 6. Replace the placeholder enricher behind the existing `Enricher` protocol only after each stage clears its acceptance bar.

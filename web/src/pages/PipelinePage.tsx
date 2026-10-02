@@ -1,6 +1,8 @@
 import { usePipelineReport, useMeta } from "../api/hooks";
+import { SentimentModelPanel } from "../components/SentimentModelPanel";
 import { Card, EmptyState, ErrorState, Loading, PageHeader, Stat, StatusTag } from "../components/ui";
 import { dateTime } from "../lib/format";
+import { sentimentIsModel, stageKind } from "../lib/provenance";
 
 export function PipelinePage() {
   const { data: meta } = useMeta();
@@ -111,6 +113,12 @@ export function PipelinePage() {
           </Card>
         </div>
 
+        {sentimentIsModel(meta) && (
+          <div className="min-w-0 lg:col-span-12">
+            <SentimentModelPanel enabled />
+          </div>
+        )}
+
         {r.fetch_log.length > 0 && (
           <div className="lg:col-span-12">
             <Card
@@ -144,7 +152,7 @@ export function PipelinePage() {
               {Object.entries(r.stage_origins).map(([k, v]) => (
                 <div key={k} className="contents">
                   <dt className="text-muted">{k.replace("_", " ")}</dt>
-                  <dd className={v.startsWith("PLACEHOLDER") ? "text-warn" : ""}>{v}</dd>
+                  <dd className={stageKind(v) === "model" ? "text-pos" : v.startsWith("PLACEHOLDER") ? "text-warn" : ""}>{v}</dd>
                 </div>
               ))}
             </dl>

@@ -20,7 +20,6 @@ from typing import Any
 from ..domain import (
     UNKNOWN_ENTITY,
     CorroboratingSource,
-    DataOrigin,
     DedupAudit,
     DedupMember,
     DedupRelation,
@@ -142,6 +141,12 @@ def run_documents(
                                                  preview=rec.headline[:120]))
             continue
         doc: RawDocument = norm  # type: ignore[assignment]
+        unscorable = enricher.unscorable(f"{doc.headline} {doc.body}".strip())
+        if unscorable:  # the enrichment stage has nothing to score: quarantine, never invent a value
+            bump(src, "quarantined")
+            quarantined.append(QuarantinedRecord(source=src, record_ref=ref, code=RejectCode.UNSCORABLE_TEXT.value,
+                                                 detail=unscorable, preview=rec.headline[:120]))
+            continue
         mention, audit = resolver.resolve(f"{doc.headline} {doc.body}".strip())
         audits[doc.id], mentions[doc.id] = audit, mention
         items.append(Item.build(doc, mention.entity_id, _origin(rec)))
@@ -160,7 +165,7 @@ def run_documents(
             bump(str(m.item.doc.raw_metadata.get("adapter", m.item.doc.source)), "exact_dups")
 
     report = _report(snapshot_id, description, as_of, window_start, window_end, resolver.version, enrich_version,
-                     signals, clusters, quarantined, per_source, audits, sources or [])
+                     signals, clusters, quarantined, per_source, audits, sources or [], enricher.report_stage_origins)
     return PipelineResult(signals=signals, quarantined=quarantined, clusters=clusters, report=report)
 
 
@@ -201,7 +206,7 @@ def _build_signal(c: Cluster, mentions: dict, audits: dict, resolver: EntityReso
             ],
         ),
         status=SignalStatus.COMPLETE,
-        data_origin=DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP,
+        data_origin=enr.data_origin,
         model_versions=ModelVersions(sentiment=enr.versions["sentiment"], event=enr.versions["event"],
                                      impact=enr.versions["impact"], entity_resolver=resolver.version),
         created_at=as_of,
@@ -218,6 +223,7 @@ def _build_signal(c: Cluster, mentions: dict, audits: dict, resolver: EntityReso
                 members=[DedupMember(document_id=m.item.doc.id, source=m.item.doc.source, url=m.item.doc.url,
                                      relation=m.relation, similarity=m.similarity) for m in members]),
             stage_origins=enr.stage_origins,
+            sentiment=enr.sentiment_audit,
         ),
     )
 
@@ -245,7 +251,7 @@ def _apply_novelty(signals: list[RiskSignal], clusters: list[Cluster]) -> list[R
 
 
 def _report(snapshot_id, description, as_of, w0, w1, resolver_version, enrich_version, signals, clusters,
-            quarantined, per_source, audits, metas: list[SourceMeta]) -> PipelineReport:
+            quarantined, per_source, audits, metas: list[SourceMeta], stage_origins: dict[str, str]) -> PipelineReport:
     relations = Counter(m.relation for c in clusters for m in c.members)
     exact = sum(len(c.exact) for c in clusters)
     reports_in = sum(len(c.reports) for c in clusters)
@@ -281,9 +287,7 @@ def _report(snapshot_id, description, as_of, w0, w1, resolver_version, enrich_ve
         output_digest=_digest(signals), counts=counts, sources=sources,
         quarantine_by_code=dict(sorted(Counter(q.code for q in quarantined).items())),
         quarantine_sample=quarantined[:QUARANTINE_SAMPLE],
-        stage_origins={"ingestion": "REAL", "validation": "REAL", "entity_resolution": "REAL (dictionary)",
-                       "deduplication": "REAL", "sentiment": "PLACEHOLDER (TFN: source label)",
-                       "event": "PLACEHOLDER", "impact": "PLACEHOLDER", "stress_engine": "REAL (deterministic)"},
+        stage_origins=stage_origins,
     )
 
 
@@ -338,12 +342,13 @@ def summarise_fetch_log(entries: list[dict]) -> list[FetchQuery]:
     return sorted(rows.values(), key=lambda r: (r.status == "ok", r.query))
 
 
-def run_snapshot(snapshot: Snapshot, cfg: PipelineConfig, enrich_cfg: EnrichmentConfig) -> PipelineResult:
+def run_snapshot(snapshot: Snapshot, cfg: PipelineConfig, enrich_cfg: EnrichmentConfig,
+                 enricher: Enricher | None = None) -> PipelineResult:
     records, metas = read_snapshot(snapshot)
     m = snapshot.manifest
     result = run_documents(
         records, snapshot_id=m.snapshot_id, description=m.description, as_of=m.replay_as_of,
         window_start=m.window_start, window_end=m.window_end, entities=load_entities(snapshot.entities_path()),
-        cfg=cfg, enrich_cfg=enrich_cfg, sources=metas)
+        cfg=cfg, enrich_cfg=enrich_cfg, sources=metas, enricher=enricher)
     result.report = result.report.model_copy(update={"fetch_log": summarise_fetch_log(m.fetch_log)})
     return result

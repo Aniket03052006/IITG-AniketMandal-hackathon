@@ -24,6 +24,7 @@ from .provenance import (
     EntityAudit,
     EntityCandidate,
     RejectedCandidate,
+    SentimentAudit,
     SignalProvenance,
     StageOrigin,
     TimestampOrigin,
@@ -43,7 +44,8 @@ from .stress import StressResult
 
 __all__ = [
     "TRUSTED_TIMESTAMPS", "DedupAudit", "DedupMember", "DedupRelation", "EntityAudit",
-    "EntityCandidate", "RejectedCandidate", "SignalProvenance", "StageOrigin", "TimestampOrigin",
+    "EntityCandidate", "RejectedCandidate", "SentimentAudit", "SignalProvenance", "StageOrigin",
+    "TimestampOrigin",
     "FACTOR_UNITS", "SCOPE_SPECIFICITY", "UNKNOWN_ENTITY", "AssetClass", "CorroboratingSource",
     "DataOrigin", "Entity",
     "EntityMention", "Evidence", "EventCategory", "EventClassification", "ImpactAssessment",

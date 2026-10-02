@@ -138,3 +138,74 @@ def load_enrichment_config(config_dir: Path) -> EnrichmentConfig:
         return EnrichmentConfig.model_validate(_load(path))
     except ValueError as exc:
         raise ConfigError(f"invalid {path}: {exc}") from exc
+
+
+class WordFeatures(_Strict):
+    ngram_range: tuple[int, int] = (1, 2)
+    min_df: int = Field(default=2, ge=1)
+
+
+class CharFeatures(_Strict):
+    ngram_range: tuple[int, int] = (2, 5)
+    min_df: int = Field(default=3, ge=1)
+
+
+class CandidateGrid(_Strict):
+    preprocessing: list[str]
+    C: list[float]
+    class_weight: list[str | None]
+
+    @model_validator(mode="after")
+    def _valid(self) -> CandidateGrid:
+        if not self.preprocessing or not self.C or not self.class_weight:
+            raise ValueError("every grid axis needs at least one value")
+        if any(p not in ("raw", "normalised") for p in self.preprocessing):
+            raise ValueError("preprocessing must be 'raw' or 'normalised'")
+        if any(c <= 0 for c in self.C):
+            raise ValueError("C must be positive")
+        if any(w not in (None, "balanced") for w in self.class_weight):
+            raise ValueError("class_weight must be null or 'balanced'")
+        return self
+
+
+class SentimentEvalConfig(_Strict):
+    ece_bins: int = Field(default=10, ge=2)
+    bootstrap_resamples: int = Field(default=1000, ge=100)
+    bootstrap_seed: int = 7
+    lexicon_threshold: float = Field(default=0.12, gt=0, lt=1, description="same cut as modeling.probe, for a like-for-like baseline")
+    product_threshold: float = Field(default=0.15, gt=0, lt=1, description="the UI's Negative/Positive cut (web/src/lib/severity.ts)")
+    confident_errors: int = Field(default=12, ge=0)
+    near_duplicate_threshold: float = Field(default=0.7, gt=0, le=1)
+
+
+class SentimentModelConfig(_Strict):
+    """configs/sentiment_model.yaml: how the sentiment model is trained, selected, evaluated and where it lives."""
+
+    version: str
+    model_dir: str
+    table: str
+    seed: int
+    word: WordFeatures = WordFeatures()
+    char: CharFeatures = CharFeatures()
+    max_iter: int = Field(default=1000, ge=100)
+    grid: CandidateGrid
+    selection_rule: str = "valid_log_loss_after_temperature"
+    temperature_grid: tuple[float, float, float] = (0.5, 4.0, 0.01)  # lo, hi, step
+    evaluation: SentimentEvalConfig = SentimentEvalConfig()
+
+    @model_validator(mode="after")
+    def _valid(self) -> SentimentModelConfig:
+        if self.selection_rule != "valid_log_loss_after_temperature":
+            raise ValueError("unknown selection_rule")
+        lo, hi, step = self.temperature_grid
+        if not 0 < lo < hi or step <= 0:
+            raise ValueError("temperature_grid must be (lo, hi, step) with 0 < lo < hi and step > 0")
+        return self
+
+
+def load_sentiment_model_config(config_dir: Path) -> SentimentModelConfig:
+    path = config_dir / "sentiment_model.yaml"
+    try:
+        return SentimentModelConfig.model_validate(_load(path))
+    except ValueError as exc:
+        raise ConfigError(f"invalid {path}: {exc}") from exc

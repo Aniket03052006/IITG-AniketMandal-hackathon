@@ -35,6 +35,9 @@ class DataOrigin(StrEnum):
     # Real documents run through the real ingestion pipeline; sentiment/event/impact are still
     # placeholder rules (see ``SignalProvenance.stage_origins``), not trained models.
     REAL_SOURCE_PLACEHOLDER_NLP = "REAL_SOURCE_PLACEHOLDER_NLP"
+    # Real documents where at least one stage (today: sentiment) is a trained model and the rest are still
+    # placeholder rules. Which is which is recorded per signal in ``SignalProvenance.stage_origins``.
+    REAL_SOURCE_MIXED_NLP = "REAL_SOURCE_MIXED_NLP"
     MODEL_OUTPUT = "MODEL_OUTPUT"
 
 

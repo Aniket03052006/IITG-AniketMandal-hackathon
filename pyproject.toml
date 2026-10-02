@@ -16,12 +16,15 @@ dependencies = [
   "pydantic>=2.9",
   "pydantic-settings>=2.5",
   "pyyaml>=6.0",
+  "numpy>=2",
+  "scikit-learn>=1.5",
+  "joblib>=1.4",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "httpx2", "ruff>=0.6"]
-# only for `python -m eventshock.modeling probe` (audit probes); the server and the audit itself need none of it
-ml = ["numpy>=2", "scikit-learn>=1.5"]
+# kept for compatibility: numpy and scikit-learn are now runtime dependencies (the sentiment model)
+ml = []
 
 [project.scripts]
 eventshock = "eventshock.__main__:main"

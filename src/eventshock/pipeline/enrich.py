@@ -1,8 +1,8 @@
-"""PLACEHOLDER enrichment (placeholder-v0): deterministic stand-ins for the sentiment, event and impact models.
+"""Enrichment behind the ``Enricher`` protocol: sentiment, event and impact for one document.
 
-This is deliberately small and honest. It exists so real documents can reach the existing UI and stress engine
-before the NLP stages are built; every output is labelled in ``SignalProvenance.stage_origins`` and
-``ModelVersions``. Replace this module (the ``Enricher`` protocol) when the real stages land.
+``PlaceholderEnricher`` (placeholder-v0) holds deterministic stand-ins for all three stages. ``ModelSentimentEnricher``
+swaps in the trained sentiment model and leaves event and impact exactly as they were. Every output is labelled in
+``SignalProvenance.stage_origins`` and ``ModelVersions``, so a stage that is still a placeholder can never pass for a model.
 """
 
 from __future__ import annotations
@@ -13,15 +13,18 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from ..domain import (
+    DataOrigin,
     EventCategory,
     EventClassification,
     ImpactAssessment,
     ImpactDriver,
+    SentimentAudit,
     SentimentResult,
     StageOrigin,
 )
 from .config import EnrichmentConfig
 from .normalize import match_form
+from .sentiment_model import SentimentModel
 
 
 @dataclass(frozen=True)
@@ -38,9 +41,22 @@ class Enrichment:
     impact: ImpactAssessment
     stage_origins: dict[str, str]
     versions: dict[str, str]
+    data_origin: DataOrigin = DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP
+    sentiment_audit: SentimentAudit | None = None
 
 
 class Enricher(Protocol):
+    version: str  # recorded in the pipeline report
+
+    @property
+    def report_stage_origins(self) -> dict[str, str]:
+        """stage -> plain-language origin, for the pipeline report (what is real, what is a stand-in)."""
+        ...
+
+    def unscorable(self, text: str) -> str | None:
+        """Why this document cannot be enriched (it is then quarantined, not guessed), or None."""
+        ...
+
     def enrich(self, item: EnrichmentInput) -> Enrichment: ...
 
 
@@ -57,22 +73,35 @@ class PlaceholderEnricher:
         self._events = {c: _phrase_re(w) for c, w in cfg.event_keywords.items()}
         self.version = cfg.version
 
+    @property
+    def report_stage_origins(self) -> dict[str, str]:
+        return {"ingestion": "REAL", "validation": "REAL", "entity_resolution": "REAL (dictionary)",
+                "deduplication": "REAL", "sentiment": "PLACEHOLDER (TFN: source label)",
+                "event": "PLACEHOLDER", "impact": "PLACEHOLDER", "stress_engine": "REAL (deterministic)"}
+
+    def unscorable(self, text: str) -> str | None:
+        return None  # rules always produce an answer
+
     def enrich(self, item: EnrichmentInput) -> Enrichment:
         folded = match_form(item.text)
-        sentiment, sent_origin = self._sentiment(folded, item.source_label)
+        sentiment, sent_origin, sent_version, audit = self._sentiment_stage(item, folded)
         event = self._event(folded)
         impact = self._impact(event, sentiment, item.unique_domains)
         return Enrichment(
             sentiment=sentiment, event=event, impact=impact,
             stage_origins={"sentiment": sent_origin.value, "event": StageOrigin.PLACEHOLDER_RULES.value,
                            "impact": StageOrigin.PLACEHOLDER_RULES.value},
-            versions={
-                "sentiment": ("source-label:tfn" if sent_origin is StageOrigin.SOURCE_LABEL
-                              else f"{self.version}-lexicon"),
-                "event": f"{self.version}-keywords",
-                "impact": f"{self.version}-heuristic",
-            },
-        )
+            versions={"sentiment": sent_version, "event": f"{self.cfg.version}-keywords",
+                      "impact": f"{self.cfg.version}-heuristic"},
+            data_origin=self.data_origin, sentiment_audit=audit)
+
+    data_origin = DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP
+
+    def _sentiment_stage(self, item: EnrichmentInput, folded: str
+                         ) -> tuple[SentimentResult, StageOrigin, str, SentimentAudit | None]:
+        sentiment, origin = self._sentiment(folded, item.source_label)
+        version = "source-label:tfn" if origin is StageOrigin.SOURCE_LABEL else f"{self.cfg.version}-lexicon"
+        return sentiment, origin, version, None
 
     def _sentiment(self, folded: str, label: str | None) -> tuple[SentimentResult, StageOrigin]:
         if label in {"bullish", "bearish", "neutral"}:
@@ -117,3 +146,36 @@ class PlaceholderEnricher:
                              note="distinct outlets, log-scaled"),
             ],
         )
+
+
+class ModelSentimentEnricher(PlaceholderEnricher):
+    """Sentiment from the trained model; event and impact stay the placeholder rules (and say so).
+
+    The model reads the text only. A ``source_label`` shipped with the document (TFN's human label) is never an input:
+    it is the model's training signal, so using it would make the "model" output a copy of its answer key.
+    Impact still reads the tone magnitude, so it now sees the model's sentiment instead of the lexicon's.
+    """
+
+    data_origin = DataOrigin.REAL_SOURCE_MIXED_NLP
+
+    def __init__(self, cfg: EnrichmentConfig, model: SentimentModel) -> None:
+        super().__init__(cfg)
+        self.model = model
+        self.version = f"{cfg.version}+sentiment:{model.model_id}"
+
+    @property
+    def report_stage_origins(self) -> dict[str, str]:
+        return {**super().report_stage_origins,
+                "sentiment": f"MODEL ({self.model.model_id}, trained on Twitter Financial News)"}
+
+    def unscorable(self, text: str) -> str | None:
+        return self.model.unscorable_reason(text)
+
+    def _sentiment_stage(self, item: EnrichmentInput, folded: str
+                         ) -> tuple[SentimentResult, StageOrigin, str, SentimentAudit | None]:
+        pred = self.model.predict(item.text)  # raises SentimentInputError: run_documents quarantines such documents first
+        result = SentimentResult(positive=pred.positive, neutral=pred.neutral, negative=pred.negative, score=pred.score)
+        audit = SentimentAudit(model_id=self.model.model_id, model_version=self.model.model_version,
+                               artifact_sha256=self.model.artifact_sha256, confidence=pred.confidence,
+                               calibrated=True, seen_in_training=pred.seen_in_training)
+        return result, StageOrigin.MODEL, f"{self.model.model_id}+{self.model.artifact_sha256[:8]}", audit

@@ -27,7 +27,7 @@ class StageOrigin(StrEnum):
 
     SOURCE_LABEL = "SOURCE_LABEL"  # a human label that shipped with the source data
     PLACEHOLDER_RULES = "PLACEHOLDER_RULES"  # deterministic rules, not a trained model
-    MODEL = "MODEL"  # reserved for later stages
+    MODEL = "MODEL"  # a trained, versioned, evaluated model (see ``SentimentAudit`` / the model card)
 
 
 class DedupRelation(StrEnum):
@@ -77,6 +77,18 @@ class DedupAudit(ContractModel):
     members: list[DedupMember] = Field(default_factory=list)
 
 
+class SentimentAudit(ContractModel):
+    """Which trained model scored this signal's sentiment, and how far to trust this particular score."""
+
+    model_id: str
+    model_version: str
+    artifact_sha256: str = Field(min_length=64, max_length=64, description="sha256 of the scoring artifact")
+    confidence: float = Field(ge=0, le=1, description="largest calibrated class probability")
+    calibrated: bool
+    seen_in_training: bool = Field(
+        description="the exact text (case, punctuation, URLs ignored) was in the model's train/valid data")
+
+
 class SignalProvenance(ContractModel):
     adapter: str
     snapshot_id: str
@@ -87,3 +99,5 @@ class SignalProvenance(ContractModel):
     entity_audit: EntityAudit
     dedup: DedupAudit
     stage_origins: dict[str, str] = Field(description="stage -> StageOrigin")
+    sentiment: SentimentAudit | None = Field(
+        default=None, description="present when the sentiment stage is a trained model")

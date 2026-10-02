@@ -5,6 +5,7 @@ import type {
   PortfolioSummary,
   RiskSignal,
   ScenarioList,
+  SentimentModelCard,
   SignalPage,
   StressRequest,
   StressResult,
@@ -63,6 +64,7 @@ export const api = {
   signal: (id: string) => request<RiskSignal>(`/signals/${encodeURIComponent(id)}`),
   scenarios: () => request<ScenarioList>("/scenarios"),
   pipelineReport: () => request<PipelineReport>("/pipeline/report"),
+  sentimentModel: () => request<SentimentModelCard>("/models/sentiment"),
   portfolioSummary: () => request<PortfolioSummary>("/portfolio/summary"),
   portfolioExposure: () => request<PortfolioExposure>("/portfolio/exposure"),
   stressTest: (body: StressRequest) =>

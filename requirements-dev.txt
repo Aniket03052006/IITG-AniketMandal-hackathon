@@ -10,6 +10,8 @@ anyio==4.15.1
     #   starlette
 click==8.5.0
     # via uvicorn
+cloudpickle==3.1.2
+    # via joblib
 fastapi==0.142.2
     # via -r requirements.in
 h11==0.16.0
@@ -26,6 +28,17 @@ idna==3.20
     #   httpx2
 iniconfig==2.3.0
     # via pytest
+joblib==1.6.0
+    # via
+    #   -r requirements.in
+    #   scikit-learn
+narwhals==2.26.0
+    # via scikit-learn
+numpy==2.5.3
+    # via
+    #   -r requirements.in
+    #   scikit-learn
+    #   scipy
 opentelemetry-api==1.45.0
     # via fastapi
 packaging==26.3
@@ -51,8 +64,14 @@ pyyaml==6.0.3
     # via -r requirements.in
 ruff==0.16.9
     # via -r requirements-dev.in
+scikit-learn==1.9.1
+    # via -r requirements.in
+scipy==1.18.1
+    # via scikit-learn
 starlette==1.7.0
     # via fastapi
+threadpoolctl==3.7.0
+    # via scikit-learn
 truststore==0.10.4
     # via
     #   httpcore2

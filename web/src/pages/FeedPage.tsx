@@ -2,11 +2,13 @@ import clsx from "clsx";
 import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMeta, useSignals } from "../api/hooks";
-import type { SignalSummary } from "../api/types";
+import type { Meta, SignalSummary } from "../api/types";
 import { EVENT_CATEGORIES } from "../api/types";
 import { Alert, CATEGORY_ICON, Chevron, Search } from "../components/icons";
 import { CategoryTag, EmptyState, ErrorState, ImpactMeter, PageHeader, SentimentBar, Skeleton, SourceBadge, Stat, StatusTag } from "../components/ui";
+import { StageStrip } from "../components/StageStrip";
 import { ago, dateTime } from "../lib/format";
+import { sentimentIsModel } from "../lib/provenance";
 import { categoryLabeler } from "../lib/taxonomy";
 
 type Sort = "newest" | "impact";
@@ -72,6 +74,13 @@ function FeedSkeleton() {
   );
 }
 
+function feedNote(meta: Meta | undefined): string {
+  if (meta?.profile !== "replay") return "All demo fixtures (fixture-v0), not model output.";
+  return sentimentIsModel(meta)
+    ? "Real documents. Sentiment is a trained model; event type and impact are placeholder rules."
+    : "Real documents, placeholder sentiment/event/impact (not model output).";
+}
+
 export function FeedPage() {
   const [params, setParams] = useSearchParams();
   const category = params.get("category") ?? "";
@@ -113,6 +122,12 @@ export function FeedPage() {
         title="Risk Feed"
         sub="Every item is scored for sentiment, event type and market-impact proxy, with the evidence kept alongside. Open one to see why."
       />
+
+      {meta?.replay && (
+        <div className="mb-4">
+          <StageStrip meta={meta} />
+        </div>
+      )}
 
       <div className="card card-pad mb-5 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
         <Stat label="Signals" value={all.isLoading ? "–" : everything.length} sub={all.isLoading ? "" : `${news} news · ${social} social`} />
@@ -186,7 +201,7 @@ export function FeedPage() {
         )}
         {items.length > 0 && (
           <p className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-muted">
-            <Chevron size={12} /> {items.length} of {everything.length || items.length} signals shown. {meta?.profile === "replay" ? "Real documents, placeholder sentiment/event/impact (not model output)." : "All demo fixtures (fixture-v0), not model output."}
+            <Chevron size={12} /> {items.length} of {everything.length || items.length} signals shown. {feedNote(meta)}
           </p>
         )}
       </section>

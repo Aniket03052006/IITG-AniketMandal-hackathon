@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { Link, useParams } from "react-router-dom";
-import { useMeta, useScenarios, useSignal } from "../api/hooks";
+import { useMeta, useScenarios, useSentimentModel, useSignal } from "../api/hooks";
 import type { EventCategory, RiskSignal } from "../api/types";
 import { EVENT_CATEGORIES } from "../api/types";
 import { Alert, ArrowLeft, ArrowRight, Check, Info } from "../components/icons";
@@ -18,7 +18,7 @@ import {
 } from "../components/ui";
 import { ago, dateTime, signed } from "../lib/format";
 import { categoryLabeler } from "../lib/taxonomy";
-import { isPlaceholder, originLabel, relationNote, ruleNote, timestampNote } from "../lib/provenance";
+import { isPlaceholder, originChip, originLabel, relationNote, ruleNote, stageKind, stageKindText, stageName, timestampNote } from "../lib/provenance";
 import { sentimentLabel, severityBand } from "../lib/severity";
 
 function ImpactCard({ s, threshold }: { s: RiskSignal; threshold: number }) {
@@ -105,7 +105,10 @@ function ImpactCard({ s, threshold }: { s: RiskSignal; threshold: number }) {
 function EventTypeCard({ s, label }: { s: RiskSignal; label: (c: string) => string }) {
   const rows = EVENT_CATEGORIES.map((c) => ({ c, p: s.event.probabilities[c as EventCategory] ?? 0 })).sort((a, b) => b.p - a.p);
   return (
-    <Card title="Event type" aside="What happened">
+    <Card
+      title="Event type"
+      aside={s.provenance && stageKind(s.provenance.stage_origins.event) !== "model" ? <StatusTag tone="warn">Placeholder rules</StatusTag> : "What happened"}
+    >
       <ul className="space-y-1.5">
         {rows.map(({ c, p }, i) => (
           <li key={c} className="grid grid-cols-[minmax(0,1fr)_6rem_2.75rem] items-center gap-3 text-sm">
@@ -123,8 +126,24 @@ function EventTypeCard({ s, label }: { s: RiskSignal; label: (c: string) => stri
 
 function SentimentCard({ s }: { s: RiskSignal }) {
   const { positive, neutral, negative, score } = s.sentiment;
+  const audit = s.provenance?.sentiment;
+  const isModel = stageKind(s.provenance?.stage_origins.sentiment) === "model" && !!audit;
+  const { data: card } = useSentimentModel(isModel);
+  const held = card?.evaluations.find((e) => e.id === "tfn_test")?.model;
+  const own = card?.evaluations.find((e) => e.id === "gold_history")?.model;
   return (
-    <Card title="Sentiment" aside="How it is framed">
+    <Card
+      title="Sentiment"
+      aside={
+        isModel ? (
+          <StatusTag tone="ok" icon={<Check size={12} />}>Trained model</StatusTag>
+        ) : s.provenance ? (
+          <StatusTag tone="warn">{stageKindText(s.provenance.stage_origins.sentiment)}</StatusTag>
+        ) : (
+          "How it is framed"
+        )
+      }
+    >
       <div className="mb-4 flex items-baseline gap-3">
         <span className={clsx("num text-3xl font-medium", score < -0.15 ? "text-neg" : score > 0.15 ? "text-pos" : "text-ink-2")}>
           {score > 0 ? "+" : score < 0 ? "−" : ""}
@@ -139,7 +158,30 @@ function SentimentCard({ s }: { s: RiskSignal }) {
           { label: "Positive", value: positive, className: "bg-pos" },
         ]}
       />
-      <p className="mt-3 text-xs text-muted">Sentiment is tone only. A neutral regulatory notice can matter more than a loud opinion.</p>
+      {isModel && audit && (
+        <div className="mt-4 space-y-3">
+          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-xs">
+            <dt className="text-muted">Model</dt>
+            <dd className="num">{audit.model_id}</dd>
+            <dt className="text-muted">Confidence</dt>
+            <dd className="num">
+              {(audit.confidence * 100).toFixed(0)}% <span className="font-sans text-muted">in its top class, calibrated</span>
+            </dd>
+          </dl>
+          {audit.seen_in_training && (
+            <InlineNote tone="warn" title="In-sample: the model trained on this exact text">
+              This post is in the dataset the model learned from, so its score here is not evidence of accuracy.
+            </InlineNote>
+          )}
+        </div>
+      )}
+      <p className="mt-3 text-xs text-muted">
+        {isModel
+          ? held
+            ? `A text model, not a judgement. On held-out Twitter Financial News posts it scores macro-F1 ${held.macro_f1.toFixed(2)}${own ? `; on our own AI-labelled sources only ${own.macro_f1.toFixed(2)}, so read scores from our sources as indicative.` : "."}`
+            : "A trained text model, not a judgement. Tone only."
+          : "Sentiment is tone only. A neutral regulatory notice can matter more than a loud opinion."}
+      </p>
     </Card>
   );
 }
@@ -241,11 +283,20 @@ function ProvenanceCard({ s }: { s: RiskSignal }) {
         </li>
         <li>
           <p className="font-medium text-ink">4 · Enrichment</p>
-          <p className="mt-1 text-ink-2">
-            {(["sentiment", "event", "impact"] as const)
-              .map((k) => `${k}: ${p.stage_origins[k] === "SOURCE_LABEL" ? "source label" : "placeholder rules"}`)
-              .join(" · ")}
-          </p>
+          <ul className="mt-1 space-y-1 text-ink-2">
+            {(["sentiment", "event", "impact"] as const).map((k) => (
+              <li key={k} className="flex flex-wrap items-baseline gap-x-2">
+                <span className="w-20 shrink-0 text-muted">{stageName(k)}</span>
+                <span className={stageKind(p.stage_origins[k]) === "model" ? "text-pos" : "text-warn"}>{stageKindText(p.stage_origins[k])}</span>
+                {k === "sentiment" && p.sentiment && (
+                  <span className="num text-muted">
+                    {p.sentiment.model_id} · {p.sentiment.artifact_sha256.slice(0, 8)}
+                    {p.sentiment.seen_in_training ? " · in-sample" : ""}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
         </li>
       </ol>
     </Card>
@@ -281,7 +332,7 @@ export function EventPage() {
                 <span className="text-xs text-warn" title={timestampNote("SYNTHETIC_REPLAY_CLOCK")}>replay time, not original</span>
               )}
               {s.status === "PARTIAL" && <StatusTag tone="warn" icon={<Alert size={12} />}>Partial signal</StatusTag>}
-              <StatusTag tone="demo">{s.data_origin === "DEMO_FIXTURE" ? "Demo fixture" : "Real source · placeholder NLP"}</StatusTag>
+              <StatusTag tone="demo">{originChip(s.data_origin)}</StatusTag>
             </div>
             <h1 className="max-w-[28ch] text-2xl font-semibold sm:max-w-[36ch] sm:text-3xl">{s.document.headline}</h1>
             <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
@@ -345,6 +396,12 @@ export function EventPage() {
                   <dd>{originLabel(s.data_origin)}</dd>
                   <dt className="text-muted">Sentiment model</dt>
                   <dd className="num">{s.model_versions.sentiment}</dd>
+                  {s.provenance?.sentiment && (
+                    <>
+                      <dt className="text-muted">Sentiment artifact</dt>
+                      <dd className="num break-all">sha256 {s.provenance.sentiment.artifact_sha256.slice(0, 16)}…</dd>
+                    </>
+                  )}
                   <dt className="text-muted">Event model</dt>
                   <dd className="num">{s.model_versions.event}</dd>
                   <dt className="text-muted">Impact model</dt>

@@ -64,8 +64,9 @@ extension points: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | Config | YAML in `configs/` + `EVENTSHOCK_*` env | Product rules live outside code |
 | Frontend | **React 19 + Vite + TypeScript + Tailwind v4 + TanStack Query** | Product-grade UI; types generated from the API schema |
 | Tests | pytest (backend), Vitest + Testing Library (frontend) | Contracts, formulas, golden replay, UI states |
-| Ingestion (Stage 2) | stdlib only: adapters → validate → entity resolution → dedup → placeholder enrichment | Zero new dependencies; deterministic replay from hash-pinned snapshots |
-| Planned (later stages) | FinBERT, XGBoost + SHAP, EDGAR/NewsAPI adapters, DuckDB/SQLite | Behind the extension points in `ports.py` |
+| Ingestion (Stage 2) | stdlib only: adapters → validate → entity resolution → dedup → enrichment | Deterministic replay from hash-pinned snapshots |
+| Sentiment (Stage 3) | **TF-IDF + logistic regression + temperature scaling** (scikit-learn), trained on Twitter Financial News, committed artifact with model card | Small, CPU-only, byte-reproducible; evaluation and failure modes in [docs/SENTIMENT_MODEL.md](docs/SENTIMENT_MODEL.md) |
+| Planned (later stages) | Event classifier, calibrated impact model (XGBoost + SHAP), EDGAR/NewsAPI adapters, DuckDB/SQLite | Behind the extension points in `ports.py` |
 
 ## 3. Dataset Used
 
@@ -164,15 +165,16 @@ consequence in one place, and can inspect every number behind it.
 | Source documents (GDELT news metadata, Twitter Financial News posts) | **Real**, frozen for replay |
 | Validation / quarantine, entity resolution, de-duplication, corroboration counts, provenance | **Real** (deterministic rules) |
 | Stress engine, scenario scaling, attribution, run ids | **Real, deterministic** |
-| Sentiment (GDELT) · event type · impact | **Placeholder rules** (`placeholder-v0`), labelled in the UI; Twitter sentiment is the dataset's human label |
+| Sentiment | **Trained model** (`tfidf-lr-v1`): macro-F1 0.78 on held-out Twitter Financial News, 0.47 on Financial PhraseBank, 0.44 on our own AI-labelled sources (95% CIs and baselines in the model card); labelled `MODEL` in the UI, with per-signal confidence and an *in-sample* flag |
+| Event type · impact | **Placeholder rules** (`placeholder-v0`), labelled in the UI; impact reads the model's tone magnitude |
 | Impact "drivers" bars | Placeholder heuristic terms, labelled *not a trained model* |
 | Portfolio | **Synthetic** positions on real issuers |
 | Scenario magnitudes | Illustrative configuration |
-| FinBERT, event classifier, calibrated impact model, contradiction detection | Not built yet |
+| Event classifier, calibrated impact model, contradiction detection, domain-adapted sentiment | Not built yet |
 
 ## Limitations
 
-Sentiment/event/impact are placeholder rules, not models; the entity resolver is a 34-issuer dictionary; GDELT supplies headlines only (no article text); tweets carry no real timestamps; contradiction detection is not built; in-memory state only (the pipeline reruns at startup); no FX/commodity factors or option gamma; single-currency
+Event type and impact are placeholder rules, not models; sentiment is a trained model but weak outside its training domain (see [docs/SENTIMENT_MODEL.md](docs/SENTIMENT_MODEL.md)); the entity resolver is a 34-issuer dictionary; GDELT supplies headlines only (no article text); tweets carry no real timestamps; contradiction detection is not built; in-memory state only (the pipeline reruns at startup); no FX/commodity factors or option gamma; single-currency
 synthetic book; no authentication. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the roadmap and
 [docs/PROJECT_JOURNEY.md](docs/PROJECT_JOURNEY.md) for what was built, what broke, and how it was fixed.
 

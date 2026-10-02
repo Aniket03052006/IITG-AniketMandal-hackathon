@@ -64,11 +64,18 @@ def _probe(args: argparse.Namespace) -> int:
     return 0
 
 
+def _train_sentiment(args: argparse.Namespace) -> int:
+    from .sentiment_train import main as train_main
+
+    return train_main()
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m eventshock.modeling", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("audit", help="profile the data, build the impact and text tables, run every leakage check").set_defaults(fn=_audit)
     sub.add_parser("probe", help="seconds-long classical baselines on the built tables (needs the ml extra)").set_defaults(fn=_probe)
+    sub.add_parser("train-sentiment", help="train, select, calibrate and evaluate the sentiment model; write models/sentiment/*").set_defaults(fn=_train_sentiment)
     from . import gold_cli  # noqa: PLC0415
 
     gold_cli.register(sub)

@@ -63,7 +63,8 @@ IMPLEMENTED · FILES CHANGED · TESTS ADDED · COMMANDS TO RUN · EXPECTED RESUL
 
 ## Project journey (mandatory)
 Maintain `docs/PROJECT_JOURNEY.md`: **what we did, what broke, how we fixed it**, per stage, in chronological order.
-Update it at the end of every stage (and whenever something notable breaks), before reporting the stage done.
+Update it **after every task** (not only at stage end), and whenever something notable breaks, before reporting the task done:
+a small task gets a short dated entry under the current stage; a new stage gets its own section.
 Be honest — failed approaches and dead ends belong there; it feeds the deck's "challenges" slide and jury Q&A.
 
 ## Git rules
@@ -73,14 +74,15 @@ Be honest — failed approaches and dead ends belong there; it feeds the deck's 
 - Commit only when the user asks. Small, incremental commits, imperative messages.
 - `1.Submission Guidelines_External.docx.md` is git-ignored on purpose; leave it that way.
 
-## Current repo state (end of Stage 3 prep, 2026-10-02)
-- Git: branch `main`, **zero commits**, all files untracked (commit only when asked).
+## Current repo state (Stage 3: sentiment model, 2026-10-02)
+- Git: branch `main`, incremental commits already exist; commit only when asked.
+- **Sentiment is now a trained model** (`tfidf-lr-v1`: TF-IDF + logistic regression + temperature scaling; `src/eventshock/pipeline/sentiment_model.py`, artifact + card in `models/sentiment/tfidf-lr-v1/`, config `configs/sentiment_model.yaml`, `make train-sentiment`). Event type and impact are **still placeholder rules**; signals carry `data_origin = REAL_SOURCE_MIXED_NLP`, `stage_origins` sentiment=`MODEL`, and `provenance.sentiment` (artifact sha256, confidence, `seen_in_training`). Read `docs/SENTIMENT_MODEL.md` (results, domain gap, failure policy) before changing it. The server refuses to start without the verified artifact; there is no lexicon fall-back. Gold labels and PhraseBank are evaluation-only.
 - Stage 1: FastAPI + Pydantic backend (`src/eventshock/`), deterministic stress engine, React/Vite/TS/Tailwind UI (`web/`),
   configs, fixtures, tests, docs. Stage-1 fictional fixtures remain as the `demo` profile (`EVENTSHOCK_PROFILE=demo`).
-- Stage 2 (default `replay` profile): real documents (GDELT DOC 2.0 metadata + Twitter Financial News sample) from a
+- Stage 2 (default `replay` profile; its sentiment stage has since been replaced by the model above): real documents (GDELT DOC 2.0 metadata + Twitter Financial News sample) from a
   hash-pinned snapshot in `data/replay/` run through `src/eventshock/pipeline/` (normalise → validate/quarantine → entity
   resolution → dedup → placeholder enrichment) into the same `RiskSignal` → stress → UI path. Signals carry
-  `data_origin = REAL_SOURCE_PLACEHOLDER_NLP` and a `provenance` block. Sentiment (except TFN labels), event type and impact
+  `data_origin = REAL_SOURCE_PLACEHOLDER_NLP` (plain `PlaceholderEnricher`) or `REAL_SOURCE_MIXED_NLP` (the served path) and a `provenance` block. Sentiment (except TFN labels), event type and impact
   are **placeholder rules** (`configs/placeholder_enrichment.yaml`); keep that distinction visible in any new code or UI.
   Network access exists only in `ingestion/fetch.py` (`make fetch-gdelt|fetch-tfn`, resumable); the server never calls out.
   Data layout and licences: `docs/DATA_LICENSES.md`. Architecture: `docs/ARCHITECTURE.md`.
@@ -114,6 +116,7 @@ make lint       # ruff + tsc
 make fixtures   # regenerate deterministic Stage-1 demo data (tests assert it is byte-stable)
 make ingest     # run the ingestion pipeline over data/replay, export to data/processed
 make fetch-gdelt fetch-tfn   # download source data into data/raw (network); then `make replay-pack` freezes it
+make train-sentiment  # train + select + calibrate + evaluate the sentiment model -> models/sentiment/ (~2 min)
 make types      # re-export OpenAPI and regenerate web/src/api/schema.d.ts after changing API models
 make logo       # rebuild SVG logos (web/public/*.svg) with outlined wordmark
 ```

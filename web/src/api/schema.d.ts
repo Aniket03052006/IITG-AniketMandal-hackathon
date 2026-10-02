@@ -38,6 +38,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/models/sentiment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sentiment Model
+         * @description The sentiment model card: what it is, how it was chosen, how it scored and where it fails.
+         */
+        get: operations["sentiment_model_api_models_sentiment_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/pipeline/report": {
         parameters: {
             query?: never;
@@ -245,6 +265,64 @@ export interface components {
          * @enum {string}
          */
         AssetClass: "EQUITY" | "BOND" | "LOAN" | "DERIVATIVE";
+        /** CalibrationInfo */
+        CalibrationInfo: {
+            /** Ece Test After */
+            ece_test_after: number;
+            /** Ece Test Before */
+            ece_test_before: number;
+            /** Fitted On */
+            fitted_on: string;
+            /** Method */
+            method: string;
+            /** Reliability Test */
+            reliability_test: components["schemas"]["ReliabilityBin"][];
+            /** Temperature */
+            temperature: number;
+        };
+        /** Candidate */
+        Candidate: {
+            /** C */
+            C: number;
+            /** Class Weight */
+            class_weight: string | null;
+            /** Preprocessing */
+            preprocessing: string;
+            /** Selected */
+            selected: boolean;
+            /** Temperature */
+            temperature: number;
+            /** Valid Log Loss */
+            valid_log_loss: number;
+            /** Valid Macro F1 */
+            valid_macro_f1: number;
+        };
+        /** ClassMetrics */
+        ClassMetrics: {
+            /** F1 */
+            f1: number;
+            /** Precision */
+            precision: number;
+            /** Recall */
+            recall: number;
+            /** Support */
+            support: number;
+        };
+        /** ConfidentError */
+        ConfidentError: {
+            /** Confidence */
+            confidence: number;
+            /** Eval Set */
+            eval_set: string;
+            /** Predicted */
+            predicted: string;
+            /** Score */
+            score: number;
+            /** Text */
+            text: string;
+            /** Truth */
+            truth: string;
+        };
         /** Contribution */
         Contribution: {
             /** Baseline Value */
@@ -300,7 +378,7 @@ export interface components {
          * @description Whether a signal was computed by a model or comes from a pinned demo fixture.
          * @enum {string}
          */
-        DataOrigin: "DEMO_FIXTURE" | "REAL_SOURCE_PLACEHOLDER_NLP" | "MODEL_OUTPUT";
+        DataOrigin: "DEMO_FIXTURE" | "REAL_SOURCE_PLACEHOLDER_NLP" | "REAL_SOURCE_MIXED_NLP" | "MODEL_OUTPUT";
         /** DedupAudit */
         DedupAudit: {
             /** Cluster Id */
@@ -392,6 +470,88 @@ export interface components {
             sector: string | null;
             /** Ticker */
             ticker: string | null;
+        };
+        /** EvalMetrics */
+        EvalMetrics: {
+            /** Accuracy */
+            accuracy: number;
+            /** Brier */
+            brier: number | null;
+            /** Confusion */
+            confusion: number[][];
+            /**
+             * Ece
+             * @description expected calibration error of the top-label probability
+             */
+            ece: number | null;
+            /**
+             * Labels
+             * @description row/column order of the confusion matrix: truth (rows) x predicted (columns)
+             */
+            labels: string[];
+            /** Log Loss */
+            log_loss: number | null;
+            /** Macro F1 */
+            macro_f1: number;
+            /**
+             * Macro F1 Ci95
+             * @description bootstrap over rows
+             */
+            macro_f1_ci95: [
+                number,
+                number
+            ] | null;
+            /** Mean Score By Class */
+            mean_score_by_class: {
+                [key: string]: number;
+            } | null;
+            /** N */
+            n: number;
+            /** Per Class */
+            per_class: {
+                [key: string]: components["schemas"]["ClassMetrics"];
+            };
+            /** @description label from the UI's score cut (|score| >= 0.15) instead of arg-max */
+            product_rule: components["schemas"]["LabelScores"] | null;
+            /**
+             * Spearman Score Vs Label
+             * @description rank correlation of the score with -1/0/+1 labels
+             */
+            spearman_score_vs_label: number | null;
+            /**
+             * Weighted
+             * @description rows carry inclusion weights (stratified gold sample)
+             */
+            weighted: boolean;
+        };
+        /** EvalSet */
+        EvalSet: {
+            /** Baselines */
+            baselines: {
+                [key: string]: components["schemas"]["LabelScores"];
+            };
+            /** Description */
+            description: string;
+            /** Id */
+            id: string;
+            model: components["schemas"]["EvalMetrics"] | null;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /**
+             * Role
+             * @description in_domain | external | indicative
+             */
+            role: string;
+            /**
+             * Status
+             * @description ok | skipped
+             */
+            status: string;
+            /** Title */
+            title: string;
         };
         /**
          * EventCategory
@@ -511,6 +671,16 @@ export interface components {
              * @default
              */
             note: string;
+        };
+        /**
+         * LabelScores
+         * @description Accuracy and macro-F1 of one way of turning the output into a label.
+         */
+        LabelScores: {
+            /** Accuracy */
+            accuracy: number;
+            /** Macro F1 */
+            macro_f1: number;
         };
         /** Meta */
         Meta: {
@@ -837,6 +1007,19 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** ReliabilityBin */
+        ReliabilityBin: {
+            /** Accuracy */
+            accuracy: number;
+            /** Confidence */
+            confidence: number;
+            /** Hi */
+            hi: number;
+            /** Lo */
+            lo: number;
+            /** N */
+            n: number;
+        };
         /**
          * ReplayInfo
          * @description Present when the app serves a replay snapshot of real sources (profile=replay).
@@ -953,6 +1136,73 @@ export interface components {
             version: string;
         };
         /**
+         * SentimentAudit
+         * @description Which trained model scored this signal's sentiment, and how far to trust this particular score.
+         */
+        SentimentAudit: {
+            /**
+             * Artifact Sha256
+             * @description sha256 of the scoring artifact
+             */
+            artifact_sha256: string;
+            /** Calibrated */
+            calibrated: boolean;
+            /**
+             * Confidence
+             * @description largest calibrated class probability
+             */
+            confidence: number;
+            /** Model Id */
+            model_id: string;
+            /** Model Version */
+            model_version: string;
+            /**
+             * Seen In Training
+             * @description the exact text (case, punctuation, URLs ignored) was in the model's train/valid data
+             */
+            seen_in_training: boolean;
+        };
+        /** SentimentModelCard */
+        SentimentModelCard: {
+            /** Algorithm */
+            algorithm: string;
+            /** Artifact Bytes */
+            artifact_bytes: number;
+            /** Artifact File */
+            artifact_file: string;
+            /** Artifact Sha256 */
+            artifact_sha256: string;
+            calibration: components["schemas"]["CalibrationInfo"];
+            /** Candidates */
+            candidates: components["schemas"]["Candidate"][];
+            /** Classes */
+            classes: string[];
+            /** Confident Errors */
+            confident_errors: components["schemas"]["ConfidentError"][];
+            /** Evaluations */
+            evaluations: components["schemas"]["EvalSet"][];
+            /** Id */
+            id: string;
+            /**
+             * Libraries
+             * @description versions the artifact was built with; scikit-learn must match at load time
+             */
+            libraries: {
+                [key: string]: string;
+            };
+            /** Limitations */
+            limitations: string[];
+            /** Preprocessing */
+            preprocessing: string;
+            /** Score Definition */
+            score_definition: string;
+            /** Selection Rule */
+            selection_rule: string;
+            training: components["schemas"]["TrainingInfo"];
+            /** Version */
+            version: string;
+        };
+        /**
          * SentimentResult
          * @description Tone of the text — deliberately separate from event type and impact (PRD §2).
          */
@@ -1032,6 +1282,8 @@ export interface components {
              * @description file:line of the raw record in the snapshot
              */
             record_ref: string;
+            /** @description present when the sentiment stage is a trained model */
+            sentiment: components["schemas"]["SentimentAudit"] | null;
             /** Snapshot Id */
             snapshot_id: string;
             /**
@@ -1215,7 +1467,32 @@ export interface components {
          * @description How trustworthy ``published_at`` is. Only SOURCE-grade clocks are used to correlate documents.
          * @enum {string}
          */
-        TimestampOrigin: "SOURCE" | "GDELT_FIRST_SEEN" | "SYNTHETIC_REPLAY_CLOCK";
+        TimestampOrigin: "SOURCE" | "SOURCE_DATE_ONLY" | "GDELT_FIRST_SEEN" | "SYNTHETIC_REPLAY_CLOCK";
+        /** TrainingInfo */
+        TrainingInfo: {
+            /** Config Digest */
+            config_digest: string;
+            /** Dataset */
+            dataset: string;
+            /** Label Distribution */
+            label_distribution: {
+                [key: string]: number;
+            };
+            /** Licence */
+            licence: string;
+            /** Rows */
+            rows: {
+                [key: string]: number;
+            };
+            /** Seed */
+            seed: number;
+            /** Split Note */
+            split_note: string;
+            /** Table */
+            table: string;
+            /** Table Sha256 */
+            table_sha256: string;
+        };
         /** UncoveredExposure */
         UncoveredExposure: {
             /** Asset Count */
@@ -1287,6 +1564,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Meta"];
+                };
+            };
+        };
+    };
+    sentiment_model_api_models_sentiment_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SentimentModelCard"];
                 };
             };
         };

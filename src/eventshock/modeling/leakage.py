@@ -97,6 +97,7 @@ POST_EVENT = "POST_EVENT"
 FEATURE_REGISTRY: dict[str, tuple[str, str]] = {
     # name: (availability, why)
     "text": (AT_EVENT_TIME, "the report itself"),
+    "sentiment_text": (AT_EVENT_TIME, "the report's own wording: the only input of the sentiment model"),
     "source_type": (AT_EVENT_TIME, "NEWS vs SOCIAL"),
     "link_confidence": (AT_EVENT_TIME, "entity-resolution output for this report"),
     "novelty": (AT_EVENT_TIME, "count of strictly earlier same-issuer clusters in 72h (pipeline._apply_novelty)"),

@@ -30,7 +30,7 @@ flowchart LR
     NV -->|quarantine + reason| Q[(quarantine report)]
     NV --> ER[entity resolution<br/>dictionary, weak-alias guard]
     ER --> DD[dedup / cluster<br/>exact, syndicated, near, same-event]
-    DD --> EN[enricher port<br/>placeholder-v0]
+    DD --> EN[enricher port<br/>sentiment: trained model<br/>event, impact: placeholder-v0]
     EN --> RS[RiskSignal + provenance]
     RS --> REPO[InMemorySignalRepository] --> API[FastAPI] --> UI[React UI]
     RS --> STRESS[StressService, unchanged]
@@ -44,13 +44,14 @@ flowchart LR
 | Validation | closed set of reject codes; every record ends in exactly one bucket (quarantined / folded duplicate / report inside a signal) |
 | Entity resolution | cashtag → legal name → alias → bare ticker → *weak alias* (ordinary words like Apple/Visa/Target: case-sensitive and only with finance context or another strong mention) → restrained fuzzy; multiple issuers cap confidence; anything uncertain is `UNKNOWN_ENTITY`; the audit records what was considered and refused |
 | Dedup | blocked by entity; star clustering against the earliest report (no single-link chaining); exact duplicates are folded and not counted, syndicated/near/same-event reports become `Evidence.corroborating` |
-| Enrichment | `Enricher` port; `placeholder-v0` keyword/lexicon rules (TFN sentiment = dataset label); every stage labelled in `SignalProvenance.stage_origins` and `ModelVersions` |
+| Enrichment | `Enricher` port. `ModelSentimentEnricher` = trained sentiment model (`pipeline/sentiment_model.py`, artifact in `models/sentiment/`, integrity-checked at load, never falls back to the lexicon) + `placeholder-v0` event/impact rules. Documents the model cannot score are quarantined (`UNSCORABLE_TEXT`). Every stage is labelled in `SignalProvenance.stage_origins` and `ModelVersions`; `SignalProvenance.sentiment` carries model id, artifact sha256, confidence and `seen_in_training`; `data_origin = REAL_SOURCE_MIXED_NLP` |
 | Profiles | `data.profile: replay` (default, real pack) or `demo` (Stage-1 fixtures); same container, same contracts |
-| Dependencies | none added (stdlib `urllib`, `difflib`, `hashlib`) |
+| Dependencies | ingestion is stdlib (`urllib`, `difflib`, `hashlib`); the sentiment model adds numpy, scikit-learn, joblib (pinned in `requirements.txt`; the artifact is refused if the scikit-learn version differs) |
+| Model card | `GET /api/models/sentiment` serves `models/sentiment/*/model_card.json` (typed: `SentimentModelCard`); the Data pipeline page renders it |
 
-What is real: ingestion, validation, entity resolution, deduplication, corroboration counts, provenance, the stress
-engine. What is a stand-in: sentiment (except TFN labels), event type, impact, the portfolio (synthetic positions
-on real issuers), scenario magnitudes.
+What is real: ingestion, validation, entity resolution, deduplication, corroboration counts, provenance, the sentiment
+model, the stress engine. What is a stand-in: event type, impact (which reads the model's tone magnitude), the portfolio
+(synthetic positions on real issuers), scenario magnitudes.
 
 ## What exists today
 

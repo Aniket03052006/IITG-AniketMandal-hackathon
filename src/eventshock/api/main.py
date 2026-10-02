@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from .. import __version__
 from ..config import Settings
 from .deps import build_container
-from .routers import meta, pipeline, portfolio, scenarios, signals, stress
+from .routers import meta, models, pipeline, portfolio, scenarios, signals, stress
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -27,7 +27,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         title="EventShock API",
         version=__version__,
         description="Event-driven risk signals and deterministic portfolio stress testing. "
-        "Replay profile: real source documents through the ingestion pipeline (placeholder NLP); "
+        "Replay profile: real source documents through the ingestion pipeline (trained sentiment model; "
+        "event and impact are still placeholder rules); "
         "demo profile: fixtures. The stress engine is real in both.",
         lifespan=lifespan,
         docs_url="/api/docs",
@@ -41,7 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_methods=["GET", "POST"],
         allow_headers=["*"],
     )
-    for r in (meta.router, pipeline.router, signals.router, portfolio.router, scenarios.router,
+    for r in (meta.router, pipeline.router, models.router, signals.router, portfolio.router, scenarios.router,
               stress.router):
         app.include_router(r, prefix="/api")
 

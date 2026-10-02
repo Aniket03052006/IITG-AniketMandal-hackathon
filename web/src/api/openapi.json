@@ -50,6 +50,167 @@
         "title": "AssetClass",
         "type": "string"
       },
+      "CalibrationInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "ece_test_after": {
+            "title": "Ece Test After",
+            "type": "number"
+          },
+          "ece_test_before": {
+            "title": "Ece Test Before",
+            "type": "number"
+          },
+          "fitted_on": {
+            "title": "Fitted On",
+            "type": "string"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "reliability_test": {
+            "items": {
+              "$ref": "#/components/schemas/ReliabilityBin"
+            },
+            "title": "Reliability Test",
+            "type": "array"
+          },
+          "temperature": {
+            "title": "Temperature",
+            "type": "number"
+          }
+        },
+        "required": [
+          "method",
+          "temperature",
+          "fitted_on",
+          "ece_test_before",
+          "ece_test_after",
+          "reliability_test"
+        ],
+        "title": "CalibrationInfo",
+        "type": "object"
+      },
+      "Candidate": {
+        "additionalProperties": false,
+        "properties": {
+          "C": {
+            "title": "C",
+            "type": "number"
+          },
+          "class_weight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Weight"
+          },
+          "preprocessing": {
+            "title": "Preprocessing",
+            "type": "string"
+          },
+          "selected": {
+            "title": "Selected",
+            "type": "boolean"
+          },
+          "temperature": {
+            "title": "Temperature",
+            "type": "number"
+          },
+          "valid_log_loss": {
+            "title": "Valid Log Loss",
+            "type": "number"
+          },
+          "valid_macro_f1": {
+            "title": "Valid Macro F1",
+            "type": "number"
+          }
+        },
+        "required": [
+          "preprocessing",
+          "C",
+          "class_weight",
+          "temperature",
+          "valid_log_loss",
+          "valid_macro_f1",
+          "selected"
+        ],
+        "title": "Candidate",
+        "type": "object"
+      },
+      "ClassMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "f1": {
+            "title": "F1",
+            "type": "number"
+          },
+          "precision": {
+            "title": "Precision",
+            "type": "number"
+          },
+          "recall": {
+            "title": "Recall",
+            "type": "number"
+          },
+          "support": {
+            "title": "Support",
+            "type": "number"
+          }
+        },
+        "required": [
+          "precision",
+          "recall",
+          "f1",
+          "support"
+        ],
+        "title": "ClassMetrics",
+        "type": "object"
+      },
+      "ConfidentError": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "eval_set": {
+            "title": "Eval Set",
+            "type": "string"
+          },
+          "predicted": {
+            "title": "Predicted",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "truth": {
+            "title": "Truth",
+            "type": "string"
+          }
+        },
+        "required": [
+          "eval_set",
+          "text",
+          "truth",
+          "predicted",
+          "confidence",
+          "score"
+        ],
+        "title": "ConfidentError",
+        "type": "object"
+      },
       "Contribution": {
         "properties": {
           "baseline_value": {
@@ -191,6 +352,7 @@
         "enum": [
           "DEMO_FIXTURE",
           "REAL_SOURCE_PLACEHOLDER_NLP",
+          "REAL_SOURCE_MIXED_NLP",
           "MODEL_OUTPUT"
         ],
         "title": "DataOrigin",
@@ -444,6 +606,225 @@
         "title": "EntityMention",
         "type": "object"
       },
+      "EvalMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "accuracy": {
+            "title": "Accuracy",
+            "type": "number"
+          },
+          "brier": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brier"
+          },
+          "confusion": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Confusion",
+            "type": "array"
+          },
+          "ece": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "expected calibration error of the top-label probability",
+            "title": "Ece"
+          },
+          "labels": {
+            "description": "row/column order of the confusion matrix: truth (rows) x predicted (columns)",
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "log_loss": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Log Loss"
+          },
+          "macro_f1": {
+            "title": "Macro F1",
+            "type": "number"
+          },
+          "macro_f1_ci95": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "bootstrap over rows",
+            "title": "Macro F1 Ci95"
+          },
+          "mean_score_by_class": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "number"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Score By Class"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "per_class": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ClassMetrics"
+            },
+            "title": "Per Class",
+            "type": "object"
+          },
+          "product_rule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LabelScores"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "label from the UI's score cut (|score| >= 0.15) instead of arg-max"
+          },
+          "spearman_score_vs_label": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "rank correlation of the score with -1/0/+1 labels",
+            "title": "Spearman Score Vs Label"
+          },
+          "weighted": {
+            "description": "rows carry inclusion weights (stratified gold sample)",
+            "title": "Weighted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "n",
+          "weighted",
+          "labels",
+          "accuracy",
+          "macro_f1",
+          "macro_f1_ci95",
+          "per_class",
+          "confusion",
+          "log_loss",
+          "brier",
+          "ece",
+          "spearman_score_vs_label",
+          "mean_score_by_class",
+          "product_rule"
+        ],
+        "title": "EvalMetrics",
+        "type": "object"
+      },
+      "EvalSet": {
+        "additionalProperties": false,
+        "properties": {
+          "baselines": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LabelScores"
+            },
+            "title": "Baselines",
+            "type": "object"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvalMetrics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          },
+          "role": {
+            "description": "in_domain | external | indicative",
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "description": "ok | skipped",
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "role",
+          "description",
+          "status",
+          "note",
+          "model",
+          "baselines"
+        ],
+        "title": "EvalSet",
+        "type": "object"
+      },
       "EventCategory": {
         "description": "The PRD's eight-class event taxonomy (docs: PRD \u00a711.2).",
         "enum": [
@@ -695,6 +1076,26 @@
           "note"
         ],
         "title": "ImpactDriver",
+        "type": "object"
+      },
+      "LabelScores": {
+        "additionalProperties": false,
+        "description": "Accuracy and macro-F1 of one way of turning the output into a label.",
+        "properties": {
+          "accuracy": {
+            "title": "Accuracy",
+            "type": "number"
+          },
+          "macro_f1": {
+            "title": "Macro F1",
+            "type": "number"
+          }
+        },
+        "required": [
+          "accuracy",
+          "macro_f1"
+        ],
+        "title": "LabelScores",
         "type": "object"
       },
       "Meta": {
@@ -1468,6 +1869,40 @@
         "title": "RejectedCandidate",
         "type": "object"
       },
+      "ReliabilityBin": {
+        "additionalProperties": false,
+        "properties": {
+          "accuracy": {
+            "title": "Accuracy",
+            "type": "number"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "hi": {
+            "title": "Hi",
+            "type": "number"
+          },
+          "lo": {
+            "title": "Lo",
+            "type": "number"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lo",
+          "hi",
+          "n",
+          "confidence",
+          "accuracy"
+        ],
+        "title": "ReliabilityBin",
+        "type": "object"
+      },
       "ReplayInfo": {
         "description": "Present when the app serves a replay snapshot of real sources (profile=replay).",
         "properties": {
@@ -1754,6 +2189,165 @@
         "title": "ScenarioRef",
         "type": "object"
       },
+      "SentimentAudit": {
+        "description": "Which trained model scored this signal's sentiment, and how far to trust this particular score.",
+        "properties": {
+          "artifact_sha256": {
+            "description": "sha256 of the scoring artifact",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Artifact Sha256",
+            "type": "string"
+          },
+          "calibrated": {
+            "title": "Calibrated",
+            "type": "boolean"
+          },
+          "confidence": {
+            "description": "largest calibrated class probability",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "seen_in_training": {
+            "description": "the exact text (case, punctuation, URLs ignored) was in the model's train/valid data",
+            "title": "Seen In Training",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "model_id",
+          "model_version",
+          "artifact_sha256",
+          "confidence",
+          "calibrated",
+          "seen_in_training"
+        ],
+        "title": "SentimentAudit",
+        "type": "object"
+      },
+      "SentimentModelCard": {
+        "additionalProperties": false,
+        "properties": {
+          "algorithm": {
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "artifact_bytes": {
+            "title": "Artifact Bytes",
+            "type": "integer"
+          },
+          "artifact_file": {
+            "title": "Artifact File",
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Artifact Sha256",
+            "type": "string"
+          },
+          "calibration": {
+            "$ref": "#/components/schemas/CalibrationInfo"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/Candidate"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "classes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Classes",
+            "type": "array"
+          },
+          "confident_errors": {
+            "items": {
+              "$ref": "#/components/schemas/ConfidentError"
+            },
+            "title": "Confident Errors",
+            "type": "array"
+          },
+          "evaluations": {
+            "items": {
+              "$ref": "#/components/schemas/EvalSet"
+            },
+            "title": "Evaluations",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "libraries": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "versions the artifact was built with; scikit-learn must match at load time",
+            "title": "Libraries",
+            "type": "object"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "preprocessing": {
+            "title": "Preprocessing",
+            "type": "string"
+          },
+          "score_definition": {
+            "title": "Score Definition",
+            "type": "string"
+          },
+          "selection_rule": {
+            "title": "Selection Rule",
+            "type": "string"
+          },
+          "training": {
+            "$ref": "#/components/schemas/TrainingInfo"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "algorithm",
+          "preprocessing",
+          "classes",
+          "score_definition",
+          "artifact_file",
+          "artifact_sha256",
+          "artifact_bytes",
+          "libraries",
+          "training",
+          "selection_rule",
+          "candidates",
+          "calibration",
+          "evaluations",
+          "confident_errors",
+          "limitations"
+        ],
+        "title": "SentimentModelCard",
+        "type": "object"
+      },
       "SentimentResult": {
         "description": "Tone of the text \u2014 deliberately separate from event type and impact (PRD \u00a72).",
         "properties": {
@@ -1920,6 +2514,17 @@
             "title": "Record Ref",
             "type": "string"
           },
+          "sentiment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SentimentAudit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "present when the sentiment stage is a trained model"
+          },
           "snapshot_id": {
             "title": "Snapshot Id",
             "type": "string"
@@ -1945,7 +2550,8 @@
           "pipeline_version",
           "entity_audit",
           "dedup",
-          "stage_origins"
+          "stage_origins",
+          "sentiment"
         ],
         "title": "SignalProvenance",
         "type": "object"
@@ -2432,11 +3038,72 @@
         "description": "How trustworthy ``published_at`` is. Only SOURCE-grade clocks are used to correlate documents.",
         "enum": [
           "SOURCE",
+          "SOURCE_DATE_ONLY",
           "GDELT_FIRST_SEEN",
           "SYNTHETIC_REPLAY_CLOCK"
         ],
         "title": "TimestampOrigin",
         "type": "string"
+      },
+      "TrainingInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "config_digest": {
+            "title": "Config Digest",
+            "type": "string"
+          },
+          "dataset": {
+            "title": "Dataset",
+            "type": "string"
+          },
+          "label_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Label Distribution",
+            "type": "object"
+          },
+          "licence": {
+            "title": "Licence",
+            "type": "string"
+          },
+          "rows": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Rows",
+            "type": "object"
+          },
+          "seed": {
+            "title": "Seed",
+            "type": "integer"
+          },
+          "split_note": {
+            "title": "Split Note",
+            "type": "string"
+          },
+          "table": {
+            "title": "Table",
+            "type": "string"
+          },
+          "table_sha256": {
+            "title": "Table Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dataset",
+          "licence",
+          "table",
+          "table_sha256",
+          "rows",
+          "label_distribution",
+          "split_note",
+          "seed",
+          "config_digest"
+        ],
+        "title": "TrainingInfo",
+        "type": "object"
       },
       "UncoveredExposure": {
         "properties": {
@@ -2512,7 +3179,7 @@
     }
   },
   "info": {
-    "description": "Event-driven risk signals and deterministic portfolio stress testing. Replay profile: real source documents through the ingestion pipeline (placeholder NLP); demo profile: fixtures. The stress engine is real in both.",
+    "description": "Event-driven risk signals and deterministic portfolio stress testing. Replay profile: real source documents through the ingestion pipeline (trained sentiment model; event and impact are still placeholder rules); demo profile: fixtures. The stress engine is real in both.",
     "title": "EventShock API",
     "version": "0.1.0"
   },
@@ -2561,6 +3228,28 @@
         "summary": "Meta",
         "tags": [
           "meta"
+        ]
+      }
+    },
+    "/api/models/sentiment": {
+      "get": {
+        "description": "The sentiment model card: what it is, how it was chosen, how it scored and where it fails.",
+        "operationId": "sentiment_model_api_models_sentiment_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SentimentModelCard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Sentiment Model",
+        "tags": [
+          "models"
         ]
       }
     },

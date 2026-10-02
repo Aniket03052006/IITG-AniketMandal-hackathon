@@ -33,7 +33,9 @@ download (research access is by application). The Kaggle card-transaction datase
 | Artefact | Built from | Committed? |
 |---|---|---|
 | `data/gold/gold_sample.csv`, `gold_manifest.json`, `adjudication.csv`, `consistency_sheet.csv`, `gold_scores.json` | ~400 texts sampled from the history snapshot (CC0 Kaggle tweets and headlines, GDELT GKG titles) and 120 Twitter-Financial-News topic tweets (MIT per dataset card; tweet content originates on X) plus our labels (annotator `ai:claude`; a human may override in `adjudication.csv`) | **Yes** (about 320 KB, incl. `gold_scores.json`). Removal for the TFN rows: delete them from the sheet and manifest, re-run `gold-sample` |
-| `data/modeling/*` (`impact_events.jsonl`, `sentiment.jsonl`, `event_silver.jsonl`, `phrasebank_eval.jsonl`, `audit.json`, `probe*.json`) | the raw datasets above, re-split, deduplicated and joined to prices | **No** (git-ignored; rebuild with `make audit`). `phrasebank_eval.jsonl` is CC BY-NC-SA and must never be committed or trained on |
+| `data/modeling/sentiment.jsonl` | TFN sentiment (MIT, attribution above) exact-deduplicated and re-split; the training table of the sentiment model | **Yes** (2 MB) so `make train-sentiment` works from a clone |
+| `models/sentiment/tfidf-lr-v1/` | a TF-IDF + logistic-regression model trained on that table (its weights derive from MIT data). PhraseBank (CC BY-NC-SA) and the AI-annotated gold set were used for evaluation only, never for training or selection; the card quotes aggregate scores and no PhraseBank text | **Yes** (1.7 MB) |
+| `data/modeling/*` (the rest: `impact_events.jsonl`, `event_silver.jsonl`, `phrasebank_eval.jsonl`, `audit.json`, `probe*.json`) | the raw datasets above, re-split, deduplicated and joined to prices | **No** (git-ignored; rebuild with `make audit`). `phrasebank_eval.jsonl` is CC BY-NC-SA and must never be committed or trained on |
 | Yahoo prices | refetched from 2014-01-01 (`make fetch-prices`) so H1 2015 has a 250-session history | No |
 
 ## What goes where
@@ -44,7 +46,8 @@ download (research access is by application). The Kaggle card-transaction datase
 | `data/raw/` | bulk / fresh downloads (`make fetch-gdelt`, `make fetch-gkg`, `make fetch-tfn`, `make fetch-kaggle`, `make fetch-prices`) | no |
 | `data/history/` | curated modelling snapshot (2015-2026; `scripts/build_history_pack.py`) read by the same pipeline | no |
 | `data/processed/` | pipeline exports (`make ingest`) | no |
-| `data/modeling/` | modeling tables and audit output (`make audit`) | no |
+| `data/modeling/` | modeling tables and audit output (`make audit`); only `sentiment.jsonl` (the sentiment training table) is tracked | partly |
+| `models/sentiment/` | the trained sentiment artifact and its model card (`make train-sentiment`) | yes |
 | `data/gold/` | the gold set: blind sheet, manifest, adjudication, consistency | yes |
 | `data/fixtures/` | Stage-1 fictional demo data (`EVENTSHOCK_PROFILE=demo`) | yes |
 
@@ -56,5 +59,5 @@ download (research access is by application). The Kaggle card-transaction datase
 - GDELT relevance ranking returns off-topic articles for some queries (e.g. a bank query returning an unrelated
   filing). That noise is kept deliberately: the pipeline must cope with it, and entity resolution decides from the
   text, never from the query that fetched the article.
-- Sentiment, event type and impact are **placeholder rules** (`placeholder-v0`), except TFN sentiment, which is the
-  dataset's human label.
+- Event type and impact are **placeholder rules** (`placeholder-v0`). Sentiment comes from a trained model (see
+  `SENTIMENT_MODEL.md`); the TFN tweets in the replay pack are part of its training data and are flagged in-sample.

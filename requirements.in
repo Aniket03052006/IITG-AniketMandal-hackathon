@@ -3,3 +3,6 @@ uvicorn>=0.30
 pydantic>=2.9
 pydantic-settings>=2.5
 pyyaml>=6.0
+numpy>=2             # sentiment model serving (scikit-learn pipeline)
+scikit-learn>=1.5    # pinned exactly in requirements.txt: the model artifact is version-checked at load
+joblib>=1.4

@@ -3,10 +3,12 @@ from __future__ import annotations
 import random
 import string
 
+import pytest
+
 from eventshock.domain import DataOrigin, EventCategory, RawDocument, SourceType
 from eventshock.ingestion.base import RejectCode, Rejected
 from eventshock.pipeline.enrich import EnrichmentInput, PlaceholderEnricher
-from tests.pipe_helpers import ENRICH, ENTITIES, doc, run
+from tests.pipe_helpers import AS_OF, CFG, ENRICH, ENTITIES, W0, W1, doc, run
 
 E = PlaceholderEnricher(ENRICH)
 
@@ -158,3 +160,75 @@ def test_fetch_log_collapses_attempts_and_keeps_failures():
     assert (by["a"].status, by["a"].attempts, by["a"].added) == ("ok", 2, 201)
     assert (by["b"].status, by["b"].last_error) == ("error", "HTTP 429")
     assert rows[0].query == "b", "failures are listed first"
+
+
+@pytest.fixture(scope="module")
+def enricher():
+    from eventshock.config import REPO_ROOT
+    from eventshock.pipeline.config import load_sentiment_model_config
+    from eventshock.pipeline.enrich import ModelSentimentEnricher
+    from eventshock.pipeline.sentiment_model import SentimentModel
+
+    model = SentimentModel.load(REPO_ROOT / load_sentiment_model_config(REPO_ROOT / "configs").model_dir)
+    return ModelSentimentEnricher(ENRICH, model)
+
+
+class TestModelSentimentEnricher:
+    """The trained model replaces only the sentiment stage; event and impact stay placeholder and say so."""
+
+    def enrich(self, e, text, label=None, domains=1):
+        return e.enrich(EnrichmentInput(text=text, source_label=label, unique_domains=domains))
+
+    def test_stage_origins_and_versions_are_honest(self, enricher):
+        r = self.enrich(enricher, "Regulator opens antitrust probe into bank, shares plunge")
+        assert r.stage_origins == {"sentiment": "MODEL", "event": "PLACEHOLDER_RULES", "impact": "PLACEHOLDER_RULES"}
+        assert r.versions["sentiment"].startswith("tfidf-lr-v1+") and r.versions["event"].startswith("placeholder")
+        assert r.versions["impact"].startswith("placeholder")
+        assert r.data_origin is DataOrigin.REAL_SOURCE_MIXED_NLP
+        a = r.sentiment_audit
+        assert a is not None and a.model_id == "tfidf-lr-v1" and a.calibrated and 0 < a.confidence <= 1
+
+    def test_source_label_is_never_an_input(self, enricher):
+        t = "Company to present at investor conference next Tuesday"
+        assert self.enrich(enricher, t, label="bullish").sentiment == self.enrich(enricher, t, label="bearish").sentiment == self.enrich(enricher, t).sentiment
+
+    def test_event_and_impact_match_the_placeholder_enricher_given_the_same_sentiment(self, enricher):
+        t = "Fed signals rate cut as inflation cools, markets rally"
+        r = self.enrich(enricher, t, domains=4)
+        assert r.event == E.enrich(EnrichmentInput(t, None, 4)).event
+        assert 1 <= r.impact.score <= 10 and r.impact.drivers[1].note.startswith("|sentiment|")
+
+    def test_placeholder_enricher_is_untouched(self):
+        r = enrich("Shares surge as company beats estimates", label=None)
+        assert r.data_origin is DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP and r.sentiment_audit is None
+        assert r.stage_origins["sentiment"] == "PLACEHOLDER_RULES" and E.unscorable("") is None
+
+    def test_pipeline_quarantines_unscorable_text_and_scores_the_rest(self, enricher):
+        from eventshock.domain import SourceType
+        from eventshock.pipeline.run import run_documents
+
+        recs = [
+            doc("ok1", "Apple shares jump after record iPhone quarter", hours=5),
+            doc("t_link", "https://t.co/abcdef", stype=SourceType.SOCIAL, url=None, origin="SYNTHETIC_REPLAY_CLOCK", hours=4),
+            doc("t_tick", "$AAPL $MSFT $JPM $GS $V", stype=SourceType.SOCIAL, url=None, origin="SYNTHETIC_REPLAY_CLOCK", hours=4),
+        ]
+        res = run_documents(recs, snapshot_id="t", as_of=AS_OF, window_start=W0, window_end=W1, entities=ENTITIES, cfg=CFG,
+                            enrich_cfg=ENRICH, enricher=enricher)
+        assert [s.document.id for s in res.signals] == ["ok1"]
+        c = res.report.counts
+        assert c.records_read == 3 and c.quarantined == 2 and c.signals == 1
+        assert res.report.quarantine_by_code == {"UNSCORABLE_TEXT": 2}
+        assert all(q.code == RejectCode.UNSCORABLE_TEXT.value and q.detail for q in res.quarantined)
+        assert res.report.stage_origins["sentiment"].startswith("MODEL") and res.report.stage_origins["impact"] == "PLACEHOLDER"
+        assert res.signals[0].provenance.sentiment is not None
+
+    def test_model_run_is_deterministic_and_order_independent(self, enricher):
+        from eventshock.pipeline.run import run_documents
+
+        recs = [doc(f"d{i}", t, hours=3 + i) for i, t in enumerate(
+            ["Microsoft faces antitrust probe in Europe", "Visa raises dividend after strong quarter", "Target cuts outlook, shares fall",
+             "Global bond markets steady ahead of central bank meeting"])]
+        kw = dict(snapshot_id="t", as_of=AS_OF, window_start=W0, window_end=W1, entities=ENTITIES, cfg=CFG, enrich_cfg=ENRICH, enricher=enricher)
+        a = run_documents(recs, **kw).report.output_digest
+        assert a == run_documents(list(reversed(recs)), **kw).report.output_digest == run_documents(recs, **kw).report.output_digest
+        assert a != run(recs).report.output_digest, "the model must change the sentiment-dependent output"

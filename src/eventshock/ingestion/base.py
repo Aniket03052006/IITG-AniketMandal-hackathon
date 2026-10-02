@@ -21,6 +21,7 @@ class RejectCode(StrEnum):
     OUTSIDE_WINDOW = "OUTSIDE_WINDOW"
     NON_ENGLISH = "NON_ENGLISH"
     BAD_URL = "BAD_URL"
+    UNSCORABLE_TEXT = "UNSCORABLE_TEXT"  # passed validation, but the sentiment model has nothing to score
 
 
 @dataclass(frozen=True)

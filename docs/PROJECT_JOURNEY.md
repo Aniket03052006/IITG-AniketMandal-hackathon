@@ -293,3 +293,45 @@ leakage checks, a gold set. No model was trained (three seconds-long probes exce
 - Tweets whose source tagged another ticker are excluded from impact rows (3,060 dropped): they are about another company.
 - Optional `ml` extra (`requirements-ml.txt`: numpy, scikit-learn) only for the probes; the server and the audit stay stdlib.
 - No UI change: the audit is a document plus JSON; a panel belongs with the models.
+
+---
+
+## Stage 3 — First real model: sentiment (2026-10-02)
+
+**Goal.** Replace the sentiment placeholder with a trained, evaluated, reproducible model and carry it through pipeline, provenance, API and UI,
+without touching the event and impact placeholders or the stress engine. Details: [SENTIMENT_MODEL.md](SENTIMENT_MODEL.md).
+
+**What we did**
+- Chose TF-IDF (word + char n-grams) + logistic regression + temperature scaling on the Stage-3-prep evidence (9.4k labels, 0.79 macro-F1 baseline, a domain gap that data, not capacity, may explain); no transformer.
+- Ran a 16-candidate grid on train → valid only (`configs/sentiment_model.yaml`), selected by calibrated log-loss, evaluated once on TFN test, PhraseBank and the gold set, with baselines (majority, the old lexicon, the audit probe re-fitted).
+- Added `pipeline/sentiment_model.py` (serving, integrity-checked), `ModelSentimentEnricher`, `SentimentAudit` provenance, `DataOrigin.REAL_SOURCE_MIXED_NLP`, `RejectCode.UNSCORABLE_TEXT`, `GET /api/models/sentiment`, and the UI: stage strip on the feed, model block on the event sentiment card, per-stage provenance, a "Sentiment model" panel on the pipeline page.
+- numpy / scikit-learn / joblib became runtime dependencies; `models/sentiment/tfidf-lr-v1/` (1.7 MB) and `data/modeling/sentiment.jsonl` (2 MB) are committed so the model can be loaded and retrained from a clone.
+
+**What broke or surprised us, and what we did**
+- *The selected model is not the best on arg-max macro-F1.* The pre-registered rule (calibrated log-loss) chose an unweighted model; the audit probe (class-balanced) is ahead out of domain (PhraseBank 0.54 vs 0.47, gold 0.50 vs 0.44). A diagnostic over four candidates showed identical rank correlation, so the difference is where labels fall, not how well scores order texts; with the UI's own score cut the models are level or ahead (0.54 / 0.52). We kept the rule we had set and reported both, instead of switching after seeing external results.
+- *Two trainings gave different bytes.* sklearn stores `id(stop_words)` in `_stop_words_id` and every pruned term in `stop_words_`. Both are removed before pickling; retraining is now byte-identical (artifact and card), and a test does it on a toy corpus.
+- *Adding an optional provenance field changed the Stage-2 golden digest* even for the unchanged placeholder run. A test now removes the new null field and proves the placeholder output still hashes to the old digest (`b8074b43…`), so "no behaviour change" is demonstrated rather than asserted. The model run has a new pinned digest.
+- *Real sentiment moved impact.* Placeholder impact reads `0.2·|sentiment|`; mean |score| went 0.11 → 0.19 and known-issuer signals at impact ≥ 7 went 12 → 21 (33 → 44 overall). Intended, documented, and the stress engine stays sentiment-blind (tested).
+- *The training data is in the demo.* 261 of 290 replay tweets are exact training texts. `seen_in_training` is in provenance and the UI marks them in-sample; their agreement with the human label (92%) is a sanity floor, not accuracy.
+- *Four documents cannot be scored* (a bare link ×2, `$SPY $IWM …` ×2). They passed validation, so they are quarantined as `UNSCORABLE_TEXT` instead of getting an invented neutral.
+- *Gold TFN rows overlap the sentiment training texts* (the sample came from the topic corpus): one near-duplicate was removed before scoring.
+- *Startup went from ~2 s to ~11 s* (about 3,000 sparse transforms, the pre-check plus scoring). Acceptable for a pinned replay; noted for live mode.
+
+**Decisions**
+- No fall-back to the lexicon: a missing or altered artifact stops the server with the fix command.
+- `data_origin` gets a coarse `REAL_SOURCE_MIXED_NLP`; the per-stage truth lives in `stage_origins`, so the event and impact stages can flip to `MODEL` without another enum.
+- Calibration is reported honestly: in domain it is a no-op (T = 1.03); out of domain the model is over-confident (ECE 0.16–0.26).
+- Gold and PhraseBank stay evaluation-only; the AI-annotated gold labels are never training data.
+
+| Part | Status |
+|---|---|
+| Sentiment | **Trained model**, evaluated, calibrated, reproducible |
+| Event type | Placeholder rules |
+| Impact | Placeholder heuristic (reads the model's tone magnitude) |
+| Stress engine | Real, deterministic, unchanged |
+
+**Status:** verified locally with `make test` (pytest + Vitest), `ruff` and `tsc` clean; see the end-of-stage report.
+
+
+### Process note (2026-10-02)
+- Rule change from the project owner: this journey is updated after **every task**, not only at stage end. `CLAUDE.md` now says so; small tasks get a short dated entry under the current stage.

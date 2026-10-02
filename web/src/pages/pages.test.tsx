@@ -112,8 +112,38 @@ const report = {
   ],
 };
 
+const sentAudit = (over: object = {}) => ({ model_id: "tfidf-lr-v1", model_version: "tfidf-lr-v1", artifact_sha256: "a1".repeat(32), confidence: 0.87, calibrated: true, seen_in_training: false, ...over });
+const modelProvenance = (over: object = {}) => ({ ...provenance, stage_origins: { sentiment: "MODEL", event: "PLACEHOLDER_RULES", impact: "PLACEHOLDER_RULES" }, sentiment: sentAudit(over) });
+const modelMeta = {
+  ...realMeta, data_origin: "REAL_SOURCE_MIXED_NLP",
+  replay: { ...realMeta.replay, stage_origins: { ingestion: "REAL", sentiment: "MODEL (tfidf-lr-v1, trained on Twitter Financial News)", event: "PLACEHOLDER", impact: "PLACEHOLDER" } },
+};
+const evalMetrics = (f1: number, n: number) => ({
+  n, weighted: false, labels: ["negative", "neutral", "positive"], accuracy: 0.8, macro_f1: f1, macro_f1_ci95: [f1 - 0.03, f1 + 0.03],
+  per_class: { negative: { precision: 0.8, recall: 0.6, f1: 0.69, support: 10 }, neutral: { precision: 0.86, recall: 0.95, f1: 0.9, support: 70 }, positive: { precision: 0.8, recall: 0.7, f1: 0.75, support: 20 } },
+  confusion: [[6, 3, 1], [2, 66, 2], [1, 5, 14]], log_loss: 0.43, brier: 0.2, ece: 0.024, spearman_score_vs_label: 0.63,
+  mean_score_by_class: { negative: -0.4, neutral: 0.01, positive: 0.5 }, product_rule: { accuracy: 0.81, macro_f1: 0.76 },
+});
+const base = (m: number) => ({ placeholder_lexicon: { accuracy: 0.6, macro_f1: m }, majority_class: { accuracy: 0.65, macro_f1: 0.26 }, audit_probe_tfidf_logreg: { accuracy: 0.8, macro_f1: 0.78 } });
+const modelCard = {
+  id: "tfidf-lr-v1", version: "tfidf-lr-v1", algorithm: "TF-IDF -> logistic regression -> temperature scaling", preprocessing: "normalised",
+  classes: ["negative", "neutral", "positive"], score_definition: "p_pos - p_neg", artifact_file: "model.joblib", artifact_sha256: "a1".repeat(32), artifact_bytes: 1_660_000,
+  libraries: { "scikit-learn": "1.9.1" },
+  training: { dataset: "Twitter Financial News sentiment", licence: "MIT", table: "t", table_sha256: "b".repeat(64), rows: { train: 9355, valid: 1170, test: 1169 }, label_distribution: {}, split_note: "", seed: 1, config_digest: "x" },
+  selection_rule: "valid_log_loss_after_temperature",
+  candidates: [{ preprocessing: "normalised", C: 3, class_weight: null, temperature: 1.03, valid_log_loss: 0.478, valid_macro_f1: 0.735, selected: true }, { preprocessing: "raw", C: 1, class_weight: "balanced", temperature: 0.75, valid_log_loss: 0.537, valid_macro_f1: 0.73, selected: false }],
+  calibration: { method: "temperature", temperature: 1.03, fitted_on: "valid", ece_test_before: 0.018, ece_test_after: 0.024, reliability_test: [] },
+  evaluations: [
+    { id: "tfn_test", title: "Twitter Financial News, held-out test", role: "in_domain", description: "In-domain.", status: "ok", note: "", model: evalMetrics(0.778, 1169), baselines: base(0.527) },
+    { id: "phrasebank", title: "Financial PhraseBank (external)", role: "external", description: "External.", status: "skipped", note: "Raw file not present.", model: null, baselines: {} },
+    { id: "gold_history", title: "Gold set, our own sources (AI-annotated)", role: "indicative", description: "Ours.", status: "ok", note: "", model: evalMetrics(0.44, 280), baselines: base(0.296) },
+  ],
+  confident_errors: [], limitations: ["Trained on Twitter Financial News only.", "Gold labels are AI-annotated."],
+};
+
 let stressResponse: unknown = completed;
 let metaResponse: unknown = meta;
+let reportResponse: unknown = report;
 let signalDetail: unknown = detail(2);
 
 function mockFetch() {
@@ -123,7 +153,8 @@ function mockFetch() {
       const url = String(input);
       const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
       if (url.endsWith("/api/meta")) return json(metaResponse);
-      if (url.endsWith("/api/pipeline/report")) return json(report);
+      if (url.endsWith("/api/pipeline/report")) return json(reportResponse);
+      if (url.endsWith("/api/models/sentiment")) return json(modelCard);
       if (url.includes("/api/signals?") || url.endsWith("/api/signals")) {
         const q = new URL(url, "http://x").searchParams;
         const cat = q.get("category");
@@ -157,6 +188,7 @@ function renderAt(path: string) {
 }
 
 beforeEach(() => {
+  reportResponse = report;
   mockFetch();
   stressResponse = completed;
   signalDetail = detail(2);
@@ -283,5 +315,74 @@ describe("Real-source replay", () => {
     metaResponse = meta;
     renderAt("/pipeline");
     expect(await screen.findByText("No pipeline in the demo profile")).toBeInTheDocument();
+  });
+});
+
+describe("Real-source replay with the trained sentiment model", () => {
+  beforeEach(() => {
+    metaResponse = modelMeta;
+    reportResponse = { ...report, enrichment_version: "placeholder-v0+sentiment:tfidf-lr-v1", stage_origins: modelMeta.replay.stage_origins };
+    signalDetail = { ...detail(8), data_origin: "REAL_SOURCE_MIXED_NLP", provenance: modelProvenance(), model_versions: { sentiment: "tfidf-lr-v1+a1a1a1a1", event: "placeholder-v0-keywords", impact: "placeholder-v0-heuristic", entity_resolver: "dictionary-er-v1", feature_schema: "1" } };
+  });
+
+  it("says on the feed which stage is a model and which is still a placeholder", async () => {
+    renderAt("/");
+    expect(await screen.findByText("Sentiment: trained model")).toBeInTheDocument();
+    expect(screen.getByText("Event type: placeholder rules")).toBeInTheDocument();
+    expect(screen.getByText("Impact: placeholder rules")).toBeInTheDocument();
+    expect(await screen.findByText(/Sentiment is a trained model; event type and impact are placeholder rules/)).toBeInTheDocument();
+  });
+
+  it("shows the model behind a sentiment score, its confidence and its held-out and own-source results", async () => {
+    renderAt("/events/sig_2");
+    expect((await screen.findAllByText("Trained model")).length).toBe(2); // sentiment card tag + provenance step 4
+    expect(screen.getByText("87%", { exact: false })).toBeInTheDocument();
+    expect(await screen.findByText(/macro-F1 0\.78; on our own AI-labelled sources only 0\.44/)).toBeInTheDocument();
+    expect(screen.getByText("Real source · model sentiment", { selector: "span" })).toBeInTheDocument();
+    expect(screen.queryByText(/In-sample/)).not.toBeInTheDocument();
+  });
+
+  it("keeps event type and impact visibly placeholder next to the model-backed sentiment", async () => {
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("Placeholder heuristic · not a trained model")).toBeInTheDocument();
+    expect(screen.getAllByText("Placeholder rules")).toHaveLength(3); // event type card, provenance event, provenance impact
+    expect(screen.getAllByText("Trained model").some((e) => e.classList.contains("text-pos"))).toBe(true); // provenance step 4
+  });
+
+  it("warns when the model has seen the exact text, so the score is not evidence of accuracy", async () => {
+    signalDetail = { ...(signalDetail as object), provenance: modelProvenance({ seen_in_training: true }) };
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("In-sample: the model trained on this exact text")).toBeInTheDocument();
+    expect(screen.getByText(/in-sample/)).toBeInTheDocument();
+  });
+
+  it("falls back to the placeholder wording for a signal the lexicon scored", async () => {
+    signalDetail = { ...detail(8), data_origin: "REAL_SOURCE_PLACEHOLDER_NLP", provenance, model_versions: { sentiment: "placeholder-v0-lexicon", event: "placeholder-v0-keywords", impact: "placeholder-v0-heuristic", entity_resolver: "dictionary-er-v1", feature_schema: "1" } };
+    renderAt("/events/sig_2");
+    expect(await screen.findByText(/Sentiment is tone only/)).toBeInTheDocument();
+    expect(screen.queryByText("Trained model", { selector: "span" })).not.toBeInTheDocument();
+  });
+
+  it("explains the model on the pipeline page: results per evaluation set, baselines, errors and limits", async () => {
+    renderAt("/pipeline");
+    const panel = (await screen.findByRole("heading", { name: "Sentiment model" })).closest("section") as HTMLElement;
+    const w = within(panel);
+    expect((await w.findAllByText("Twitter Financial News, held-out test")).length).toBeGreaterThan(0);
+    expect(w.getAllByText("0.778").length).toBeGreaterThan(0); // model macro-F1 on held-out TFN
+    expect(w.getAllByText("0.527").length).toBeGreaterThan(0); // the lexicon it replaces
+    expect(w.getByText(/Not run: Raw file not present/)).toBeInTheDocument(); // skipped sets are shown, not hidden
+    expect(w.getByText("Gold labels are AI-annotated.")).toBeInTheDocument();
+    expect(w.getByText("Event type: placeholder rules")).toBeInTheDocument();
+    await userEvent.click(w.getByRole("button", { name: /Gold set, our own sources/ }));
+    expect(await w.findByText(/Ours\./)).toBeInTheDocument();
+    const stages = screen.getByText("What is real and what is a stand-in").closest("section") as HTMLElement;
+    expect(within(stages).getByText(/MODEL \(tfidf-lr-v1/)).toHaveClass("text-pos");
+  });
+
+  it("does not show a model card on the demo profile", async () => {
+    metaResponse = meta;
+    renderAt("/pipeline");
+    expect(await screen.findByText("No pipeline in the demo profile")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Sentiment model" })).not.toBeInTheDocument();
   });
 });

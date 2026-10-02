@@ -19,6 +19,12 @@ def health() -> dict[str, str]:
 def _notices(c: Container) -> list[str]:
     if c.pipeline_report is None:
         first = "Signals are hand-authored demo fixtures (fixture-v0), not model output."
+    elif c.sentiment_card is not None:
+        first = (
+            "Documents are real (GDELT news metadata, Twitter Financial News posts) replayed from a frozen "
+            f"snapshot. Sentiment is a trained model ({c.sentiment_card.id}); event type and impact are "
+            "PLACEHOLDER rules, not trained models."
+        )
     else:
         first = (
             "Documents are real (GDELT news metadata, Twitter Financial News posts) replayed from a frozen "
@@ -30,6 +36,14 @@ def _notices(c: Container) -> list[str]:
         "Scenario magnitudes are illustrative assumptions, not forecasts.",
         "Stress results are computed by a deterministic engine from those inputs.",
     ]
+
+
+def _origin(c: Container) -> DataOrigin:
+    if c.pipeline_report is None:
+        return DataOrigin.DEMO_FIXTURE
+    if c.sentiment_card is not None:
+        return DataOrigin.REAL_SOURCE_MIXED_NLP
+    return DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP
 
 
 @router.get("/meta", response_model=Meta)
@@ -44,7 +58,7 @@ def meta(c: Container = Depends(get_container)) -> Meta:
         version=__version__,
         mode=c.config.mode,
         profile=c.profile,
-        data_origin=(DataOrigin.DEMO_FIXTURE if r is None else DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP).value,
+        data_origin=_origin(c).value,
         replay=replay,
         as_of=c.signals.as_of,
         trigger_threshold=c.config.stress.trigger_threshold,
