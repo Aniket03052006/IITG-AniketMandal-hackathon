@@ -1,0 +1,104 @@
+# Scenario templates. ALL magnitudes are ILLUSTRATIVE assumptions for demonstration, not forecasts
+# and not calibrated to any regulatory stress framework. Shocks are specified at `reference_impact`
+# and scaled by (impact / reference_impact), clamped (see app.yaml). PD_MULTIPLIER scales (m - 1).
+#
+# scope: MARKET = every asset | SECTOR = the signal entity's sector | ISSUER = the signal entity.
+# When several scopes target the same factor, the most specific applicable one wins (no double count).
+version: "1"
+scenarios:
+  - id: scn_geopolitical_flight_to_safety
+    version: "1.0"
+    name: Geopolitical flight-to-safety
+    category: GEOPOLITICAL
+    description: Risk-off repricing after a geopolitical shock; equities fall, spreads widen, safe-haven yields drop.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: MARKET, value: -0.08, rationale: Broad risk-off equity sell-off. }
+      - { factor: EQUITY, scope: SECTOR, value: -0.14, rationale: Directly exposed sector reprices harder. }
+      - { factor: EQUITY, scope: ISSUER, value: -0.18, rationale: Named issuer carries the operational disruption. }
+      - { factor: RATES_BPS, scope: MARKET, value: -20, rationale: Safe-haven bid pulls government yields lower. }
+      - { factor: CREDIT_SPREAD_BPS, scope: MARKET, value: 60, rationale: Credit spreads widen with risk aversion. }
+      - { factor: CREDIT_SPREAD_BPS, scope: ISSUER, value: 140, rationale: Issuer spread widens on disruption. }
+      - { factor: PD_MULTIPLIER, scope: MARKET, value: 1.25, rationale: Modest across-the-board default-risk uplift. }
+      - { factor: PD_MULTIPLIER, scope: ISSUER, value: 1.6, rationale: Borrower exposed to the disruption. }
+  - id: scn_macro_rates_shock
+    version: "1.0"
+    name: Macro rates shock
+    category: MACROECONOMIC
+    description: Faster-than-expected tightening; parallel yield shift with equity de-rating and spread widening.
+    reference_impact: 7
+    shocks:
+      - { factor: RATES_BPS, scope: MARKET, value: 100, rationale: Parallel +100 bp repricing of the curve. }
+      - { factor: EQUITY, scope: MARKET, value: -0.06, rationale: Higher discount rates compress multiples. }
+      - { factor: CREDIT_SPREAD_BPS, scope: MARKET, value: 40, rationale: Tighter financial conditions widen spreads. }
+      - { factor: PD_MULTIPLIER, scope: MARKET, value: 1.2, rationale: Debt-service burden rises for floating borrowers. }
+  - id: scn_credit_funding_stress
+    version: "1.0"
+    name: Credit and funding stress
+    category: CREDIT_FUNDING
+    description: Issuer-specific funding stress with contagion into its sector and a mild market-wide spread impact.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: MARKET, value: -0.015, rationale: Light market-wide contagion. }
+      - { factor: EQUITY, scope: SECTOR, value: -0.05, rationale: Peer repricing within the sector. }
+      - { factor: EQUITY, scope: ISSUER, value: -0.12, rationale: Equity reprices on funding concerns. }
+      - { factor: CREDIT_SPREAD_BPS, scope: MARKET, value: 20, rationale: Market-wide spread drift. }
+      - { factor: CREDIT_SPREAD_BPS, scope: SECTOR, value: 80, rationale: Sector funding cost rises. }
+      - { factor: CREDIT_SPREAD_BPS, scope: ISSUER, value: 250, rationale: Issuer refinancing premium. }
+      - { factor: PD_MULTIPLIER, scope: ISSUER, value: 2.0, rationale: Distressed issuer, PD doubles. }
+      - { factor: LGD_ADD, scope: ISSUER, value: 0.10, rationale: Weaker recoveries in a funding squeeze. }
+  - id: scn_ma_repricing
+    version: "1.0"
+    name: M&A repricing
+    category: MA_CORPORATE_ACTION
+    description: Acquirer discount and leverage concern after a large transaction; limited sector read-across.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: SECTOR, value: -0.015, rationale: Sector read-across on consolidation. }
+      - { factor: EQUITY, scope: ISSUER, value: -0.07, rationale: Typical acquirer discount. }
+      - { factor: CREDIT_SPREAD_BPS, scope: ISSUER, value: 40, rationale: Added leverage widens issuer spread. }
+  - id: scn_regulatory_capital_hit
+    version: "1.0"
+    name: Regulatory capital shock
+    category: REGULATORY_LEGAL
+    description: New rule or enforcement action raising capital/legal costs for the issuer, with sector spill-over.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: MARKET, value: -0.01, rationale: Marginal market-wide effect. }
+      - { factor: EQUITY, scope: SECTOR, value: -0.04, rationale: Peers face the same rule. }
+      - { factor: EQUITY, scope: ISSUER, value: -0.10, rationale: Earnings hit from capital/legal costs. }
+      - { factor: CREDIT_SPREAD_BPS, scope: SECTOR, value: 30, rationale: Sector funding cost drift. }
+      - { factor: CREDIT_SPREAD_BPS, scope: ISSUER, value: 100, rationale: Issuer spread widening. }
+      - { factor: PD_MULTIPLIER, scope: SECTOR, value: 1.15, rationale: Sector credit quality softens. }
+      - { factor: PD_MULTIPLIER, scope: ISSUER, value: 1.4, rationale: Issuer credit quality softens more. }
+  - id: scn_product_ops_disruption
+    version: "1.0"
+    name: Product / operations disruption
+    category: PRODUCT_OPERATIONS
+    description: Product failure, recall or outage hitting issuer revenue, with light sector read-across.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: SECTOR, value: -0.025, rationale: Sector read-across to peers. }
+      - { factor: EQUITY, scope: ISSUER, value: -0.09, rationale: Revenue-at-risk repricing. }
+      - { factor: CREDIT_SPREAD_BPS, scope: ISSUER, value: 35, rationale: Cash-flow uncertainty premium. }
+  - id: scn_earnings_repricing
+    version: "1.0"
+    name: Earnings repricing
+    category: EARNINGS_FINANCIAL_PERFORMANCE
+    description: Guidance cut or earnings miss; issuer equity and credit reprice, sector follows partially.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: SECTOR, value: -0.03, rationale: Peers re-rate on read-across. }
+      - { factor: EQUITY, scope: ISSUER, value: -0.11, rationale: Earnings-revision repricing. }
+      - { factor: CREDIT_SPREAD_BPS, scope: ISSUER, value: 45, rationale: Weaker coverage ratios. }
+      - { factor: PD_MULTIPLIER, scope: ISSUER, value: 1.2, rationale: Thinner debt-service margin. }
+  - id: scn_market_drawdown
+    version: "1.0"
+    name: Market drawdown
+    category: MARKET_VALUATION
+    description: Broad valuation reset; market-factor equity shock with spread widening.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: MARKET, value: -0.10, rationale: Valuation reset across equities. }
+      - { factor: CREDIT_SPREAD_BPS, scope: MARKET, value: 35, rationale: Risk premia rise. }
+      - { factor: PD_MULTIPLIER, scope: MARKET, value: 1.1, rationale: Slight credit deterioration. }

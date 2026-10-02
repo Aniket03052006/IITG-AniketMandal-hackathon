@@ -1,0 +1,39 @@
+from __future__ import annotations
+
+import pytest
+from fastapi.testclient import TestClient
+
+from eventshock.api.deps import Container, build_container
+from eventshock.api.main import create_app
+from eventshock.config import Settings
+
+
+@pytest.fixture(scope="session")
+def settings() -> Settings:
+    """Stage-1 tests assert fixture facts (golden run, fictional issuers), so they pin the demo profile."""
+    return Settings(profile="demo")
+
+
+@pytest.fixture(scope="session")
+def replay_settings() -> Settings:
+    return Settings(profile="replay")
+
+
+@pytest.fixture(scope="session")
+def replay_container(replay_settings: Settings) -> Container:
+    return build_container(replay_settings)
+
+
+@pytest.fixture(scope="session")
+def replay_client(replay_settings: Settings) -> TestClient:
+    return TestClient(create_app(replay_settings))
+
+
+@pytest.fixture()
+def container(settings: Settings) -> Container:
+    return build_container(settings)
+
+
+@pytest.fixture()
+def client(settings: Settings) -> TestClient:
+    return TestClient(create_app(settings))

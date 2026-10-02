@@ -1,0 +1,18 @@
+# EventShock application configuration. Product rules live here, not in code.
+mode: REPLAY                  # REPLAY (deterministic fixtures) | LIVE (not implemented yet)
+base_currency: USD
+
+stress:
+  # Product routing rule (PRD FR-14): impact >= threshold triggers a scenario. Not a learned fact.
+  trigger_threshold: 7
+  # Shocks scale with impact / scenario.reference_impact, clamped to this range.
+  severity_scale_min: 0.5
+  severity_scale_max: 1.5
+  top_n_positions: 8
+
+data:
+  # replay: frozen real-source pack (data/replay) run through the ingestion pipeline at startup.
+  # demo:   Stage-1 hand-authored fixtures about fictional issuers (data/fixtures). Env: EVENTSHOCK_PROFILE.
+  profile: replay
+  fixtures_dir: data/fixtures
+  replay_dir: data/replay

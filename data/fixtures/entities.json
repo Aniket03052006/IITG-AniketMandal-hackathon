@@ -1,0 +1,142 @@
+[
+  {
+    "entity_id": "ENT_MRDN",
+    "name": "Meridian Bancorp",
+    "ticker": "MRDB",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "Meridian"
+    ]
+  },
+  {
+    "entity_id": "ENT_NRTH",
+    "name": "Northgate Capital",
+    "ticker": "NGCP",
+    "sector": "Financials",
+    "country": "GB",
+    "aliases": [
+      "Northgate"
+    ]
+  },
+  {
+    "entity_id": "ENT_ORCM",
+    "name": "Orchard Mutual",
+    "ticker": "ORCM",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "Orchard"
+    ]
+  },
+  {
+    "entity_id": "ENT_HLDN",
+    "name": "Halden Energy",
+    "ticker": "HLDE",
+    "sector": "Energy",
+    "country": "GB",
+    "aliases": [
+      "Halden"
+    ]
+  },
+  {
+    "entity_id": "ENT_TSPC",
+    "name": "Tessan Petroleum",
+    "ticker": "TSPC",
+    "sector": "Energy",
+    "country": "AE",
+    "aliases": [
+      "Tessan"
+    ]
+  },
+  {
+    "entity_id": "ENT_VNTR",
+    "name": "Vantor Semiconductors",
+    "ticker": "VNTR",
+    "sector": "Technology",
+    "country": "TW",
+    "aliases": [
+      "Vantor"
+    ]
+  },
+  {
+    "entity_id": "ENT_PRSM",
+    "name": "Prism Cloud Systems",
+    "ticker": "PRSM",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Prism Cloud"
+    ]
+  },
+  {
+    "entity_id": "ENT_CRVL",
+    "name": "Corvale Therapeutics",
+    "ticker": "CRVT",
+    "sector": "Healthcare",
+    "country": "US",
+    "aliases": [
+      "Corvale"
+    ]
+  },
+  {
+    "entity_id": "ENT_ZNTB",
+    "name": "Zenith Biologics",
+    "ticker": "ZNTB",
+    "sector": "Healthcare",
+    "country": "CH",
+    "aliases": [
+      "Zenith"
+    ]
+  },
+  {
+    "entity_id": "ENT_ASHF",
+    "name": "Ashford Industrial Group",
+    "ticker": "ASHI",
+    "sector": "Industrials",
+    "country": "DE",
+    "aliases": [
+      "Ashford"
+    ]
+  },
+  {
+    "entity_id": "ENT_KSTR",
+    "name": "Kestrel Aerospace",
+    "ticker": "KSTR",
+    "sector": "Industrials",
+    "country": "FR",
+    "aliases": [
+      "Kestrel"
+    ]
+  },
+  {
+    "entity_id": "ENT_AMBL",
+    "name": "Amberline Logistics",
+    "ticker": "AMBL",
+    "sector": "Industrials",
+    "country": "SG",
+    "aliases": [
+      "Amberline"
+    ]
+  },
+  {
+    "entity_id": "ENT_LMNR",
+    "name": "Lumenar Retail",
+    "ticker": "LMNR",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "Lumenar"
+    ]
+  },
+  {
+    "entity_id": "ENT_BWFD",
+    "name": "Brightwell Foods",
+    "ticker": "BWFD",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "Brightwell"
+    ]
+  }
+]

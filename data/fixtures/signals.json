@@ -1,0 +1,1564 @@
+{
+  "as_of": "2026-10-01T12:00:00Z",
+  "data_origin": "DEMO_FIXTURE",
+  "note": "Synthetic, hand-authored demo signals. Not model output.",
+  "signals": [
+    {
+      "id": "sig_0001",
+      "document": {
+        "id": "doc_0001",
+        "source": "Ledger Wire",
+        "source_type": "NEWS",
+        "published_at": "2026-10-01T08:30:00Z",
+        "ingested_at": "2026-10-01T08:31:00Z",
+        "author": "Ledger Wire Banking Desk",
+        "headline": "Meridian Bancorp flags funding gap as wholesale deposits fall 18% in a week",
+        "body": "Meridian Bancorp told investors it faces a funding shortfall after wholesale depositors withdrew roughly 18% of balances over seven days, and said it is in talks with the central bank about emergency liquidity. Analysts warned of contagion to regional lenders.",
+        "url": "https://demo.eventshock.invalid/ledger-wire/meridian-funding-gap",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_MRDN",
+        "entity_name": "Meridian Bancorp",
+        "ticker": "MRDB",
+        "sector": "Financials",
+        "country": "US",
+        "link_confidence": 0.99
+      },
+      "sentiment": {
+        "positive": 0.07,
+        "neutral": 0.14,
+        "negative": 0.79,
+        "score": -0.72
+      },
+      "event": {
+        "category": "CREDIT_FUNDING",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0233,
+          "MACROECONOMIC": 0.0233,
+          "CREDIT_FUNDING": 0.7802,
+          "MA_CORPORATE_ACTION": 0.0233,
+          "REGULATORY_LEGAL": 0.08,
+          "PRODUCT_OPERATIONS": 0.0233,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.0233,
+          "MARKET_VALUATION": 0.0233
+        }
+      },
+      "impact": {
+        "score": 9,
+        "raw": 0.88,
+        "drivers": [
+          {
+            "feature": "event_type = CREDIT_FUNDING",
+            "contribution": 0.22,
+            "note": "Funding events historically move prices most"
+          },
+          {
+            "feature": "sentiment = -0.72",
+            "contribution": 0.14,
+            "note": "Strongly negative tone"
+          },
+          {
+            "feature": "source_corroboration (5 sources)",
+            "contribution": 0.12,
+            "note": "Independent outlets confirm"
+          },
+          {
+            "feature": "novelty = 0.86",
+            "contribution": 0.09,
+            "note": "First report of the shortfall"
+          },
+          {
+            "feature": "sector = Financials",
+            "contribution": 0.06,
+            "note": "Sector sensitive to funding news"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 5,
+        "unique_domain_count": 4,
+        "recent_mention_count": 14,
+        "coverage_velocity": 3.5,
+        "novelty_score": 0.86,
+        "model_confidence": 0.81,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Harbor Daily",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T08:54:00Z",
+            "headline": "Meridian seeks central bank liquidity as deposits flee, sources say",
+            "url": "https://demo.eventshock.invalid/harbor-daily/2768",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "Continental Business Journal",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T09:36:00Z",
+            "headline": "Deposit run at Meridian Bancorp raises regional-bank contagion fears",
+            "url": "https://demo.eventshock.invalid/continental-business-journal/3748",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "FinTwit Replay",
+            "source_type": "SOCIAL",
+            "published_at": "2026-10-01T10:00:00Z",
+            "headline": "$MRDB deposit outflow is real, three desks confirming",
+            "url": "https://demo.eventshock.invalid/fintwit-replay/9176",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "FinTwit Replay",
+            "source_type": "SOCIAL",
+            "published_at": "2026-10-01T10:48:00Z",
+            "headline": "Meridian funding gap: credit desk widening MRDB bonds hard",
+            "url": "https://demo.eventshock.invalid/fintwit-replay/5697",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T08:32:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0002",
+      "document": {
+        "id": "doc_0002",
+        "source": "Harbor Daily",
+        "source_type": "NEWS",
+        "published_at": "2026-10-01T06:00:00Z",
+        "ingested_at": "2026-10-01T06:01:00Z",
+        "author": null,
+        "headline": "Regulator proposes higher capital buffer for mid-sized lenders; Northgate Capital among most affected",
+        "body": "A draft rule would lift minimum capital buffers for mid-sized lenders by 150 basis points. Northgate Capital was singled out as among the institutions with the thinnest cushion.",
+        "url": "https://demo.eventshock.invalid/harbor-daily/capital-buffer-proposal",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_NRTH",
+        "entity_name": "Northgate Capital",
+        "ticker": "NGCP",
+        "sector": "Financials",
+        "country": "GB",
+        "link_confidence": 0.96
+      },
+      "sentiment": {
+        "positive": 0.16,
+        "neutral": 0.3,
+        "negative": 0.54,
+        "score": -0.38
+      },
+      "event": {
+        "category": "REGULATORY_LEGAL",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0233,
+          "MACROECONOMIC": 0.0233,
+          "CREDIT_FUNDING": 0.12,
+          "MA_CORPORATE_ACTION": 0.0233,
+          "REGULATORY_LEGAL": 0.7402,
+          "PRODUCT_OPERATIONS": 0.0233,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.0233,
+          "MARKET_VALUATION": 0.0233
+        }
+      },
+      "impact": {
+        "score": 8,
+        "raw": 0.78,
+        "drivers": [
+          {
+            "feature": "event_type = REGULATORY_LEGAL",
+            "contribution": 0.2,
+            "note": "Capital rules reprice lenders"
+          },
+          {
+            "feature": "sentiment = -0.38",
+            "contribution": 0.07,
+            "note": "Moderately negative tone"
+          },
+          {
+            "feature": "sector = Financials",
+            "contribution": 0.09,
+            "note": "Rule applies to the whole sector"
+          },
+          {
+            "feature": "source_corroboration (3 sources)",
+            "contribution": 0.08,
+            "note": "Reported by several outlets"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 3,
+        "unique_domain_count": 3,
+        "recent_mention_count": 7,
+        "coverage_velocity": 1.4,
+        "novelty_score": 0.74,
+        "model_confidence": 0.77,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Ledger Wire",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T06:30:00Z",
+            "headline": "Draft capital rule would hit thinly-capitalised lenders",
+            "url": "https://demo.eventshock.invalid/ledger-wire/9793",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "FinTwit Replay",
+            "source_type": "SOCIAL",
+            "published_at": "2026-10-01T06:48:00Z",
+            "headline": "capital buffer +150bp for mid-size banks, NGCP the obvious loser",
+            "url": "https://demo.eventshock.invalid/fintwit-replay/5505",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T06:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0003",
+      "document": {
+        "id": "doc_0003",
+        "source": "Ledger Wire",
+        "source_type": "NEWS",
+        "published_at": "2026-10-01T03:00:00Z",
+        "ingested_at": "2026-10-01T03:01:00Z",
+        "author": "Ledger Wire Energy Desk",
+        "headline": "Strait shipping disruption: Halden Energy suspends two export terminals",
+        "body": "Halden Energy suspended loadings at two export terminals after vessels were rerouted away from a contested shipping lane. Crude benchmarks jumped as traders priced in supply risk.",
+        "url": "https://demo.eventshock.invalid/ledger-wire/halden-terminals",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_HLDN",
+        "entity_name": "Halden Energy",
+        "ticker": "HLDE",
+        "sector": "Energy",
+        "country": "GB",
+        "link_confidence": 0.98
+      },
+      "sentiment": {
+        "positive": 0.16,
+        "neutral": 0.4,
+        "negative": 0.44,
+        "score": -0.28
+      },
+      "event": {
+        "category": "GEOPOLITICAL",
+        "probabilities": {
+          "GEOPOLITICAL": 0.7098,
+          "MACROECONOMIC": 0.0317,
+          "CREDIT_FUNDING": 0.0317,
+          "MA_CORPORATE_ACTION": 0.0317,
+          "REGULATORY_LEGAL": 0.0317,
+          "PRODUCT_OPERATIONS": 0.1,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.0317,
+          "MARKET_VALUATION": 0.0317
+        }
+      },
+      "impact": {
+        "score": 8,
+        "raw": 0.74,
+        "drivers": [
+          {
+            "feature": "event_type = GEOPOLITICAL",
+            "contribution": 0.19,
+            "note": "Supply-route shocks move energy names"
+          },
+          {
+            "feature": "sector = Energy",
+            "contribution": 0.1,
+            "note": "High sensitivity to supply news"
+          },
+          {
+            "feature": "novelty = 0.78",
+            "contribution": 0.07,
+            "note": "New development"
+          },
+          {
+            "feature": "source_corroboration (4 sources)",
+            "contribution": 0.09,
+            "note": "Widely reported"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 4,
+        "unique_domain_count": 3,
+        "recent_mention_count": 9,
+        "coverage_velocity": 1.9,
+        "novelty_score": 0.78,
+        "model_confidence": 0.79,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Continental Business Journal",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T03:48:00Z",
+            "headline": "Oil jumps as shipping lane closure idles Halden terminals",
+            "url": "https://demo.eventshock.invalid/continental-business-journal/1639",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "Harbor Daily",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T04:24:00Z",
+            "headline": "Halden halts exports at two terminals amid rerouting",
+            "url": "https://demo.eventshock.invalid/harbor-daily/5692",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "FinTwit Replay",
+            "source_type": "SOCIAL",
+            "published_at": "2026-10-01T05:00:00Z",
+            "headline": "HLDE terminals offline, Brent bid. watch the tanker rates",
+            "url": "https://demo.eventshock.invalid/fintwit-replay/6696",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T03:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0004",
+      "document": {
+        "id": "doc_0004",
+        "source": "Continental Business Journal",
+        "source_type": "NEWS",
+        "published_at": "2026-10-01T00:00:00Z",
+        "ingested_at": "2026-10-01T00:01:00Z",
+        "author": "Continental Business Journal Markets Desk",
+        "headline": "Central bank signals faster tightening; futures price an extra 100 bp by spring",
+        "body": "The central bank said inflation is proving stickier than expected and opened the door to a faster pace of tightening. Rate futures now imply roughly 100 basis points of additional hikes.",
+        "url": "https://demo.eventshock.invalid/continental-business-journal/central-bank-tightening",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "UNKNOWN_ENTITY",
+        "entity_name": null,
+        "ticker": null,
+        "sector": null,
+        "country": null,
+        "link_confidence": 0.0
+      },
+      "sentiment": {
+        "positive": 0.12,
+        "neutral": 0.35,
+        "negative": 0.53,
+        "score": -0.41
+      },
+      "event": {
+        "category": "MACROECONOMIC",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0183,
+          "MACROECONOMIC": 0.8102,
+          "CREDIT_FUNDING": 0.0183,
+          "MA_CORPORATE_ACTION": 0.0183,
+          "REGULATORY_LEGAL": 0.0183,
+          "PRODUCT_OPERATIONS": 0.0183,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.0183,
+          "MARKET_VALUATION": 0.08
+        }
+      },
+      "impact": {
+        "score": 7,
+        "raw": 0.66,
+        "drivers": [
+          {
+            "feature": "event_type = MACROECONOMIC",
+            "contribution": 0.18,
+            "note": "Policy shifts reprice every asset class"
+          },
+          {
+            "feature": "sentiment = -0.41",
+            "contribution": 0.08,
+            "note": "Hawkish tone"
+          },
+          {
+            "feature": "source_corroboration (6 sources)",
+            "contribution": 0.12,
+            "note": "Broad coverage"
+          },
+          {
+            "feature": "entity = UNKNOWN",
+            "contribution": -0.03,
+            "note": "No single issuer; market-wide event"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 6,
+        "unique_domain_count": 5,
+        "recent_mention_count": 21,
+        "coverage_velocity": 2.7,
+        "novelty_score": 0.62,
+        "model_confidence": 0.86,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Ledger Wire",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T00:30:00Z",
+            "headline": "Rate futures price 100bp more as central bank turns hawkish",
+            "url": "https://demo.eventshock.invalid/ledger-wire/9208",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "Harbor Daily",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T01:00:00Z",
+            "headline": "Bonds slide after central bank flags quicker tightening",
+            "url": "https://demo.eventshock.invalid/harbor-daily/9712",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "FinTwit Replay",
+            "source_type": "SOCIAL",
+            "published_at": "2026-10-01T01:30:00Z",
+            "headline": "hawkish pivot confirmed. curve bear-flattening hard",
+            "url": "https://demo.eventshock.invalid/fintwit-replay/1085",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T00:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0005",
+      "document": {
+        "id": "doc_0005",
+        "source": "FinTwit Replay",
+        "source_type": "SOCIAL",
+        "published_at": "2026-10-01T07:00:00Z",
+        "ingested_at": "2026-10-01T07:01:00Z",
+        "author": "@chipwatcher_k",
+        "headline": "Hearing from a contact that Vantor's main fab just had a fire. Output halted?? $VNTR",
+        "body": "Unconfirmed. Contact at a supplier says smoke visible at the main fab and shifts sent home. $VNTR",
+        "url": "https://demo.eventshock.invalid/fintwit-replay/vntr-fab-rumor",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_VNTR",
+        "entity_name": "Vantor Semiconductors",
+        "ticker": "VNTR",
+        "sector": "Technology",
+        "country": "TW",
+        "link_confidence": 0.97
+      },
+      "sentiment": {
+        "positive": 0.15,
+        "neutral": 0.1,
+        "negative": 0.75,
+        "score": -0.6
+      },
+      "event": {
+        "category": "PRODUCT_OPERATIONS",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0367,
+          "MACROECONOMIC": 0.0367,
+          "CREDIT_FUNDING": 0.0367,
+          "MA_CORPORATE_ACTION": 0.0367,
+          "REGULATORY_LEGAL": 0.0367,
+          "PRODUCT_OPERATIONS": 0.5798,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.0367,
+          "MARKET_VALUATION": 0.2
+        }
+      },
+      "impact": {
+        "score": 6,
+        "raw": 0.55,
+        "drivers": [
+          {
+            "feature": "event_type = PRODUCT_OPERATIONS",
+            "contribution": 0.15,
+            "note": "Plant incidents move chip names"
+          },
+          {
+            "feature": "sentiment = -0.60",
+            "contribution": 0.1,
+            "note": "Alarmed tone"
+          },
+          {
+            "feature": "source_corroboration (1 source)",
+            "contribution": -0.1,
+            "note": "Single unverified social post"
+          },
+          {
+            "feature": "novelty = 0.90",
+            "contribution": 0.08,
+            "note": "First mention"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 1,
+        "unique_domain_count": 1,
+        "recent_mention_count": 3,
+        "coverage_velocity": 0.8,
+        "novelty_score": 0.9,
+        "model_confidence": 0.35,
+        "contradicted_by": [
+          "sig_0006"
+        ],
+        "corroborating": []
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T07:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0006",
+      "document": {
+        "id": "doc_0006",
+        "source": "Ledger Wire",
+        "source_type": "NEWS",
+        "published_at": "2026-10-01T09:00:00Z",
+        "ingested_at": "2026-10-01T09:01:00Z",
+        "author": "Ledger Wire Technology Desk",
+        "headline": "Vantor Semiconductors says fab incident contained, output unaffected",
+        "body": "Vantor Semiconductors said a small equipment fire at its main fab was extinguished within minutes with no injuries and no impact on wafer output.",
+        "url": "https://demo.eventshock.invalid/ledger-wire/vantor-fab-contained",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_VNTR",
+        "entity_name": "Vantor Semiconductors",
+        "ticker": "VNTR",
+        "sector": "Technology",
+        "country": "TW",
+        "link_confidence": 0.99
+      },
+      "sentiment": {
+        "positive": 0.25,
+        "neutral": 0.6,
+        "negative": 0.15,
+        "score": 0.1
+      },
+      "event": {
+        "category": "PRODUCT_OPERATIONS",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0467,
+          "MACROECONOMIC": 0.0467,
+          "CREDIT_FUNDING": 0.0467,
+          "MA_CORPORATE_ACTION": 0.0467,
+          "REGULATORY_LEGAL": 0.0467,
+          "PRODUCT_OPERATIONS": 0.6198,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.1,
+          "MARKET_VALUATION": 0.0467
+        }
+      },
+      "impact": {
+        "score": 3,
+        "raw": 0.27,
+        "drivers": [
+          {
+            "feature": "event_type = PRODUCT_OPERATIONS",
+            "contribution": 0.08,
+            "note": "Plant incidents move chip names"
+          },
+          {
+            "feature": "company statement",
+            "contribution": -0.12,
+            "note": "Issuer says output unaffected"
+          },
+          {
+            "feature": "source_corroboration (2 sources)",
+            "contribution": 0.03,
+            "note": "Issuer statement carried by wires"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 2,
+        "unique_domain_count": 2,
+        "recent_mention_count": 4,
+        "coverage_velocity": 1.1,
+        "novelty_score": 0.4,
+        "model_confidence": 0.74,
+        "contradicted_by": [
+          "sig_0005"
+        ],
+        "corroborating": [
+          {
+            "source": "Harbor Daily",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T09:24:00Z",
+            "headline": "Vantor: fab fire put out, no production impact",
+            "url": "https://demo.eventshock.invalid/harbor-daily/8505",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T09:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0007",
+      "document": {
+        "id": "doc_0007",
+        "source": "Harbor Daily",
+        "source_type": "NEWS",
+        "published_at": "2026-09-30T18:00:00Z",
+        "ingested_at": "2026-09-30T18:01:00Z",
+        "author": null,
+        "headline": "Prism Cloud Systems to acquire DataWeft in $4.2bn all-stock deal",
+        "body": "Prism Cloud Systems agreed to acquire DataWeft for $4.2bn in stock, adding analytics tooling to its platform. The deal is expected to close in the second quarter.",
+        "url": "https://demo.eventshock.invalid/harbor-daily/prism-dataweft",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_PRSM",
+        "entity_name": "Prism Cloud Systems",
+        "ticker": "PRSM",
+        "sector": "Technology",
+        "country": "US",
+        "link_confidence": 0.98
+      },
+      "sentiment": {
+        "positive": 0.1,
+        "neutral": 0.75,
+        "negative": 0.15,
+        "score": -0.05
+      },
+      "event": {
+        "category": "MA_CORPORATE_ACTION",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0183,
+          "MACROECONOMIC": 0.0183,
+          "CREDIT_FUNDING": 0.0183,
+          "MA_CORPORATE_ACTION": 0.8402,
+          "REGULATORY_LEGAL": 0.0183,
+          "PRODUCT_OPERATIONS": 0.0183,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.05,
+          "MARKET_VALUATION": 0.0183
+        }
+      },
+      "impact": {
+        "score": 6,
+        "raw": 0.55,
+        "drivers": [
+          {
+            "feature": "event_type = MA_CORPORATE_ACTION",
+            "contribution": 0.14,
+            "note": "Large deals reprice the acquirer"
+          },
+          {
+            "feature": "deal size vs market cap",
+            "contribution": 0.1,
+            "note": "Material relative to acquirer"
+          },
+          {
+            "feature": "sentiment = -0.05",
+            "contribution": 0.01,
+            "note": "Neutral tone"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 3,
+        "unique_domain_count": 3,
+        "recent_mention_count": 6,
+        "coverage_velocity": 0.6,
+        "novelty_score": 0.55,
+        "model_confidence": 0.83,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Ledger Wire",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T18:30:00Z",
+            "headline": "Prism Cloud buys DataWeft for $4.2bn in stock",
+            "url": "https://demo.eventshock.invalid/ledger-wire/9962",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "Continental Business Journal",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T20:00:00Z",
+            "headline": "Prism's all-stock DataWeft deal: what analysts say",
+            "url": "https://demo.eventshock.invalid/continental-business-journal/3088",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-09-30T18:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0008",
+      "document": {
+        "id": "doc_0008",
+        "source": "Continental Business Journal",
+        "source_type": "NEWS",
+        "published_at": "2026-09-30T16:00:00Z",
+        "ingested_at": "2026-09-30T16:01:00Z",
+        "author": null,
+        "headline": "Corvale Therapeutics' lead drug misses primary endpoint in Phase III trial",
+        "body": "Corvale Therapeutics said its lead oncology candidate failed to meet the primary endpoint in a Phase III study and that it will review the programme. The drug accounted for most of the company's projected pipeline value.",
+        "url": "https://demo.eventshock.invalid/continental-business-journal/corvale-phase3",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_CRVL",
+        "entity_name": "Corvale Therapeutics",
+        "ticker": "CRVT",
+        "sector": "Healthcare",
+        "country": "US",
+        "link_confidence": 0.99
+      },
+      "sentiment": {
+        "positive": 0.04,
+        "neutral": 0.1,
+        "negative": 0.86,
+        "score": -0.82
+      },
+      "event": {
+        "category": "PRODUCT_OPERATIONS",
+        "probabilities": {
+          "GEOPOLITICAL": 0.035,
+          "MACROECONOMIC": 0.035,
+          "CREDIT_FUNDING": 0.035,
+          "MA_CORPORATE_ACTION": 0.035,
+          "REGULATORY_LEGAL": 0.035,
+          "PRODUCT_OPERATIONS": 0.69,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.1,
+          "MARKET_VALUATION": 0.035
+        }
+      },
+      "impact": {
+        "score": 7,
+        "raw": 0.66,
+        "drivers": [
+          {
+            "feature": "event_type = PRODUCT_OPERATIONS",
+            "contribution": 0.15,
+            "note": "Trial failures can reset valuations"
+          },
+          {
+            "feature": "sentiment = -0.82",
+            "contribution": 0.16,
+            "note": "Very negative tone"
+          },
+          {
+            "feature": "pipeline concentration",
+            "contribution": 0.11,
+            "note": "One asset drives most value"
+          },
+          {
+            "feature": "sector = Healthcare",
+            "contribution": 0.04,
+            "note": "Binary outcomes common"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 4,
+        "unique_domain_count": 4,
+        "recent_mention_count": 11,
+        "coverage_velocity": 0.9,
+        "novelty_score": 0.7,
+        "model_confidence": 0.8,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Ledger Wire",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T16:36:00Z",
+            "headline": "Corvale shares set to plunge after Phase III miss",
+            "url": "https://demo.eventshock.invalid/ledger-wire/3680",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "Harbor Daily",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T17:00:00Z",
+            "headline": "Corvale's oncology drug fails main trial goal",
+            "url": "https://demo.eventshock.invalid/harbor-daily/2389",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "FinTwit Replay",
+            "source_type": "SOCIAL",
+            "published_at": "2026-09-30T17:18:00Z",
+            "headline": "CRVT lead asset dead. pipeline value gone",
+            "url": "https://demo.eventshock.invalid/fintwit-replay/4330",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-09-30T16:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0009",
+      "document": {
+        "id": "doc_0009",
+        "source": "Harbor Daily",
+        "source_type": "NEWS",
+        "published_at": "2026-09-30T10:00:00Z",
+        "ingested_at": "2026-09-30T10:01:00Z",
+        "author": null,
+        "headline": "Lumenar Retail cuts full-year guidance on weak holiday pre-orders",
+        "body": "Lumenar Retail lowered its full-year revenue and margin guidance, citing weak holiday pre-orders and heavier promotions. The company also flagged higher inventory levels.",
+        "url": "https://demo.eventshock.invalid/harbor-daily/lumenar-guidance-cut",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_LMNR",
+        "entity_name": "Lumenar Retail",
+        "ticker": "LMNR",
+        "sector": "Consumer",
+        "country": "US",
+        "link_confidence": 0.98
+      },
+      "sentiment": {
+        "positive": 0.05,
+        "neutral": 0.2,
+        "negative": 0.75,
+        "score": -0.7
+      },
+      "event": {
+        "category": "EARNINGS_FINANCIAL_PERFORMANCE",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0233,
+          "MACROECONOMIC": 0.0233,
+          "CREDIT_FUNDING": 0.0233,
+          "MA_CORPORATE_ACTION": 0.0233,
+          "REGULATORY_LEGAL": 0.0233,
+          "PRODUCT_OPERATIONS": 0.06,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.8002,
+          "MARKET_VALUATION": 0.0233
+        }
+      },
+      "impact": {
+        "score": 7,
+        "raw": 0.68,
+        "drivers": [
+          {
+            "feature": "event_type = EARNINGS_FINANCIAL_PERFORMANCE",
+            "contribution": 0.17,
+            "note": "Guidance cuts are priced fast"
+          },
+          {
+            "feature": "sentiment = -0.70",
+            "contribution": 0.13,
+            "note": "Negative tone"
+          },
+          {
+            "feature": "sector = Consumer",
+            "contribution": 0.05,
+            "note": "Consumer names react to demand signals"
+          },
+          {
+            "feature": "inventory flag",
+            "contribution": 0.04,
+            "note": "Extra margin pressure"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 3,
+        "unique_domain_count": 3,
+        "recent_mention_count": 8,
+        "coverage_velocity": 0.5,
+        "novelty_score": 0.68,
+        "model_confidence": 0.82,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Ledger Wire",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T10:48:00Z",
+            "headline": "Lumenar slashes outlook as holiday orders disappoint",
+            "url": "https://demo.eventshock.invalid/ledger-wire/8341",
+            "relation": "SAME_EVENT"
+          },
+          {
+            "source": "Continental Business Journal",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T12:00:00Z",
+            "headline": "Retailer Lumenar trims guidance, flags inventory build",
+            "url": "https://demo.eventshock.invalid/continental-business-journal/2543",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-09-30T10:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0010",
+      "document": {
+        "id": "doc_0010",
+        "source": "FinTwit Replay",
+        "source_type": "SOCIAL",
+        "published_at": "2026-10-01T04:00:00Z",
+        "ingested_at": "2026-10-01T04:01:00Z",
+        "author": "@gamma_gwen",
+        "headline": "Retail traders piling into Brightwell weekly calls, short interest squeezing. Meme energy.",
+        "body": "BWFD weekly call volume 4x normal, borrow cost spiking. Nothing fundamental, pure flow. $BWFD",
+        "url": "https://demo.eventshock.invalid/fintwit-replay/bwfd-call-frenzy",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_BWFD",
+        "entity_name": "Brightwell Foods",
+        "ticker": "BWFD",
+        "sector": "Consumer",
+        "country": "US",
+        "link_confidence": 0.95
+      },
+      "sentiment": {
+        "positive": 0.675,
+        "neutral": 0.2,
+        "negative": 0.125,
+        "score": 0.55
+      },
+      "event": {
+        "category": "MARKET_VALUATION",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0417,
+          "MACROECONOMIC": 0.0417,
+          "CREDIT_FUNDING": 0.0417,
+          "MA_CORPORATE_ACTION": 0.0417,
+          "REGULATORY_LEGAL": 0.0417,
+          "PRODUCT_OPERATIONS": 0.0417,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.15,
+          "MARKET_VALUATION": 0.5998
+        }
+      },
+      "impact": {
+        "score": 4,
+        "raw": 0.35,
+        "drivers": [
+          {
+            "feature": "event_type = MARKET_VALUATION",
+            "contribution": 0.1,
+            "note": "Flow-driven moves can mean-revert"
+          },
+          {
+            "feature": "source type = SOCIAL",
+            "contribution": -0.05,
+            "note": "Social-only signal"
+          },
+          {
+            "feature": "coverage_velocity = 2.1",
+            "contribution": 0.06,
+            "note": "Fast attention build"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 1,
+        "unique_domain_count": 1,
+        "recent_mention_count": 12,
+        "coverage_velocity": 2.1,
+        "novelty_score": 0.6,
+        "model_confidence": 0.42,
+        "contradicted_by": [],
+        "corroborating": []
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T04:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0011",
+      "document": {
+        "id": "doc_0011",
+        "source": "Ledger Wire",
+        "source_type": "NEWS",
+        "published_at": "2026-09-30T06:00:00Z",
+        "ingested_at": "2026-09-30T06:01:00Z",
+        "author": null,
+        "headline": "Ashford Industrial prices $1.1bn refinancing, pushes maturity wall to 2031",
+        "body": "Ashford Industrial Group priced a $1.1bn refinancing that extends its debt maturity profile to 2031 and reduces near-term rollover risk.",
+        "url": "https://demo.eventshock.invalid/ledger-wire/ashford-refinancing",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_ASHF",
+        "entity_name": "Ashford Industrial Group",
+        "ticker": "ASHI",
+        "sector": "Industrials",
+        "country": "DE",
+        "link_confidence": 0.98
+      },
+      "sentiment": {
+        "positive": 0.66,
+        "neutral": 0.3,
+        "negative": 0.04,
+        "score": 0.62
+      },
+      "event": {
+        "category": "CREDIT_FUNDING",
+        "probabilities": {
+          "GEOPOLITICAL": 0.03,
+          "MACROECONOMIC": 0.03,
+          "CREDIT_FUNDING": 0.77,
+          "MA_CORPORATE_ACTION": 0.05,
+          "REGULATORY_LEGAL": 0.03,
+          "PRODUCT_OPERATIONS": 0.03,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.03,
+          "MARKET_VALUATION": 0.03
+        }
+      },
+      "impact": {
+        "score": 3,
+        "raw": 0.24,
+        "drivers": [
+          {
+            "feature": "event_type = CREDIT_FUNDING",
+            "contribution": 0.08,
+            "note": "Funding events matter"
+          },
+          {
+            "feature": "sentiment = +0.62",
+            "contribution": -0.04,
+            "note": "Positive tone lowers downside"
+          },
+          {
+            "feature": "novelty = 0.5",
+            "contribution": 0.03,
+            "note": "Expected refinancing"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 2,
+        "unique_domain_count": 2,
+        "recent_mention_count": 4,
+        "coverage_velocity": 0.3,
+        "novelty_score": 0.5,
+        "model_confidence": 0.84,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Harbor Daily",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T06:36:00Z",
+            "headline": "Ashford extends maturities with $1.1bn bond deal",
+            "url": "https://demo.eventshock.invalid/harbor-daily/9109",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-09-30T06:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0012",
+      "document": {
+        "id": "doc_0012",
+        "source": "Harbor Daily",
+        "source_type": "NEWS",
+        "published_at": "2026-09-30T02:00:00Z",
+        "ingested_at": "2026-09-30T02:01:00Z",
+        "author": null,
+        "headline": "Kestrel Aerospace unveils NX-9 regional jet; order book up 12%",
+        "body": "Kestrel Aerospace unveiled the NX-9 regional jet and said its order book grew 12% since the last quarter on early customer commitments.",
+        "url": "https://demo.eventshock.invalid/harbor-daily/kestrel-nx9",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_KSTR",
+        "entity_name": "Kestrel Aerospace",
+        "ticker": "KSTR",
+        "sector": "Industrials",
+        "country": "FR",
+        "link_confidence": 0.99
+      },
+      "sentiment": {
+        "positive": 0.74,
+        "neutral": 0.22,
+        "negative": 0.04,
+        "score": 0.7
+      },
+      "event": {
+        "category": "PRODUCT_OPERATIONS",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0283,
+          "MACROECONOMIC": 0.0283,
+          "CREDIT_FUNDING": 0.0283,
+          "MA_CORPORATE_ACTION": 0.0283,
+          "REGULATORY_LEGAL": 0.0283,
+          "PRODUCT_OPERATIONS": 0.7302,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.1,
+          "MARKET_VALUATION": 0.0283
+        }
+      },
+      "impact": {
+        "score": 2,
+        "raw": 0.12,
+        "drivers": [
+          {
+            "feature": "event_type = PRODUCT_OPERATIONS",
+            "contribution": 0.05,
+            "note": "Launches rarely move credit"
+          },
+          {
+            "feature": "sentiment = +0.70",
+            "contribution": -0.03,
+            "note": "Positive tone"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 2,
+        "unique_domain_count": 2,
+        "recent_mention_count": 5,
+        "coverage_velocity": 0.3,
+        "novelty_score": 0.45,
+        "model_confidence": 0.85,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Ledger Wire",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T03:00:00Z",
+            "headline": "Kestrel launches NX-9 jet with fresh orders",
+            "url": "https://demo.eventshock.invalid/ledger-wire/6118",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-09-30T02:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0013",
+      "document": {
+        "id": "doc_0013",
+        "source": "FinTwit Replay",
+        "source_type": "SOCIAL",
+        "published_at": "2026-10-01T08:00:00Z",
+        "ingested_at": "2026-10-01T08:01:00Z",
+        "author": "@anon_alpha_77",
+        "headline": "a big European bank is about to gap down tomorrow, trust me",
+        "body": "Not naming it. You'll see. Cover your longs.",
+        "url": "https://demo.eventshock.invalid/fintwit-replay/anon-bank-gap",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "UNKNOWN_ENTITY",
+        "entity_name": null,
+        "ticker": null,
+        "sector": null,
+        "country": null,
+        "link_confidence": 0.0
+      },
+      "sentiment": {
+        "positive": 0.1,
+        "neutral": 0.25,
+        "negative": 0.65,
+        "score": -0.55
+      },
+      "event": {
+        "category": "MARKET_VALUATION",
+        "probabilities": {
+          "GEOPOLITICAL": 0.04,
+          "MACROECONOMIC": 0.04,
+          "CREDIT_FUNDING": 0.3,
+          "MA_CORPORATE_ACTION": 0.04,
+          "REGULATORY_LEGAL": 0.04,
+          "PRODUCT_OPERATIONS": 0.04,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.04,
+          "MARKET_VALUATION": 0.46
+        }
+      },
+      "impact": {
+        "score": 3,
+        "raw": 0.22,
+        "drivers": [
+          {
+            "feature": "entity = UNKNOWN",
+            "contribution": -0.1,
+            "note": "No resolvable issuer"
+          },
+          {
+            "feature": "source type = SOCIAL",
+            "contribution": -0.06,
+            "note": "Anonymous, unverifiable"
+          },
+          {
+            "feature": "sentiment = -0.55",
+            "contribution": 0.07,
+            "note": "Alarmist tone"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 1,
+        "unique_domain_count": 1,
+        "recent_mention_count": 2,
+        "coverage_velocity": 0.5,
+        "novelty_score": 0.95,
+        "model_confidence": 0.2,
+        "contradicted_by": [],
+        "corroborating": []
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T08:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0014",
+      "document": {
+        "id": "doc_0014",
+        "source": "Continental Business Journal",
+        "source_type": "NEWS",
+        "published_at": "2026-10-01T10:00:00Z",
+        "ingested_at": "2026-10-01T10:01:00Z",
+        "author": null,
+        "headline": "Amberline Logistics halts two Asian hubs as port strike spreads",
+        "body": "Amberline Logistics halted operations at two Asian hubs as a port workers' strike spread. The company did not give a timeline for resuming service.",
+        "url": "https://demo.eventshock.invalid/continental-business-journal/amberline-port-strike",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_AMBL",
+        "entity_name": "Amberline Logistics",
+        "ticker": "AMBL",
+        "sector": "Industrials",
+        "country": "SG",
+        "link_confidence": 0.98
+      },
+      "sentiment": {
+        "positive": 0.1,
+        "neutral": 0.3,
+        "negative": 0.6,
+        "score": -0.5
+      },
+      "event": {
+        "category": "PRODUCT_OPERATIONS",
+        "probabilities": {
+          "GEOPOLITICAL": 0.2,
+          "MACROECONOMIC": 0.0467,
+          "CREDIT_FUNDING": 0.0467,
+          "MA_CORPORATE_ACTION": 0.0467,
+          "REGULATORY_LEGAL": 0.0467,
+          "PRODUCT_OPERATIONS": 0.5198,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.0467,
+          "MARKET_VALUATION": 0.0467
+        }
+      },
+      "impact": null,
+      "evidence": {
+        "source_count": 2,
+        "unique_domain_count": 2,
+        "recent_mention_count": 3,
+        "coverage_velocity": 0.9,
+        "novelty_score": 0.8,
+        "model_confidence": 0.0,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Harbor Daily",
+            "source_type": "NEWS",
+            "published_at": "2026-10-01T11:00:00Z",
+            "headline": "Port strike spreads, Amberline idles two hubs",
+            "url": "https://demo.eventshock.invalid/harbor-daily/4957",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "PARTIAL",
+      "status_reason": "Impact model unavailable at ingestion time (replayed failure case). No score was fabricated.",
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": null,
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-10-01T10:02:00Z",
+      "provenance": null
+    },
+    {
+      "id": "sig_0015",
+      "document": {
+        "id": "doc_0015",
+        "source": "Harbor Daily",
+        "source_type": "NEWS",
+        "published_at": "2026-09-30T22:00:00Z",
+        "ingested_at": "2026-09-30T22:01:00Z",
+        "author": null,
+        "headline": "Rating agency moves Orchard Mutual outlook to negative on reserve adequacy",
+        "body": "A rating agency revised Orchard Mutual's outlook to negative, citing concerns that claims reserves may be insufficient after a run of large losses.",
+        "url": "https://demo.eventshock.invalid/harbor-daily/orchard-outlook-negative",
+        "language": "en",
+        "raw_metadata": {
+          "demo": true
+        }
+      },
+      "entity": {
+        "entity_id": "ENT_ORCM",
+        "entity_name": "Orchard Mutual",
+        "ticker": "ORCM",
+        "sector": "Financials",
+        "country": "US",
+        "link_confidence": 0.97
+      },
+      "sentiment": {
+        "positive": 0.1,
+        "neutral": 0.3,
+        "negative": 0.6,
+        "score": -0.5
+      },
+      "event": {
+        "category": "CREDIT_FUNDING",
+        "probabilities": {
+          "GEOPOLITICAL": 0.0333,
+          "MACROECONOMIC": 0.0333,
+          "CREDIT_FUNDING": 0.6602,
+          "MA_CORPORATE_ACTION": 0.0333,
+          "REGULATORY_LEGAL": 0.0333,
+          "PRODUCT_OPERATIONS": 0.0333,
+          "EARNINGS_FINANCIAL_PERFORMANCE": 0.14,
+          "MARKET_VALUATION": 0.0333
+        }
+      },
+      "impact": {
+        "score": 6,
+        "raw": 0.58,
+        "drivers": [
+          {
+            "feature": "event_type = CREDIT_FUNDING",
+            "contribution": 0.15,
+            "note": "Outlook changes shift spreads"
+          },
+          {
+            "feature": "sentiment = -0.50",
+            "contribution": 0.09,
+            "note": "Negative tone"
+          },
+          {
+            "feature": "sector = Financials",
+            "contribution": 0.05,
+            "note": "Sector sensitive to credit news"
+          }
+        ],
+        "quantisation": "ceil(raw * 10), min 1"
+      },
+      "evidence": {
+        "source_count": 2,
+        "unique_domain_count": 2,
+        "recent_mention_count": 5,
+        "coverage_velocity": 0.6,
+        "novelty_score": 0.66,
+        "model_confidence": 0.78,
+        "contradicted_by": [],
+        "corroborating": [
+          {
+            "source": "Continental Business Journal",
+            "source_type": "NEWS",
+            "published_at": "2026-09-30T23:00:00Z",
+            "headline": "Orchard Mutual outlook cut to negative over reserves",
+            "url": "https://demo.eventshock.invalid/continental-business-journal/2333",
+            "relation": "SAME_EVENT"
+          }
+        ]
+      },
+      "status": "COMPLETE",
+      "status_reason": null,
+      "data_origin": "DEMO_FIXTURE",
+      "model_versions": {
+        "sentiment": "fixture-v0 (hand-authored)",
+        "event": "fixture-v0 (hand-authored)",
+        "impact": "fixture-v0 (hand-authored)",
+        "entity_resolver": "fixture-v0 (alias table)",
+        "feature_schema": "1"
+      },
+      "created_at": "2026-09-30T22:02:00Z",
+      "provenance": null
+    }
+  ]
+}

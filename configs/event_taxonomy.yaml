@@ -1,0 +1,35 @@
+# Event taxonomy (PRD §11.2). `default_scenario` maps each class to a scenario template id.
+version: "1"
+categories:
+  - id: GEOPOLITICAL
+    label: Geopolitical
+    description: Conflict, sanctions, trade restrictions, supply-route disruption.
+    default_scenario: scn_geopolitical_flight_to_safety
+  - id: MACROECONOMIC
+    label: Macroeconomic
+    description: Central-bank policy, inflation, growth and labour data.
+    default_scenario: scn_macro_rates_shock
+  - id: CREDIT_FUNDING
+    label: Credit / Funding
+    description: Downgrades, liquidity stress, refinancing, default risk.
+    default_scenario: scn_credit_funding_stress
+  - id: MA_CORPORATE_ACTION
+    label: M&A / Corporate Action
+    description: Acquisitions, divestitures, buy-backs, restructurings.
+    default_scenario: scn_ma_repricing
+  - id: REGULATORY_LEGAL
+    label: Regulatory / Legal
+    description: New rules, enforcement, litigation, capital requirements.
+    default_scenario: scn_regulatory_capital_hit
+  - id: PRODUCT_OPERATIONS
+    label: Product / Operations
+    description: Launches, recalls, outages, trial results, plant incidents.
+    default_scenario: scn_product_ops_disruption
+  - id: EARNINGS_FINANCIAL_PERFORMANCE
+    label: Earnings / Performance
+    description: Results, guidance changes, margin and revenue surprises.
+    default_scenario: scn_earnings_repricing
+  - id: MARKET_VALUATION
+    label: Market / Valuation
+    description: Broad repricing, momentum, volatility and sentiment-driven moves.
+    default_scenario: scn_market_drawdown
