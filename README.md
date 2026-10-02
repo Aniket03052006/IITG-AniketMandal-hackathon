@@ -3,7 +3,7 @@
 <p align="center"><img src="web/public/logo.svg" alt="EventShock" height="64"></p>
 
 **Candidate Name:** Aniket Mandal  
-**College Email ID:** [your_id@iitg.ac.in]  
+**College Email ID:** [aniket.mandal@iitg.ac.in]  
 **College / Campus:** Indian Institute of Technology Guwahati (IITG)  
 **Demo Video Link:** [YouTube / Unlisted]  
 **Slide Deck Link (if hosted externally):** [Optional Cloud Link / docs/presentation.pdf]  
