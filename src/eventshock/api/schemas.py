@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from ..domain import (
     Entity,
     EventCategory,
+    EventStatus,
     RiskSignal,
     RunMode,
     Scenario,
@@ -40,6 +41,8 @@ class SignalSummary(ContractModel):
     ticker: str | None
     sector: str | None
     category: EventCategory
+    event_status: EventStatus = Field(
+        description="CLASSIFIED: `category` is a finding; otherwise it is only a best guess")
     sentiment_score: float
     impact_score: int | None
     status: SignalStatus

@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .config import ConfigError
-from .domain import Entity, EventCategory, Portfolio, RiskSignal, SourceType
+from .domain import Entity, EventCategory, EventStatus, Portfolio, RiskSignal, SourceType
 
 
 def _read_json(path: Path) -> object:
@@ -37,11 +37,15 @@ class InMemorySignalRepository:
         source_type: SourceType | None = None,
         min_impact: int | None = None,
         query: str | None = None,
+        event_status: EventStatus | None = None,
     ) -> list[RiskSignal]:
+        """``category`` matches only CLASSIFIED events: a NO_EVENT/UNCERTAIN best guess is not a finding."""
         q = query.strip().lower() if query else None
         out = []
         for s in self._signals:
-            if category and s.event.category != category:
+            if category and (s.event.category != category or s.event.status is not EventStatus.CLASSIFIED):
+                continue
+            if event_status and s.event.status is not event_status:
                 continue
             if source_type and s.document.source_type != source_type:
                 continue

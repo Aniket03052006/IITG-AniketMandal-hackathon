@@ -10,9 +10,9 @@ class TestMetaAndReport:
         m = replay_client.get("/api/meta").json()
         assert m["profile"] == "replay" and m["data_origin"] == "REAL_SOURCE_MIXED_NLP"
         assert m["replay"]["snapshot_id"] and len(m["replay"]["output_digest"]) == 64
-        assert any("trained model" in n and "PLACEHOLDER" in n for n in m["notices"])
+        assert any("trained models" in n and "event type" in n and "impact is a PLACEHOLDER" in n for n in m["notices"])
         so = m["replay"]["stage_origins"]
-        assert so["sentiment"].startswith("MODEL") and so["event"] == "PLACEHOLDER" and so["impact"] == "PLACEHOLDER"
+        assert so["sentiment"].startswith("MODEL") and so["event"].startswith("MODEL") and so["impact"] == "PLACEHOLDER"
 
     def test_demo_profile_meta_is_unchanged(self, client):
         m = client.get("/api/meta").json()
@@ -26,12 +26,16 @@ class TestMetaAndReport:
         assert {s["source_type"] for s in r["sources"]} == {"NEWS", "SOCIAL"}
         assert all(s["license"] and s["attribution"] for s in r["sources"])
 
-    def test_failed_downloads_are_reported_not_hidden(self, replay_client):
-        log = replay_client.get("/api/pipeline/report").json()["fetch_log"]
+    def test_download_log_lists_the_current_plan_and_counts_the_abandoned_one(self, replay_client, replay_container):
+        r = replay_client.get("/api/pipeline/report").json()
+        log = r["fetch_log"]
+        plan = set(replay_container.snapshot.manifest.fetch_plan)
         assert log and {e["status"] for e in log} <= {"ok", "error"}
         for e in log:
             assert e["attempts"] >= 1 and (e["status"] == "ok" or e["last_error"])
-        assert any(e["status"] == "error" for e in log), "the shipped pack is partial and must say so"
+            assert e["query"] in plan or e["query"].startswith("gkg:"), "a request of an abandoned plan must not be listed"
+        assert r["superseded_requests"] > 0, "the abandoned first plan's failed requests are counted, not silently dropped"
+        assert {e["query"] for e in log if e["query"] in plan} == plan, "every request of the current plan has a row"
 
     def test_no_pipeline_report_in_demo_profile(self, client):
         assert client.get("/api/pipeline/report").status_code == 404
@@ -49,8 +53,12 @@ class TestSignals:
         p = s["provenance"]
         assert p["snapshot_id"] and p["record_ref"] and len(p["content_sha256"]) == 64
         assert p["dedup"]["member_count"] == s["evidence"]["source_count"]
-        assert p["stage_origins"] == {"sentiment": "MODEL", "event": "PLACEHOLDER_RULES", "impact": "PLACEHOLDER_RULES"}
-        assert s["model_versions"]["impact"].startswith("placeholder") and s["model_versions"]["event"].startswith("placeholder")
+        assert p["stage_origins"] == {"sentiment": "MODEL", "event": "MODEL", "impact": "PLACEHOLDER_RULES"}
+        assert s["model_versions"]["impact"].startswith("placeholder") and s["model_versions"]["event"].startswith("tfidf-lr-event-v1+")
+        e = p["event"]
+        assert e["model_id"] == "tfidf-lr-event-v1" and len(e["artifact_sha256"]) == 64 and e["calibrated"] is True
+        assert 0 <= e["confidence"] <= 1 and 0 <= e["no_event_probability"] <= 1 and isinstance(e["seen_in_training"], bool)
+        assert s["event"]["status"] in {"CLASSIFIED", "NO_EVENT", "UNCERTAIN"}
         assert s["model_versions"]["sentiment"].startswith("tfidf-lr-v1+")
         a = p["sentiment"]
         assert a["model_id"] == "tfidf-lr-v1" and len(a["artifact_sha256"]) == 64 and a["calibrated"] is True
@@ -120,6 +128,51 @@ class TestSentimentModelEndpoint:
 
     def test_pipeline_report_lists_unscorable_texts(self, replay_client):
         assert replay_client.get("/api/pipeline/report").json()["quarantine_by_code"].get("UNSCORABLE_TEXT", 0) > 0
+
+
+class TestEventModelEndpoint:
+    def test_card_is_served_with_results_reliability_and_limits(self, replay_client):
+        c = replay_client.get("/api/models/event").json()
+        assert c["id"] == "tfidf-lr-event-v1" and len(c["artifact_sha256"]) == 64 and c["limitations"]
+        assert c["classes"][-1] == "NONE" and len(c["classes"]) == 9
+        assert {r["label"] for r in c["class_reliability"]} == set(c["classes"][:-1])
+        assert all(r["status"] in {"ok", "unreliable", "unmeasured"} and r["reason"] for r in c["class_reliability"])
+        sets = {e["id"]: e for e in c["evaluations"]}
+        assert {"dev_history", "gold_history", "replay_check"} <= set(sets)
+        g = sets["gold_history"]
+        assert g["status"] == "ok" and g["model"]["n"] > 200 and len(g["model"]["confusion"]) == 9
+        assert g["model"]["macro_f1"] > g["baselines"]["placeholder_keywords"]["macro_f1"]
+        assert g["model"]["served"]["detection"]["f1"] > g["baselines"]["placeholder_keywords"]["detection_f1"]
+        assert c["acceptance"]["rule"] and isinstance(c["acceptance"]["met"], bool) and c["acceptance"]["checks"]
+        assert c["abstention"]["commit_threshold"] == 0.5 and 0 < c["abstention"]["dev_coverage"] <= 1
+
+    def test_card_matches_the_artifact_that_classified_the_signals(self, replay_client):
+        sid = replay_client.get("/api/signals").json()["items"][0]["id"]
+        sha = replay_client.get(f"/api/signals/{sid}").json()["provenance"]["event"]["artifact_sha256"]
+        assert replay_client.get("/api/models/event").json()["artifact_sha256"] == sha
+
+    def test_no_event_card_in_the_demo_profile(self, client):
+        assert client.get("/api/models/event").status_code == 404
+
+
+class TestEventStatusInTheFeed:
+    def test_summaries_carry_the_status_and_the_filter_works(self, replay_client):
+        allp = replay_client.get("/api/signals").json()
+        assert {i["event_status"] for i in allp["items"]} == {"CLASSIFIED", "NO_EVENT", "UNCERTAIN"}
+        for status in ("CLASSIFIED", "NO_EVENT", "UNCERTAIN"):
+            part = replay_client.get("/api/signals", params={"event_status": status}).json()
+            assert part["total"] > 0 and {i["event_status"] for i in part["items"]} == {status}
+        assert replay_client.get("/api/signals", params={"event_status": "BOGUS"}).status_code == 422
+
+    def test_a_category_filter_matches_only_findings_not_best_guesses(self, replay_client):
+        part = replay_client.get("/api/signals", params={"category": "PRODUCT_OPERATIONS"}).json()
+        assert part["total"] > 0 and all(i["event_status"] == "CLASSIFIED" and i["category"] == "PRODUCT_OPERATIONS" for i in part["items"])
+
+    def test_non_events_have_no_impact_and_the_stress_engine_reports_them_unavailable(self, replay_client):
+        item = replay_client.get("/api/signals", params={"event_status": "NO_EVENT"}).json()["items"][0]
+        assert item["impact_score"] is None and item["status"] == "PARTIAL"
+        r = replay_client.post("/api/stress-test", json={"signal_id": item["id"], "force": True}).json()
+        assert r["status"] == "UNAVAILABLE"
 
 
 class TestStressEngineIgnoresSentimentValues:

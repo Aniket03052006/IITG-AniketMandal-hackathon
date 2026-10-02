@@ -19,6 +19,13 @@ def health() -> dict[str, str]:
 def _notices(c: Container) -> list[str]:
     if c.pipeline_report is None:
         first = "Signals are hand-authored demo fixtures (fixture-v0), not model output."
+    elif c.sentiment_card is not None and c.event_card is not None:
+        first = (
+            "Documents are real (GDELT news metadata, Twitter Financial News posts) replayed from a frozen "
+            f"snapshot. Sentiment ({c.sentiment_card.id}) and event type ({c.event_card.id}, which can say "
+            "\"not an event\" or \"uncertain\") are trained models; impact is a PLACEHOLDER rule, not a "
+            "trained model."
+        )
     elif c.sentiment_card is not None:
         first = (
             "Documents are real (GDELT news metadata, Twitter Financial News posts) replayed from a frozen "

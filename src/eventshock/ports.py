@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from datetime import datetime
 from typing import Protocol
 
-from .domain import Entity, EventCategory, Portfolio, RawDocument, RiskSignal, SourceType
+from .domain import Entity, EventCategory, EventStatus, Portfolio, RawDocument, RiskSignal, SourceType
 
 
 class SourceAdapter(Protocol):
@@ -29,6 +29,7 @@ class SignalRepository(Protocol):
         source_type: SourceType | None = None,
         min_impact: int | None = None,
         query: str | None = None,
+        event_status: EventStatus | None = None,
     ) -> list[RiskSignal]: ...
 
     def get(self, signal_id: str) -> RiskSignal | None: ...

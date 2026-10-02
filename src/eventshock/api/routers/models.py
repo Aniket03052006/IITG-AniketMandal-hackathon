@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from ...pipeline.event_card import EventModelCard
 from ...pipeline.sentiment_card import SentimentModelCard
 from ..deps import Container, get_container
 
@@ -14,3 +15,11 @@ def sentiment_model(c: Container = Depends(get_container)) -> SentimentModelCard
     if c.sentiment_card is None:
         raise HTTPException(status_code=404, detail="no sentiment model: running the demo-fixture profile")
     return c.sentiment_card
+
+
+@router.get("/event", response_model=EventModelCard)
+def event_model(c: Container = Depends(get_container)) -> EventModelCard:
+    """The event model card: training data, abstention, per-class reliability, scores and failure modes."""
+    if c.event_card is None:
+        raise HTTPException(status_code=404, detail="no event model: running the demo-fixture profile")
+    return c.event_card

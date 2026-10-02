@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from ...domain import EventCategory, RiskSignal, SourceType
+from ...domain import EventCategory, EventStatus, RiskSignal, SourceType
 from ..deps import Container, get_container
 from ..schemas import SignalPage, SignalSummary
 
@@ -21,6 +21,7 @@ def _summary(s: RiskSignal) -> SignalSummary:
         ticker=s.entity.ticker,
         sector=s.entity.sector,
         category=s.event.category,
+        event_status=s.event.status,
         sentiment_score=s.sentiment.score,
         impact_score=s.impact.score if s.impact else None,
         status=s.status,
@@ -35,9 +36,11 @@ def list_signals(
     source_type: SourceType | None = None,
     min_impact: int | None = Query(default=None, ge=1, le=10),
     q: str | None = Query(default=None, max_length=100),
+    event_status: EventStatus | None = None,
     c: Container = Depends(get_container),
 ) -> SignalPage:
-    items = c.signals.list(category=category, source_type=source_type, min_impact=min_impact, query=q)
+    items = c.signals.list(category=category, source_type=source_type, min_impact=min_impact, query=q,
+                           event_status=event_status)
     return SignalPage(total=len(items), items=[_summary(s) for s in items])
 
 

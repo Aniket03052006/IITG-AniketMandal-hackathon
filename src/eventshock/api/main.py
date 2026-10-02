@@ -27,8 +27,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         title="EventShock API",
         version=__version__,
         description="Event-driven risk signals and deterministic portfolio stress testing. "
-        "Replay profile: real source documents through the ingestion pipeline (trained sentiment model; "
-        "event and impact are still placeholder rules); "
+        "Replay profile: real source documents through the ingestion pipeline (trained sentiment and event "
+        "models; impact is still a placeholder rule); "
         "demo profile: fixtures. The stress engine is real in both.",
         lifespan=lifespan,
         docs_url="/api/docs",

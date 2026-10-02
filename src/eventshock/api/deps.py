@@ -19,8 +19,15 @@ from ..config import (
     resolve_replay_dir,
 )
 from ..ingestion.snapshot import Snapshot, load_snapshot
-from ..pipeline.config import load_enrichment_config, load_pipeline_config, load_sentiment_model_config
-from ..pipeline.enrich import ModelSentimentEnricher
+from ..pipeline.config import (
+    load_enrichment_config,
+    load_event_model_config,
+    load_pipeline_config,
+    load_sentiment_model_config,
+)
+from ..pipeline.enrich import ModelEnricher
+from ..pipeline.event_card import EventModelCard
+from ..pipeline.event_model import EventModel
 from ..pipeline.models import PipelineReport
 from ..pipeline.run import run_snapshot
 from ..pipeline.sentiment_card import SentimentModelCard
@@ -50,6 +57,7 @@ class Container:
     snapshot: Snapshot | None = None
     pipeline_report: PipelineReport | None = None
     sentiment_card: SentimentModelCard | None = None
+    event_card: EventModelCard | None = None
 
 
 def build_container(settings: Settings | None = None) -> Container:
@@ -61,6 +69,7 @@ def build_container(settings: Settings | None = None) -> Container:
     snapshot: Snapshot | None = None
     report: PipelineReport | None = None
     card: SentimentModelCard | None = None
+    event_card: EventModelCard | None = None
     if config.data.profile == "replay":
         # Real sources: verify the frozen snapshot, run the pipeline, serve its output. Fails loudly on any
         # tampered file or invalid configuration; never touches the network.
@@ -70,10 +79,15 @@ def build_container(settings: Settings | None = None) -> Container:
         model_cfg = load_sentiment_model_config(settings.config_dir)
         model_dir = settings.sentiment_model_dir or Path(model_cfg.model_dir)
         model = SentimentModel.load(model_dir if model_dir.is_absolute() else REPO_ROOT / model_dir)
+        # Same policy for the event stage: a trained model or no start-up.
+        event_cfg = load_event_model_config(settings.config_dir)
+        event_dir = settings.event_model_dir or Path(event_cfg.model_dir)
+        event_model = EventModel.load(event_dir if event_dir.is_absolute() else REPO_ROOT / event_dir)
         enrich_cfg = load_enrichment_config(settings.config_dir)
         result = run_snapshot(snapshot, load_pipeline_config(settings.config_dir), enrich_cfg,
-                              enricher=ModelSentimentEnricher(enrich_cfg, model))
+                              enricher=ModelEnricher(enrich_cfg, model, event_model))
         card = model.card
+        event_card = event_model.card
         report = result.report
         signals = InMemorySignalRepository(result.signals, snapshot.manifest.replay_as_of)
         portfolio = load_portfolio_files(snapshot.portfolio_path(), snapshot.entities_path())
@@ -94,6 +108,7 @@ def build_container(settings: Settings | None = None) -> Container:
         snapshot=snapshot,
         pipeline_report=report,
         sentiment_card=card,
+        event_card=event_card,
     )
 
 
