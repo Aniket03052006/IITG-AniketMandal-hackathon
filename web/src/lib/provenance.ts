@@ -19,34 +19,51 @@ export function stageKind(origin: string | undefined): StageKind {
 /** Whether the sentiment stage of the replay run is a trained model, from the pipeline report's stage_origins. */
 export const sentimentIsModel = (meta: Meta | undefined): boolean => stageKind(meta?.replay?.stage_origins?.sentiment) === "model";
 
+/** Whether the event stage of the replay run is a trained model, from the pipeline report's stage_origins. */
+export const eventIsModel = (meta: Meta | undefined): boolean => stageKind(meta?.replay?.stage_origins?.event) === "model";
+
 /** One-sentence honesty note about what the signals are. */
 export function profileNote(meta: Meta): string {
   if (meta.profile !== "replay") return "Signals are hand-authored fixtures. The stress engine is computed.";
-  return sentimentIsModel(meta)
-    ? "Documents are real, replayed from a frozen snapshot. Sentiment is a trained model; event type and impact are placeholder rules. The stress engine is computed."
-    : "Documents are real, replayed from a frozen snapshot. Sentiment, event type and impact are placeholder rules. The stress engine is computed.";
+  const sent = sentimentIsModel(meta);
+  const event = eventIsModel(meta);
+  const base = "Documents are real, replayed from a frozen snapshot.";
+  if (sent && event) {
+    return `${base} Sentiment and event type are trained models (event type can say “not an event” or “uncertain”); impact is a placeholder rule. The stress engine is computed.`;
+  }
+  if (sent) return `${base} Sentiment is a trained model; event type and impact are placeholder rules. The stress engine is computed.`;
+  return `${base} Sentiment, event type and impact are placeholder rules. The stress engine is computed.`;
 }
 
-export function originLabel(origin: string): string {
+/** "sentiment" / "sentiment and event" for the NLP stages a signal's own provenance says are trained models. */
+function trainedStages(stageOrigins?: Record<string, string>): string {
+  const names = (["sentiment", "event"] as const).filter((k) => stageKind(stageOrigins?.[k]) === "model");
+  return names.length ? names.join(" and ") : "models";
+}
+
+export function originLabel(origin: string, stageOrigins?: Record<string, string>): string {
   switch (origin) {
     case "DEMO_FIXTURE":
       return "Demo fixture (hand-authored)";
     case "REAL_SOURCE_PLACEHOLDER_NLP":
       return "Real source · placeholder NLP";
-    case "REAL_SOURCE_MIXED_NLP":
-      return "Real source · trained sentiment, placeholder event and impact";
+    case "REAL_SOURCE_MIXED_NLP": {
+      const trained = trainedStages(stageOrigins);
+      const placeholders = (["sentiment", "event", "impact"] as const).filter((k) => stageKind(stageOrigins?.[k]) !== "model").map(stageName);
+      return `Real source · trained ${trained}${stageOrigins && placeholders.length ? `, placeholder ${placeholders.join(" and ").toLowerCase()}` : ""}`;
+    }
     default:
       return "Model output";
   }
 }
 
 /** Short chip text for a signal's data origin. */
-export function originChip(origin: string): string {
+export function originChip(origin: string, stageOrigins?: Record<string, string>): string {
   switch (origin) {
     case "DEMO_FIXTURE":
       return "Demo fixture";
     case "REAL_SOURCE_MIXED_NLP":
-      return "Real source · model sentiment";
+      return `Real source · trained ${trainedStages(stageOrigins)}`;
     default:
       return "Real source · placeholder NLP";
   }
