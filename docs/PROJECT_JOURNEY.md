@@ -1,6 +1,6 @@
 # EventShock — Project Journey
 
-Chronological log: **what we did · what broke · how we fixed it**. Updated at the end of every stage.
+Chronological log: **what we did · what broke · how we fixed it**. Updated after every task and at the end of every stage.
 
 ## Stage 0 — Repository inspection (2026-10-01)
 
@@ -336,3 +336,65 @@ without touching the event and impact placeholders or the stress engine. Details
 ### Process note (2026-10-02)
 - Rule change from the project owner: this journey is updated after **every task**, not only at stage end. `CLAUDE.md` now says so; small tasks get a short dated entry under the current stage.
 - Pushed the sentiment slice to `origin/main` (commits `ffcf584`, `3345419`). `.claude/` and `.hallmark/` are untracked and git-ignored (files kept locally); `CLAUDE.md` still relies on the local `.claude/settings.json` to blank AI attribution, so a fresh clone must recreate it.
+
+
+---
+
+## Stage 3b — Event classification v1 and the GDELT fetch cleanup (2026-10-02)
+
+**Goal.** Replace the event-type placeholder with a trained, evaluated, reproducible model that can abstain, carry it through pipeline,
+`RiskSignal`, provenance, API and UI, and fix the failed-download rows on the Pipeline page. Sentiment, impact (still placeholder) and the
+stress engine are unchanged. Details: [EVENT_MODEL.md](EVENT_MODEL.md).
+
+**Part A: the failed GDELT rows**
+- Nine "FAILED" rows were two different things. Five came from an **abandoned first plan** (`"Alphabet" OR "Google"`, `"Citigroup"`, `"Meta Platforms" OR "Meta"`,
+  `"Visa"` (GDELT rejects phrases under 5 characters), and a 12-phrase OR query that was too long); their coverage was replaced by the sector queries that
+  succeeded. Four were **current-plan** queries that GDELT rate-limited on every earlier pass: the Healthcare group, `"Federal Reserve" interest rate`,
+  `credit rating downgrade`, `stock market selloff`.
+- Current-plan failures were worth fixing (a whole sector, and exactly the macro/credit/market events the event model needs): added `GDELT_THROTTLE` to the Makefile,
+  re-ran the resumable fetch at 45 s between requests (three of four succeeded; `stock market selloff` still returned 429 and succeeded on a 90 s retry), and re-froze the pack.
+  The pack grew from 3,087 to 3,455 records (GDELT DOC 1,479 → 1,847).
+- Abandoned-plan rows are no longer listed: the manifest records the current plan (`fetch_plan`), `summarise_fetch_log` counts the rest (`superseded_requests`, 5), and the page
+  says so. The raw attempt log stays in the manifest. Failures of the *current* plan are never hidden (unit test with a synthetic log).
+- Consequence: the replay digests had to be re-pinned. We proved the placeholder enricher is byte-identical by running it over the **old** pack from git
+  (reproduces the Stage-2 digest `b8074b43…`) before pinning its new-pack digest.
+
+**Part B: building the data (the real work)**
+- The audit already showed TFN-topic labels do not transfer (0.89 on TFN, 0.16–0.30 on gold) and that two classes had no data and NONE did not exist. So the constraint was labels.
+  We drew blind pools (random samples of our own sources, keyword-hit candidates for rare classes, TFN topic rows to be relabelled, a 200-row replay check set, a 200-row
+  consistency set), all disjoint from the gold set by id and near-duplicate text, and had an AI annotator (blind subagents) label 3,270 rows by the gold labelling guide.
+- *First annotation attempt failed:* the session hit the usage limit with nine annotators running in parallel and none had written a file. Re-ran in waves of five.
+  Some annotators wrote answer files with a helper script rather than the Write tool; checked by the merge validator (vocabulary, ids, order), which rejects anything off.
+- *Bug found by running it:* the group-aware split helper assumed a `test` side and crashed on a two-way split; fixed (and covered).
+- *Another:* the pools contained texts with no words (only tickers), which the model must refuse. Tuning crashed on them; they are now excluded from tuning and evaluation
+  exactly as the pipeline quarantines them.
+
+**Part C: the model**
+- 9-way TF-IDF + logistic regression + temperature scaling, selected on dev log-loss. The TFN crosswalk silver rows were tested as extra training data and made dev log-loss worse
+  (0.896 vs 0.871), so they are not used. The held-out sets (gold, replay check, TFN topic test) are scored once at the end; a `--dev-only` mode exists to iterate without scoring them.
+- *Dead end 1 (classifier family):* variants of the same classical family (C = 10/30/100, word-only, raw text, linear SVM) all landed at dev macro-F1 0.53–0.59. More hyper-parameters would
+  be chasing noise; embeddings are the next experiment, not another grid.
+- *Dead end 2 (the abstention policy):* the first design tuned two thresholds on dev with a 75% precision target. The target was unreachable (the best weighted precision of a committed
+  class on dev is about 0.6), the fallback committed to 11% of dev rows, and the first full evaluation read 0.236 as-served macro-F1 on gold history. We replaced it with one untuned 0.5
+  commit threshold on the calibrated posterior (a dev-only analysis showed a strictly better coverage/precision frontier). **This was a design change after seeing held-out numbers.** The first
+  run's card is kept in `docs/evidence/` and the doc discloses it. The pre-registered acceptance bar was not changed, and it is **not met** on the gold set (0.33 [0.26, 0.38] vs 0.33).
+- *Artifact serialisation:* scikit-learn sorts classes alphabetically, so the artifact reorders logits into the fixed 9-class order; load checks that the fitted classes are exactly the nine.
+
+**Part D: integration and UI**
+- `EventStatus` (`CLASSIFIED | NO_EVENT | UNCERTAIN`), `no_event_probability`, `EventAudit` provenance, `ModelEnricher`, `GET /api/models/event`, `event_status` in the feed and a filter.
+  A non-event is `PARTIAL` with a reason and no impact, so the stress engine cannot fire on chatter. The category filter matches classified events only.
+- UI: event model panel on the Pipeline page (acceptance verdict, per-set results, per-class reliability, mistakes, limits), status/abstention/confidence on the Event page, a "No market event"
+  / "Type uncertain" tag and a "Show non-events" chip on the Feed (non-events hidden by default), maturity tags now read the pipeline report instead of constants.
+- Signal-level origin text is derived from the signal's own `stage_origins` ("trained sentiment and event" vs "trained sentiment"), not from the coarse data origin.
+
+**What changed in the numbers.** On the served replay pack 756 of 2,330 signals are classified (32%), 890 are "not an event" (38%), 684 uncertain (29%); impact ≥ 7 drops to 33 signals
+(all on known issuers). Start-up grew from about 11 s to 16 s.
+
+| Part | Status |
+|---|---|
+| Sentiment | Trained model (unchanged) |
+| Event type | **Trained model, can abstain; weak and flagged per class; acceptance bar not met on gold** |
+| Impact | Placeholder heuristic (reads the model's category and tone), none for non-events |
+| Stress engine | Real, deterministic, unchanged |
+
+**Open:** human adjudication of the gold rows and of a slice of the training labels; more labels for the thin classes; an embedding experiment; impact.
