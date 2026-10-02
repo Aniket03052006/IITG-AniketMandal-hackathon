@@ -1,0 +1,2946 @@
+{
+  "components": {
+    "schemas": {
+      "AppliedShock": {
+        "description": "A scenario shock after severity scaling and entity binding.",
+        "properties": {
+          "applicable": {
+            "description": "False when the scope needs an entity the signal lacks",
+            "title": "Applicable",
+            "type": "boolean"
+          },
+          "base_value": {
+            "title": "Base Value",
+            "type": "number"
+          },
+          "factor": {
+            "$ref": "#/components/schemas/RiskFactor"
+          },
+          "rationale": {
+            "default": "",
+            "title": "Rationale",
+            "type": "string"
+          },
+          "scaled_value": {
+            "title": "Scaled Value",
+            "type": "number"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ShockScope"
+          }
+        },
+        "required": [
+          "factor",
+          "scope",
+          "base_value",
+          "scaled_value",
+          "applicable",
+          "rationale"
+        ],
+        "title": "AppliedShock",
+        "type": "object"
+      },
+      "AssetClass": {
+        "enum": [
+          "EQUITY",
+          "BOND",
+          "LOAN",
+          "DERIVATIVE"
+        ],
+        "title": "AssetClass",
+        "type": "string"
+      },
+      "Contribution": {
+        "properties": {
+          "baseline_value": {
+            "title": "Baseline Value",
+            "type": "number"
+          },
+          "delta": {
+            "title": "Delta",
+            "type": "number"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "share_of_loss": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "delta / total delta; None when the total change is zero",
+            "title": "Share Of Loss"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "baseline_value",
+          "delta",
+          "share_of_loss"
+        ],
+        "title": "Contribution",
+        "type": "object"
+      },
+      "Contributions": {
+        "properties": {
+          "by_asset_class": {
+            "items": {
+              "$ref": "#/components/schemas/Contribution"
+            },
+            "title": "By Asset Class",
+            "type": "array"
+          },
+          "by_entity": {
+            "items": {
+              "$ref": "#/components/schemas/Contribution"
+            },
+            "title": "By Entity",
+            "type": "array"
+          },
+          "by_factor": {
+            "items": {
+              "$ref": "#/components/schemas/Contribution"
+            },
+            "title": "By Factor",
+            "type": "array"
+          },
+          "by_sector": {
+            "items": {
+              "$ref": "#/components/schemas/Contribution"
+            },
+            "title": "By Sector",
+            "type": "array"
+          },
+          "top_positions": {
+            "items": {
+              "$ref": "#/components/schemas/Contribution"
+            },
+            "title": "Top Positions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "by_asset_class",
+          "by_sector",
+          "by_entity",
+          "by_factor",
+          "top_positions"
+        ],
+        "title": "Contributions",
+        "type": "object"
+      },
+      "CorroboratingSource": {
+        "properties": {
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "relation": {
+            "default": "SAME_EVENT",
+            "description": "DedupRelation of this report to the signal",
+            "title": "Relation",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/SourceType"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "source",
+          "source_type",
+          "published_at",
+          "headline",
+          "url",
+          "relation"
+        ],
+        "title": "CorroboratingSource",
+        "type": "object"
+      },
+      "DataOrigin": {
+        "description": "Whether a signal was computed by a model or comes from a pinned demo fixture.",
+        "enum": [
+          "DEMO_FIXTURE",
+          "REAL_SOURCE_PLACEHOLDER_NLP",
+          "MODEL_OUTPUT"
+        ],
+        "title": "DataOrigin",
+        "type": "string"
+      },
+      "DedupAudit": {
+        "properties": {
+          "cluster_id": {
+            "title": "Cluster Id",
+            "type": "string"
+          },
+          "exact_duplicates_folded": {
+            "minimum": 0.0,
+            "title": "Exact Duplicates Folded",
+            "type": "integer"
+          },
+          "member_count": {
+            "description": "distinct reports in the cluster, canonical included",
+            "minimum": 1.0,
+            "title": "Member Count",
+            "type": "integer"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/DedupMember"
+            },
+            "title": "Members",
+            "type": "array"
+          }
+        },
+        "required": [
+          "cluster_id",
+          "member_count",
+          "exact_duplicates_folded",
+          "members"
+        ],
+        "title": "DedupAudit",
+        "type": "object"
+      },
+      "DedupMember": {
+        "properties": {
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "relation": {
+            "$ref": "#/components/schemas/DedupRelation"
+          },
+          "similarity": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Similarity",
+            "type": "number"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "document_id",
+          "source",
+          "url",
+          "relation",
+          "similarity"
+        ],
+        "title": "DedupMember",
+        "type": "object"
+      },
+      "DedupRelation": {
+        "enum": [
+          "EXACT_DUPLICATE",
+          "SYNDICATED",
+          "NEAR_DUPLICATE",
+          "SAME_EVENT"
+        ],
+        "title": "DedupRelation",
+        "type": "string"
+      },
+      "EntityAudit": {
+        "description": "Why the entity is what it is \u2014 including what was considered and refused.",
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/EntityCandidate"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "matched_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Text"
+          },
+          "multi_entity": {
+            "default": false,
+            "title": "Multi Entity",
+            "type": "boolean"
+          },
+          "rejected": {
+            "items": {
+              "$ref": "#/components/schemas/RejectedCandidate"
+            },
+            "title": "Rejected",
+            "type": "array"
+          },
+          "rule": {
+            "description": "rule that decided the primary entity, or NONE",
+            "title": "Rule",
+            "type": "string"
+          },
+          "unmatched_cashtags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unmatched Cashtags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "rule",
+          "matched_text",
+          "multi_entity",
+          "candidates",
+          "rejected",
+          "unmatched_cashtags"
+        ],
+        "title": "EntityAudit",
+        "type": "object"
+      },
+      "EntityCandidate": {
+        "properties": {
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "entity_name": {
+            "title": "Entity Name",
+            "type": "string"
+          },
+          "matched_text": {
+            "title": "Matched Text",
+            "type": "string"
+          },
+          "rule": {
+            "title": "Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_id",
+          "entity_name",
+          "matched_text",
+          "rule",
+          "confidence"
+        ],
+        "title": "EntityCandidate",
+        "type": "object"
+      },
+      "EntityMention": {
+        "description": "Result of entity resolution for one document. ``UNKNOWN_ENTITY`` is a first-class state.",
+        "properties": {
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "entity_id": {
+            "default": "UNKNOWN_ENTITY",
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "entity_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Name"
+          },
+          "link_confidence": {
+            "default": 0.0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Link Confidence",
+            "type": "number"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          }
+        },
+        "required": [
+          "entity_id",
+          "entity_name",
+          "ticker",
+          "sector",
+          "country",
+          "link_confidence"
+        ],
+        "title": "EntityMention",
+        "type": "object"
+      },
+      "EventCategory": {
+        "description": "The PRD's eight-class event taxonomy (docs: PRD \u00a711.2).",
+        "enum": [
+          "GEOPOLITICAL",
+          "MACROECONOMIC",
+          "CREDIT_FUNDING",
+          "MA_CORPORATE_ACTION",
+          "REGULATORY_LEGAL",
+          "PRODUCT_OPERATIONS",
+          "EARNINGS_FINANCIAL_PERFORMANCE",
+          "MARKET_VALUATION"
+        ],
+        "title": "EventCategory",
+        "type": "string"
+      },
+      "EventClassification": {
+        "description": "What happened: a category plus a probability for every taxonomy class.",
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/EventCategory"
+          },
+          "probabilities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/EventCategory"
+            },
+            "title": "Probabilities",
+            "type": "object"
+          }
+        },
+        "required": [
+          "category",
+          "probabilities"
+        ],
+        "title": "EventClassification",
+        "type": "object"
+      },
+      "Evidence": {
+        "description": "Observable corroboration facts. Reported as separate qualifiers, never one blended score.",
+        "properties": {
+          "contradicted_by": {
+            "description": "signal ids that report the opposite narrative",
+            "items": {
+              "type": "string"
+            },
+            "title": "Contradicted By",
+            "type": "array"
+          },
+          "corroborating": {
+            "items": {
+              "$ref": "#/components/schemas/CorroboratingSource"
+            },
+            "title": "Corroborating",
+            "type": "array"
+          },
+          "coverage_velocity": {
+            "description": "mentions per hour over the recent window",
+            "minimum": 0.0,
+            "title": "Coverage Velocity",
+            "type": "number"
+          },
+          "model_confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Model Confidence",
+            "type": "number"
+          },
+          "novelty_score": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Novelty Score",
+            "type": "number"
+          },
+          "recent_mention_count": {
+            "minimum": 0.0,
+            "title": "Recent Mention Count",
+            "type": "integer"
+          },
+          "source_count": {
+            "minimum": 1.0,
+            "title": "Source Count",
+            "type": "integer"
+          },
+          "unique_domain_count": {
+            "minimum": 1.0,
+            "title": "Unique Domain Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_count",
+          "unique_domain_count",
+          "recent_mention_count",
+          "coverage_velocity",
+          "novelty_score",
+          "model_confidence",
+          "contradicted_by",
+          "corroborating"
+        ],
+        "title": "Evidence",
+        "type": "object"
+      },
+      "ExposureRow": {
+        "properties": {
+          "asset_count": {
+            "title": "Asset Count",
+            "type": "integer"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "market_value": {
+            "title": "Market Value",
+            "type": "number"
+          },
+          "share": {
+            "title": "Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "market_value",
+          "share",
+          "asset_count"
+        ],
+        "title": "ExposureRow",
+        "type": "object"
+      },
+      "FetchQuery": {
+        "description": "Final outcome of one download request, collapsed over its attempts (failures are never hidden).",
+        "properties": {
+          "added": {
+            "title": "Added",
+            "type": "integer"
+          },
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "last_error": {
+            "title": "Last Error",
+            "type": "string"
+          },
+          "query": {
+            "title": "Query",
+            "type": "string"
+          },
+          "returned": {
+            "title": "Returned",
+            "type": "integer"
+          },
+          "status": {
+            "description": "ok | error (latest attempt)",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query",
+          "status",
+          "attempts",
+          "returned",
+          "added",
+          "last_error"
+        ],
+        "title": "FetchQuery",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ImpactAssessment": {
+        "description": "Market-response *proxy* on a 1-10 scale (never a probability of loss).",
+        "properties": {
+          "drivers": {
+            "items": {
+              "$ref": "#/components/schemas/ImpactDriver"
+            },
+            "title": "Drivers",
+            "type": "array"
+          },
+          "quantisation": {
+            "default": "ceil(raw * 10), min 1",
+            "title": "Quantisation",
+            "type": "string"
+          },
+          "raw": {
+            "description": "continuous, pre-quantisation output",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Raw",
+            "type": "number"
+          },
+          "score": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Score",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "score",
+          "raw",
+          "drivers",
+          "quantisation"
+        ],
+        "title": "ImpactAssessment",
+        "type": "object"
+      },
+      "ImpactDriver": {
+        "description": "One contribution to the impact estimate. Explains the model, not economic causation.",
+        "properties": {
+          "contribution": {
+            "title": "Contribution",
+            "type": "number"
+          },
+          "feature": {
+            "title": "Feature",
+            "type": "string"
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feature",
+          "contribution",
+          "note"
+        ],
+        "title": "ImpactDriver",
+        "type": "object"
+      },
+      "Meta": {
+        "properties": {
+          "app": {
+            "title": "App",
+            "type": "string"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "asset_count": {
+            "title": "Asset Count",
+            "type": "integer"
+          },
+          "base_currency": {
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "data_origin": {
+            "title": "Data Origin",
+            "type": "string"
+          },
+          "engine_version": {
+            "title": "Engine Version",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/RunMode"
+          },
+          "notices": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notices",
+            "type": "array"
+          },
+          "profile": {
+            "title": "Profile",
+            "type": "string"
+          },
+          "replay": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReplayInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scenario_set_version": {
+            "title": "Scenario Set Version",
+            "type": "string"
+          },
+          "signal_count": {
+            "title": "Signal Count",
+            "type": "integer"
+          },
+          "taxonomy": {
+            "items": {
+              "$ref": "#/components/schemas/TaxonomyItem"
+            },
+            "title": "Taxonomy",
+            "type": "array"
+          },
+          "trigger_threshold": {
+            "title": "Trigger Threshold",
+            "type": "number"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "app",
+          "version",
+          "mode",
+          "profile",
+          "data_origin",
+          "replay",
+          "as_of",
+          "trigger_threshold",
+          "base_currency",
+          "signal_count",
+          "asset_count",
+          "scenario_set_version",
+          "engine_version",
+          "taxonomy",
+          "notices"
+        ],
+        "title": "Meta",
+        "type": "object"
+      },
+      "ModelVersions": {
+        "properties": {
+          "entity_resolver": {
+            "title": "Entity Resolver",
+            "type": "string"
+          },
+          "event": {
+            "title": "Event",
+            "type": "string"
+          },
+          "feature_schema": {
+            "default": "1",
+            "title": "Feature Schema",
+            "type": "string"
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact"
+          },
+          "sentiment": {
+            "title": "Sentiment",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sentiment",
+          "event",
+          "impact",
+          "entity_resolver",
+          "feature_schema"
+        ],
+        "title": "ModelVersions",
+        "type": "object"
+      },
+      "PipelineCounts": {
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          },
+          "entity_resolved": {
+            "title": "Entity Resolved",
+            "type": "integer"
+          },
+          "entity_unknown": {
+            "title": "Entity Unknown",
+            "type": "integer"
+          },
+          "exact_duplicates_folded": {
+            "title": "Exact Duplicates Folded",
+            "type": "integer"
+          },
+          "multi_entity": {
+            "title": "Multi Entity",
+            "type": "integer"
+          },
+          "near_duplicates": {
+            "title": "Near Duplicates",
+            "type": "integer"
+          },
+          "quarantined": {
+            "title": "Quarantined",
+            "type": "integer"
+          },
+          "records_read": {
+            "title": "Records Read",
+            "type": "integer"
+          },
+          "rejected_ambiguous_mentions": {
+            "description": "ambiguous-name candidates refused by entity resolution",
+            "title": "Rejected Ambiguous Mentions",
+            "type": "integer"
+          },
+          "reports_in_signals": {
+            "description": "distinct reports represented by signals (canonical + corroborating)",
+            "title": "Reports In Signals",
+            "type": "integer"
+          },
+          "same_event": {
+            "title": "Same Event",
+            "type": "integer"
+          },
+          "signals": {
+            "title": "Signals",
+            "type": "integer"
+          },
+          "syndicated": {
+            "title": "Syndicated",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "records_read",
+          "quarantined",
+          "accepted",
+          "exact_duplicates_folded",
+          "reports_in_signals",
+          "signals",
+          "entity_resolved",
+          "entity_unknown",
+          "multi_entity",
+          "rejected_ambiguous_mentions",
+          "syndicated",
+          "near_duplicates",
+          "same_event"
+        ],
+        "title": "PipelineCounts",
+        "type": "object"
+      },
+      "PipelineReport": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/PipelineCounts"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "enrichment_version": {
+            "title": "Enrichment Version",
+            "type": "string"
+          },
+          "entity_resolver_version": {
+            "title": "Entity Resolver Version",
+            "type": "string"
+          },
+          "fetch_log": {
+            "description": "how the snapshot was downloaded",
+            "items": {
+              "$ref": "#/components/schemas/FetchQuery"
+            },
+            "title": "Fetch Log",
+            "type": "array"
+          },
+          "output_digest": {
+            "description": "sha256 of the canonical JSON of all signals; equal digest = identical replay",
+            "title": "Output Digest",
+            "type": "string"
+          },
+          "pipeline_version": {
+            "title": "Pipeline Version",
+            "type": "string"
+          },
+          "quarantine_by_code": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Quarantine By Code",
+            "type": "object"
+          },
+          "quarantine_sample": {
+            "items": {
+              "$ref": "#/components/schemas/QuarantinedRecord"
+            },
+            "title": "Quarantine Sample",
+            "type": "array"
+          },
+          "replay_as_of": {
+            "format": "date-time",
+            "title": "Replay As Of",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceReport"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "stage_origins": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "what is real vs placeholder in this run",
+            "title": "Stage Origins",
+            "type": "object"
+          },
+          "window_end": {
+            "format": "date-time",
+            "title": "Window End",
+            "type": "string"
+          },
+          "window_start": {
+            "format": "date-time",
+            "title": "Window Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "description",
+          "replay_as_of",
+          "window_start",
+          "window_end",
+          "pipeline_version",
+          "entity_resolver_version",
+          "enrichment_version",
+          "output_digest",
+          "counts",
+          "sources",
+          "quarantine_by_code",
+          "quarantine_sample",
+          "stage_origins",
+          "fetch_log"
+        ],
+        "title": "PipelineReport",
+        "type": "object"
+      },
+      "PortfolioAsset": {
+        "description": "One position. Which fields are required depends on ``asset_type`` (validated below).\n\nConventions\n- ``market_value``: current carrying value in base currency.\n- ``notional``: face (BOND), exposure-at-default (LOAN), underlying notional (DERIVATIVE).\n- LOAN ``market_value`` = EAD - expected loss = ``notional * (1 - pd * lgd)``.",
+        "properties": {
+          "asset_id": {
+            "minLength": 1,
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "asset_type": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
+          "beta": {
+            "default": 1.0,
+            "maximum": 3.0,
+            "minimum": -1.0,
+            "title": "Beta",
+            "type": "number"
+          },
+          "default_sensitivity": {
+            "default": 1.0,
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Default Sensitivity",
+            "type": "number"
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "maximum": 1.5,
+                "minimum": -1.5,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta"
+          },
+          "duration": {
+            "anyOf": [
+              {
+                "maximum": 30.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration"
+          },
+          "entity_id": {
+            "description": "issuer / borrower / underlying entity",
+            "minLength": 1,
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "geography": {
+            "title": "Geography",
+            "type": "string"
+          },
+          "lgd": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lgd"
+          },
+          "market_value": {
+            "title": "Market Value",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notional": {
+            "exclusiveMinimum": 0.0,
+            "title": "Notional",
+            "type": "number"
+          },
+          "pd": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pd"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          }
+        },
+        "required": [
+          "asset_id",
+          "asset_type",
+          "entity_id",
+          "name",
+          "sector",
+          "geography",
+          "notional",
+          "market_value",
+          "beta",
+          "duration",
+          "pd",
+          "lgd",
+          "default_sensitivity",
+          "delta"
+        ],
+        "title": "PortfolioAsset",
+        "type": "object"
+      },
+      "PortfolioExposure": {
+        "properties": {
+          "by_asset_class": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRow"
+            },
+            "title": "By Asset Class",
+            "type": "array"
+          },
+          "by_entity": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRow"
+            },
+            "title": "By Entity",
+            "type": "array"
+          },
+          "by_geography": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRow"
+            },
+            "title": "By Geography",
+            "type": "array"
+          },
+          "by_sector": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRow"
+            },
+            "title": "By Sector",
+            "type": "array"
+          }
+        },
+        "required": [
+          "by_asset_class",
+          "by_sector",
+          "by_entity",
+          "by_geography"
+        ],
+        "title": "PortfolioExposure",
+        "type": "object"
+      },
+      "PortfolioSummary": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "asset_count": {
+            "title": "Asset Count",
+            "type": "integer"
+          },
+          "base_currency": {
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "entity_count": {
+            "title": "Entity Count",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "synthetic": {
+            "default": true,
+            "title": "Synthetic",
+            "type": "boolean"
+          },
+          "total_value": {
+            "title": "Total Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "portfolio_id",
+          "name",
+          "description",
+          "as_of",
+          "base_currency",
+          "total_value",
+          "asset_count",
+          "entity_count",
+          "synthetic"
+        ],
+        "title": "PortfolioSummary",
+        "type": "object"
+      },
+      "PositionResult": {
+        "properties": {
+          "asset_class": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "baseline_value": {
+            "title": "Baseline Value",
+            "type": "number"
+          },
+          "by_factor": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/RiskFactor"
+            },
+            "title": "By Factor",
+            "type": "object"
+          },
+          "delta": {
+            "title": "Delta",
+            "type": "number"
+          },
+          "delta_pct": {
+            "title": "Delta Pct",
+            "type": "number"
+          },
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "formula": {
+            "title": "Formula",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "shocks": {
+            "items": {
+              "$ref": "#/components/schemas/PositionShock"
+            },
+            "title": "Shocks",
+            "type": "array"
+          },
+          "stressed_value": {
+            "title": "Stressed Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "asset_id",
+          "name",
+          "asset_class",
+          "entity_id",
+          "sector",
+          "baseline_value",
+          "stressed_value",
+          "delta",
+          "delta_pct",
+          "shocks",
+          "by_factor",
+          "formula"
+        ],
+        "title": "PositionResult",
+        "type": "object"
+      },
+      "PositionShock": {
+        "properties": {
+          "factor": {
+            "$ref": "#/components/schemas/RiskFactor"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ShockScope"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "factor",
+          "scope",
+          "value"
+        ],
+        "title": "PositionShock",
+        "type": "object"
+      },
+      "QuarantinedRecord": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "preview": {
+            "title": "Preview",
+            "type": "string"
+          },
+          "record_ref": {
+            "title": "Record Ref",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "record_ref",
+          "code",
+          "detail",
+          "preview"
+        ],
+        "title": "QuarantinedRecord",
+        "type": "object"
+      },
+      "RawDocument": {
+        "description": "Common shape every source adapter normalises into (FR-01, FR-02).",
+        "properties": {
+          "author": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Author"
+          },
+          "body": {
+            "default": "",
+            "title": "Body",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "ingested_at": {
+            "format": "date-time",
+            "title": "Ingested At",
+            "type": "string"
+          },
+          "language": {
+            "default": "en",
+            "title": "Language",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "raw_metadata": {
+            "additionalProperties": true,
+            "title": "Raw Metadata",
+            "type": "object"
+          },
+          "source": {
+            "description": "Human-readable source name",
+            "minLength": 1,
+            "title": "Source",
+            "type": "string"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/SourceType"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "source_type",
+          "published_at",
+          "ingested_at",
+          "author",
+          "headline",
+          "body",
+          "url",
+          "language",
+          "raw_metadata"
+        ],
+        "title": "RawDocument",
+        "type": "object"
+      },
+      "RejectedCandidate": {
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "matched_text": {
+            "title": "Matched Text",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_id",
+          "matched_text",
+          "reason"
+        ],
+        "title": "RejectedCandidate",
+        "type": "object"
+      },
+      "ReplayInfo": {
+        "description": "Present when the app serves a replay snapshot of real sources (profile=replay).",
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "output_digest": {
+            "title": "Output Digest",
+            "type": "string"
+          },
+          "pipeline_version": {
+            "title": "Pipeline Version",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "stage_origins": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Stage Origins",
+            "type": "object"
+          },
+          "window_end": {
+            "format": "date-time",
+            "title": "Window End",
+            "type": "string"
+          },
+          "window_start": {
+            "format": "date-time",
+            "title": "Window Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "description",
+          "window_start",
+          "window_end",
+          "output_digest",
+          "pipeline_version",
+          "stage_origins",
+          "sources"
+        ],
+        "title": "ReplayInfo",
+        "type": "object"
+      },
+      "RiskFactor": {
+        "description": "Scenario risk factors. Units are fixed per factor (see ``FACTOR_UNITS``).",
+        "enum": [
+          "EQUITY",
+          "RATES_BPS",
+          "CREDIT_SPREAD_BPS",
+          "PD_MULTIPLIER",
+          "LGD_ADD"
+        ],
+        "title": "RiskFactor",
+        "type": "string"
+      },
+      "RiskSignal": {
+        "description": "The product's central object: one normalised, auditable signal per accepted document.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_origin": {
+            "$ref": "#/components/schemas/DataOrigin"
+          },
+          "document": {
+            "$ref": "#/components/schemas/RawDocument"
+          },
+          "entity": {
+            "$ref": "#/components/schemas/EntityMention"
+          },
+          "event": {
+            "$ref": "#/components/schemas/EventClassification"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/Evidence"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpactAssessment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model_versions": {
+            "$ref": "#/components/schemas/ModelVersions"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SignalProvenance"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "present for signals built from real/replayed sources"
+          },
+          "sentiment": {
+            "$ref": "#/components/schemas/SentimentResult"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SignalStatus"
+          },
+          "status_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status Reason"
+          }
+        },
+        "required": [
+          "id",
+          "document",
+          "entity",
+          "sentiment",
+          "event",
+          "impact",
+          "evidence",
+          "status",
+          "status_reason",
+          "data_origin",
+          "model_versions",
+          "created_at",
+          "provenance"
+        ],
+        "title": "RiskSignal",
+        "type": "object"
+      },
+      "RunMode": {
+        "enum": [
+          "REPLAY",
+          "LIVE"
+        ],
+        "title": "RunMode",
+        "type": "string"
+      },
+      "Scenario": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/EventCategory"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "illustrative": {
+            "default": true,
+            "title": "Illustrative",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "reference_impact": {
+            "default": 7.0,
+            "exclusiveMinimum": 0.0,
+            "maximum": 10.0,
+            "title": "Reference Impact",
+            "type": "number"
+          },
+          "shocks": {
+            "items": {
+              "$ref": "#/components/schemas/ShockSpec"
+            },
+            "minItems": 1,
+            "title": "Shocks",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "name",
+          "category",
+          "description",
+          "illustrative",
+          "reference_impact",
+          "shocks"
+        ],
+        "title": "Scenario",
+        "type": "object"
+      },
+      "ScenarioList": {
+        "properties": {
+          "default_by_category": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/EventCategory"
+            },
+            "title": "Default By Category",
+            "type": "object"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/Scenario"
+            },
+            "title": "Scenarios",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "default_by_category",
+          "scenarios"
+        ],
+        "title": "ScenarioList",
+        "type": "object"
+      },
+      "ScenarioRef": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "illustrative": {
+            "title": "Illustrative",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "name",
+          "category",
+          "illustrative"
+        ],
+        "title": "ScenarioRef",
+        "type": "object"
+      },
+      "SentimentResult": {
+        "description": "Tone of the text \u2014 deliberately separate from event type and impact (PRD \u00a72).",
+        "properties": {
+          "negative": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Negative",
+            "type": "number"
+          },
+          "neutral": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Neutral",
+            "type": "number"
+          },
+          "positive": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Positive",
+            "type": "number"
+          },
+          "score": {
+            "description": "positive - negative",
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "positive",
+          "neutral",
+          "negative",
+          "score"
+        ],
+        "title": "SentimentResult",
+        "type": "object"
+      },
+      "SeverityScaling": {
+        "properties": {
+          "formula": {
+            "title": "Formula",
+            "type": "string"
+          },
+          "impact_used": {
+            "title": "Impact Used",
+            "type": "number"
+          },
+          "max_scale": {
+            "title": "Max Scale",
+            "type": "number"
+          },
+          "min_scale": {
+            "title": "Min Scale",
+            "type": "number"
+          },
+          "raw_ratio": {
+            "title": "Raw Ratio",
+            "type": "number"
+          },
+          "reference_impact": {
+            "title": "Reference Impact",
+            "type": "number"
+          },
+          "scale": {
+            "title": "Scale",
+            "type": "number"
+          }
+        },
+        "required": [
+          "impact_used",
+          "reference_impact",
+          "min_scale",
+          "max_scale",
+          "raw_ratio",
+          "scale",
+          "formula"
+        ],
+        "title": "SeverityScaling",
+        "type": "object"
+      },
+      "ShockScope": {
+        "description": "Who a shock applies to. Most specific applicable scope wins: ISSUER > SECTOR > MARKET.",
+        "enum": [
+          "MARKET",
+          "SECTOR",
+          "ISSUER"
+        ],
+        "title": "ShockScope",
+        "type": "string"
+      },
+      "ShockSpec": {
+        "description": "A shock at the scenario's *reference impact*; scaled by severity at run time.",
+        "properties": {
+          "factor": {
+            "$ref": "#/components/schemas/RiskFactor"
+          },
+          "rationale": {
+            "default": "",
+            "title": "Rationale",
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ShockScope"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "factor",
+          "scope",
+          "value",
+          "rationale"
+        ],
+        "title": "ShockSpec",
+        "type": "object"
+      },
+      "SignalPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SignalSummary"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "items"
+        ],
+        "title": "SignalPage",
+        "type": "object"
+      },
+      "SignalProvenance": {
+        "properties": {
+          "adapter": {
+            "title": "Adapter",
+            "type": "string"
+          },
+          "content_sha256": {
+            "description": "sha256 of the raw record bytes",
+            "title": "Content Sha256",
+            "type": "string"
+          },
+          "dedup": {
+            "$ref": "#/components/schemas/DedupAudit"
+          },
+          "entity_audit": {
+            "$ref": "#/components/schemas/EntityAudit"
+          },
+          "pipeline_version": {
+            "title": "Pipeline Version",
+            "type": "string"
+          },
+          "record_ref": {
+            "description": "file:line of the raw record in the snapshot",
+            "title": "Record Ref",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "stage_origins": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "stage -> StageOrigin",
+            "title": "Stage Origins",
+            "type": "object"
+          },
+          "timestamp_origin": {
+            "$ref": "#/components/schemas/TimestampOrigin"
+          }
+        },
+        "required": [
+          "adapter",
+          "snapshot_id",
+          "record_ref",
+          "content_sha256",
+          "timestamp_origin",
+          "pipeline_version",
+          "entity_audit",
+          "dedup",
+          "stage_origins"
+        ],
+        "title": "SignalProvenance",
+        "type": "object"
+      },
+      "SignalStatus": {
+        "description": "COMPLETE: all stages produced output. PARTIAL: a stage failed; nothing is invented.",
+        "enum": [
+          "COMPLETE",
+          "PARTIAL"
+        ],
+        "title": "SignalStatus",
+        "type": "string"
+      },
+      "SignalSummary": {
+        "description": "Compact feed row (the feed does not need evidence arrays or drivers).",
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/EventCategory"
+          },
+          "data_origin": {
+            "title": "Data Origin",
+            "type": "string"
+          },
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "entity_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Name"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "impact_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Score"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "sentiment_score": {
+            "title": "Sentiment Score",
+            "type": "number"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "source_count": {
+            "title": "Source Count",
+            "type": "integer"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/SourceType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SignalStatus"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          }
+        },
+        "required": [
+          "id",
+          "headline",
+          "source",
+          "source_type",
+          "published_at",
+          "entity_id",
+          "entity_name",
+          "ticker",
+          "sector",
+          "category",
+          "sentiment_score",
+          "impact_score",
+          "status",
+          "source_count",
+          "data_origin"
+        ],
+        "title": "SignalSummary",
+        "type": "object"
+      },
+      "SourceReport": {
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "integer"
+          },
+          "attribution": {
+            "title": "Attribution",
+            "type": "string"
+          },
+          "exact_duplicates_folded": {
+            "title": "Exact Duplicates Folded",
+            "type": "integer"
+          },
+          "license": {
+            "title": "License",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "title": "Notes",
+            "type": "string"
+          },
+          "origin_url": {
+            "title": "Origin Url",
+            "type": "string"
+          },
+          "quarantined": {
+            "title": "Quarantined",
+            "type": "integer"
+          },
+          "records": {
+            "title": "Records",
+            "type": "integer"
+          },
+          "signals": {
+            "title": "Signals",
+            "type": "integer"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/SourceType"
+          }
+        },
+        "required": [
+          "name",
+          "source_type",
+          "license",
+          "attribution",
+          "origin_url",
+          "notes",
+          "records",
+          "quarantined",
+          "accepted",
+          "exact_duplicates_folded",
+          "signals"
+        ],
+        "title": "SourceReport",
+        "type": "object"
+      },
+      "SourceType": {
+        "enum": [
+          "NEWS",
+          "SOCIAL"
+        ],
+        "title": "SourceType",
+        "type": "string"
+      },
+      "StressAudit": {
+        "properties": {
+          "calculated_at": {
+            "format": "date-time",
+            "title": "Calculated At",
+            "type": "string"
+          },
+          "calculation": {
+            "default": "deterministic engine (no model, no randomness)",
+            "title": "Calculation",
+            "type": "string"
+          },
+          "data_origin": {
+            "$ref": "#/components/schemas/DataOrigin"
+          },
+          "engine_version": {
+            "title": "Engine Version",
+            "type": "string"
+          },
+          "forced": {
+            "title": "Forced",
+            "type": "boolean"
+          },
+          "impact_overridden": {
+            "title": "Impact Overridden",
+            "type": "boolean"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/RunMode"
+          },
+          "portfolio_hash": {
+            "title": "Portfolio Hash",
+            "type": "string"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "scenario_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Version"
+          },
+          "threshold": {
+            "title": "Threshold",
+            "type": "number"
+          }
+        },
+        "required": [
+          "mode",
+          "data_origin",
+          "engine_version",
+          "scenario_version",
+          "portfolio_id",
+          "portfolio_hash",
+          "threshold",
+          "forced",
+          "impact_overridden",
+          "calculated_at",
+          "calculation"
+        ],
+        "title": "StressAudit",
+        "type": "object"
+      },
+      "StressRequest": {
+        "properties": {
+          "force": {
+            "default": false,
+            "description": "run as a what-if even below the trigger threshold",
+            "title": "Force",
+            "type": "boolean"
+          },
+          "impact_override": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "what-if impact (requires force=true)",
+            "title": "Impact Override"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "defaults to the category's template",
+            "title": "Scenario Id"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id"
+        ],
+        "title": "StressRequest",
+        "type": "object"
+      },
+      "StressResult": {
+        "properties": {
+          "audit": {
+            "$ref": "#/components/schemas/StressAudit"
+          },
+          "contributions": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Contributions"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "positions": {
+            "items": {
+              "$ref": "#/components/schemas/PositionResult"
+            },
+            "title": "Positions",
+            "type": "array"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "scenario": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SeverityScaling"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shocks": {
+            "items": {
+              "$ref": "#/components/schemas/AppliedShock"
+            },
+            "title": "Shocks",
+            "type": "array"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StressStatus"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StressSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "uncovered": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UncoveredExposure"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "status",
+          "reason",
+          "signal_id",
+          "scenario",
+          "severity",
+          "shocks",
+          "summary",
+          "positions",
+          "contributions",
+          "uncovered",
+          "audit"
+        ],
+        "title": "StressResult",
+        "type": "object"
+      },
+      "StressStatus": {
+        "enum": [
+          "COMPLETED",
+          "NOT_TRIGGERED",
+          "NO_SCENARIO",
+          "UNAVAILABLE"
+        ],
+        "title": "StressStatus",
+        "type": "string"
+      },
+      "StressSummary": {
+        "properties": {
+          "baseline_value": {
+            "title": "Baseline Value",
+            "type": "number"
+          },
+          "pnl": {
+            "title": "Pnl",
+            "type": "number"
+          },
+          "pnl_pct": {
+            "title": "Pnl Pct",
+            "type": "number"
+          },
+          "stressed_value": {
+            "title": "Stressed Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "baseline_value",
+          "stressed_value",
+          "pnl",
+          "pnl_pct"
+        ],
+        "title": "StressSummary",
+        "type": "object"
+      },
+      "TaxonomyItem": {
+        "properties": {
+          "default_scenario": {
+            "title": "Default Scenario",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "$ref": "#/components/schemas/EventCategory"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "description",
+          "default_scenario"
+        ],
+        "title": "TaxonomyItem",
+        "type": "object"
+      },
+      "TimestampOrigin": {
+        "description": "How trustworthy ``published_at`` is. Only SOURCE-grade clocks are used to correlate documents.",
+        "enum": [
+          "SOURCE",
+          "GDELT_FIRST_SEEN",
+          "SYNTHETIC_REPLAY_CLOCK"
+        ],
+        "title": "TimestampOrigin",
+        "type": "string"
+      },
+      "UncoveredExposure": {
+        "properties": {
+          "asset_count": {
+            "title": "Asset Count",
+            "type": "integer"
+          },
+          "asset_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Asset Ids",
+            "type": "array"
+          },
+          "market_value": {
+            "title": "Market Value",
+            "type": "number"
+          },
+          "share_of_portfolio": {
+            "title": "Share Of Portfolio",
+            "type": "number"
+          }
+        },
+        "required": [
+          "asset_count",
+          "market_value",
+          "share_of_portfolio",
+          "asset_ids"
+        ],
+        "title": "UncoveredExposure",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Event-driven risk signals and deterministic portfolio stress testing. Replay profile: real source documents through the ingestion pipeline (placeholder NLP); demo profile: fixtures. The stress engine is real in both.",
+    "title": "EventShock API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Api Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/meta": {
+      "get": {
+        "operationId": "meta_api_meta_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Meta"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Meta",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/api/pipeline/report": {
+      "get": {
+        "description": "What the ingestion pipeline did to the replay snapshot: counts, quarantine, sources, digest.",
+        "operationId": "report_api_pipeline_report_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PipelineReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Report",
+        "tags": [
+          "pipeline"
+        ]
+      }
+    },
+    "/api/portfolio/assets": {
+      "get": {
+        "operationId": "assets_api_portfolio_assets_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PortfolioAsset"
+                  },
+                  "title": "Response Assets Api Portfolio Assets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Assets",
+        "tags": [
+          "portfolio"
+        ]
+      }
+    },
+    "/api/portfolio/exposure": {
+      "get": {
+        "operationId": "exposure_api_portfolio_exposure_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioExposure"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Exposure",
+        "tags": [
+          "portfolio"
+        ]
+      }
+    },
+    "/api/portfolio/summary": {
+      "get": {
+        "operationId": "summary_api_portfolio_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Summary",
+        "tags": [
+          "portfolio"
+        ]
+      }
+    },
+    "/api/scenarios": {
+      "get": {
+        "operationId": "list_scenarios_api_scenarios_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Scenarios",
+        "tags": [
+          "scenarios"
+        ]
+      }
+    },
+    "/api/scenarios/{scenario_id}": {
+      "get": {
+        "operationId": "get_scenario_api_scenarios__scenario_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scenario_id",
+            "required": true,
+            "schema": {
+              "title": "Scenario Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Scenario"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Scenario",
+        "tags": [
+          "scenarios"
+        ]
+      }
+    },
+    "/api/signals": {
+      "get": {
+        "operationId": "list_signals_api_signals_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/EventCategory"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SourceType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_impact",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 10,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Impact"
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Signals",
+        "tags": [
+          "signals"
+        ]
+      }
+    },
+    "/api/signals/{signal_id}": {
+      "get": {
+        "operationId": "get_signal_api_signals__signal_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "signal_id",
+            "required": true,
+            "schema": {
+              "title": "Signal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskSignal"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Signal",
+        "tags": [
+          "signals"
+        ]
+      }
+    },
+    "/api/stress-runs/{run_id}": {
+      "get": {
+        "operationId": "get_stress_run_api_stress_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StressResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Stress Run",
+        "tags": [
+          "stress"
+        ]
+      }
+    },
+    "/api/stress-test": {
+      "post": {
+        "description": "Always 200 for a well-formed request; ``status`` says whether numbers were produced.",
+        "operationId": "run_stress_test_api_stress_test_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StressResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Stress Test",
+        "tags": [
+          "stress"
+        ]
+      }
+    }
+  }
+}

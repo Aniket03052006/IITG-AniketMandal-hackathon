@@ -1,0 +1,75 @@
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · contrast: pass (40–41) · nav: N3 · footer: none · slop: pass (42–45)
+ * Hallmark · genre: custom (dark risk-desk, utilitarian/technical) · macrostructure: Workbench
+ * theme: custom "Risk Desk" · nav: N3 side-rail (full rail ≥1024, top bar below) · footer: none (app shell)
+ * axes: paper-band dark / display-style grotesk-sans (Space Grotesk, roman) / accent-hue cool (signal cyan)
+ * Single brand accent. Severity, sentiment and gain/loss are SEMANTIC data colours, always paired with
+ * a number/sign/label so colour is never the only signal.
+ */
+@theme {
+  --color-*: initial; /* the palette below is the whole palette: no stray Tailwind colours */
+
+  /* Surfaces — anchor hue 255 (cool slate), elevation = lighter */
+  --color-paper: oklch(15% 0.014 255);
+  --color-paper-2: oklch(19% 0.016 255);
+  --color-paper-3: oklch(23% 0.018 255);
+  --color-paper-4: oklch(28% 0.02 255);
+  --color-rule: oklch(30% 0.016 255);
+  --color-rule-strong: oklch(40% 0.018 255);
+
+  /* Ink */
+  --color-ink: oklch(94% 0.008 255);
+  --color-ink-2: oklch(80% 0.012 255);
+  --color-muted: oklch(68% 0.014 255);
+  --color-faint: oklch(60% 0.014 255);
+
+  /* Brand accent — signal cyan (interactive, active, focus, primary action) */
+  --color-accent: oklch(80% 0.12 200);
+  --color-accent-strong: oklch(86% 0.12 200);
+  --color-accent-ink: oklch(18% 0.03 200);
+  --color-accent-dim: oklch(30% 0.055 200);
+  --color-focus: oklch(84% 0.13 200);
+
+  /* Severity ramp (impact 1-10) */
+  --color-sev-low: oklch(72% 0.05 250);
+  --color-sev-low-dim: oklch(27% 0.03 250);
+  --color-sev-mod: oklch(82% 0.12 95);
+  --color-sev-mod-dim: oklch(30% 0.06 95);
+  --color-sev-high: oklch(73% 0.17 52);
+  --color-sev-high-dim: oklch(31% 0.08 52);
+  --color-sev-crit: oklch(71% 0.2 25);
+  --color-sev-crit-dim: oklch(31% 0.1 25);
+
+  /* Sentiment + gain/loss */
+  --color-neg: oklch(75% 0.15 25);
+  --color-neg-dim: oklch(29% 0.08 25);
+  --color-pos: oklch(78% 0.15 155);
+  --color-pos-dim: oklch(29% 0.06 155);
+  --color-neu: oklch(66% 0.02 255);
+  --color-warn: oklch(82% 0.12 95);
+  --color-warn-dim: oklch(30% 0.06 95);
+
+  /* Type */
+  --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.5rem;
+  --text-4xl: clamp(2.5rem, 1.6rem + 3.2vw, 4rem);
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+}
