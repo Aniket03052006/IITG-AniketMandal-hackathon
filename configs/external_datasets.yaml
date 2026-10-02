@@ -1,0 +1,24 @@
+# External datasets downloaded into data/raw/kaggle/<slug>/ (git-ignored) by `make fetch-kaggle`.
+# commit: never = nothing from the dataset enters git; aggregate = only small derived aggregates are committed.
+version: "1"
+datasets:
+  - ref: equinxx/stock-tweets-for-sentiment-analysis-and-prediction
+    licence: CC0
+    commit: never
+    purpose: timestamped tweets about 25 tickers (2021-09..2022-09) with matching prices
+  - ref: notlucasp/financial-news-headlines
+    licence: CC0
+    commit: never
+    purpose: CNBC / Guardian / Reuters headlines 2017-2020 (dated, no tickers)
+  - ref: computingvictor/transactions-fraud-datasets
+    licence: Apache-2.0
+    commit: aggregate
+    purpose: 13.3M retail card transactions; only the merchant-category spend mix is derived and committed
+  - ref: omermetinn/tweets-about-the-top-companies-from-2015-to-2020
+    licence: CC0
+    commit: never
+    purpose: ~3M timestamped tweets about 6 large caps with company prices, 2015-2020 (impact-model history)
+  - ref: ankurzing/sentiment-analysis-for-financial-news
+    licence: CC-BY-NC-SA-4.0
+    commit: never
+    purpose: "Financial PhraseBank-style labelled sentences. NON-COMMERCIAL, share-alike: local evaluation only, never committed"

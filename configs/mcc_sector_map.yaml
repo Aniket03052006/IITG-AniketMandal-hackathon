@@ -1,0 +1,15 @@
+# Assigns each merchant category (MCC) description to one of the six book sectors by keyword; the first sector
+# whose keyword occurs in the description wins (so list order matters), anything unmatched is OTHER and is excluded.
+# A retail card-spend share is only a crude proxy for a sector's economic weight; the script reports coverage.
+version: "1"
+sectors:
+  Energy:       [Service Stations, Utilities]
+  Healthcare:   [Medical, Dentists, Drug Stores, Doctors, Chiropractors, Optometrists, Podiatrists, Hospitals]
+  Technology:   [Computer, Telecommunication, Cable, Semiconductors, Electronics Stores, Digital Goods]
+  Financials:   [Money Transfer, Insurance, Accounting, Tax Preparation]
+  Industrials:  [Railroad, Passenger Railways, Airlines, Motor Freight, Local and Suburban, Taxicabs, Bus Lines, Cruise, Tolls,
+                 Industrial, Steel, Metal, Machinery, Manufacturing, Plumbing, Lumber, Hardware, Tools, Ship, Fabricated,
+                 Foundries, Welding, Ironwork, Brick, Bolt, Electroplating, Heat Treating, Lighting, Ceramics, Coated]
+  Consumer:     [Restaurants, Fast Food, Grocery, Food Stores, Stores, Shops, Wholesale Clubs, Drinking Places, Amusement,
+                 Motion Picture, Betting, Beauty, Lodging, Cosmetic, Sports, Athletic, Recreational, Theatrical, Laundry,
+                 Car Washes, Automotive, Travel Agencies, Leather, Upholstery, Floor Covering, Gardening, Florists]

@@ -1,0 +1,792 @@
+{
+  "source": "computingvictor/transactions-fraud-datasets (Kaggle), Apache-2.0; aggregate only",
+  "assumption": "Retail card spend by merchant category is used as a crude proxy for the relative economic weight of sectors. It tilts the synthetic book's notionals; it does not describe any real bank's exposure.",
+  "rows_read": 13305915,
+  "rows_used": 12433446,
+  "excluded_rows_with_errors": 211393,
+  "excluded_non_positive_amounts": 661076,
+  "spend_total": 625947752.57,
+  "mapped_share_of_spend": 0.9863,
+  "sector_share_of_mapped_spend": {
+    "Energy": 0.12473,
+    "Healthcare": 0.085421,
+    "Technology": 0.063544,
+    "Financials": 0.104418,
+    "Industrials": 0.160133,
+    "Consumer": 0.461753
+  },
+  "sector_spend": {
+    "Consumer": 285073216.35,
+    "Energy": 77004498.63,
+    "Financials": 64464748.54,
+    "Healthcare": 52736578.25,
+    "Industrials": 98861519.62,
+    "OTHER": 8576661.91,
+    "Technology": 39230529.27
+  },
+  "mcc_assignments": [
+    {
+      "mcc": "4829",
+      "description": "Money Transfer",
+      "sector": "Financials",
+      "spend": 51445222.99,
+      "transactions": 560393
+    },
+    {
+      "mcc": "5541",
+      "description": "Service Stations",
+      "sector": "Energy",
+      "spend": 50017889.0,
+      "transactions": 1116460
+    },
+    {
+      "mcc": "5411",
+      "description": "Grocery Stores, Supermarkets",
+      "sector": "Consumer",
+      "spend": 40083560.97,
+      "transactions": 1574411
+    },
+    {
+      "mcc": "5300",
+      "description": "Wholesale Clubs",
+      "sector": "Consumer",
+      "spend": 36751832.39,
+      "transactions": 589747
+    },
+    {
+      "mcc": "5499",
+      "description": "Miscellaneous Food Stores",
+      "sector": "Consumer",
+      "spend": 36494057.96,
+      "transactions": 1154144
+    },
+    {
+      "mcc": "5912",
+      "description": "Drug Stores and Pharmacies",
+      "sector": "Healthcare",
+      "spend": 34233827.11,
+      "transactions": 760134
+    },
+    {
+      "mcc": "4900",
+      "description": "Utilities - Electric, Gas, Water, Sanitary",
+      "sector": "Energy",
+      "spend": 26986609.63,
+      "transactions": 236948
+    },
+    {
+      "mcc": "5311",
+      "description": "Department Stores",
+      "sector": "Consumer",
+      "spend": 26326871.49,
+      "transactions": 465290
+    },
+    {
+      "mcc": "5812",
+      "description": "Eating Places and Restaurants",
+      "sector": "Consumer",
+      "spend": 25948631.05,
+      "transactions": 989366
+    },
+    {
+      "mcc": "7538",
+      "description": "Automotive Service Shops",
+      "sector": "Consumer",
+      "spend": 24475564.23,
+      "transactions": 470626
+    },
+    {
+      "mcc": "4814",
+      "description": "Telecommunication Services",
+      "sector": "Technology",
+      "spend": 24143376.53,
+      "transactions": 212800
+    },
+    {
+      "mcc": "4784",
+      "description": "Tolls and Bridge Fees",
+      "sector": "Industrials",
+      "spend": 23347655.87,
+      "transactions": 660470
+    },
+    {
+      "mcc": "5814",
+      "description": "Fast Food Restaurants",
+      "sector": "Consumer",
+      "spend": 12930840.68,
+      "transactions": 494471
+    },
+    {
+      "mcc": "6300",
+      "description": "Insurance Sales, Underwriting",
+      "sector": "Financials",
+      "spend": 11718212.24,
+      "transactions": 50269
+    },
+    {
+      "mcc": "4121",
+      "description": "Taxicabs and Limousines",
+      "sector": "Industrials",
+      "spend": 11700007.97,
+      "transactions": 493507
+    },
+    {
+      "mcc": "5310",
+      "description": "Discount Stores",
+      "sector": "Consumer",
+      "spend": 10055212.2,
+      "transactions": 243082
+    },
+    {
+      "mcc": "5211",
+      "description": "Lumber and Building Materials",
+      "sector": "Industrials",
+      "spend": 7711629.04,
+      "transactions": 170729
+    },
+    {
+      "mcc": "4111",
+      "description": "Local and Suburban Commuter Transportation",
+      "sector": "Industrials",
+      "spend": 7495904.27,
+      "transactions": 81492
+    },
+    {
+      "mcc": "4899",
+      "description": "Cable, Satellite, and Other Pay Television Services",
+      "sector": "Technology",
+      "spend": 7165768.88,
+      "transactions": 49923
+    },
+    {
+      "mcc": "4722",
+      "description": "Travel Agencies",
+      "sector": "Consumer",
+      "spend": 6946475.24,
+      "transactions": 22214
+    },
+    {
+      "mcc": "5813",
+      "description": "Drinking Places (Alcoholic Beverages)",
+      "sector": "Consumer",
+      "spend": 6208534.1,
+      "transactions": 246427
+    },
+    {
+      "mcc": "7995",
+      "description": "Betting (including Lottery Tickets, Casinos)",
+      "sector": "Consumer",
+      "spend": 5051633.65,
+      "transactions": 31344
+    },
+    {
+      "mcc": "8021",
+      "description": "Dentists and Orthodontists",
+      "sector": "Healthcare",
+      "spend": 5016916.44,
+      "transactions": 31959
+    },
+    {
+      "mcc": "7230",
+      "description": "Beauty and Barber Shops",
+      "sector": "Consumer",
+      "spend": 4891216.55,
+      "transactions": 104949
+    },
+    {
+      "mcc": "5942",
+      "description": "Book Stores",
+      "sector": "Consumer",
+      "spend": 4415452.67,
+      "transactions": 230341
+    },
+    {
+      "mcc": "8011",
+      "description": "Doctors, Physicians",
+      "sector": "Healthcare",
+      "spend": 4238327.04,
+      "transactions": 24071
+    },
+    {
+      "mcc": "5719",
+      "description": "Miscellaneous Home Furnishing Stores",
+      "sector": "Consumer",
+      "spend": 4212226.75,
+      "transactions": 84694
+    },
+    {
+      "mcc": "5651",
+      "description": "Family Clothing Stores",
+      "sector": "Consumer",
+      "spend": 3878610.91,
+      "transactions": 71013
+    },
+    {
+      "mcc": "7832",
+      "description": "Motion Picture Theaters",
+      "sector": "Consumer",
+      "spend": 3874725.08,
+      "transactions": 143474
+    },
+    {
+      "mcc": "8111",
+      "description": "Legal Services and Attorneys",
+      "sector": "OTHER",
+      "spend": 3780492.15,
+      "transactions": 7053
+    },
+    {
+      "mcc": "7922",
+      "description": "Theatrical Producers",
+      "sector": "Consumer",
+      "spend": 3403431.13,
+      "transactions": 38256
+    },
+    {
+      "mcc": "7011",
+      "description": "Lodging - Hotels, Motels, Resorts",
+      "sector": "Consumer",
+      "spend": 2876300.41,
+      "transactions": 11265
+    },
+    {
+      "mcc": "5970",
+      "description": "Artist Supply Stores, Craft Shops",
+      "sector": "Consumer",
+      "spend": 2845723.92,
+      "transactions": 66899
+    },
+    {
+      "mcc": "3504",
+      "description": "Gardening Supplies",
+      "sector": "Consumer",
+      "spend": 2704640.0,
+      "transactions": 10702
+    },
+    {
+      "mcc": "3509",
+      "description": "Industrial Equipment and Supplies",
+      "sector": "Industrials",
+      "spend": 2683446.98,
+      "transactions": 10565
+    },
+    {
+      "mcc": "3684",
+      "description": "Semiconductors and Related Devices",
+      "sector": "Technology",
+      "spend": 2682554.95,
+      "transactions": 10617
+    },
+    {
+      "mcc": "3722",
+      "description": "Passenger Railways",
+      "sector": "Industrials",
+      "spend": 2639334.55,
+      "transactions": 10445
+    },
+    {
+      "mcc": "7801",
+      "description": "Athletic Fields, Commercial Sports",
+      "sector": "Consumer",
+      "spend": 2523170.05,
+      "transactions": 17058
+    },
+    {
+      "mcc": "7802",
+      "description": "Recreational Sports, Clubs",
+      "sector": "Consumer",
+      "spend": 2517616.43,
+      "transactions": 15667
+    },
+    {
+      "mcc": "3640",
+      "description": "Lighting, Fixtures, Electrical Supplies",
+      "sector": "Industrials",
+      "spend": 2506933.16,
+      "transactions": 9926
+    },
+    {
+      "mcc": "8062",
+      "description": "Hospitals",
+      "sector": "Healthcare",
+      "spend": 2505214.85,
+      "transactions": 3445
+    },
+    {
+      "mcc": "3780",
+      "description": "Computer Network Services",
+      "sector": "Technology",
+      "spend": 2463836.68,
+      "transactions": 9799
+    },
+    {
+      "mcc": "3596",
+      "description": "Miscellaneous Machinery and Parts Manufacturing",
+      "sector": "Industrials",
+      "spend": 2423878.58,
+      "transactions": 9631
+    },
+    {
+      "mcc": "3730",
+      "description": "Ship Chandlers",
+      "sector": "Industrials",
+      "spend": 2421337.4,
+      "transactions": 9549
+    },
+    {
+      "mcc": "3771",
+      "description": "Railroad Passenger Transport",
+      "sector": "Industrials",
+      "spend": 2409661.02,
+      "transactions": 9564
+    },
+    {
+      "mcc": "3775",
+      "description": "Railroad Freight",
+      "sector": "Industrials",
+      "spend": 2384885.3,
+      "transactions": 9375
+    },
+    {
+      "mcc": "3001",
+      "description": "Steel Products Manufacturing",
+      "sector": "Industrials",
+      "spend": 2272302.19,
+      "transactions": 3098
+    },
+    {
+      "mcc": "3058",
+      "description": "Tools, Parts, Supplies Manufacturing",
+      "sector": "Industrials",
+      "spend": 2256168.1,
+      "transactions": 3068
+    },
+    {
+      "mcc": "3000",
+      "description": "Steelworks",
+      "sector": "Industrials",
+      "spend": 2226023.56,
+      "transactions": 3050
+    },
+    {
+      "mcc": "7349",
+      "description": "Cleaning and Maintenance Services",
+      "sector": "OTHER",
+      "spend": 2115163.15,
+      "transactions": 49887
+    },
+    {
+      "mcc": "8043",
+      "description": "Optometrists, Optical Goods and Eyeglasses",
+      "sector": "Healthcare",
+      "spend": 2108235.47,
+      "transactions": 16206
+    },
+    {
+      "mcc": "3132",
+      "description": "Leather Goods",
+      "sector": "Consumer",
+      "spend": 2064958.62,
+      "transactions": 2812
+    },
+    {
+      "mcc": "4511",
+      "description": "Airlines",
+      "sector": "Industrials",
+      "spend": 2059457.1,
+      "transactions": 2821
+    },
+    {
+      "mcc": "3260",
+      "description": "Pottery and Ceramics",
+      "sector": "Industrials",
+      "spend": 2015049.73,
+      "transactions": 2798
+    },
+    {
+      "mcc": "3174",
+      "description": "Upholstery and Drapery Stores",
+      "sector": "Consumer",
+      "spend": 2009053.2,
+      "transactions": 2794
+    },
+    {
+      "mcc": "3256",
+      "description": "Brick, Stone, and Related Materials",
+      "sector": "Industrials",
+      "spend": 1994014.22,
+      "transactions": 2779
+    },
+    {
+      "mcc": "3066",
+      "description": "Miscellaneous Metals",
+      "sector": "Industrials",
+      "spend": 1957909.06,
+      "transactions": 2706
+    },
+    {
+      "mcc": "7996",
+      "description": "Amusement Parks, Carnivals, Circuses",
+      "sector": "Consumer",
+      "spend": 1785505.77,
+      "transactions": 11262
+    },
+    {
+      "mcc": "3359",
+      "description": "Non-Ferrous Metal Foundries",
+      "sector": "Industrials",
+      "spend": 1678278.62,
+      "transactions": 7274
+    },
+    {
+      "mcc": "8099",
+      "description": "Medical Services",
+      "sector": "Healthcare",
+      "spend": 1606285.65,
+      "transactions": 14826
+    },
+    {
+      "mcc": "3389",
+      "description": "Non-Precious Metal Services",
+      "sector": "Industrials",
+      "spend": 1603378.09,
+      "transactions": 6959
+    },
+    {
+      "mcc": "8041",
+      "description": "Chiropractors",
+      "sector": "Healthcare",
+      "spend": 1525325.16,
+      "transactions": 10427
+    },
+    {
+      "mcc": "8049",
+      "description": "Podiatrists",
+      "sector": "Healthcare",
+      "spend": 1502446.53,
+      "transactions": 10316
+    },
+    {
+      "mcc": "4214",
+      "description": "Motor Freight Carriers and Trucking",
+      "sector": "Industrials",
+      "spend": 1474927.84,
+      "transactions": 98984
+    },
+    {
+      "mcc": "9402",
+      "description": "Postal Services - Government Only",
+      "sector": "OTHER",
+      "spend": 1472748.51,
+      "transactions": 98628
+    },
+    {
+      "mcc": "5251",
+      "description": "Hardware Stores",
+      "sector": "Industrials",
+      "spend": 1411827.71,
+      "transactions": 35019
+    },
+    {
+      "mcc": "5921",
+      "description": "Package Stores, Beer, Wine, Liquor",
+      "sector": "Consumer",
+      "spend": 1348206.0,
+      "transactions": 127906
+    },
+    {
+      "mcc": "3387",
+      "description": "Electroplating, Plating, Polishing Services",
+      "sector": "Industrials",
+      "spend": 1263195.67,
+      "transactions": 5544
+    },
+    {
+      "mcc": "3390",
+      "description": "Miscellaneous Metalwork",
+      "sector": "Industrials",
+      "spend": 1258896.84,
+      "transactions": 5463
+    },
+    {
+      "mcc": "3395",
+      "description": "Welding Repair",
+      "sector": "Industrials",
+      "spend": 1253269.49,
+      "transactions": 5471
+    },
+    {
+      "mcc": "3405",
+      "description": "Ironwork",
+      "sector": "Industrials",
+      "spend": 1242162.27,
+      "transactions": 5376
+    },
+    {
+      "mcc": "5712",
+      "description": "Furniture, Home Furnishings, and Equipment Stores",
+      "sector": "Consumer",
+      "spend": 1233496.86,
+      "transactions": 3829
+    },
+    {
+      "mcc": "3393",
+      "description": "Heat Treating Metal Services",
+      "sector": "Industrials",
+      "spend": 1229294.59,
+      "transactions": 5338
+    },
+    {
+      "mcc": "5655",
+      "description": "Sports Apparel, Riding Apparel Stores",
+      "sector": "Consumer",
+      "spend": 1111516.62,
+      "transactions": 16332
+    },
+    {
+      "mcc": "5932",
+      "description": "Antique Shops",
+      "sector": "Consumer",
+      "spend": 1050015.77,
+      "transactions": 5885
+    },
+    {
+      "mcc": "5732",
+      "description": "Electronics Stores",
+      "sector": "Technology",
+      "spend": 1046434.7,
+      "transactions": 6866
+    },
+    {
+      "mcc": "5661",
+      "description": "Shoe Stores",
+      "sector": "Consumer",
+      "spend": 970685.14,
+      "transactions": 13283
+    },
+    {
+      "mcc": "5815",
+      "description": "Digital Goods - Media, Books, Apps",
+      "sector": "Technology",
+      "spend": 824397.94,
+      "transactions": 61381
+    },
+    {
+      "mcc": "7276",
+      "description": "Tax Preparation Services",
+      "sector": "Financials",
+      "spend": 667121.89,
+      "transactions": 3649
+    },
+    {
+      "mcc": "4411",
+      "description": "Cruise Lines",
+      "sector": "Industrials",
+      "spend": 651260.24,
+      "transactions": 418
+    },
+    {
+      "mcc": "5621",
+      "description": "Women's Ready-To-Wear Stores",
+      "sector": "Consumer",
+      "spend": 646784.98,
+      "transactions": 10048
+    },
+    {
+      "mcc": "8931",
+      "description": "Accounting, Auditing, and Bookkeeping Services",
+      "sector": "Financials",
+      "spend": 634191.42,
+      "transactions": 3476
+    },
+    {
+      "mcc": "4112",
+      "description": "Passenger Railways",
+      "sector": "Industrials",
+      "spend": 614709.03,
+      "transactions": 2202
+    },
+    {
+      "mcc": "7210",
+      "description": "Laundry Services",
+      "sector": "Consumer",
+      "spend": 600682.15,
+      "transactions": 31151
+    },
+    {
+      "mcc": "7542",
+      "description": "Car Washes",
+      "sector": "Consumer",
+      "spend": 546337.95,
+      "transactions": 38781
+    },
+    {
+      "mcc": "5533",
+      "description": "Automotive Parts and Accessories Stores",
+      "sector": "Consumer",
+      "spend": 456866.71,
+      "transactions": 1156
+    },
+    {
+      "mcc": "5816",
+      "description": "Digital Goods - Games",
+      "sector": "Technology",
+      "spend": 456239.84,
+      "transactions": 2692
+    },
+    {
+      "mcc": "7531",
+      "description": "Automotive Body Repair Shops",
+      "sector": "Consumer",
+      "spend": 451037.66,
+      "transactions": 1161
+    },
+    {
+      "mcc": "1711",
+      "description": "Heating, Plumbing, Air Conditioning Contractors",
+      "sector": "Industrials",
+      "spend": 450496.92,
+      "transactions": 3061
+    },
+    {
+      "mcc": "5045",
+      "description": "Computers, Computer Peripheral Equipment",
+      "sector": "Technology",
+      "spend": 447919.75,
+      "transactions": 2740
+    },
+    {
+      "mcc": "7549",
+      "description": "Towing Services",
+      "sector": "OTHER",
+      "spend": 418358.18,
+      "transactions": 1092
+    },
+    {
+      "mcc": "5192",
+      "description": "Books, Periodicals, Newspapers",
+      "sector": "OTHER",
+      "spend": 402301.96,
+      "transactions": 10163
+    },
+    {
+      "mcc": "7393",
+      "description": "Detective Agencies, Security Services",
+      "sector": "OTHER",
+      "spend": 387597.96,
+      "transactions": 12469
+    },
+    {
+      "mcc": "5261",
+      "description": "Lawn and Garden Supply Stores",
+      "sector": "Consumer",
+      "spend": 340290.08,
+      "transactions": 7010
+    },
+    {
+      "mcc": "5193",
+      "description": "Florists Supplies, Nursery Stock and Flowers",
+      "sector": "Consumer",
+      "spend": 333998.64,
+      "transactions": 8934
+    },
+    {
+      "mcc": "3009",
+      "description": "Fabricated Structural Metal Products",
+      "sector": "Industrials",
+      "spend": 320393.45,
+      "transactions": 407
+    },
+    {
+      "mcc": "3008",
+      "description": "Steel Drums and Barrels",
+      "sector": "Industrials",
+      "spend": 303084.32,
+      "transactions": 380
+    },
+    {
+      "mcc": "3007",
+      "description": "Coated and Laminated Products",
+      "sector": "Industrials",
+      "spend": 299116.16,
+      "transactions": 381
+    },
+    {
+      "mcc": "3005",
+      "description": "Miscellaneous Metal Fabrication",
+      "sector": "Industrials",
+      "spend": 295759.24,
+      "transactions": 389
+    },
+    {
+      "mcc": "3006",
+      "description": "Miscellaneous Fabricated Metal Products",
+      "sector": "Industrials",
+      "spend": 275325.75,
+      "transactions": 350
+    },
+    {
+      "mcc": "5094",
+      "description": "Precious Stones and Metals",
+      "sector": "Industrials",
+      "spend": 275322.8,
+      "transactions": 5103
+    },
+    {
+      "mcc": "3075",
+      "description": "Bolt, Nut, Screw, Rivet Manufacturing",
+      "sector": "Industrials",
+      "spend": 255095.52,
+      "transactions": 335
+    },
+    {
+      "mcc": "3144",
+      "description": "Floor Covering Stores",
+      "sector": "Consumer",
+      "spend": 253362.58,
+      "transactions": 333
+    },
+    {
+      "mcc": "4131",
+      "description": "Bus Lines",
+      "sector": "Industrials",
+      "spend": 200126.97,
+      "transactions": 2156
+    },
+    {
+      "mcc": "5722",
+      "description": "Household Appliance Stores",
+      "sector": "Consumer",
+      "spend": 158679.72,
+      "transactions": 344
+    },
+    {
+      "mcc": "5733",
+      "description": "Music Stores - Musical Instruments",
+      "sector": "Consumer",
+      "spend": 148108.42,
+      "transactions": 315
+    },
+    {
+      "mcc": "5977",
+      "description": "Cosmetic Stores",
+      "sector": "Consumer",
+      "spend": 75249.88,
+      "transactions": 6470
+    },
+    {
+      "mcc": "5941",
+      "description": "Sporting Goods Stores",
+      "sector": "Consumer",
+      "spend": 46998.27,
+      "transactions": 1106
+    },
+    {
+      "mcc": "5947",
+      "description": "Gift, Card, Novelty Stores",
+      "sector": "Consumer",
+      "spend": 25053.47,
+      "transactions": 2222
+    }
+  ]
+}

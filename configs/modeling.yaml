@@ -1,0 +1,62 @@
+# Modeling-data rules (Stage 3 prep). Definitions of the impact target, the evaluation splits and the gold sample live here,
+# not in code, and every value is validated at startup. Changing anything below changes what "impact" means: bump `version`.
+version: "1"
+
+impact:
+  # z = CAR[s0, s0 + window_sessions - 1] / (sigma_idio * sqrt(window_sessions)); severity = |z|
+  market_symbol: "^GSPC"
+  volatility_symbol: "^VIX"
+  exchange_timezone: "America/New_York"
+  session_open: "09:30"
+  session_close: "16:00"          # a report at/after this local time reacts in the NEXT session
+  window_sessions: 2              # reaction can land on the report session or, for after-close news, the next one
+  beta_window: 250                # trailing sessions, strictly before s0
+  sigma_window: 60                # trailing sessions of residuals, strictly before s0
+  min_history_sessions: 120       # fewer sessions of history -> row is ineligible (never imputed)
+  sector_min_peers: 2             # with fewer ex-self peers the model falls back to market-only
+  min_link_confidence: 0.8
+  exclude_multi_entity: true
+  require_dataset_ticker_agreement: true   # tweets the source tagged with another ticker are about another company
+  # |z| cut points -> score 1..10 (score = 1 + number of cut points <= |z|). Fixed, never fitted to a split.
+  score_cutpoints: [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 7.0]
+  placebo_offset_sessions: -3     # negative-control window [s0-3, s0-2]: ends before the session before s0
+
+splits:
+  impact:
+    embargo_sessions: 5           # rows this close to a later period's start are dropped (target windows overlap)
+    train_end: "2022-03-31"
+    val_start: "2022-04-01"
+    val_end: "2022-06-30"
+    test_start: "2022-07-01"
+    test_end: "2022-09-30"
+    live_start: "2026-01-01"      # news-only, publisher/first-seen clocks; evaluated once
+  text:
+    seed: 20261002
+    fractions: {train: 0.8, valid: 0.1, test: 0.1}
+    near_duplicate_threshold: 0.7 # token Jaccard; connected components never straddle splits
+  leakage:
+    max_near_duplicate_rate: 0.01 # share of valid/test rows allowed to have a near-duplicate in train
+    placebo_warn_spearman: 0.05
+
+gold:
+  seed: 20261003
+  near_duplicate_threshold: 0.8   # history candidates this close to any TFN text are dropped from the pool
+  max_issuer_share: 0.15
+  max_per_template: 1
+  tfn_topic_per_topic: 6          # 20 topics -> 120 rows
+  rare_class_per_class:           # history rows whose PLACEHOLDER class is this one (a weak keyword hit)
+    GEOPOLITICAL: 15
+    MACROECONOMIC: 15
+    CREDIT_FUNDING: 15
+    MA_CORPORATE_ACTION: 15
+    REGULATORY_LEGAL: 15
+    PRODUCT_OPERATIONS: 15
+    EARNINGS_FINANCIAL_PERFORMANCE: 10
+  disagreement_event: 30          # placeholder class != naive-Bayes probe class (probe confident)
+  disagreement_sentiment: 30      # lexicon sign opposite to the probe sign
+  hard_multi_entity: 15
+  hard_weak_entity_rule: 15       # WEAK_ALIAS / FUZZY / BARE_TICKER resolution
+  hard_date_only: 10
+  random_per_source: 20           # uniform residual sample per adapter (the unbiased stratum)
+  adjudication_rows: 60
+  consistency_rows: 40
