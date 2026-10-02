@@ -335,3 +335,4 @@ without touching the event and impact placeholders or the stress engine. Details
 
 ### Process note (2026-10-02)
 - Rule change from the project owner: this journey is updated after **every task**, not only at stage end. `CLAUDE.md` now says so; small tasks get a short dated entry under the current stage.
+- Pushed the sentiment slice to `origin/main` (commits `ffcf584`, `3345419`). `.claude/` and `.hallmark/` are untracked and git-ignored (files kept locally); `CLAUDE.md` still relies on the local `.claude/settings.json` to blank AI attribution, so a fresh clone must recreate it.
