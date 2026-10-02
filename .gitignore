@@ -22,5 +22,11 @@ data/raw/
 data/processed/
 data/history/
 # Derived modelling corpora (rebuildable; impact_events.jsonl alone is >100 MB, over GitHub's file limit)
-data/modeling/
+data/modeling/*
+# ...except the TFN sentiment table (2 MB, MIT data): `make train-sentiment` must work from a clone
+!data/modeling/sentiment.jsonl
 .kilo/
+
+# Local tooling state (kept on disk, not in the repo)
+.claude/
+.hallmark/
