@@ -32,7 +32,7 @@ download (research access is by application). The Kaggle card-transaction datase
 
 | Artefact | Built from | Committed? |
 |---|---|---|
-| `data/gold/gold_sample.csv`, `gold_manifest.json`, `adjudication.csv`, `consistency_sheet.csv` | ~400 texts sampled from the history snapshot (CC0 Kaggle tweets and headlines, GDELT GKG titles) and 120 Twitter-Financial-News topic tweets (MIT per dataset card; tweet content originates on X) plus our labels (annotator `ai:claude`; a human may override in `adjudication.csv`) | **Yes** (about 270 KB). Removal for the TFN rows: delete them from the sheet and manifest, re-run `gold-sample` |
+| `data/gold/gold_sample.csv`, `gold_manifest.json`, `adjudication.csv`, `consistency_sheet.csv`, `gold_scores.json` | ~400 texts sampled from the history snapshot (CC0 Kaggle tweets and headlines, GDELT GKG titles) and 120 Twitter-Financial-News topic tweets (MIT per dataset card; tweet content originates on X) plus our labels (annotator `ai:claude`; a human may override in `adjudication.csv`) | **Yes** (about 320 KB, incl. `gold_scores.json`). Removal for the TFN rows: delete them from the sheet and manifest, re-run `gold-sample` |
 | `data/modeling/*` (`impact_events.jsonl`, `sentiment.jsonl`, `event_silver.jsonl`, `phrasebank_eval.jsonl`, `audit.json`, `probe*.json`) | the raw datasets above, re-split, deduplicated and joined to prices | **No** (git-ignored; rebuild with `make audit`). `phrasebank_eval.jsonl` is CC BY-NC-SA and must never be committed or trained on |
 | Yahoo prices | refetched from 2014-01-01 (`make fetch-prices`) so H1 2015 has a 250-session history | No |
 

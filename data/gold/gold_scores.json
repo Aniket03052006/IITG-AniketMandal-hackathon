@@ -1,0 +1,901 @@
+{
+ "ai_vs_human": {
+  "entity_ok": {
+   "agreement": null,
+   "kappa": null,
+   "n": 0
+  },
+  "event": {
+   "agreement": null,
+   "kappa": null,
+   "n": 0
+  },
+  "rows_reviewed_by_human": 0,
+  "sentiment": {
+   "agreement": null,
+   "kappa": null,
+   "n": 0
+  }
+ },
+ "annotator": "ai:claude",
+ "gold_event_distribution_weighted": {
+  "history": {
+   "CREDIT_FUNDING": 0.008,
+   "EARNINGS_FINANCIAL_PERFORMANCE": 0.018,
+   "GEOPOLITICAL": 0.003,
+   "MACROECONOMIC": 0.004,
+   "MARKET_VALUATION": 0.063,
+   "MA_CORPORATE_ACTION": 0.018,
+   "NONE": 0.677,
+   "PRODUCT_OPERATIONS": 0.169,
+   "REGULATORY_LEGAL": 0.039
+  },
+  "tfn": {
+   "CREDIT_FUNDING": 0.081,
+   "EARNINGS_FINANCIAL_PERFORMANCE": 0.06,
+   "GEOPOLITICAL": 0.041,
+   "MACROECONOMIC": 0.183,
+   "MARKET_VALUATION": 0.126,
+   "MA_CORPORATE_ACTION": 0.06,
+   "NONE": 0.29,
+   "PRODUCT_OPERATIONS": 0.109,
+   "REGULATORY_LEGAL": 0.05
+  }
+ },
+ "history_population_estimates": {
+  "entity_ok_rate_among_resolved": 0.719,
+  "n": 280,
+  "note": "inclusion-probability weighted over all history strata; the targeted strata make this approximate",
+  "sentiment_distribution": {
+   "-1": 0.254,
+   "0": 0.495,
+   "1": 0.251
+  },
+  "share_none": 0.677
+ },
+ "labelled": 400,
+ "mapping_precision_by_tier": {
+  "medium": 0.81,
+  "strong": 1.0,
+  "weak": 0.267
+ },
+ "overridden_by_human": 0,
+ "random_strata": {
+  "rand:gdelt-gkg": {
+   "entity_ok_share_of_resolved": 0.737,
+   "event_counts": {
+    "MARKET_VALUATION": 1,
+    "NONE": 11,
+    "PRODUCT_OPERATIONS": 8
+   },
+   "n": 20,
+   "none_ci95": [
+    0.342,
+    0.742
+   ],
+   "sentiment_counts": {
+    "-1": 4,
+    "0": 15,
+    "1": 1
+   },
+   "share_none": 0.55
+  },
+  "rand:headlines": {
+   "entity_ok_share_of_resolved": 0.778,
+   "event_counts": {
+    "MARKET_VALUATION": 17,
+    "MA_CORPORATE_ACTION": 1,
+    "PRODUCT_OPERATIONS": 1,
+    "REGULATORY_LEGAL": 1
+   },
+   "n": 20,
+   "none_ci95": [
+    -0.0,
+    0.161
+   ],
+   "sentiment_counts": {
+    "-1": 2,
+    "0": 7,
+    "1": 11
+   },
+   "share_none": 0.0
+  },
+  "rand:stock-tweets": {
+   "entity_ok_share_of_resolved": 0.789,
+   "event_counts": {
+    "MARKET_VALUATION": 1,
+    "NONE": 15,
+    "PRODUCT_OPERATIONS": 4
+   },
+   "n": 20,
+   "none_ci95": [
+    0.531,
+    0.888
+   ],
+   "sentiment_counts": {
+    "-1": 3,
+    "0": 7,
+    "1": 10
+   },
+   "share_none": 0.75
+  },
+  "rand:top-tweets": {
+   "entity_ok_share_of_resolved": 0.85,
+   "event_counts": {
+    "MARKET_VALUATION": 2,
+    "NONE": 18
+   },
+   "n": 20,
+   "none_ci95": [
+    0.699,
+    0.972
+   ],
+   "sentiment_counts": {
+    "-1": 6,
+    "0": 9,
+    "1": 5
+   },
+   "share_none": 0.9
+  }
+ },
+ "self_consistency": {
+  "event": {
+   "agreement": 0.975,
+   "kappa": 0.965,
+   "n": 40
+  },
+  "note": "same annotator, second blind pass: an upper bound on label noise, NOT an independent inter-annotator kappa",
+  "sentiment": {
+   "agreement": 0.9,
+   "kappa": 0.846,
+   "n": 40
+  }
+ },
+ "topic_mapping_precision": {
+  "00 Analyst Update": {
+   "gold_distribution": {
+    "MARKET_VALUATION": 6
+   },
+   "mapped_class": "MARKET_VALUATION",
+   "n": 6,
+   "precision_primary_or_secondary": 1.0,
+   "share_none": 0.0,
+   "tier": "medium"
+  },
+  "01 Fed | Central Banks": {
+   "gold_distribution": {
+    "MACROECONOMIC": 6
+   },
+   "mapped_class": "MACROECONOMIC",
+   "n": 6,
+   "precision_primary_or_secondary": 1.0,
+   "share_none": 0.0,
+   "tier": "strong"
+  },
+  "02 Company | Product News": {
+   "gold_distribution": {
+    "CREDIT_FUNDING": 2,
+    "MA_CORPORATE_ACTION": 1,
+    "NONE": 1,
+    "PRODUCT_OPERATIONS": 2
+   },
+   "mapped_class": "PRODUCT_OPERATIONS",
+   "n": 6,
+   "precision_primary_or_secondary": 0.333,
+   "share_none": 0.167,
+   "tier": "weak"
+  },
+  "03 Treasuries | Corporate Debt": {
+   "gold_distribution": {
+    "CREDIT_FUNDING": 3,
+    "MACROECONOMIC": 2,
+    "MARKET_VALUATION": 1
+   },
+   "mapped_class": "CREDIT_FUNDING",
+   "n": 6,
+   "precision_primary_or_secondary": 0.5,
+   "share_none": 0.0,
+   "tier": "medium"
+  },
+  "04 Dividend": {
+   "gold_distribution": {
+    "EARNINGS_FINANCIAL_PERFORMANCE": 4,
+    "MARKET_VALUATION": 2
+   },
+   "mapped_class": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "n": 6,
+   "precision_primary_or_secondary": 0.667,
+   "share_none": 0.0,
+   "tier": "medium"
+  },
+  "05 Earnings": {
+   "gold_distribution": {
+    "NONE": 6
+   },
+   "mapped_class": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "n": 6,
+   "precision_primary_or_secondary": 0.0,
+   "share_none": 1.0,
+   "tier": "weak"
+  },
+  "06 Energy | Oil": {
+   "gold_distribution": {
+    "GEOPOLITICAL": 2,
+    "MACROECONOMIC": 2,
+    "MARKET_VALUATION": 2
+   },
+   "mapped_class": null,
+   "n": 6,
+   "precision_primary_or_secondary": null,
+   "share_none": 0.0,
+   "tier": null
+  },
+  "07 Financials": {
+   "gold_distribution": {
+    "EARNINGS_FINANCIAL_PERFORMANCE": 5,
+    "PRODUCT_OPERATIONS": 1
+   },
+   "mapped_class": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "n": 6,
+   "precision_primary_or_secondary": 1.0,
+   "share_none": 0.0,
+   "tier": "strong"
+  },
+  "08 Currencies": {
+   "gold_distribution": {
+    "MACROECONOMIC": 6
+   },
+   "mapped_class": "MACROECONOMIC",
+   "n": 6,
+   "precision_primary_or_secondary": 1.0,
+   "share_none": 0.0,
+   "tier": "medium"
+  },
+  "09 General News | Opinion": {
+   "gold_distribution": {
+    "GEOPOLITICAL": 1,
+    "MACROECONOMIC": 2,
+    "NONE": 3
+   },
+   "mapped_class": null,
+   "n": 6,
+   "precision_primary_or_secondary": null,
+   "share_none": 0.5,
+   "tier": null
+  },
+  "10 Gold | Metals | Materials": {
+   "gold_distribution": {
+    "MARKET_VALUATION": 5,
+    "NONE": 1
+   },
+   "mapped_class": null,
+   "n": 6,
+   "precision_primary_or_secondary": null,
+   "share_none": 0.167,
+   "tier": null
+  },
+  "11 IPO": {
+   "gold_distribution": {
+    "MARKET_VALUATION": 1,
+    "MA_CORPORATE_ACTION": 5
+   },
+   "mapped_class": "MA_CORPORATE_ACTION",
+   "n": 6,
+   "precision_primary_or_secondary": 0.833,
+   "share_none": 0.0,
+   "tier": "medium"
+  },
+  "12 Legal | Regulation": {
+   "gold_distribution": {
+    "REGULATORY_LEGAL": 6
+   },
+   "mapped_class": "REGULATORY_LEGAL",
+   "n": 6,
+   "precision_primary_or_secondary": 1.0,
+   "share_none": 0.0,
+   "tier": "strong"
+  },
+  "13 M&A | Investments": {
+   "gold_distribution": {
+    "MA_CORPORATE_ACTION": 4,
+    "NONE": 1,
+    "REGULATORY_LEGAL": 1
+   },
+   "mapped_class": "MA_CORPORATE_ACTION",
+   "n": 6,
+   "precision_primary_or_secondary": 0.667,
+   "share_none": 0.167,
+   "tier": "medium"
+  },
+  "14 Macro": {
+   "gold_distribution": {
+    "MACROECONOMIC": 6
+   },
+   "mapped_class": "MACROECONOMIC",
+   "n": 6,
+   "precision_primary_or_secondary": 1.0,
+   "share_none": 0.0,
+   "tier": "strong"
+  },
+  "15 Markets": {
+   "gold_distribution": {
+    "MARKET_VALUATION": 6
+   },
+   "mapped_class": "MARKET_VALUATION",
+   "n": 6,
+   "precision_primary_or_secondary": 1.0,
+   "share_none": 0.0,
+   "tier": "medium"
+  },
+  "16 Politics": {
+   "gold_distribution": {
+    "GEOPOLITICAL": 2,
+    "NONE": 4
+   },
+   "mapped_class": "GEOPOLITICAL",
+   "n": 6,
+   "precision_primary_or_secondary": 0.333,
+   "share_none": 0.667,
+   "tier": "weak"
+  },
+  "17 Personnel Change": {
+   "gold_distribution": {
+    "NONE": 4,
+    "PRODUCT_OPERATIONS": 2
+   },
+   "mapped_class": null,
+   "n": 6,
+   "precision_primary_or_secondary": null,
+   "share_none": 0.667,
+   "tier": null
+  },
+  "18 Stock Commentary": {
+   "gold_distribution": {
+    "MARKET_VALUATION": 2,
+    "NONE": 4
+   },
+   "mapped_class": "MARKET_VALUATION",
+   "n": 6,
+   "precision_primary_or_secondary": 0.333,
+   "share_none": 0.667,
+   "tier": "weak"
+  },
+  "19 Stock Movement": {
+   "gold_distribution": {
+    "EARNINGS_FINANCIAL_PERFORMANCE": 1,
+    "MARKET_VALUATION": 1,
+    "PRODUCT_OPERATIONS": 2,
+    "REGULATORY_LEGAL": 2
+   },
+   "mapped_class": "MARKET_VALUATION",
+   "n": 6,
+   "precision_primary_or_secondary": 0.333,
+   "share_none": 0.0,
+   "tier": "weak"
+  }
+ },
+ "weak_labels_vs_gold": {
+  "population:history": {
+   "naive_bayes_event": {
+    "accuracy": 0.0927,
+    "macro_f1": 0.0842,
+    "n": 280,
+    "per_class": {
+     "CREDIT_FUNDING": {
+      "f1": 0.091,
+      "precision": 0.068,
+      "recall": 0.137,
+      "support": 1001.8
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 2376.93
+     },
+     "GEOPOLITICAL": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 438.53
+     },
+     "MACROECONOMIC": {
+      "f1": 0.049,
+      "precision": 0.025,
+      "recall": 1.0,
+      "support": 577.73
+     },
+     "MARKET_VALUATION": {
+      "f1": 0.162,
+      "precision": 0.089,
+      "recall": 0.877,
+      "support": 8219.82
+     },
+     "MA_CORPORATE_ACTION": {
+      "f1": 0.05,
+      "precision": 0.033,
+      "recall": 0.103,
+      "support": 2408.75
+     },
+     "NONE": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 88806.7
+     },
+     "PRODUCT_OPERATIONS": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 22167.22
+     },
+     "REGULATORY_LEGAL": {
+      "f1": 0.406,
+      "precision": 0.275,
+      "recall": 0.777,
+      "support": 5134.52
+     }
+    }
+   },
+   "naive_bayes_sentiment": {
+    "accuracy": 0.5588,
+    "macro_f1": 0.4793,
+    "n": 280,
+    "per_class": {
+     "-1": {
+      "f1": 0.352,
+      "precision": 0.632,
+      "recall": 0.244,
+      "support": 33248.15
+     },
+     "0": {
+      "f1": 0.671,
+      "precision": 0.568,
+      "recall": 0.82,
+      "support": 64907.63
+     },
+     "1": {
+      "f1": 0.415,
+      "precision": 0.487,
+      "recall": 0.362,
+      "support": 32976.22
+     }
+    }
+   },
+   "placeholder_event": {
+    "accuracy": 0.1351,
+    "macro_f1": 0.3629,
+    "n": 280,
+    "per_class": {
+     "CREDIT_FUNDING": {
+      "f1": 0.239,
+      "precision": 0.212,
+      "recall": 0.275,
+      "support": 1001.8
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "f1": 0.281,
+      "precision": 0.186,
+      "recall": 0.582,
+      "support": 2376.93
+     },
+     "GEOPOLITICAL": {
+      "f1": 0.584,
+      "precision": 0.533,
+      "recall": 0.646,
+      "support": 438.53
+     },
+     "MACROECONOMIC": {
+      "f1": 0.636,
+      "precision": 0.467,
+      "recall": 1.0,
+      "support": 577.73
+     },
+     "MARKET_VALUATION": {
+      "f1": 0.101,
+      "precision": 0.054,
+      "recall": 0.695,
+      "support": 8219.82
+     },
+     "MA_CORPORATE_ACTION": {
+      "f1": 0.416,
+      "precision": 0.359,
+      "recall": 0.495,
+      "support": 2408.75
+     },
+     "NONE": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 88806.7
+     },
+     "PRODUCT_OPERATIONS": {
+      "f1": 0.332,
+      "precision": 0.66,
+      "recall": 0.221,
+      "support": 22167.22
+     },
+     "REGULATORY_LEGAL": {
+      "f1": 0.677,
+      "precision": 0.696,
+      "recall": 0.66,
+      "support": 5134.52
+     }
+    }
+   },
+   "placeholder_sentiment": {
+    "accuracy": 0.4729,
+    "macro_f1": 0.2937,
+    "n": 280,
+    "per_class": {
+     "-1": {
+      "f1": 0.164,
+      "precision": 0.431,
+      "recall": 0.101,
+      "support": 33248.15
+     },
+     "0": {
+      "f1": 0.625,
+      "precision": 0.486,
+      "recall": 0.876,
+      "support": 64907.63
+     },
+     "1": {
+      "f1": 0.092,
+      "precision": 0.282,
+      "recall": 0.055,
+      "support": 32976.22
+     }
+    }
+   }
+  },
+  "population:tfn": {
+   "naive_bayes_event": {
+    "accuracy": 0.4242,
+    "macro_f1": 0.3589,
+    "n": 120,
+    "per_class": {
+     "CREDIT_FUNDING": {
+      "f1": 0.68,
+      "precision": 0.894,
+      "recall": 0.549,
+      "support": 1426.5
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "f1": 0.402,
+      "precision": 0.263,
+      "recall": 0.851,
+      "support": 1058.0
+     },
+     "GEOPOLITICAL": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 714.33
+     },
+     "MACROECONOMIC": {
+      "f1": 0.693,
+      "precision": 0.534,
+      "recall": 0.986,
+      "support": 3208.33
+     },
+     "MARKET_VALUATION": {
+      "f1": 0.358,
+      "precision": 0.283,
+      "recall": 0.488,
+      "support": 2205.67
+     },
+     "MA_CORPORATE_ACTION": {
+      "f1": 0.652,
+      "precision": 0.507,
+      "recall": 0.913,
+      "support": 1052.17
+     },
+     "NONE": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 5072.33
+     },
+     "PRODUCT_OPERATIONS": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 1915.33
+     },
+     "REGULATORY_LEGAL": {
+      "f1": 0.445,
+      "precision": 0.343,
+      "recall": 0.636,
+      "support": 867.33
+     }
+    }
+   },
+   "naive_bayes_sentiment": {
+    "accuracy": 0.5606,
+    "macro_f1": 0.51,
+    "n": 120,
+    "per_class": {
+     "-1": {
+      "f1": 0.454,
+      "precision": 0.737,
+      "recall": 0.328,
+      "support": 5776.5
+     },
+     "0": {
+      "f1": 0.67,
+      "precision": 0.556,
+      "recall": 0.845,
+      "support": 7528.17
+     },
+     "1": {
+      "f1": 0.406,
+      "precision": 0.448,
+      "recall": 0.372,
+      "support": 4215.33
+     }
+    }
+   },
+   "placeholder_event": {
+    "accuracy": 0.3174,
+    "macro_f1": 0.3558,
+    "n": 120,
+    "per_class": {
+     "CREDIT_FUNDING": {
+      "f1": 0.653,
+      "precision": 0.888,
+      "recall": 0.516,
+      "support": 1426.5
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "f1": 0.435,
+      "precision": 0.332,
+      "recall": 0.633,
+      "support": 1058.0
+     },
+     "GEOPOLITICAL": {
+      "f1": 0.288,
+      "precision": 0.397,
+      "recall": 0.226,
+      "support": 714.33
+     },
+     "MACROECONOMIC": {
+      "f1": 0.562,
+      "precision": 0.843,
+      "recall": 0.422,
+      "support": 3208.33
+     },
+     "MARKET_VALUATION": {
+      "f1": 0.273,
+      "precision": 0.163,
+      "recall": 0.848,
+      "support": 2205.67
+     },
+     "MA_CORPORATE_ACTION": {
+      "f1": 0.153,
+      "precision": 0.637,
+      "recall": 0.087,
+      "support": 1052.17
+     },
+     "NONE": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 5072.33
+     },
+     "PRODUCT_OPERATIONS": {
+      "f1": 0.106,
+      "precision": 0.315,
+      "recall": 0.064,
+      "support": 1915.33
+     },
+     "REGULATORY_LEGAL": {
+      "f1": 0.732,
+      "precision": 0.854,
+      "recall": 0.641,
+      "support": 867.33
+     }
+    }
+   },
+   "placeholder_sentiment": {
+    "accuracy": 0.5153,
+    "macro_f1": 0.4473,
+    "n": 120,
+    "per_class": {
+     "-1": {
+      "f1": 0.281,
+      "precision": 0.777,
+      "recall": 0.171,
+      "support": 5776.5
+     },
+     "0": {
+      "f1": 0.621,
+      "precision": 0.486,
+      "recall": 0.859,
+      "support": 7528.17
+     },
+     "1": {
+      "f1": 0.44,
+      "precision": 0.534,
+      "recall": 0.373,
+      "support": 4215.33
+     }
+    }
+   }
+  },
+  "targeted:history": {
+   "naive_bayes_event": {
+    "accuracy": 0.18,
+    "macro_f1": 0.1674,
+    "n": 200,
+    "per_class": {
+     "CREDIT_FUNDING": {
+      "f1": 0.333,
+      "precision": 0.286,
+      "recall": 0.4,
+      "support": 5.0
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 4.0
+     },
+     "GEOPOLITICAL": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 9.0
+     },
+     "MACROECONOMIC": {
+      "f1": 0.237,
+      "precision": 0.135,
+      "recall": 1.0,
+      "support": 7.0
+     },
+     "MARKET_VALUATION": {
+      "f1": 0.232,
+      "precision": 0.135,
+      "recall": 0.812,
+      "support": 16.0
+     },
+     "MA_CORPORATE_ACTION": {
+      "f1": 0.16,
+      "precision": 0.133,
+      "recall": 0.2,
+      "support": 10.0
+     },
+     "NONE": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 90.0
+     },
+     "PRODUCT_OPERATIONS": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 40.0
+     },
+     "REGULATORY_LEGAL": {
+      "f1": 0.545,
+      "precision": 0.48,
+      "recall": 0.632,
+      "support": 19.0
+     }
+    }
+   },
+   "naive_bayes_sentiment": {
+    "accuracy": 0.495,
+    "macro_f1": 0.4203,
+    "n": 200,
+    "per_class": {
+     "-1": {
+      "f1": 0.364,
+      "precision": 0.636,
+      "recall": 0.255,
+      "support": 55.0
+     },
+     "0": {
+      "f1": 0.611,
+      "precision": 0.493,
+      "recall": 0.802,
+      "support": 91.0
+     },
+     "1": {
+      "f1": 0.286,
+      "precision": 0.4,
+      "recall": 0.222,
+      "support": 54.0
+     }
+    }
+   },
+   "placeholder_event": {
+    "accuracy": 0.285,
+    "macro_f1": 0.3856,
+    "n": 200,
+    "per_class": {
+     "CREDIT_FUNDING": {
+      "f1": 0.381,
+      "precision": 0.25,
+      "recall": 0.8,
+      "support": 5.0
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "f1": 0.25,
+      "precision": 0.167,
+      "recall": 0.5,
+      "support": 4.0
+     },
+     "GEOPOLITICAL": {
+      "f1": 0.667,
+      "precision": 0.533,
+      "recall": 0.889,
+      "support": 9.0
+     },
+     "MACROECONOMIC": {
+      "f1": 0.636,
+      "precision": 0.467,
+      "recall": 1.0,
+      "support": 7.0
+     },
+     "MARKET_VALUATION": {
+      "f1": 0.099,
+      "precision": 0.059,
+      "recall": 0.312,
+      "support": 16.0
+     },
+     "MA_CORPORATE_ACTION": {
+      "f1": 0.296,
+      "precision": 0.235,
+      "recall": 0.4,
+      "support": 10.0
+     },
+     "NONE": {
+      "f1": 0.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "support": 90.0
+     },
+     "PRODUCT_OPERATIONS": {
+      "f1": 0.441,
+      "precision": 0.684,
+      "recall": 0.325,
+      "support": 40.0
+     },
+     "REGULATORY_LEGAL": {
+      "f1": 0.7,
+      "precision": 0.667,
+      "recall": 0.737,
+      "support": 19.0
+     }
+    }
+   },
+   "placeholder_sentiment": {
+    "accuracy": 0.465,
+    "macro_f1": 0.412,
+    "n": 200,
+    "per_class": {
+     "-1": {
+      "f1": 0.326,
+      "precision": 0.452,
+      "recall": 0.255,
+      "support": 55.0
+     },
+     "0": {
+      "f1": 0.561,
+      "precision": 0.467,
+      "recall": 0.703,
+      "support": 91.0
+     },
+     "1": {
+      "f1": 0.349,
+      "precision": 0.469,
+      "recall": 0.278,
+      "support": 54.0
+     }
+    }
+   }
+  }
+ }
+}

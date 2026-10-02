@@ -20,7 +20,7 @@ prefix is a proportionally stratified sample.
 | `ai_sentiment` | `-1`, `0`, `1` | tone **toward the named issuer** from an investor's point of view (`0` = neutral, mixed, or no stance). For rows with no ticker: toward the company/market the text is about |
 | `ai_event_class` | one of the 8 classes or `NONE` | the **type of event the text reports** (see below) |
 | `ai_secondary_class` | a class or blank | only when a second class is clearly also reported; never equal to the primary |
-| `ai_entity_ok` | `y` / `n` / `na` | history rows: is the ticker the company the text is mainly about? `na` for TFN rows (no ticker) |
+| `ai_entity_ok` | `y` / `n` / `na` | rows with a ticker: is that company what the text is mainly about? `na` when the row has no ticker (all TFN rows and unresolved history rows) |
 | `ai_notes` | free text | one line for any `NONE`, ambiguous or `n` row |
 
 ## Event classes: decision rules

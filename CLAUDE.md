@@ -73,7 +73,7 @@ Be honest — failed approaches and dead ends belong there; it feeds the deck's 
 - Commit only when the user asks. Small, incremental commits, imperative messages.
 - `1.Submission Guidelines_External.docx.md` is git-ignored on purpose; leave it that way.
 
-## Current repo state (end of Stage 2, 2026-10-02)
+## Current repo state (end of Stage 3 prep, 2026-10-02)
 - Git: branch `main`, **zero commits**, all files untracked (commit only when asked).
 - Stage 1: FastAPI + Pydantic backend (`src/eventshock/`), deterministic stress engine, React/Vite/TS/Tailwind UI (`web/`),
   configs, fixtures, tests, docs. Stage-1 fictional fixtures remain as the `demo` profile (`EVENTSHOCK_PROFILE=demo`).
@@ -84,6 +84,12 @@ Be honest — failed approaches and dead ends belong there; it feeds the deck's 
   are **placeholder rules** (`configs/placeholder_enrichment.yaml`); keep that distinction visible in any new code or UI.
   Network access exists only in `ingestion/fetch.py` (`make fetch-gdelt|fetch-tfn`, resumable); the server never calls out.
   Data layout and licences: `docs/DATA_LICENSES.md`. Architecture: `docs/ARCHITECTURE.md`.
+- Stage 3 prep (modeling-data audit, no models trained): `src/eventshock/modeling/` builds the modeling tables, leakage checks and
+  the gold set; `configs/modeling.yaml` defines the impact target, splits and gold quotas; `configs/topic_mapping.yaml` carries a
+  trust `tier` per topic. Read `docs/MODELING_READINESS.md` before training anything. Rules that must hold: placeholder
+  event/impact fields are never labels; impact features may use only event-time information (`leakage.FEATURE_REGISTRY`);
+  gold labels are AI-annotated (`ai:claude`) until a human overrides in `data/gold/adjudication.csv`. The gold sample is frozen
+  (do not re-run `gold-sample --force`). Commands: `make audit`, `make probe` (needs `requirements-ml.txt`), `make gold-score`.
 - Still outstanding for submission: `docs/architecture.png`, `docs/presentation.pdf`, demo video, README email/video fields.
 - Python 3.14 works (wheels verified); `pyproject.toml` requires >= 3.12. UI design system: `web/src/styles/tokens.css`
   (Hallmark; always use `/hallmark` for UI work; tokens are locked, no inline colours).

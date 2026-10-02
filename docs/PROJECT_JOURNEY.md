@@ -240,3 +240,56 @@ rows, 12,714 market-theme rows, 2,279 without a title). Things worth knowing:
 32 near-duplicates and 12 same-event reports folded into multi-report stories.
 
 **Status:** Stage 2 implemented and verified locally (295 pytest + 46 Vitest, ruff and tsc clean; see the end-of-stage report).
+
+---
+
+## Stage 3 prep — modeling-data audit and foundation (2026-10-02)
+
+**Goal.** Before training anything, find out whether the data is ready and leave a trustworthy base: audit, targets, splits,
+leakage checks, a gold set. No model was trained (three seconds-long probes excepted). Full numbers: `docs/MODELING_READINESS.md`.
+
+**What we did**
+- Profiled the 136k history signals, 37 price series and the TFN/PhraseBank label sets before writing code, and let the numbers
+  choose the design (impact target, splits, tiers). New package `src/eventshock/modeling/`, config in `configs/modeling.yaml`.
+- Refetched prices from 2014-01-01 so 2015 events have a full trailing window (the first fetch started 2015-01-02, which would
+  have dropped about 8.9k signals).
+- Built: a point-in-time impact target (market + sector-peer abnormal return, 2-session window, trailing beta and sigma),
+  time splits with embargo, a leakage module (group straddle, time order, duplicates, feature-availability registry,
+  future-perturbation invariance, metadata-only baseline), and a blind, stratified gold-set workflow.
+- Labelled the 400-row gold set myself as a disclosed AI annotator (`ai:claude`), blind to every weak label, then re-labelled 40
+  rows blind for a self-consistency figure. A 60-row adjudication list is ready for a human.
+
+**What broke or surprised us, and what we did**
+- *The placeholder labels are circular.* 80.6% of history signals are `MARKET_VALUATION` (the no-keyword default) and `impact.score`
+  is a function of that class. Decision: they only help find disagreements; no field called `label`/`target` exists on `HistoryDoc`
+  and a test keeps it that way.
+- *Cluster evidence leaks the future.* `source_count`, `unique_domain_count`, `coverage_velocity` count reports up to 72 h after the
+  first one, and `recent_mention_count` is measured against the replay clock. Registered as `POST_EVENT` and banned from impact features.
+- *130k signals are about 10k price windows.* Effective sample size is the ticker-session. TSLA is 46% of rows but 14% after episode weighting.
+- *The TFN topic corpus is dirtier than it looked.* 2.4k exact duplicates; 23% of the published validation rows have a near-duplicate in
+  train. We re-split by near-duplicate group (0.1% leakage afterwards).
+- *The 20-topic -> 8-class crosswalk is not good enough as truth.* No topic is a clean GEOPOLITICAL or PRODUCT_OPERATIONS source, so
+  those two classes have no trainable silver data. The gold review then showed that the "Earnings" topic is about 70% scheduling
+  notices and previews, not results (683 of 987 by regex; 0/6 in gold), "Stock Movement" names its cause rather than being
+  an event (2/6), and M&A is 4/6. All three were demoted (`topic_mapping.yaml` v3). The sample was frozen before this
+  change, because the demotion alters the probe used to pick disagreement rows (the manifest records the frozen mapping version).
+- *A naive "placebo" check was not a clean leak test.* Tabular event-time features predict a placebo window just before the
+  event almost as well as the real one (volatility clustering and the lag in trailing sigma). It is kept as a control, not a pass/fail
+  gate; any text model must beat the tabular baseline **and** show no extra skill on the placebo.
+- *Performance traps:* `has_near_duplicate` over 136k documents against 30k references was quadratic on common tokens (a 2-minute
+  command that never finished); it now proposes candidates only through tokens that are rare in the reference set.
+- *Gold sampler bug found by its own test:* the issuer cap could leave a stratum under quota; the cap now relaxes rather than
+  shortening the stratum. The test data also collapsed under the template key (digits are masked), which proved the collapse works.
+- *Labelling ambiguities worth knowing:* scheduling notices and earnings previews (labelled `NONE`; a model could reasonably call
+  them EARNINGS), domestic politics with a market channel (Draghi's coalition), insider sales, executive hires. The labelling guide
+  states the rules; the self-consistency pass disagreed mostly on exactly these.
+- *Inline helper mishap:* a first gold-sample run blocked the shell for two minutes; moved to the background and the slow
+  function fixed instead of waiting it out.
+
+**Decisions**
+- Fixed (not quantile) impact cut points so the label cannot drift between splits. Score 7+ is a >= 3 sigma idiosyncratic move.
+- Two-factor abnormal returns (market + equal-weight sector peers ex-self), because it cuts residual sigma by about 40% for
+  Financials and Energy and costs nothing elsewhere.
+- Tweets whose source tagged another ticker are excluded from impact rows (3,060 dropped): they are about another company.
+- Optional `ml` extra (`requirements-ml.txt`: numpy, scikit-learn) only for the probes; the server and the audit stay stdlib.
+- No UI change: the audit is a document plus JSON; a panel belongs with the models.

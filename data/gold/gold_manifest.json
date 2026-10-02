@@ -7885,7 +7885,9 @@
   }
  },
  "note": "Labelers must not open this file until the labels are final: it holds the weak labels the sheet hides.",
+ "note_frozen": "The sample is frozen: topic tiers were revised after labelling (mapping v3), which would change the probe used for the disagreement strata. gold-sample refuses to overwrite labels.",
  "rows": 400,
+ "sampled_with_topic_mapping_version": "2",
  "schema": 1,
  "seed": 20261003,
  "strata": {
