@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "snapshot_id": "replay-2026-09-30-v1",
+  "description": "Frozen replay pack: GDELT DOC 2.0 article metadata for 34 listed issuers plus market-wide queries (14-day window), and a deterministic sample of the Twitter Financial News dataset.",
+  "replay_as_of": "2026-10-01T12:00:00Z",
+  "window_start": "2026-09-17T00:00:00Z",
+  "window_end": "2026-09-30T23:59:59Z",
+  "sources": [
+    {
+      "name": "gdelt-doc",
+      "adapter": "gdelt-doc",
+      "source_type": "NEWS",
+      "file": "gdelt/articles.jsonl",
+      "sha256": "2a857a897a707f3ad56eb472913a0a22ac8c64ada051e995557321b364d0be71",
+      "records": 1479,
+      "license": "GDELT terms: free unrestricted use and redistribution with citation",
+      "attribution": "The GDELT Project (https://www.gdeltproject.org)",
+      "origin_url": "https://api.gdeltproject.org/api/v2/doc/doc",
+      "notes": "Metadata only (url, title, first-seen time, domain, language, country). seendate is when GDELT first saw the page, not the publication time. Publisher text is not stored."
+    },
+    {
+      "name": "gdelt-gkg",
+      "adapter": "gdelt-gkg",
+      "source_type": "NEWS",
+      "file": "gdelt/gkg_articles.jsonl",
+      "sha256": "5dd19f7c47e5ca356ab2093255ce89d4ea7d816efb9950d6df9b636c36b01801",
+      "records": 1308,
+      "license": "GDELT terms: free unrestricted use and redistribution with citation",
+      "attribution": "The GDELT Project (https://www.gdeltproject.org), GKG 2.1 bulk files",
+      "origin_url": "https://data.gdeltproject.org/gdeltv2/masterfilelist.txt",
+      "notes": "Stratified 1308-record slice of 418613 issuer/market rows filtered from 4224 15-minute GKG files (zips discarded after filtering). Page title, URL, domain, publisher time (PAGE_PRECISEPUBTIMESTAMP, flagged SOURCE), machine tone and NER organisations; no article text. Entity resolution reads the title only."
+    },
+    {
+      "name": "tfn-replay",
+      "adapter": "tfn-replay",
+      "source_type": "SOCIAL",
+      "file": "social/tfn_sample.jsonl",
+      "sha256": "97edae69c1e7fa1585124177084420b04674f70d19f8d943a3afaf97af6d821c",
+      "records": 300,
+      "license": "MIT (dataset card of zeroshot/twitter-financial-news-sentiment); tweet text originates on X",
+      "attribution": "zeroshot/twitter-financial-news-sentiment, Hugging Face",
+      "origin_url": "https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentiment",
+      "notes": "300-row deterministic sample (full set is never committed). The dataset has no timestamps: replay assigns deterministic times inside the window, flagged SYNTHETIC_REPLAY_CLOCK. Labels are human sentiment annotations. Remove data/replay/social/ on request of a rights holder."
+    }
+  ],
+  "entities": {
+    "file": "entities.json",
+    "sha256": "76023c9a240ceeff5ad36cc4eeb96820ba3d4671cb1e7ca9ea5e270ebd387732"
+  },
+  "portfolio": {
+    "file": "portfolio.json",
+    "sha256": "76d12e48acfde127e9e4b15dda5dd4c13a4d4b6ccbf59b50dfde69dc2a584266"
+  },
+  "fetch_log": [
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22JPMorgan%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 5 attempts (HTTP 429)",
+      "query": "\"JPMorgan\"",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Bank+of+America%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 5 attempts (HTTP 429)",
+      "query": "\"Bank of America\"",
+      "status": "error"
+    },
+    {
+      "added": 30,
+      "query": "\"Goldman Sachs\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "added": 30,
+      "query": "\"Morgan Stanley\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Citigroup%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 5 attempts (HTTP 429)",
+      "query": "\"Citigroup\"",
+      "status": "error"
+    },
+    {
+      "added": 30,
+      "query": "\"Wells Fargo\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Visa%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 5 attempts (HTTP 429)",
+      "query": "\"Visa\"",
+      "status": "error"
+    },
+    {
+      "added": 30,
+      "query": "\"Apple\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Microsoft%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 5 attempts (HTTP 429)",
+      "query": "\"Microsoft\"",
+      "status": "error"
+    },
+    {
+      "added": 30,
+      "query": "\"Nvidia\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Alphabet%22+OR+%22Google%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: non-JSON response: \"Queries containing OR'd terms must be surrounded by ().\"",
+      "query": "\"Alphabet\" OR \"Google\"",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Meta+Platforms%22+OR+%22Meta%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: non-JSON response: \"Queries containing OR'd terms must be surrounded by ().\"",
+      "query": "\"Meta Platforms\" OR \"Meta\"",
+      "status": "error"
+    },
+    {
+      "added": 30,
+      "query": "\"JPMorgan\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "added": 28,
+      "query": "\"Bank of America\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Citigroup%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "\"Citigroup\"",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Visa%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: non-JSON response: 'The specified phrase is too short.'",
+      "query": "\"Visa\"",
+      "status": "error"
+    },
+    {
+      "added": 30,
+      "query": "\"Microsoft\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Alphabet%22+OR+%22Google%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "\"Alphabet\" OR \"Google\"",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Meta+Platforms%22+OR+%22Meta%22+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=30&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "\"Meta Platforms\" OR \"Meta\"",
+      "status": "error"
+    },
+    {
+      "added": 30,
+      "query": "\"Amazon\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "added": 30,
+      "query": "\"Intel\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "added": 30,
+      "query": "\"Oracle\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "added": 30,
+      "query": "\"Exxon\"",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "added": 201,
+      "query": "(\"JPMorgan Chase\" OR \"JPMorgan\" OR \"Bank of America\" OR \"Goldman Sachs\" OR \"Morgan Stanley\" OR \"Citigroup\" OR \"Wells Fargo\" OR \"Visa Inc\")",
+      "returned": 250,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Apple+Inc%22+OR+%22Apple+iPhone%22+OR+%22Microsoft+Corp%22+OR+%22Microsoft+Azure%22+OR+%22Nvidia+Corp%22+OR+%22Alphabet+Inc%22+OR+%22Google+Cloud%22+OR+%22Meta+Platforms%22+OR+%22Amazon.com%22+OR+%22Amazon+Web+Services%22+OR+%22Intel+Corporation%22+OR+%22Oracle+Corporation%22%29+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=250&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: non-JSON response: 'Your query was too short or too long.'",
+      "query": "(\"Apple Inc\" OR \"Apple iPhone\" OR \"Microsoft Corp\" OR \"Microsoft Azure\" OR \"Nvidia Corp\" OR \"Alphabet Inc\" OR \"Google Cloud\" OR \"Meta Platforms\" OR \"Amazon.com\" OR \"Amazon Web Services\" OR \"Intel Corporation\" OR \"Oracle Corporation\")",
+      "status": "error"
+    },
+    {
+      "added": 76,
+      "query": "(\"Exxon Mobil\" OR \"Chevron Corp\" OR \"Shell plc\" OR \"BP plc\")",
+      "returned": 97,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Pfizer+Inc%22+OR+%22Johnson+%26+Johnson%22+OR+%22UnitedHealth+Group%22+OR+%22Eli+Lilly%22%29+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=250&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "(\"Pfizer Inc\" OR \"Johnson & Johnson\" OR \"UnitedHealth Group\" OR \"Eli Lilly\")",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Boeing+Co%22+OR+%22Caterpillar+Inc%22+OR+%22Lockheed+Martin%22+OR+%22GE+Aerospace%22%29+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=250&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "(\"Boeing Co\" OR \"Caterpillar Inc\" OR \"Lockheed Martin\" OR \"GE Aerospace\")",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Tesla+Inc%22+OR+%22Walmart+Inc%22+OR+%22Coca-Cola+Company%22+OR+%22McDonald%27s+Corp%22+OR+%22Nike+Inc%22+OR+%22Target+Corporation%22+OR+%22Ford+Motor%22%29+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=250&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "(\"Tesla Inc\" OR \"Walmart Inc\" OR \"Coca-Cola Company\" OR \"McDonald's Corp\" OR \"Nike Inc\" OR \"Target Corporation\" OR \"Ford Motor\")",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Federal+Reserve%22+interest+rate+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "\"Federal Reserve\" interest rate",
+      "status": "error"
+    },
+    {
+      "added": 29,
+      "query": "OPEC oil output",
+      "returned": 30,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=Treasury+yields+bond+market+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "Treasury yields bond market",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=stock+market+selloff+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "stock market selloff",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=credit+rating+downgrade+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "credit rating downgrade",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=tariffs+trade+war+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "tariffs trade war",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Apple+Inc%22+OR+%22Microsoft+Corp%22+OR+%22Nvidia+Corp%22+OR+%22Alphabet+Inc%22+OR+%22Meta+Platforms%22+OR+%22Amazon.com%22+OR+%22Intel+Corporation%22+OR+%22Oracle+Corporation%22%29+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=250&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "(\"Apple Inc\" OR \"Microsoft Corp\" OR \"Nvidia Corp\" OR \"Alphabet Inc\" OR \"Meta Platforms\" OR \"Amazon.com\" OR \"Intel Corporation\" OR \"Oracle Corporation\")",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Pfizer+Inc%22+OR+%22Johnson+%26+Johnson%22+OR+%22UnitedHealth+Group%22+OR+%22Eli+Lilly%22%29+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=250&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "(\"Pfizer Inc\" OR \"Johnson & Johnson\" OR \"UnitedHealth Group\" OR \"Eli Lilly\")",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Boeing+Co%22+OR+%22Caterpillar+Inc%22+OR+%22Lockheed+Martin%22+OR+%22GE+Aerospace%22%29+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=250&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "(\"Boeing Co\" OR \"Caterpillar Inc\" OR \"Lockheed Martin\" OR \"GE Aerospace\")",
+      "status": "error"
+    },
+    {
+      "added": 245,
+      "query": "(\"Tesla Inc\" OR \"Walmart Inc\" OR \"Coca-Cola Company\" OR \"McDonald's Corp\" OR \"Nike Inc\" OR \"Target Corporation\" OR \"Ford Motor\")",
+      "returned": 250,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Federal+Reserve%22+interest+rate+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "\"Federal Reserve\" interest rate",
+      "status": "error"
+    },
+    {
+      "added": 50,
+      "query": "Treasury yields bond market",
+      "returned": 50,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=stock+market+selloff+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "stock market selloff",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=credit+rating+downgrade+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "credit rating downgrade",
+      "status": "error"
+    },
+    {
+      "added": 50,
+      "query": "tariffs trade war",
+      "returned": 50,
+      "status": "ok"
+    },
+    {
+      "added": 222,
+      "query": "(\"Apple Inc\" OR \"Microsoft Corp\" OR \"Nvidia Corp\" OR \"Alphabet Inc\" OR \"Meta Platforms\" OR \"Amazon.com\" OR \"Intel Corporation\" OR \"Oracle Corporation\")",
+      "returned": 250,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%28%22Pfizer+Inc%22+OR+%22Johnson+%26+Johnson%22+OR+%22UnitedHealth+Group%22+OR+%22Eli+Lilly%22%29+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=250&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "(\"Pfizer Inc\" OR \"Johnson & Johnson\" OR \"UnitedHealth Group\" OR \"Eli Lilly\")",
+      "status": "error"
+    },
+    {
+      "added": 248,
+      "query": "(\"Boeing Co\" OR \"Caterpillar Inc\" OR \"Lockheed Martin\" OR \"GE Aerospace\")",
+      "returned": 250,
+      "status": "ok"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=%22Federal+Reserve%22+interest+rate+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "\"Federal Reserve\" interest rate",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=stock+market+selloff+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "stock market selloff",
+      "status": "error"
+    },
+    {
+      "error": "https://api.gdeltproject.org/api/v2/doc/doc?query=credit+rating+downgrade+sourcelang%3Aenglish&mode=artlist&format=json&maxrecords=50&startdatetime=20260917000000&enddatetime=20260930235959&sort=hybridrel: gave up after 3 attempts (HTTP 429)",
+      "query": "credit rating downgrade",
+      "status": "error"
+    }
+  ]
+}

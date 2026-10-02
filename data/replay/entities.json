@@ -1,0 +1,378 @@
+[
+  {
+    "entity_id": "ENT_JPM",
+    "name": "JPMorgan Chase & Co.",
+    "ticker": "JPM",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "JPMorgan",
+      "JPMorgan Chase",
+      "J.P. Morgan",
+      "JP Morgan"
+    ]
+  },
+  {
+    "entity_id": "ENT_BAC",
+    "name": "Bank of America Corporation",
+    "ticker": "BAC",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "Bank of America",
+      "BofA"
+    ]
+  },
+  {
+    "entity_id": "ENT_GS",
+    "name": "The Goldman Sachs Group, Inc.",
+    "ticker": "GS",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "Goldman Sachs",
+      "Goldman"
+    ]
+  },
+  {
+    "entity_id": "ENT_MS",
+    "name": "Morgan Stanley",
+    "ticker": "MS",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "Morgan Stanley"
+    ]
+  },
+  {
+    "entity_id": "ENT_C",
+    "name": "Citigroup Inc.",
+    "ticker": "C",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "Citigroup",
+      "Citi",
+      "Citibank"
+    ]
+  },
+  {
+    "entity_id": "ENT_WFC",
+    "name": "Wells Fargo & Company",
+    "ticker": "WFC",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "Wells Fargo"
+    ]
+  },
+  {
+    "entity_id": "ENT_V",
+    "name": "Visa Inc.",
+    "ticker": "V",
+    "sector": "Financials",
+    "country": "US",
+    "aliases": [
+      "Visa"
+    ]
+  },
+  {
+    "entity_id": "ENT_AAPL",
+    "name": "Apple Inc.",
+    "ticker": "AAPL",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Apple",
+      "iPhone",
+      "iPad",
+      "MacBook",
+      "Apple Music",
+      "Apple Watch",
+      "Apple TV",
+      "Apple Pay",
+      "App Store",
+      "watchOS"
+    ]
+  },
+  {
+    "entity_id": "ENT_MSFT",
+    "name": "Microsoft Corporation",
+    "ticker": "MSFT",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Microsoft",
+      "Azure",
+      "Windows 11"
+    ]
+  },
+  {
+    "entity_id": "ENT_NVDA",
+    "name": "NVIDIA Corporation",
+    "ticker": "NVDA",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Nvidia"
+    ]
+  },
+  {
+    "entity_id": "ENT_GOOGL",
+    "name": "Alphabet Inc.",
+    "ticker": "GOOGL",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Alphabet",
+      "Google"
+    ]
+  },
+  {
+    "entity_id": "ENT_META",
+    "name": "Meta Platforms, Inc.",
+    "ticker": "META",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Meta Platforms",
+      "Meta",
+      "Facebook",
+      "Instagram"
+    ]
+  },
+  {
+    "entity_id": "ENT_AMZN",
+    "name": "Amazon.com, Inc.",
+    "ticker": "AMZN",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Amazon",
+      "Amazon Web Services",
+      "AWS"
+    ]
+  },
+  {
+    "entity_id": "ENT_INTC",
+    "name": "Intel Corporation",
+    "ticker": "INTC",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Intel"
+    ]
+  },
+  {
+    "entity_id": "ENT_ORCL",
+    "name": "Oracle Corporation",
+    "ticker": "ORCL",
+    "sector": "Technology",
+    "country": "US",
+    "aliases": [
+      "Oracle"
+    ]
+  },
+  {
+    "entity_id": "ENT_XOM",
+    "name": "Exxon Mobil Corporation",
+    "ticker": "XOM",
+    "sector": "Energy",
+    "country": "US",
+    "aliases": [
+      "Exxon Mobil",
+      "ExxonMobil",
+      "Exxon"
+    ]
+  },
+  {
+    "entity_id": "ENT_CVX",
+    "name": "Chevron Corporation",
+    "ticker": "CVX",
+    "sector": "Energy",
+    "country": "US",
+    "aliases": [
+      "Chevron"
+    ]
+  },
+  {
+    "entity_id": "ENT_SHEL",
+    "name": "Shell plc",
+    "ticker": "SHEL",
+    "sector": "Energy",
+    "country": "GB",
+    "aliases": [
+      "Shell"
+    ]
+  },
+  {
+    "entity_id": "ENT_BP",
+    "name": "BP p.l.c.",
+    "ticker": "BP",
+    "sector": "Energy",
+    "country": "GB",
+    "aliases": [
+      "BP",
+      "BP plc"
+    ]
+  },
+  {
+    "entity_id": "ENT_PFE",
+    "name": "Pfizer Inc.",
+    "ticker": "PFE",
+    "sector": "Healthcare",
+    "country": "US",
+    "aliases": [
+      "Pfizer"
+    ]
+  },
+  {
+    "entity_id": "ENT_JNJ",
+    "name": "Johnson & Johnson",
+    "ticker": "JNJ",
+    "sector": "Healthcare",
+    "country": "US",
+    "aliases": [
+      "Johnson & Johnson",
+      "J&J"
+    ]
+  },
+  {
+    "entity_id": "ENT_UNH",
+    "name": "UnitedHealth Group Incorporated",
+    "ticker": "UNH",
+    "sector": "Healthcare",
+    "country": "US",
+    "aliases": [
+      "UnitedHealth",
+      "UnitedHealthcare",
+      "UnitedHealth Group"
+    ]
+  },
+  {
+    "entity_id": "ENT_LLY",
+    "name": "Eli Lilly and Company",
+    "ticker": "LLY",
+    "sector": "Healthcare",
+    "country": "US",
+    "aliases": [
+      "Eli Lilly",
+      "Lilly"
+    ]
+  },
+  {
+    "entity_id": "ENT_BA",
+    "name": "The Boeing Company",
+    "ticker": "BA",
+    "sector": "Industrials",
+    "country": "US",
+    "aliases": [
+      "Boeing"
+    ]
+  },
+  {
+    "entity_id": "ENT_CAT",
+    "name": "Caterpillar Inc.",
+    "ticker": "CAT",
+    "sector": "Industrials",
+    "country": "US",
+    "aliases": [
+      "Caterpillar"
+    ]
+  },
+  {
+    "entity_id": "ENT_LMT",
+    "name": "Lockheed Martin Corporation",
+    "ticker": "LMT",
+    "sector": "Industrials",
+    "country": "US",
+    "aliases": [
+      "Lockheed Martin",
+      "Lockheed"
+    ]
+  },
+  {
+    "entity_id": "ENT_GE",
+    "name": "GE Aerospace",
+    "ticker": "GE",
+    "sector": "Industrials",
+    "country": "US",
+    "aliases": [
+      "General Electric",
+      "GE Aerospace"
+    ]
+  },
+  {
+    "entity_id": "ENT_TSLA",
+    "name": "Tesla, Inc.",
+    "ticker": "TSLA",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "Tesla"
+    ]
+  },
+  {
+    "entity_id": "ENT_WMT",
+    "name": "Walmart Inc.",
+    "ticker": "WMT",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "Walmart"
+    ]
+  },
+  {
+    "entity_id": "ENT_KO",
+    "name": "The Coca-Cola Company",
+    "ticker": "KO",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "Coca-Cola",
+      "Coca Cola"
+    ]
+  },
+  {
+    "entity_id": "ENT_MCD",
+    "name": "McDonald's Corporation",
+    "ticker": "MCD",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "McDonald's",
+      "McDonalds"
+    ]
+  },
+  {
+    "entity_id": "ENT_NKE",
+    "name": "NIKE, Inc.",
+    "ticker": "NKE",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "Nike"
+    ]
+  },
+  {
+    "entity_id": "ENT_TGT",
+    "name": "Target Corporation",
+    "ticker": "TGT",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "Target"
+    ]
+  },
+  {
+    "entity_id": "ENT_F",
+    "name": "Ford Motor Company",
+    "ticker": "F",
+    "sector": "Consumer",
+    "country": "US",
+    "aliases": [
+      "Ford Motor",
+      "Ford"
+    ]
+  }
+]
