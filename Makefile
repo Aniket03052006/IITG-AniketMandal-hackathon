@@ -5,7 +5,7 @@ GDELT_END ?= 20260930235959
 PRICES_START ?= 2014-01-01
 PRICES_END ?= 2026-10-02
 
-.PHONY: fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
+.PHONY: audit probe gold-sample gold-validate gold-score fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
 
 setup: setup-api setup-web  ## install everything
 
@@ -77,6 +77,21 @@ replay-pack:  ## freeze data/raw into the committed, hash-pinned data/replay pac
 
 ingest:  ## run the pipeline over data/replay and export signals/quarantine/report to data/processed
 	$(PY) -m eventshock.pipeline --export data/processed
+
+audit:  ## modeling tables + every leakage check -> data/modeling/ (needs data/raw and data/processed/history; ~2 min)
+	$(PY) -m eventshock.modeling audit
+
+probe:  ## seconds-long classical baselines on the audit tables (needs `uv pip install -r requirements-ml.txt`)
+	$(PY) -m eventshock.modeling probe
+
+gold-sample:  ## draw the blind gold sample into data/gold (refuses to overwrite labels)
+	$(PY) -m eventshock.modeling gold-sample
+
+gold-validate:  ## check the gold sheet vocabulary and completeness
+	$(PY) -m eventshock.modeling gold-validate
+
+gold-score:  ## weighted scores, crosswalk precision and agreement from the labelled gold sheet
+	$(PY) -m eventshock.modeling gold-score --out data/gold/gold_scores.json
 
 fixtures:  ## regenerate deterministic demo fixtures
 	$(PY) scripts/generate_fixtures.py
