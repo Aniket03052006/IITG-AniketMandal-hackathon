@@ -208,6 +208,9 @@ def main() -> None:
     portfolio = build_portfolio()
     gdelt_log = RAW / "gdelt" / "articles.log.jsonl"
     fetch_log = read_jsonl(gdelt_log) if gdelt_log.is_file() else []
+    plan_path = RAW / "gdelt" / "queries.json"
+    fetch_plan = ([q["query"] if isinstance(q, dict) else q for q in json.loads(plan_path.read_text(encoding="utf-8"))]
+                  if plan_path.is_file() else [])
     gkg_log_path = RAW / "gdelt_gkg" / "filtered.log.jsonl"
     if gkg_log_path.is_file():  # failed GKG files only: successes are summarised in the source notes
         fetch_log += [{"query": f"gkg:{e['file']}", "status": "error", "error": e.get("error", "")}
@@ -259,6 +262,7 @@ def main() -> None:
         "entities": {"file": "entities.json", "sha256": sha256_file(OUT / "entities.json")},
         "portfolio": {"file": "portfolio.json", "sha256": sha256_file(OUT / "portfolio.json")},
         "fetch_log": fetch_log,
+        "fetch_plan": fetch_plan,
     }
     atomic_write_text(OUT / "manifest.json", json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
     print(f"gdelt={len(gdelt)} tfn={len(tfn)} entities={len(entities)} assets={len(portfolio.assets)} "

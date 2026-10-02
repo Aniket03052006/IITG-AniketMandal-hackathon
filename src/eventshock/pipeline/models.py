@@ -75,3 +75,5 @@ class PipelineReport(ContractModel):
     quarantine_sample: list[QuarantinedRecord]
     stage_origins: dict[str, str] = Field(description="what is real vs placeholder in this run")
     fetch_log: list[FetchQuery] = Field(default_factory=list, description="how the snapshot was downloaded")
+    superseded_requests: int = Field(
+        default=0, description="distinct requests from an abandoned earlier download plan, left out of fetch_log")

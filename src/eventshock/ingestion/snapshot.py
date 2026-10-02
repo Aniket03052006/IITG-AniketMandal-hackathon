@@ -56,6 +56,10 @@ class SnapshotManifest(ContractModel):
     entities: AuxFile
     portfolio: AuxFile
     fetch_log: list[dict[str, Any]] = Field(default_factory=list)
+    fetch_plan: list[str] = Field(
+        default_factory=list,
+        description="the query strings of the request plan that produced this snapshot; fetch_log entries for any other "
+                    "query belong to an abandoned earlier plan (empty = unknown, show every entry)")
 
     aware_check = field_validator("replay_as_of", "window_start", "window_end")(_require_aware)
 

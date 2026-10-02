@@ -327,8 +327,12 @@ def load_entities(path: Path) -> list[Entity]:
     return [Entity.model_validate(e) for e in json.loads(path.read_text(encoding="utf-8"))]
 
 
-def summarise_fetch_log(entries: list[dict]) -> list[FetchQuery]:
-    """Collapse the per-attempt download log to one row per query (latest status wins, attempts counted)."""
+def summarise_fetch_log(entries: list[dict], plan: list[str] | None = None) -> tuple[list[FetchQuery], int]:
+    """Collapse the per-attempt download log to one row per query (latest status wins, attempts counted).
+
+    ``plan`` is the request plan that produced the snapshot. A request outside it belongs to an abandoned earlier plan
+    (its coverage was re-requested differently): it is counted, not listed. Failures of the current plan are never hidden.
+    """
     rows: dict[str, FetchQuery] = {}
     for e in entries:
         q = str(e.get("query", ""))
@@ -350,5 +354,6 @@ def run_snapshot(snapshot: Snapshot, cfg: PipelineConfig, enrich_cfg: Enrichment
         records, snapshot_id=m.snapshot_id, description=m.description, as_of=m.replay_as_of,
         window_start=m.window_start, window_end=m.window_end, entities=load_entities(snapshot.entities_path()),
         cfg=cfg, enrich_cfg=enrich_cfg, sources=metas, enricher=enricher)
-    result.report = result.report.model_copy(update={"fetch_log": summarise_fetch_log(m.fetch_log)})
+    fetch_log, superseded = summarise_fetch_log(m.fetch_log, m.fetch_plan)
+    result.report = result.report.model_copy(update={"fetch_log": fetch_log, "superseded_requests": superseded})
     return result

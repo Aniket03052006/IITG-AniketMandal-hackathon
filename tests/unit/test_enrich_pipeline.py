@@ -151,7 +151,7 @@ def test_entity_comes_from_the_text_never_from_the_fetch_query():
 def test_fetch_log_collapses_attempts_and_keeps_failures():
     from eventshock.pipeline.run import summarise_fetch_log
 
-    rows = summarise_fetch_log([
+    rows, superseded = summarise_fetch_log([
         {"query": "a", "status": "error", "error": "HTTP 429"},
         {"query": "b", "status": "error", "error": "HTTP 429"},
         {"query": "a", "status": "ok", "returned": 250, "added": 201},
@@ -160,6 +160,23 @@ def test_fetch_log_collapses_attempts_and_keeps_failures():
     assert (by["a"].status, by["a"].attempts, by["a"].added) == ("ok", 2, 201)
     assert (by["b"].status, by["b"].last_error) == ("error", "HTTP 429")
     assert rows[0].query == "b", "failures are listed first"
+    assert superseded == 0, "without a recorded plan every request is listed"
+
+
+def test_fetch_log_counts_requests_of_an_abandoned_plan_but_never_hides_current_failures():
+    from eventshock.pipeline.run import summarise_fetch_log
+
+    rows, superseded = summarise_fetch_log(
+        [{"query": "old1", "status": "error", "error": "non-JSON response: 'phrase too short'"},
+         {"query": "old1", "status": "error", "error": "HTTP 429"},
+         {"query": "old2", "status": "ok", "returned": 30, "added": 30},
+         {"query": "now-bad", "status": "error", "error": "gave up after 3 attempts (HTTP 429)"},
+         {"query": "now-ok", "status": "ok", "returned": 50, "added": 50},
+         {"query": "gkg:file1", "status": "error", "error": "HTTP 404"}],
+        plan=["now-bad", "now-ok"])
+    assert {r.query for r in rows} == {"now-bad", "now-ok", "gkg:file1"}
+    assert superseded == 2, "distinct requests, not attempts"
+    assert [r.query for r in rows if r.status == "error"] == ["gkg:file1", "now-bad"]
 
 
 @pytest.fixture(scope="module")

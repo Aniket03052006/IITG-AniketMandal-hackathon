@@ -2,6 +2,8 @@
 PY := .venv/bin/python
 GDELT_START ?= 20260917000000
 GDELT_END ?= 20260930235959
+# seconds between GDELT requests; raise it when GDELT answers 429
+GDELT_THROTTLE ?= 20
 PRICES_START ?= 2014-01-01
 PRICES_END ?= 2026-10-02
 
@@ -41,7 +43,7 @@ lint:
 fetch-gdelt:  ## download GDELT articles into data/raw (network; 12 throttled requests, resumable)
 	PYTHONPATH=src $(PY) -c "import json,sys; sys.path.insert(0,'scripts'); from replay_universe import gdelt_queries; json.dump(gdelt_queries(), open('data/raw/gdelt/queries.json','w'), indent=1)"
 	PYTHONPATH=src $(PY) -m eventshock.ingestion.fetch gdelt --queries-file data/raw/gdelt/queries.json \
-		--start $(GDELT_START) --end $(GDELT_END) --out data/raw/gdelt/articles.jsonl
+		--start $(GDELT_START) --end $(GDELT_END) --throttle $(GDELT_THROTTLE) --out data/raw/gdelt/articles.jsonl
 
 fetch-gkg-list:  ## download GDELT's master file list (128 MB) into data/raw/gdelt_gkg
 	mkdir -p data/raw/gdelt_gkg
