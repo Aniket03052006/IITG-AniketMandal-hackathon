@@ -1,8 +1,9 @@
 import clsx from "clsx";
 import { useState } from "react";
-import { useSentimentModel } from "../api/hooks";
+import { useMeta, useSentimentModel } from "../api/hooks";
 import type { EvalSet, SentimentModelCard } from "../api/types";
-import { Card, ErrorState, Loading, Stat, StatusTag } from "./ui";
+import { StageStrip } from "./StageStrip";
+import { Card, ErrorState, Loading, Stat } from "./ui";
 
 const ROLE: Record<string, string> = {
   in_domain: "In domain",
@@ -141,6 +142,7 @@ function Detail({ set }: { set: EvalSet }) {
 }
 
 function Body({ card }: { card: SentimentModelCard }) {
+  const { data: meta } = useMeta();
   const [selected, setSelected] = useState("tfn_test");
   const sets = card.evaluations;
   const current = sets.find((e) => e.id === selected && e.model) ?? sets.find((e) => e.model);
@@ -149,10 +151,8 @@ function Body({ card }: { card: SentimentModelCard }) {
   const t = card.training;
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <StatusTag tone="ok">Sentiment: trained model</StatusTag>
-        <StatusTag tone="warn">Event type: placeholder rules</StatusTag>
-        <StatusTag tone="warn">Impact: placeholder rules</StatusTag>
+      <div className="mb-4">
+        <StageStrip meta={meta} />
       </div>
       <p className="max-w-[72ch] text-sm text-ink-2">
         {card.algorithm}. Score = P(positive) − P(negative). Trained on {t.rows.train?.toLocaleString("en-US")} human-labelled {t.dataset} rows ({t.licence}), tuned on {t.rows.valid?.toLocaleString("en-US")}, scored once on {t.rows.test?.toLocaleString("en-US")} held-out.

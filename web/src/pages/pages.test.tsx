@@ -23,7 +23,7 @@ const meta: Record<string, unknown> = {
 const row = (over: object) => ({
   id: "sig_1", headline: "Meridian flags funding gap", source: "Ledger Wire", source_type: "NEWS",
   published_at: "2026-10-01T08:30:00Z", entity_id: "ENT_M", entity_name: "Meridian Bancorp", ticker: "MRDB",
-  sector: "Financials", category: "CREDIT_FUNDING", sentiment_score: -0.72, impact_score: 9, status: "COMPLETE",
+  sector: "Financials", category: "CREDIT_FUNDING", event_status: "CLASSIFIED", sentiment_score: -0.72, impact_score: 9, status: "COMPLETE",
   source_count: 5, data_origin: "DEMO_FIXTURE", ...over,
 });
 
@@ -40,7 +40,7 @@ const detail = (impact: number | null) => ({
   document: { id: "d", source: "Ledger Wire", source_type: "NEWS", published_at: "2026-10-01T08:30:00Z", ingested_at: "2026-10-01T08:31:00Z", author: null, headline: "Kestrel launches jet", body: "Body text", url: "https://demo.invalid/x", language: "en", raw_metadata: {} },
   entity: { entity_id: "ENT_K", entity_name: "Kestrel", ticker: "KSTR", sector: "Industrials", country: "FR", link_confidence: 0.99 },
   sentiment: { positive: 0.8, neutral: 0.1, negative: 0.1, score: 0.7 },
-  event: { category: "PRODUCT_OPERATIONS", probabilities: { PRODUCT_OPERATIONS: 0.73, CREDIT_FUNDING: 0.03, GEOPOLITICAL: 0.03, MACROECONOMIC: 0.03, MA_CORPORATE_ACTION: 0.03, REGULATORY_LEGAL: 0.03, EARNINGS_FINANCIAL_PERFORMANCE: 0.1, MARKET_VALUATION: 0.02 } },
+  event: { category: "PRODUCT_OPERATIONS", status: "CLASSIFIED", no_event_probability: null, probabilities: { PRODUCT_OPERATIONS: 0.73, CREDIT_FUNDING: 0.03, GEOPOLITICAL: 0.03, MACROECONOMIC: 0.03, MA_CORPORATE_ACTION: 0.03, REGULATORY_LEGAL: 0.03, EARNINGS_FINANCIAL_PERFORMANCE: 0.1, MARKET_VALUATION: 0.02 } },
   impact: impact === null ? null : { score: impact, raw: impact / 10, drivers: [{ feature: "event_type", contribution: 0.05, note: "" }], quantisation: "ceil(raw * 10), min 1" },
   evidence: { source_count: 2, unique_domain_count: 2, recent_mention_count: 5, coverage_velocity: 0.3, novelty_score: 0.45, model_confidence: 0.85, contradicted_by: [], corroborating: [] },
   status: impact === null ? "PARTIAL" : "COMPLETE",
@@ -106,6 +106,7 @@ const report = {
   sources: [{ name: "gdelt-doc", source_type: "NEWS", license: "GDELT terms", attribution: "The GDELT Project", origin_url: "u", notes: "n", records: 10, quarantined: 2, accepted: 8, exact_duplicates_folded: 1, signals: 5 }],
   quarantine_by_code: { NON_ENGLISH: 2 }, quarantine_sample: [{ source: "gdelt-doc", record_ref: "a:1", code: "NON_ENGLISH", detail: "language 'es'", preview: "x" }],
   stage_origins: { ingestion: "REAL", sentiment: "PLACEHOLDER (TFN: source label)" },
+  superseded_requests: 5,
   fetch_log: [
     { query: '("Pfizer Inc" OR "Eli Lilly")', status: "error", attempts: 3, returned: 0, added: 0, last_error: "gave up after 3 attempts (HTTP 429)" },
     { query: '("Exxon Mobil" OR "Chevron Corp")', status: "ok", attempts: 1, returned: 97, added: 76, last_error: "" },
@@ -141,6 +142,49 @@ const modelCard = {
   confident_errors: [], limitations: ["Trained on Twitter Financial News only.", "Gold labels are AI-annotated."],
 };
 
+const eventAudit = (over: object = {}) => ({ model_id: "tfidf-lr-event-v1", model_version: "tfidf-lr-event-v1", artifact_sha256: "e1".repeat(32), confidence: 0.64, no_event_probability: 0.12, calibrated: true, unreliable_class: false, seen_in_training: false, ...over });
+const bothProvenance = (over: object = {}) => ({ ...provenance, stage_origins: { sentiment: "MODEL", event: "MODEL", impact: "PLACEHOLDER_RULES" }, sentiment: sentAudit(), event: eventAudit(over) });
+const eventMeta = {
+  ...modelMeta,
+  replay: { ...modelMeta.replay, stage_origins: { ingestion: "REAL", sentiment: "MODEL (tfidf-lr-v1, trained on Twitter Financial News)", event: "MODEL (tfidf-lr-event-v1, trained on AI-annotated in-domain labels; abstains)", impact: "PLACEHOLDER" } },
+};
+const EVENT_LABELS = ["GEOPOLITICAL", "MACROECONOMIC", "CREDIT_FUNDING", "MA_CORPORATE_ACTION", "REGULATORY_LEGAL", "PRODUCT_OPERATIONS", "EARNINGS_FINANCIAL_PERFORMANCE", "MARKET_VALUATION", "NONE"];
+const eventMetrics = (f1: number, served: number, n: number) => ({
+  n, weighted: true, labels: EVENT_LABELS, accuracy: 0.7, macro_f1: f1, macro_f1_ci95: [f1 - 0.05, f1 + 0.05], event_macro_f1: f1 - 0.05,
+  per_class: { PRODUCT_OPERATIONS: { precision: 0.4, recall: 0.6, f1: 0.48, support: 100 }, NONE: { precision: 0.86, recall: 0.86, f1: 0.86, support: 900 } },
+  confusion: EVENT_LABELS.map((_, i) => EVENT_LABELS.map((__, j) => (i === j ? 8 : 1))), log_loss: 1.1, brier: 0.5, ece: 0.05,
+  served: { macro_f1: served, accuracy: 0.65, coverage: 0.86, accuracy_when_decided: 0.76, classified_precision: 0.57, status_mix: { CLASSIFIED: 0.2, NO_EVENT: 0.66, UNCERTAIN: 0.14 }, detection: { precision: 0.58, recall: 0.87, f1: 0.696 } },
+  served_f1_ci95: [served - 0.06, served + 0.05],
+});
+const ebase = (m: number) => ({ placeholder_keywords: { accuracy: 0.2, macro_f1: m, detection_f1: 0.488 }, majority_class: { accuracy: 0.68, macro_f1: 0.09, detection_f1: 0 }, tfn_topic_probe: { accuracy: 0.1, macro_f1: 0.14, detection_f1: 0.49 } });
+const eventCard = {
+  id: "tfidf-lr-event-v1", version: "tfidf-lr-event-v1", algorithm: "TF-IDF -> logistic regression over 9 classes -> temperature scaling", preprocessing: "normalised",
+  classes: EVENT_LABELS, output_definition: "o", artifact_file: "model.joblib", artifact_sha256: "e1".repeat(32), artifact_bytes: 1_820_000, libraries: { "scikit-learn": "1.9.1" },
+  training: { labels_file: "l", labels_sha256: "c".repeat(64), table: "t", table_sha256: "d".repeat(64), annotator: "ai:claude", rows: { "train/annotated": 2520, "train/silver": 0, dev: 765, replay_check: 200 },
+    label_distribution_train: {}, label_distribution_dev: {}, silver_note: "TFN topic crosswalk rows were tested and NOT used.", consistency: { n: 200, agreement: 0.92, kappa: 0.88, share_none_first_pass: 0.55, note: "n" }, seed: 1, config_digest: "x" },
+  selection_rule: "valid_log_loss_after_temperature", ablation: { dev_log_loss_without_silver: 0.87, dev_log_loss_with_silver: 0.9, silver_used: 0 },
+  candidates: [{ preprocessing: "normalised", C: 10, class_weight: "balanced", temperature: 0.84, dev_log_loss: 0.87, dev_macro_f1: 0.55, selected: true }],
+  calibration: { method: "temperature", temperature: 0.84, fitted_on: "dev", ece_dev_population_before: 0.062, ece_dev_population_after: 0.04, reliability_dev_population: [] },
+  abstention: { commit_threshold: 0.5, rationale: "r", dev_population_n: 522, dev_coverage: 0.88, dev_classified_share: 0.19, dev_classified_precision: 0.57, dev_no_event_precision: 0.88, route_unreliable_to_uncertain: true, unreliable_classes: ["MA_CORPORATE_ACTION"] },
+  class_reliability: [
+    { label: "PRODUCT_OPERATIONS", train_examples: 380, annotated_train: 380, dev_support: 126, dev_f1: 0.53, status: "ok", reason: "dev F1 0.53 on 126 rows" },
+    { label: "MA_CORPORATE_ACTION", train_examples: 572, annotated_train: 572, dev_support: 26, dev_f1: 0.32, status: "unreliable", reason: "dev F1 0.32 on 26 rows is below 0.35" },
+  ],
+  evaluations: [
+    { id: "dev_history", title: "Held-out dev rows, our own sources (selected on)", role: "in_domain", description: "Dev.", status: "ok", note: "", model: eventMetrics(0.505, 0.4, 522), baselines: ebase(0.29) },
+    { id: "gold_history", title: "Gold set, our own sources (AI-annotated)", role: "indicative", description: "Gold ours.", status: "ok", note: "", model: eventMetrics(0.527, 0.325, 280), baselines: ebase(0.332) },
+    { id: "replay_check", title: "Replay-pack check set (fresh documents)", role: "in_domain", description: "Replay.", status: "ok", note: "", model: eventMetrics(0.616, 0.508, 199), baselines: ebase(0.251) },
+    { id: "tfn_topic_test", title: "TFN topic test split (crosswalk labels)", role: "secondary", description: "Old.", status: "skipped", note: "not run here", model: null, baselines: {} },
+  ],
+  acceptance: { rule: "Pre-registered bar", met: false, checks: [
+    { name: "served macro-F1 on gold history rows: CI lower bound above the best baseline", model: 0.264, baseline: 0.332, detail: "model 0.325 [0.264, 0.381] vs best baseline 0.332", passed: false },
+    { name: "event-vs-NONE F1 on gold history rows at least the best baseline's", model: 0.696, baseline: 0.488, detail: "model 0.696 vs 0.488", passed: true },
+  ] },
+  confident_errors: [{ eval_set: "gold_history", text: "Apple earnings call at 4pm today", truth: "NONE", served: "CLASSIFIED:EARNINGS_FINANCIAL_PERFORMANCE", top_class: "EARNINGS_FINANCIAL_PERFORMANCE", p_none: 0.1, confidence: 0.8 }],
+  limitations: ["Labels are produced by an AI annotator.", "Roughly 3,000 annotated rows."],
+};
+
+let feedItems: object[] = [];
 let stressResponse: unknown = completed;
 let metaResponse: unknown = meta;
 let reportResponse: unknown = report;
@@ -155,10 +199,11 @@ function mockFetch() {
       if (url.endsWith("/api/meta")) return json(metaResponse);
       if (url.endsWith("/api/pipeline/report")) return json(reportResponse);
       if (url.endsWith("/api/models/sentiment")) return json(modelCard);
+      if (url.endsWith("/api/models/event")) return json(eventCard);
       if (url.includes("/api/signals?") || url.endsWith("/api/signals")) {
         const q = new URL(url, "http://x").searchParams;
         const cat = q.get("category");
-        const items = feed.items.filter((i) => !cat || i.category === cat);
+        const items = (feedItems as typeof feed.items).filter((i) => !cat || i.category === cat);
         return json({ total: items.length, items });
       }
       if (url.includes("/api/signals/")) return json(signalDetail);
@@ -188,6 +233,7 @@ function renderAt(path: string) {
 }
 
 beforeEach(() => {
+  feedItems = feed.items;
   reportResponse = report;
   mockFetch();
   stressResponse = completed;
@@ -338,7 +384,7 @@ describe("Real-source replay with the trained sentiment model", () => {
     expect((await screen.findAllByText("Trained model")).length).toBe(2); // sentiment card tag + provenance step 4
     expect(screen.getByText("87%", { exact: false })).toBeInTheDocument();
     expect(await screen.findByText(/macro-F1 0\.78; on our own AI-labelled sources only 0\.44/)).toBeInTheDocument();
-    expect(screen.getByText("Real source · model sentiment", { selector: "span" })).toBeInTheDocument();
+    expect(screen.getByText("Real source · trained sentiment", { selector: "span" })).toBeInTheDocument();
     expect(screen.queryByText(/In-sample/)).not.toBeInTheDocument();
   });
 
@@ -384,5 +430,123 @@ describe("Real-source replay with the trained sentiment model", () => {
     renderAt("/pipeline");
     expect(await screen.findByText("No pipeline in the demo profile")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Sentiment model" })).not.toBeInTheDocument();
+  });
+});
+
+describe("Real-source replay with the trained event model", () => {
+  const eventDetail = (status: string, over: object = {}, prov: object = {}) => ({
+    ...detail(status === "CLASSIFIED" ? 8 : null), data_origin: "REAL_SOURCE_MIXED_NLP", provenance: bothProvenance(prov),
+    model_versions: { sentiment: "tfidf-lr-v1+a1a1a1a1", event: "tfidf-lr-event-v1+e1e1e1e1", impact: status === "CLASSIFIED" ? "placeholder-v0-heuristic" : null, entity_resolver: "dictionary-er-v1", feature_schema: "1" },
+    event: { ...detail(8).event, status, no_event_probability: 0.12, ...over },
+    status: status === "CLASSIFIED" ? "COMPLETE" : "PARTIAL",
+    status_reason: status === "NO_EVENT" ? "No market event identified: the event model judged this text not to be a market event" : status === "UNCERTAIN" ? "Event type uncertain: the event model will not commit to a type, so no impact is scored" : null,
+  });
+  beforeEach(() => {
+    metaResponse = eventMeta;
+    reportResponse = { ...report, enrichment_version: "placeholder-v0+sentiment:tfidf-lr-v1+event:tfidf-lr-event-v1", stage_origins: eventMeta.replay.stage_origins };
+    signalDetail = eventDetail("CLASSIFIED");
+    feedItems = [
+      row({}),
+      row({ id: "sig_2", headline: "Kestrel launches jet", category: "PRODUCT_OPERATIONS", impact_score: 8 }),
+      row({ id: "sig_3", headline: "Great chart lol join discord", category: "MARKET_VALUATION", event_status: "NO_EVENT", impact_score: null, status: "PARTIAL" }),
+      row({ id: "sig_4", headline: "Regional bank may be eyeing a deal", category: "MA_CORPORATE_ACTION", event_status: "UNCERTAIN", impact_score: null, status: "PARTIAL" }),
+    ];
+  });
+
+  it("marks sentiment and event type as trained models and impact as a placeholder, on the feed", async () => {
+    renderAt("/");
+    expect(await screen.findByText("Sentiment: trained model")).toBeInTheDocument();
+    expect(screen.getByText("Event type: trained model")).toBeInTheDocument();
+    expect(screen.getByText("Impact: placeholder rules")).toBeInTheDocument();
+    expect(await screen.findByText(/Sentiment and event type are trained models/)).toBeInTheDocument();
+  });
+
+  it("hides what the model judged not to be a market event, says how many, and can show them", async () => {
+    renderAt("/");
+    expect(await screen.findByText("Kestrel launches jet")).toBeInTheDocument();
+    expect(screen.queryByText("Great chart lol join discord")).not.toBeInTheDocument();
+    expect(screen.getByText("Regional bank may be eyeing a deal")).toBeInTheDocument(); // uncertain stays visible, labelled as such
+    expect(screen.getByText("Type uncertain")).toBeInTheDocument();
+    expect(screen.getByText(/1 judged not to be market events are hidden/)).toBeInTheDocument();
+    expect(screen.getByText("1 not an event · 1 type uncertain")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /Show non-events \(1\)/ }));
+    expect(await screen.findByText("Great chart lol join discord")).toBeInTheDocument();
+    expect(screen.getByText("No market event")).toBeInTheDocument();
+  });
+
+  it("shows a classified event with its calibrated confidence and the model behind it", async () => {
+    renderAt("/events/sig_2");
+    expect(await screen.findByRole("heading", { name: "Event type" })).toBeInTheDocument();
+    expect(screen.getByText(/with a calibrated/)).toBeInTheDocument();
+    expect(screen.getAllByText("64%", { exact: false, selector: ".num" }).length).toBeGreaterThan(0);
+    expect(screen.getByText("tfidf-lr-event-v1")).toBeInTheDocument();
+    expect(await screen.findByText(/separates events from non-events with F1 0\.70 \(the old keyword rules: 0\.49\)/)).toBeInTheDocument();
+    expect(screen.getAllByText("Trained model").length).toBeGreaterThanOrEqual(3); // sentiment card, event card, provenance
+    expect(screen.getByText("Placeholder heuristic · not a trained model")).toBeInTheDocument();
+  });
+
+  it("says plainly that a non-event is not a finding and scores no impact", async () => {
+    signalDetail = eventDetail("NO_EVENT");
+    renderAt("/events/sig_2");
+    expect(await screen.findByText(/likely not to be a market event/)).toBeInTheDocument();
+    expect(screen.getAllByText("No market event").length).toBe(2); // header and event card
+    expect(screen.getByText("No impact scored for this signal")).toBeInTheDocument();
+    expect(screen.queryByText(/If this were an event/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Run stress test|Run as what-if/ })).not.toBeInTheDocument();
+  });
+
+  it("shows an uncertain event as a lean, not a type", async () => {
+    signalDetail = eventDetail("UNCERTAIN");
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("The model will not commit to a type here.")).toBeInTheDocument();
+    expect(screen.getByText(/If this were an event, the model's lean/)).toBeInTheDocument();
+    expect(screen.getAllByText("Type uncertain").length).toBe(2); // header and event card
+  });
+
+  it("explains why a type the model never asserts is shown as uncertain, with the reason from the model card", async () => {
+    signalDetail = eventDetail("UNCERTAIN", { category: "PRODUCT_OPERATIONS" }, { unreliable_class: true });
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("This type is not asserted by the model")).toBeInTheDocument();
+  });
+
+  it("warns when the event model has seen the exact text", async () => {
+    signalDetail = eventDetail("CLASSIFIED", {}, { seen_in_training: true });
+    renderAt("/events/sig_2");
+    expect(await screen.findAllByText("In-sample: the model trained on this exact text")).not.toHaveLength(0);
+  });
+
+  it("explains the event model on the pipeline page: not-met acceptance bar, per-set results, reliability, mistakes and limits", async () => {
+    renderAt("/pipeline");
+    const panel = (await screen.findByRole("heading", { name: "Event model" })).closest("section") as HTMLElement;
+    const w = within(panel);
+    expect(await w.findByText("Acceptance bar not met")).toBeInTheDocument();
+    expect(w.getByText("FAIL")).toBeInTheDocument();
+    expect(w.getByText("PASS")).toBeInTheDocument();
+    expect((await w.findAllByText("Gold set, our own sources (AI-annotated)")).length).toBeGreaterThan(0);
+    expect(w.getAllByText("0.527").length).toBeGreaterThan(0); // model arg-max macro-F1 on gold
+    expect(w.getAllByText("0.332").length).toBeGreaterThan(0); // the keyword rules it replaces
+    expect(w.getByText(/Not run: not run here/)).toBeInTheDocument();
+    expect(w.getByText("Never asserted")).toBeInTheDocument();
+    expect(w.getByText(/dev F1 0\.32 on 26 rows is below 0\.35/)).toBeInTheDocument();
+    expect(w.getByText("Labels are produced by an AI annotator.")).toBeInTheDocument();
+    expect(w.getByText(/Apple earnings call at 4pm today/)).toBeInTheDocument();
+    expect(w.getByText("Event type: trained model")).toBeInTheDocument();
+    await userEvent.click(w.getByRole("button", { name: /Replay-pack check set/ }));
+    expect(await w.findByText(/Replay\./)).toBeInTheDocument();
+    const stages = screen.getByText("What is real and what is a stand-in").closest("section") as HTMLElement;
+    expect(within(stages).getByText(/MODEL \(tfidf-lr-event-v1/)).toHaveClass("text-pos");
+  });
+
+  it("lists the current download plan and says how many abandoned requests it leaves out", async () => {
+    renderAt("/pipeline");
+    expect(await screen.findByText("1 of 2 requests succeeded")).toBeInTheDocument();
+    expect(screen.getByText(/5 requests of an earlier, abandoned plan/)).toBeInTheDocument();
+  });
+
+  it("does not show an event card on the demo profile", async () => {
+    metaResponse = meta;
+    renderAt("/pipeline");
+    expect(await screen.findByText("No pipeline in the demo profile")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Event model" })).not.toBeInTheDocument();
   });
 });

@@ -1,8 +1,9 @@
 import { usePipelineReport, useMeta } from "../api/hooks";
+import { EventModelPanel } from "../components/EventModelPanel";
 import { SentimentModelPanel } from "../components/SentimentModelPanel";
 import { Card, EmptyState, ErrorState, Loading, PageHeader, Stat, StatusTag } from "../components/ui";
 import { dateTime } from "../lib/format";
-import { sentimentIsModel, stageKind } from "../lib/provenance";
+import { eventIsModel, sentimentIsModel, stageKind } from "../lib/provenance";
 
 export function PipelinePage() {
   const { data: meta } = useMeta();
@@ -119,6 +120,12 @@ export function PipelinePage() {
           </div>
         )}
 
+        {eventIsModel(meta) && (
+          <div className="min-w-0 lg:col-span-12">
+            <EventModelPanel enabled />
+          </div>
+        )}
+
         {r.fetch_log.length > 0 && (
           <div className="lg:col-span-12">
             <Card
@@ -140,7 +147,15 @@ export function PipelinePage() {
                 ))}
               </ul>
               <p className="mt-3 text-xs text-muted">
-                A failed request is a gap in the data, not an error in it: the pack is partial and says so. The log is the full history, including the first per-issuer plan that was abandoned after rate-limit and query-length errors (see the project journey). Re-running the fetch retries only the failed requests of the current plan.
+                A failed request is a gap in the data, not an error in it: the pack would be partial and say so. This lists the requests of the current plan only.
+                {r.superseded_requests > 0 && (
+                  <>
+                    {" "}
+                    {r.superseded_requests} request{r.superseded_requests === 1 ? "" : "s"} of an earlier, abandoned plan (per-issuer queries that hit rate limits, a too-short phrase and an over-long query) {r.superseded_requests === 1 ? "is" : "are"} left out here
+                    because the sector queries replaced them; the full attempt log stays in the snapshot manifest.
+                  </>
+                )}{" "}
+                Re-running the fetch retries only the failed requests of the current plan.
               </p>
             </Card>
           </div>

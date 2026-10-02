@@ -5,10 +5,11 @@ import { useMeta, useSignals } from "../api/hooks";
 import type { Meta, SignalSummary } from "../api/types";
 import { EVENT_CATEGORIES } from "../api/types";
 import { Alert, CATEGORY_ICON, Chevron, Search } from "../components/icons";
-import { CategoryTag, EmptyState, ErrorState, ImpactMeter, PageHeader, SentimentBar, Skeleton, SourceBadge, Stat, StatusTag } from "../components/ui";
+import { EmptyState, ErrorState, ImpactMeter, PageHeader, SentimentBar, Skeleton, SourceBadge, Stat, StatusTag } from "../components/ui";
+import { EventStatusTag } from "../components/EventStatusTag";
 import { StageStrip } from "../components/StageStrip";
 import { ago, dateTime } from "../lib/format";
-import { sentimentIsModel } from "../lib/provenance";
+import { eventIsModel, sentimentIsModel } from "../lib/provenance";
 import { categoryLabeler } from "../lib/taxonomy";
 
 type Sort = "newest" | "impact";
@@ -41,8 +42,10 @@ function FeedRow({ s, asOf, label }: { s: SignalSummary; asOf: string; label: (c
             <SourceBadge type={s.source_type} name={s.source} />
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <CategoryTag category={s.category} label={label(s.category)} />
-            {s.status === "PARTIAL" && <StatusTag tone="warn" icon={<Alert size={12} />}>Partial</StatusTag>}
+            <EventStatusTag status={s.event_status} category={s.category} label={label} />
+            {s.status === "PARTIAL" && s.event_status === "CLASSIFIED" && (
+              <StatusTag tone="warn" icon={<Alert size={12} />}>Partial</StatusTag>
+            )}
           </div>
         </div>
         <div className="col-span-2 flex flex-wrap items-center gap-x-4 gap-y-2 xl:contents">
@@ -76,6 +79,9 @@ function FeedSkeleton() {
 
 function feedNote(meta: Meta | undefined): string {
   if (meta?.profile !== "replay") return "All demo fixtures (fixture-v0), not model output.";
+  if (sentimentIsModel(meta) && eventIsModel(meta)) {
+    return "Real documents. Sentiment and event type are trained models that can abstain; impact is a placeholder rule.";
+  }
   return sentimentIsModel(meta)
     ? "Real documents. Sentiment is a trained model; event type and impact are placeholder rules."
     : "Real documents, placeholder sentiment/event/impact (not model output).";
@@ -91,6 +97,8 @@ export function FeedPage() {
 
   const { data: meta } = useMeta();
   const label = categoryLabeler(meta);
+  const hasEventModel = eventIsModel(meta);
+  const showNon = params.get("non") === "1" || !hasEventModel; // non-events are hidden by default once the model can say so
   const filters = { category: category || undefined, source_type: source || undefined, min_impact: minImpact, q: q || undefined };
   const { data, error, isLoading, refetch, isFetching } = useSignals(filters);
   const all = useSignals({}); // unfiltered, for the summary strip
@@ -103,10 +111,10 @@ export function FeedPage() {
   };
 
   const items = useMemo(() => {
-    const rows = [...(data?.items ?? [])];
+    const rows = (data?.items ?? []).filter((s) => showNon || s.event_status !== "NO_EVENT");
     if (sort === "impact") rows.sort((a, b) => (b.impact_score ?? -1) - (a.impact_score ?? -1) || b.published_at.localeCompare(a.published_at));
     return rows;
-  }, [data, sort]);
+  }, [data, sort, showNon]);
 
   const threshold = meta?.trigger_threshold ?? 7;
   const everything = all.data?.items ?? [];
@@ -115,6 +123,8 @@ export function FeedPage() {
   const news = everything.filter((s) => s.source_type === "NEWS").length;
   const social = everything.length - news;
   const filtered = !!(category || source || minImpact || q);
+  const nonEvents = everything.filter((s) => s.event_status === "NO_EVENT").length;
+  const uncertain = everything.filter((s) => s.event_status === "UNCERTAIN").length;
 
   return (
     <>
@@ -132,7 +142,11 @@ export function FeedPage() {
       <div className="card card-pad mb-5 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
         <Stat label="Signals" value={all.isLoading ? "–" : everything.length} sub={all.isLoading ? "" : `${news} news · ${social} social`} />
         <Stat label={`Impact ≥ ${threshold}`} value={all.isLoading ? "–" : triggering} sub="Trigger a stress test" tone="high" />
-        <Stat label="Partial" value={all.isLoading ? "–" : partial} sub="Impact unavailable, not invented" />
+        <Stat
+          label={hasEventModel ? "No impact scored" : "Partial"}
+          value={all.isLoading ? "–" : partial}
+          sub={all.isLoading ? "" : hasEventModel ? `${nonEvents} not an event · ${uncertain} type uncertain` : "Impact unavailable, not invented"}
+        />
         <Stat label="Replay clock" value={meta ? dateTime(meta.as_of).slice(-9, -4) : "–"} sub={meta ? `${dateTime(meta.as_of).slice(0, 6)} UTC · fixed for demos` : ""} />
       </div>
 
@@ -160,6 +174,11 @@ export function FeedPage() {
               </button>
             ))}
           </div>
+          {hasEventModel && (
+            <button type="button" className="chip" aria-pressed={showNon} onClick={() => set("non", showNon ? null : "1")}>
+              Show non-events{all.isLoading ? "" : ` (${nonEvents})`}
+            </button>
+          )}
           <button type="button" className="chip" aria-pressed={minImpact === threshold} onClick={() => set("min", minImpact === threshold ? null : String(threshold))}>
             Impact ≥ {threshold}
           </button>
@@ -201,7 +220,8 @@ export function FeedPage() {
         )}
         {items.length > 0 && (
           <p className="flex items-center gap-1.5 px-4 py-2.5 text-xs text-muted">
-            <Chevron size={12} /> {items.length} of {everything.length || items.length} signals shown. {feedNote(meta)}
+            <Chevron size={12} /> {items.length} of {everything.length || items.length} signals shown
+            {hasEventModel && !showNon && nonEvents > 0 ? ` (${nonEvents} judged not to be market events are hidden)` : ""}. {feedNote(meta)}
           </p>
         )}
       </section>

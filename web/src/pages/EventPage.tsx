@@ -1,12 +1,12 @@
 import clsx from "clsx";
 import { Link, useParams } from "react-router-dom";
-import { useMeta, useScenarios, useSentimentModel, useSignal } from "../api/hooks";
+import { useEventModel, useMeta, useScenarios, useSentimentModel, useSignal } from "../api/hooks";
 import type { EventCategory, RiskSignal } from "../api/types";
 import { EVENT_CATEGORIES } from "../api/types";
 import { Alert, ArrowLeft, ArrowRight, Check, Info } from "../components/icons";
+import { EventStatusTag } from "../components/EventStatusTag";
 import {
   Card,
-  CategoryTag,
   ErrorState,
   ImpactMeter,
   InlineNote,
@@ -33,7 +33,7 @@ function ImpactCard({ s, threshold }: { s: RiskSignal; threshold: number }) {
   return (
     <Card title="Impact assessment" aside="Market-response proxy, 1 to 10" className="h-full">
       {!impact ? (
-        <InlineNote tone="warn" title="Impact unavailable for this signal">
+        <InlineNote tone="warn" title={s.event.status === "CLASSIFIED" ? "Impact unavailable for this signal" : "No impact scored for this signal"}>
           {s.status_reason} EventShock never substitutes a default score, so this signal cannot trigger a stress test.
         </InlineNote>
       ) : (
@@ -103,23 +103,89 @@ function ImpactCard({ s, threshold }: { s: RiskSignal; threshold: number }) {
 }
 
 function EventTypeCard({ s, label }: { s: RiskSignal; label: (c: string) => string }) {
-  const rows = EVENT_CATEGORIES.map((c) => ({ c, p: s.event.probabilities[c as EventCategory] ?? 0 })).sort((a, b) => b.p - a.p);
+  const audit = s.provenance?.event;
+  const isModel = stageKind(s.provenance?.stage_origins.event) === "model" && !!audit;
+  const { data: card } = useEventModel(isModel);
+  const gold = card?.evaluations.find((e) => e.id === "gold_history")?.model;
+  const detect = gold?.served.detection.f1;
+  const status = s.event.status;
+  const best = EVENT_CATEGORIES.map((c) => ({ c, p: s.event.probabilities[c as EventCategory] ?? 0 })).sort((a, b) => b.p - a.p);
+  const rows = status === "NO_EVENT" ? [] : best;
+  const reliability = card?.class_reliability.find((r) => r.label === s.event.category);
   return (
     <Card
       title="Event type"
-      aside={s.provenance && stageKind(s.provenance.stage_origins.event) !== "model" ? <StatusTag tone="warn">Placeholder rules</StatusTag> : "What happened"}
+      aside={
+        isModel ? (
+          <StatusTag tone="ok" icon={<Check size={12} />}>Trained model</StatusTag>
+        ) : s.provenance ? (
+          <StatusTag tone="warn">{stageKindText(s.provenance.stage_origins.event)}</StatusTag>
+        ) : (
+          "What happened"
+        )
+      }
     >
-      <ul className="space-y-1.5">
-        {rows.map(({ c, p }, i) => (
-          <li key={c} className="grid grid-cols-[minmax(0,1fr)_6rem_2.75rem] items-center gap-3 text-sm">
-            <span className={clsx("truncate", i === 0 ? "font-medium text-ink" : "text-muted")}>{label(c)}</span>
-            <span className="h-2 rounded-sm bg-paper-4" aria-hidden="true">
-              <span className={clsx("block h-full rounded-sm", i === 0 ? "bg-accent" : "bg-faint")} style={{ width: `${p * 100}%` }} />
+      {isModel && audit && (
+        <div className="mb-4">
+          <p className="mb-2 flex flex-wrap items-center gap-2 text-sm">
+            <EventStatusTag status={status} category={s.event.category} label={label} />
+            <span className="text-muted">
+              {status === "CLASSIFIED" && <>A market event of this type, with a calibrated <span className="num text-ink-2">{(audit.confidence * 100).toFixed(0)}%</span> chance the label is right.</>}
+              {status === "NO_EVENT" && <>Judged <span className="num text-ink-2">{(audit.no_event_probability * 100).toFixed(0)}%</span> likely not to be a market event.</>}
+              {status === "UNCERTAIN" && "The model will not commit to a type here."}
             </span>
-            <span className={clsx("num text-right", i === 0 ? "text-ink" : "text-muted")}>{(p * 100).toFixed(0)}%</span>
-          </li>
-        ))}
-      </ul>
+          </p>
+        </div>
+      )}
+      {rows.length > 0 && (
+        <>
+          {status !== "CLASSIFIED" && isModel && (
+            <p className="mb-2 text-xs text-muted">If this were an event, the model's lean (share among event types, not a finding):</p>
+          )}
+          <ul className="space-y-1.5">
+            {rows.map(({ c, p }, i) => (
+              <li key={c} className="grid grid-cols-[minmax(0,1fr)_6rem_2.75rem] items-center gap-3 text-sm">
+                <span className={clsx("truncate", i === 0 ? "font-medium text-ink" : "text-muted")}>{label(c)}</span>
+                <span className="h-2 rounded-sm bg-paper-4" aria-hidden="true">
+                  <span className={clsx("block h-full rounded-sm", i === 0 && status === "CLASSIFIED" ? "bg-accent" : "bg-faint")} style={{ width: `${p * 100}%` }} />
+                </span>
+                <span className={clsx("num text-right", i === 0 ? "text-ink" : "text-muted")}>{(p * 100).toFixed(0)}%</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {isModel && audit && (
+        <div className="mt-4 space-y-3">
+          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1 text-xs">
+            <dt className="text-muted">Model</dt>
+            <dd className="num">{audit.model_id}</dd>
+            <dt className="text-muted">P(not an event)</dt>
+            <dd className="num">{(audit.no_event_probability * 100).toFixed(0)}%</dd>
+            <dt className="text-muted">P(top type)</dt>
+            <dd className="num">
+              {(audit.confidence * 100).toFixed(0)}% <span className="font-sans text-muted">among all nine outcomes, calibrated</span>
+            </dd>
+          </dl>
+          {audit.unreliable_class && (
+            <InlineNote tone="warn" title="This type is not asserted by the model">
+              {reliability ? reliability.reason : "The model card flags this event type as unreliable"}, so a signal that leans this way is shown as uncertain instead.
+            </InlineNote>
+          )}
+          {audit.seen_in_training && (
+            <InlineNote tone="warn" title="In-sample: the model trained on this exact text">
+              This text is in the data the model learned from, so its output here is not evidence of accuracy.
+            </InlineNote>
+          )}
+        </div>
+      )}
+      <p className="mt-3 text-xs text-muted">
+        {isModel
+          ? detect !== undefined
+            ? `A text model reading the headline only. On our own AI-labelled sources it separates events from non-events with F1 ${detect.toFixed(2)} (the old keyword rules: ${(card?.evaluations.find((e) => e.id === "gold_history")?.baselines.placeholder_keywords?.detection_f1 ?? 0).toFixed(2)}), and picks the exact type far less reliably. Labels are AI-annotated.`
+            : "A trained text model reading the headline only. Labels are AI-annotated."
+          : "Event type here comes from keyword rules, not a trained model."}
+      </p>
     </Card>
   );
 }
@@ -288,6 +354,12 @@ function ProvenanceCard({ s }: { s: RiskSignal }) {
               <li key={k} className="flex flex-wrap items-baseline gap-x-2">
                 <span className="w-20 shrink-0 text-muted">{stageName(k)}</span>
                 <span className={stageKind(p.stage_origins[k]) === "model" ? "text-pos" : "text-warn"}>{stageKindText(p.stage_origins[k])}</span>
+                {k === "event" && p.event && (
+                  <span className="num text-muted">
+                    {p.event.model_id} · {p.event.artifact_sha256.slice(0, 8)} · {s.event.status.toLowerCase().replace("_", " ")}
+                    {p.event.seen_in_training ? " · in-sample" : ""}
+                  </span>
+                )}
                 {k === "sentiment" && p.sentiment && (
                   <span className="num text-muted">
                     {p.sentiment.model_id} · {p.sentiment.artifact_sha256.slice(0, 8)}
@@ -325,14 +397,14 @@ export function EventPage() {
         <>
           <header className="mb-6">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <CategoryTag category={s.event.category} label={label(s.event.category)} />
+              <EventStatusTag status={s.event.status} category={s.event.category} label={label} />
               <SourceBadge type={s.document.source_type} name={s.document.source} />
               <span className="num text-xs text-muted">{dateTime(s.document.published_at)}</span>
               {s.provenance?.timestamp_origin === "SYNTHETIC_REPLAY_CLOCK" && (
                 <span className="text-xs text-warn" title={timestampNote("SYNTHETIC_REPLAY_CLOCK")}>replay time, not original</span>
               )}
-              {s.status === "PARTIAL" && <StatusTag tone="warn" icon={<Alert size={12} />}>Partial signal</StatusTag>}
-              <StatusTag tone="demo">{originChip(s.data_origin)}</StatusTag>
+              {s.status === "PARTIAL" && s.event.status === "CLASSIFIED" && <StatusTag tone="warn" icon={<Alert size={12} />}>Partial signal</StatusTag>}
+              <StatusTag tone="demo">{originChip(s.data_origin, s.provenance?.stage_origins)}</StatusTag>
             </div>
             <h1 className="max-w-[28ch] text-2xl font-semibold sm:max-w-[36ch] sm:text-3xl">{s.document.headline}</h1>
             <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
@@ -393,7 +465,7 @@ export function EventPage() {
                   <dt className="text-muted">Signal</dt>
                   <dd className="num">{s.id}</dd>
                   <dt className="text-muted">Data origin</dt>
-                  <dd>{originLabel(s.data_origin)}</dd>
+                  <dd>{originLabel(s.data_origin, s.provenance?.stage_origins)}</dd>
                   <dt className="text-muted">Sentiment model</dt>
                   <dd className="num">{s.model_versions.sentiment}</dd>
                   {s.provenance?.sentiment && (
@@ -404,6 +476,12 @@ export function EventPage() {
                   )}
                   <dt className="text-muted">Event model</dt>
                   <dd className="num">{s.model_versions.event}</dd>
+                  {s.provenance?.event && (
+                    <>
+                      <dt className="text-muted">Event artifact</dt>
+                      <dd className="num break-all">sha256 {s.provenance.event.artifact_sha256.slice(0, 16)}…</dd>
+                    </>
+                  )}
                   <dt className="text-muted">Impact model</dt>
                   <dd className="num">{s.model_versions.impact ?? "unavailable"}</dd>
                   <dt className="text-muted">Entity resolver</dt>
