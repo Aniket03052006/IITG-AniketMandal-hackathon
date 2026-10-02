@@ -1,0 +1,2034 @@
+{
+ "id": "tfidf-lr-event-v1",
+ "version": "tfidf-lr-event-v1",
+ "algorithm": "TF-IDF (word 1-2gram + char_wb 2-5gram, sublinear) -> multinomial logistic regression over 9 classes -> temperature scaling -> one commit threshold (0.5) on the calibrated posterior",
+ "preprocessing": "normalised",
+ "classes": [
+  "GEOPOLITICAL",
+  "MACROECONOMIC",
+  "CREDIT_FUNDING",
+  "MA_CORPORATE_ACTION",
+  "REGULATORY_LEGAL",
+  "PRODUCT_OPERATIONS",
+  "EARNINGS_FINANCIAL_PERFORMANCE",
+  "MARKET_VALUATION",
+  "NONE"
+ ],
+ "output_definition": "Calibrated P(8 event classes + NONE). The arg-max is committed only at probability >= commit_threshold: NONE -> NO_EVENT, an event class -> CLASSIFIED (UNCERTAIN if flagged unreliable); below it -> UNCERTAIN.",
+ "artifact_file": "model.joblib",
+ "artifact_sha256": "4033198d020fdf13f6956e685617a08d8bbc12bc53c648f1f4e59d9730b55c83",
+ "artifact_bytes": 1815162,
+ "libraries": {
+  "scikit-learn": "1.9.1",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1"
+ },
+ "training": {
+  "labels_file": "data/event_labels/event_labels.csv",
+  "labels_sha256": "09113eebf38dc87d0b1afe08c4ab813c364fc8db1463cf8b6a304f7f2674ba4f",
+  "table": "data/modeling/event_train.jsonl",
+  "table_sha256": "fd35b3c9d2fda3fc48950a86045238886f2260735ceb839b728a48ef58647bbc",
+  "annotator": "ai:claude",
+  "rows": {
+   "train/annotated": 2305,
+   "train/silver": 0,
+   "dev": 765,
+   "replay_check": 200
+  },
+  "label_distribution_train": {
+   "CREDIT_FUNDING": 58,
+   "EARNINGS_FINANCIAL_PERFORMANCE": 56,
+   "GEOPOLITICAL": 81,
+   "MACROECONOMIC": 56,
+   "MARKET_VALUATION": 137,
+   "MA_CORPORATE_ACTION": 79,
+   "NONE": 1334,
+   "PRODUCT_OPERATIONS": 380,
+   "REGULATORY_LEGAL": 124
+  },
+  "label_distribution_dev": {
+   "CREDIT_FUNDING": 19,
+   "EARNINGS_FINANCIAL_PERFORMANCE": 18,
+   "GEOPOLITICAL": 27,
+   "MACROECONOMIC": 18,
+   "MARKET_VALUATION": 45,
+   "MA_CORPORATE_ACTION": 26,
+   "NONE": 445,
+   "PRODUCT_OPERATIONS": 126,
+   "REGULATORY_LEGAL": 41
+  },
+  "silver_note": "TFN topic crosswalk rows (strong + medium tiers) were tried as extra training data and NOT used: dev log-loss 0.896 with them vs 0.871 without.",
+  "consistency": {
+   "n": 200,
+   "agreement": 0.92,
+   "kappa": 0.8769,
+   "share_none_first_pass": 0.55,
+   "note": "same annotator, second blind pass: an upper bound on label noise, NOT an independent inter-annotator kappa"
+  },
+  "seed": 20261005,
+  "config_digest": "10610a56df7176fb"
+ },
+ "selection_rule": "valid_log_loss_after_temperature",
+ "ablation": {
+  "dev_log_loss_without_silver": 0.8713,
+  "dev_log_loss_with_silver": 0.8956,
+  "silver_used": 0.0
+ },
+ "candidates": [
+  {
+   "preprocessing": "normalised",
+   "C": 10.0,
+   "class_weight": "balanced",
+   "temperature": 0.84,
+   "dev_log_loss": 0.8713,
+   "dev_macro_f1": 0.5566,
+   "selected": true
+  },
+  {
+   "preprocessing": "raw",
+   "C": 10.0,
+   "class_weight": "balanced",
+   "temperature": 0.83,
+   "dev_log_loss": 0.8736,
+   "dev_macro_f1": 0.5843,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 3.0,
+   "class_weight": "balanced",
+   "temperature": 0.63,
+   "dev_log_loss": 0.8966,
+   "dev_macro_f1": 0.5741,
+   "selected": false
+  },
+  {
+   "preprocessing": "normalised",
+   "C": 3.0,
+   "class_weight": "balanced",
+   "temperature": 0.65,
+   "dev_log_loss": 0.9014,
+   "dev_macro_f1": 0.5726,
+   "selected": false
+  },
+  {
+   "preprocessing": "normalised",
+   "C": 10.0,
+   "class_weight": null,
+   "temperature": 1.15,
+   "dev_log_loss": 0.9033,
+   "dev_macro_f1": 0.4549,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 10.0,
+   "class_weight": null,
+   "temperature": 1.13,
+   "dev_log_loss": 0.9077,
+   "dev_macro_f1": 0.4305,
+   "selected": false
+  },
+  {
+   "preprocessing": "normalised",
+   "C": 3.0,
+   "class_weight": null,
+   "temperature": 0.96,
+   "dev_log_loss": 0.9148,
+   "dev_macro_f1": 0.4,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 3.0,
+   "class_weight": null,
+   "temperature": 0.95,
+   "dev_log_loss": 0.9187,
+   "dev_macro_f1": 0.3934,
+   "selected": false
+  },
+  {
+   "preprocessing": "normalised",
+   "C": 1.0,
+   "class_weight": null,
+   "temperature": 0.85,
+   "dev_log_loss": 0.9681,
+   "dev_macro_f1": 0.3295,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 1.0,
+   "class_weight": "balanced",
+   "temperature": 0.5,
+   "dev_log_loss": 0.9732,
+   "dev_macro_f1": 0.5665,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 1.0,
+   "class_weight": null,
+   "temperature": 0.84,
+   "dev_log_loss": 0.9744,
+   "dev_macro_f1": 0.3142,
+   "selected": false
+  },
+  {
+   "preprocessing": "normalised",
+   "C": 1.0,
+   "class_weight": "balanced",
+   "temperature": 0.5,
+   "dev_log_loss": 0.992,
+   "dev_macro_f1": 0.5386,
+   "selected": false
+  }
+ ],
+ "calibration": {
+  "method": "temperature scaling (one parameter on the nine logits)",
+  "temperature": 0.84,
+  "fitted_on": "dev rows (annotated, held out from training)",
+  "ece_dev_population_before": 0.0617,
+  "ece_dev_population_after": 0.04,
+  "reliability_dev_population": [
+   {
+    "lo": 0.0,
+    "hi": 0.1,
+    "n": 0,
+    "confidence": 0.0,
+    "accuracy": 0.0
+   },
+   {
+    "lo": 0.1,
+    "hi": 0.2,
+    "n": 0,
+    "confidence": 0.0,
+    "accuracy": 0.0
+   },
+   {
+    "lo": 0.2,
+    "hi": 0.3,
+    "n": 9,
+    "confidence": 0.2766,
+    "accuracy": 0.5609
+   },
+   {
+    "lo": 0.3,
+    "hi": 0.4,
+    "n": 35,
+    "confidence": 0.358,
+    "accuracy": 0.206
+   },
+   {
+    "lo": 0.4,
+    "hi": 0.5,
+    "n": 52,
+    "confidence": 0.453,
+    "accuracy": 0.4904
+   },
+   {
+    "lo": 0.5,
+    "hi": 0.6,
+    "n": 65,
+    "confidence": 0.5558,
+    "accuracy": 0.4818
+   },
+   {
+    "lo": 0.6,
+    "hi": 0.7,
+    "n": 62,
+    "confidence": 0.639,
+    "accuracy": 0.5596
+   },
+   {
+    "lo": 0.7,
+    "hi": 0.8,
+    "n": 67,
+    "confidence": 0.7538,
+    "accuracy": 0.8315
+   },
+   {
+    "lo": 0.8,
+    "hi": 0.9,
+    "n": 82,
+    "confidence": 0.8553,
+    "accuracy": 0.8432
+   },
+   {
+    "lo": 0.9,
+    "hi": 1.0,
+    "n": 150,
+    "confidence": 0.9563,
+    "accuracy": 0.9592
+   }
+  ]
+ },
+ "abstention": {
+  "commit_threshold": 0.5,
+  "rationale": "arg-max of the calibrated 9-class posterior is committed only when its probability is at least this (more likely than not); not tuned. Below it the document is UNCERTAIN; a class flagged unreliable is never asserted.",
+  "dev_population_n": 522,
+  "dev_coverage": 0.8843,
+  "dev_classified_share": 0.192,
+  "dev_classified_precision": 0.5719,
+  "dev_no_event_precision": 0.8846,
+  "route_unreliable_to_uncertain": true,
+  "unreliable_classes": [
+   "MA_CORPORATE_ACTION"
+  ]
+ },
+ "class_reliability": [
+  {
+   "label": "GEOPOLITICAL",
+   "train_examples": 81,
+   "annotated_train": 81,
+   "dev_support": 27,
+   "dev_f1": 0.5652,
+   "status": "ok",
+   "reason": "dev F1 0.57 on 27 rows"
+  },
+  {
+   "label": "MACROECONOMIC",
+   "train_examples": 56,
+   "annotated_train": 56,
+   "dev_support": 18,
+   "dev_f1": 0.5,
+   "status": "ok",
+   "reason": "dev F1 0.50 on 18 rows"
+  },
+  {
+   "label": "CREDIT_FUNDING",
+   "train_examples": 58,
+   "annotated_train": 58,
+   "dev_support": 19,
+   "dev_f1": 0.5926,
+   "status": "ok",
+   "reason": "dev F1 0.59 on 19 rows"
+  },
+  {
+   "label": "MA_CORPORATE_ACTION",
+   "train_examples": 79,
+   "annotated_train": 79,
+   "dev_support": 26,
+   "dev_f1": 0.3182,
+   "status": "unreliable",
+   "reason": "dev F1 0.32 on 26 rows is below 0.35"
+  },
+  {
+   "label": "REGULATORY_LEGAL",
+   "train_examples": 124,
+   "annotated_train": 124,
+   "dev_support": 41,
+   "dev_f1": 0.5714,
+   "status": "ok",
+   "reason": "dev F1 0.57 on 41 rows"
+  },
+  {
+   "label": "PRODUCT_OPERATIONS",
+   "train_examples": 380,
+   "annotated_train": 380,
+   "dev_support": 126,
+   "dev_f1": 0.5282,
+   "status": "ok",
+   "reason": "dev F1 0.53 on 126 rows"
+  },
+  {
+   "label": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "train_examples": 56,
+   "annotated_train": 56,
+   "dev_support": 18,
+   "dev_f1": 0.5806,
+   "status": "ok",
+   "reason": "dev F1 0.58 on 18 rows"
+  },
+  {
+   "label": "MARKET_VALUATION",
+   "train_examples": 137,
+   "annotated_train": 137,
+   "dev_support": 45,
+   "dev_f1": 0.5652,
+   "status": "ok",
+   "reason": "dev F1 0.57 on 45 rows"
+  }
+ ],
+ "evaluations": [
+  {
+   "id": "dev_history",
+   "title": "Held-out dev rows, our own sources (selected on)",
+   "role": "in_domain",
+   "description": "A random quarter of the annotator-labelled history rows (tweets, headlines, GDELT titles), inclusion-weighted to the population. Model selection, calibration and class reliability were decided here, so these numbers are optimistic.",
+   "status": "ok",
+   "note": "",
+   "model": {
+    "n": 522,
+    "weighted": true,
+    "labels": [
+     "GEOPOLITICAL",
+     "MACROECONOMIC",
+     "CREDIT_FUNDING",
+     "MA_CORPORATE_ACTION",
+     "REGULATORY_LEGAL",
+     "PRODUCT_OPERATIONS",
+     "EARNINGS_FINANCIAL_PERFORMANCE",
+     "MARKET_VALUATION",
+     "NONE"
+    ],
+    "accuracy": 0.7681,
+    "macro_f1": 0.5055,
+    "macro_f1_ci95": [
+     0.3579,
+     0.5888
+    ],
+    "event_macro_f1": 0.4611,
+    "per_class": {
+     "GEOPOLITICAL": {
+      "precision": 0.1809,
+      "recall": 0.0962,
+      "f1": 0.1256,
+      "support": 843.13
+     },
+     "MACROECONOMIC": {
+      "precision": 0.5971,
+      "recall": 0.4906,
+      "f1": 0.5387,
+      "support": 646.36
+     },
+     "CREDIT_FUNDING": {
+      "precision": 1.0,
+      "recall": 0.1922,
+      "f1": 0.3224,
+      "support": 451.05
+     },
+     "MA_CORPORATE_ACTION": {
+      "precision": 0.5439,
+      "recall": 0.3287,
+      "f1": 0.4097,
+      "support": 2393.08
+     },
+     "REGULATORY_LEGAL": {
+      "precision": 0.8578,
+      "recall": 0.4661,
+      "f1": 0.604,
+      "support": 5971.79
+     },
+     "PRODUCT_OPERATIONS": {
+      "precision": 0.402,
+      "recall": 0.5851,
+      "f1": 0.4766,
+      "support": 14816.89
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "precision": 1.0,
+      "recall": 0.4376,
+      "f1": 0.6088,
+      "support": 1962.93
+     },
+     "MARKET_VALUATION": {
+      "precision": 0.6367,
+      "recall": 0.5735,
+      "f1": 0.6034,
+      "support": 7710.57
+     },
+     "NONE": {
+      "precision": 0.8619,
+      "recall": 0.859,
+      "f1": 0.8604,
+      "support": 95994.21
+     }
+    },
+    "confusion": [
+     [
+      81.08,
+      54.13,
+      0.0,
+      0.0,
+      54.13,
+      217.93,
+      0.0,
+      217.93,
+      217.93
+     ],
+     [
+      0.0,
+      317.12,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      329.25
+     ],
+     [
+      0.0,
+      0.0,
+      86.69,
+      54.13,
+      0.0,
+      0.0,
+      0.0,
+      136.85,
+      173.38
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      786.49,
+      54.13,
+      407.5,
+      0.0,
+      136.85,
+      1008.11
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      140.82,
+      2783.71,
+      1372.18,
+      0.0,
+      0.0,
+      1675.08
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      190.98,
+      162.39,
+      8668.83,
+      0.0,
+      273.71,
+      5520.99
+     ],
+     [
+      54.13,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      858.91,
+      54.13,
+      995.76
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      4422.09,
+      3288.48
+     ],
+     [
+      312.94,
+      159.83,
+      0.0,
+      273.71,
+      190.98,
+      10897.91,
+      0.0,
+      1703.99,
+      82454.85
+     ]
+    ],
+    "log_loss": 0.6653,
+    "brier": 0.3194,
+    "ece": 0.04,
+    "served": {
+     "macro_f1": 0.4024,
+     "accuracy": 0.7222,
+     "coverage": 0.8843,
+     "accuracy_when_decided": 0.8167,
+     "classified_precision": 0.5719,
+     "status_mix": {
+      "CLASSIFIED": 0.192,
+      "NO_EVENT": 0.6923,
+      "UNCERTAIN": 0.1157
+     },
+     "detection": {
+      "precision": 0.605,
+      "recall": 0.6996,
+      "f1": 0.6489
+     }
+    },
+    "served_f1_ci95": [
+     0.2724,
+     0.4784
+    ]
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.734,
+     "macro_f1": 0.0941,
+     "detection_f1": 0.0
+    },
+    "placeholder_keywords": {
+     "accuracy": 0.1224,
+     "macro_f1": 0.2937,
+     "detection_f1": 0.4203
+    },
+    "tfn_topic_probe": {
+     "accuracy": 0.1,
+     "macro_f1": 0.1563,
+     "detection_f1": 0.4203
+    }
+   }
+  },
+  {
+   "id": "dev_tfn_topics",
+   "title": "Held-out dev rows, TFN topic tweets (relabelled)",
+   "role": "in_domain",
+   "description": "News tweets from the weakly-mapped TFN topics, labelled by the annotator (not the crosswalk), weighted within that sample.",
+   "status": "ok",
+   "note": "",
+   "model": {
+    "n": 242,
+    "weighted": true,
+    "labels": [
+     "GEOPOLITICAL",
+     "MACROECONOMIC",
+     "CREDIT_FUNDING",
+     "MA_CORPORATE_ACTION",
+     "REGULATORY_LEGAL",
+     "PRODUCT_OPERATIONS",
+     "EARNINGS_FINANCIAL_PERFORMANCE",
+     "MARKET_VALUATION",
+     "NONE"
+    ],
+    "accuracy": 0.641,
+    "macro_f1": 0.5074,
+    "macro_f1_ci95": [
+     0.4274,
+     0.5946
+    ],
+    "event_macro_f1": 0.4832,
+    "per_class": {
+     "GEOPOLITICAL": {
+      "precision": 0.7362,
+      "recall": 0.6417,
+      "f1": 0.6857,
+      "support": 472.34
+     },
+     "MACROECONOMIC": {
+      "precision": 0.6341,
+      "recall": 0.2674,
+      "f1": 0.3762,
+      "support": 256.17
+     },
+     "CREDIT_FUNDING": {
+      "precision": 1.0,
+      "recall": 0.2127,
+      "f1": 0.3508,
+      "support": 346.86
+     },
+     "MA_CORPORATE_ACTION": {
+      "precision": 0.2135,
+      "recall": 0.0794,
+      "f1": 0.1158,
+      "support": 480.87
+     },
+     "REGULATORY_LEGAL": {
+      "precision": 0.8511,
+      "recall": 0.759,
+      "f1": 0.8024,
+      "support": 631.09
+     },
+     "PRODUCT_OPERATIONS": {
+      "precision": 0.6788,
+      "recall": 0.6278,
+      "f1": 0.6523,
+      "support": 2570.48
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "precision": 0.6823,
+      "recall": 0.525,
+      "f1": 0.5934,
+      "support": 733.0
+     },
+     "MARKET_VALUATION": {
+      "precision": 0.4269,
+      "recall": 0.2182,
+      "f1": 0.2888,
+      "support": 784.93
+     },
+     "NONE": {
+      "precision": 0.6222,
+      "recall": 0.803,
+      "f1": 0.7011,
+      "support": 5497.75
+     }
+    },
+    "confusion": [
+     [
+      303.12,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      18.44,
+      0.0,
+      0.0,
+      150.77
+     ],
+     [
+      0.0,
+      68.5,
+      0.0,
+      0.0,
+      30.06,
+      18.44,
+      0.0,
+      0.0,
+      139.16
+     ],
+     [
+      0.0,
+      0.0,
+      73.77,
+      10.54,
+      0.0,
+      0.0,
+      0.0,
+      21.08,
+      241.48
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      38.2,
+      0.0,
+      58.31,
+      0.0,
+      0.0,
+      384.36
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      38.2,
+      479.0,
+      0.0,
+      0.0,
+      0.0,
+      113.88
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1613.72,
+      38.2,
+      76.4,
+      842.16
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      38.2,
+      0.0,
+      38.2,
+      384.8,
+      0.0,
+      271.8
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      38.2,
+      38.2,
+      171.24,
+      537.28
+     ],
+     [
+      108.63,
+      39.52,
+      0.0,
+      53.76,
+      53.76,
+      592.06,
+      102.8,
+      132.41,
+      4414.81
+     ]
+    ],
+    "log_loss": 0.9911,
+    "brier": 0.5018,
+    "ece": 0.0925,
+    "served": {
+     "macro_f1": 0.4263,
+     "accuracy": 0.5506,
+     "coverage": 0.7656,
+     "accuracy_when_decided": 0.7192,
+     "classified_precision": 0.7896,
+     "status_mix": {
+      "CLASSIFIED": 0.2599,
+      "NO_EVENT": 0.5057,
+      "UNCERTAIN": 0.2344
+     },
+     "detection": {
+      "precision": 0.754,
+      "recall": 0.6992,
+      "f1": 0.7256
+     }
+    },
+    "served_f1_ci95": [
+     0.3463,
+     0.5114
+    ]
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.467,
+     "macro_f1": 0.0707,
+     "detection_f1": 0.0
+    },
+    "placeholder_keywords": {
+     "accuracy": 0.1893,
+     "macro_f1": 0.3015,
+     "detection_f1": 0.6954
+    },
+    "tfn_topic_probe": {
+     "accuracy": 0.1593,
+     "macro_f1": 0.2029,
+     "detection_f1": 0.6954
+    }
+   }
+  },
+  {
+   "id": "gold_history",
+   "title": "Gold set, our own sources (AI-annotated)",
+   "role": "indicative",
+   "description": "280 tweets, headlines and GDELT titles from the sources EventShock ingests, inclusion-weighted to the population. Frozen before this model existed; no training or model-selection choice used it. One serving-policy change (two tuned abstention thresholds replaced by one fixed 0.5 commit threshold) was made after a first full run: see docs/EVENT_MODEL.md. Labels are AI-annotated.",
+   "status": "ok",
+   "note": "",
+   "model": {
+    "n": 280,
+    "weighted": true,
+    "labels": [
+     "GEOPOLITICAL",
+     "MACROECONOMIC",
+     "CREDIT_FUNDING",
+     "MA_CORPORATE_ACTION",
+     "REGULATORY_LEGAL",
+     "PRODUCT_OPERATIONS",
+     "EARNINGS_FINANCIAL_PERFORMANCE",
+     "MARKET_VALUATION",
+     "NONE"
+    ],
+    "accuracy": 0.7409,
+    "macro_f1": 0.527,
+    "macro_f1_ci95": [
+     0.3692,
+     0.598
+    ],
+    "event_macro_f1": 0.4858,
+    "per_class": {
+     "GEOPOLITICAL": {
+      "precision": 1.0,
+      "recall": 0.1614,
+      "f1": 0.278,
+      "support": 438.53
+     },
+     "MACROECONOMIC": {
+      "precision": 0.878,
+      "recall": 0.8571,
+      "f1": 0.8675,
+      "support": 577.73
+     },
+     "CREDIT_FUNDING": {
+      "precision": 1.0,
+      "recall": 0.7253,
+      "f1": 0.8408,
+      "support": 1001.8
+     },
+     "MA_CORPORATE_ACTION": {
+      "precision": 0.7752,
+      "recall": 0.4042,
+      "f1": 0.5313,
+      "support": 2408.75
+     },
+     "REGULATORY_LEGAL": {
+      "precision": 0.9047,
+      "recall": 0.7768,
+      "f1": 0.8359,
+      "support": 5134.52
+     },
+     "PRODUCT_OPERATIONS": {
+      "precision": 0.4842,
+      "recall": 0.4657,
+      "f1": 0.4748,
+      "support": 22167.22
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 2376.93
+     },
+     "MARKET_VALUATION": {
+      "precision": 0.0964,
+      "recall": 0.0419,
+      "f1": 0.0585,
+      "support": 8219.82
+     },
+     "NONE": {
+      "precision": 0.8143,
+      "recall": 0.9034,
+      "f1": 0.8565,
+      "support": 88806.7
+     }
+    },
+    "confusion": [
+     [
+      70.8,
+      0.0,
+      0.0,
+      190.73,
+      0.0,
+      0.0,
+      0.0,
+      35.4,
+      141.6
+     ],
+     [
+      0.0,
+      495.2,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      82.53
+     ],
+     [
+      0.0,
+      0.0,
+      726.6,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      275.2
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      973.5,
+      0.0,
+      1128.83,
+      0.0,
+      0.0,
+      306.42
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      3988.43,
+      796.33,
+      0.0,
+      0.0,
+      349.75
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      420.35,
+      10323.95,
+      0.0,
+      2168.72,
+      9254.2
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      691.4,
+      1685.53
+     ],
+     [
+      0.0,
+      68.8,
+      0.0,
+      0.0,
+      0.0,
+      918.3,
+      691.4,
+      344.78,
+      6196.53
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      91.57,
+      0.0,
+      8152.63,
+      0.0,
+      336.33,
+      80226.17
+     ]
+    ],
+    "log_loss": 0.7683,
+    "brier": 0.3712,
+    "ece": 0.0691,
+    "served": {
+     "macro_f1": 0.3254,
+     "accuracy": 0.6798,
+     "coverage": 0.8562,
+     "accuracy_when_decided": 0.7939,
+     "classified_precision": 0.5466,
+     "status_mix": {
+      "CLASSIFIED": 0.1516,
+      "NO_EVENT": 0.7046,
+      "UNCERTAIN": 0.1438
+     },
+     "detection": {
+      "precision": 0.728,
+      "recall": 0.6662,
+      "f1": 0.6957
+     }
+    },
+    "served_f1_ci95": [
+     0.2643,
+     0.3813
+    ]
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.6772,
+     "macro_f1": 0.0897,
+     "detection_f1": 0.0
+    },
+    "placeholder_keywords": {
+     "accuracy": 0.124,
+     "macro_f1": 0.3323,
+     "detection_f1": 0.488
+    },
+    "tfn_topic_probe": {
+     "accuracy": 0.1052,
+     "macro_f1": 0.1423,
+     "detection_f1": 0.488
+    }
+   }
+  },
+  {
+   "id": "gold_tfn",
+   "title": "Gold set, TFN-style news tweets (AI-annotated)",
+   "role": "indicative",
+   "description": "120 TFN topic tweets from the gold sample (weighted within the TFN population). Near-duplicates of them were removed from training.",
+   "status": "ok",
+   "note": "",
+   "model": {
+    "n": 120,
+    "weighted": true,
+    "labels": [
+     "GEOPOLITICAL",
+     "MACROECONOMIC",
+     "CREDIT_FUNDING",
+     "MA_CORPORATE_ACTION",
+     "REGULATORY_LEGAL",
+     "PRODUCT_OPERATIONS",
+     "EARNINGS_FINANCIAL_PERFORMANCE",
+     "MARKET_VALUATION",
+     "NONE"
+    ],
+    "accuracy": 0.5764,
+    "macro_f1": 0.5479,
+    "macro_f1_ci95": [
+     0.3926,
+     0.6559
+    ],
+    "event_macro_f1": 0.5387,
+    "per_class": {
+     "GEOPOLITICAL": {
+      "precision": 0.6711,
+      "recall": 0.4603,
+      "f1": 0.5461,
+      "support": 714.33
+     },
+     "MACROECONOMIC": {
+      "precision": 0.9859,
+      "recall": 0.4283,
+      "f1": 0.5971,
+      "support": 3208.33
+     },
+     "CREDIT_FUNDING": {
+      "precision": 0.9663,
+      "recall": 0.9348,
+      "f1": 0.9503,
+      "support": 1426.5
+     },
+     "MA_CORPORATE_ACTION": {
+      "precision": 0.838,
+      "recall": 0.2769,
+      "f1": 0.4162,
+      "support": 1052.17
+     },
+     "REGULATORY_LEGAL": {
+      "precision": 0.8856,
+      "recall": 0.4643,
+      "f1": 0.6092,
+      "support": 867.33
+     },
+     "PRODUCT_OPERATIONS": {
+      "precision": 0.4049,
+      "recall": 0.499,
+      "f1": 0.4471,
+      "support": 1915.33
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "precision": 0.711,
+      "recall": 0.3674,
+      "f1": 0.4844,
+      "support": 1058.0
+     },
+     "MARKET_VALUATION": {
+      "precision": 0.5765,
+      "recall": 0.1671,
+      "f1": 0.2591,
+      "support": 2205.67
+     },
+     "NONE": {
+      "precision": 0.4699,
+      "recall": 0.9178,
+      "f1": 0.6215,
+      "support": 5072.33
+     }
+    },
+    "confusion": [
+     [
+      328.83,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      385.5
+     ],
+     [
+      0.0,
+      1374.0,
+      46.5,
+      0.0,
+      0.0,
+      124.5,
+      0.0,
+      109.5,
+      1553.83
+     ],
+     [
+      0.0,
+      0.0,
+      1333.5,
+      46.5,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      46.5
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      291.33,
+      0.0,
+      643.5,
+      0.0,
+      0.0,
+      117.33
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      402.67,
+      158.0,
+      0.0,
+      0.0,
+      306.67
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      955.83,
+      158.0,
+      0.0,
+      801.5
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      158.0,
+      388.67,
+      0.0,
+      511.33
+     ],
+     [
+      0.0,
+      19.67,
+      0.0,
+      9.83,
+      52.0,
+      226.0,
+      0.0,
+      368.5,
+      1529.67
+     ],
+     [
+      161.17,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      94.83,
+      0.0,
+      161.17,
+      4655.17
+     ]
+    ],
+    "log_loss": 1.3031,
+    "brier": 0.6087,
+    "ece": 0.1862,
+    "served": {
+     "macro_f1": 0.442,
+     "accuracy": 0.5099,
+     "coverage": 0.8345,
+     "accuracy_when_decided": 0.6111,
+     "classified_precision": 0.7531,
+     "status_mix": {
+      "CLASSIFIED": 0.3365,
+      "NO_EVENT": 0.498,
+      "UNCERTAIN": 0.1655
+     },
+     "detection": {
+      "precision": 0.9342,
+      "recall": 0.6601,
+      "f1": 0.7736
+     }
+    },
+    "served_f1_ci95": [
+     0.3023,
+     0.5314
+    ]
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.2895,
+     "macro_f1": 0.0499,
+     "detection_f1": 0.0
+    },
+    "placeholder_keywords": {
+     "accuracy": 0.3174,
+     "macro_f1": 0.3559,
+     "detection_f1": 0.8307
+    },
+    "tfn_topic_probe": {
+     "accuracy": 0.3927,
+     "macro_f1": 0.2835,
+     "detection_f1": 0.8307
+    }
+   }
+  },
+  {
+   "id": "replay_check",
+   "title": "Replay-pack check set (fresh documents)",
+   "role": "in_domain",
+   "description": "Documents of the shipped replay pack (GDELT DOC and GKG titles, TFN tweets) that the model never saw, labelled blind by the annotator, weighted by source. The closest test of what the product serves.",
+   "status": "ok",
+   "note": "1 text(s) the model cannot score were left out.",
+   "model": {
+    "n": 199,
+    "weighted": true,
+    "labels": [
+     "GEOPOLITICAL",
+     "MACROECONOMIC",
+     "CREDIT_FUNDING",
+     "MA_CORPORATE_ACTION",
+     "REGULATORY_LEGAL",
+     "PRODUCT_OPERATIONS",
+     "EARNINGS_FINANCIAL_PERFORMANCE",
+     "MARKET_VALUATION",
+     "NONE"
+    ],
+    "accuracy": 0.6722,
+    "macro_f1": 0.6156,
+    "macro_f1_ci95": [
+     0.4586,
+     0.6911
+    ],
+    "event_macro_f1": 0.6001,
+    "per_class": {
+     "GEOPOLITICAL": {
+      "precision": 1.0,
+      "recall": 0.1856,
+      "f1": 0.3132,
+      "support": 54.62
+     },
+     "MACROECONOMIC": {
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1": 0.8571,
+      "support": 30.42
+     },
+     "CREDIT_FUNDING": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 10.14
+     },
+     "MA_CORPORATE_ACTION": {
+      "precision": 0.6287,
+      "recall": 0.4118,
+      "f1": 0.4977,
+      "support": 83.38
+     },
+     "REGULATORY_LEGAL": {
+      "precision": 0.5643,
+      "recall": 0.5273,
+      "f1": 0.5452,
+      "support": 174.0
+     },
+     "PRODUCT_OPERATIONS": {
+      "precision": 0.5074,
+      "recall": 0.6239,
+      "f1": 0.5597,
+      "support": 358.86
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "precision": 1.0,
+      "recall": 0.181,
+      "f1": 0.3065,
+      "support": 81.23
+     },
+     "MARKET_VALUATION": {
+      "precision": 0.6679,
+      "recall": 0.7839,
+      "f1": 0.7212,
+      "support": 349.51
+     },
+     "NONE": {
+      "precision": 0.7405,
+      "recall": 0.7392,
+      "f1": 0.7398,
+      "support": 1169.49
+     }
+    },
+    "confusion": [
+     [
+      10.14,
+      0.0,
+      0.0,
+      10.14,
+      0.0,
+      10.14,
+      0.0,
+      0.0,
+      24.2
+     ],
+     [
+      0.0,
+      30.42,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      10.14,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      34.34,
+      16.85,
+      0.0,
+      0.0,
+      0.0,
+      32.19
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      91.75,
+      10.14,
+      0.0,
+      7.35,
+      64.76
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      10.14,
+      16.85,
+      223.91,
+      0.0,
+      20.28,
+      87.68
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      14.7,
+      27.63,
+      38.9
+     ],
+     [
+      0.0,
+      10.14,
+      0.0,
+      0.0,
+      0.0,
+      10.14,
+      0.0,
+      273.97,
+      55.26
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      37.13,
+      186.93,
+      0.0,
+      80.97,
+      864.46
+     ]
+    ],
+    "log_loss": 0.95,
+    "brier": 0.4524,
+    "ece": 0.0546,
+    "served": {
+     "macro_f1": 0.5085,
+     "accuracy": 0.5351,
+     "coverage": 0.7087,
+     "accuracy_when_decided": 0.755,
+     "classified_precision": 0.7324,
+     "status_mix": {
+      "CLASSIFIED": 0.3503,
+      "NO_EVENT": 0.3584,
+      "UNCERTAIN": 0.2913
+     },
+     "detection": {
+      "precision": 0.6457,
+      "recall": 0.8384,
+      "f1": 0.7295
+     }
+    },
+    "served_f1_ci95": [
+     0.3813,
+     0.552
+    ]
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.5059,
+     "macro_f1": 0.0747,
+     "detection_f1": 0.0
+    },
+    "placeholder_keywords": {
+     "accuracy": 0.2123,
+     "macro_f1": 0.2507,
+     "detection_f1": 0.6614
+    },
+    "tfn_topic_probe": {
+     "accuracy": 0.2321,
+     "macro_f1": 0.1858,
+     "detection_f1": 0.6614
+    }
+   }
+  },
+  {
+   "id": "tfn_topic_test",
+   "title": "TFN topic test split (crosswalk labels)",
+   "role": "secondary",
+   "description": "The old benchmark: TFN test tweets with the topic->class crosswalk as label. Reported only to show how different it is from event classification on our own sources (a tweet about earnings is often a scheduling notice here, NONE there).",
+   "status": "ok",
+   "note": "Crosswalk (weak) labels; strong and medium tiers only; the model may say NONE or UNCERTAIN, which counts as wrong here.",
+   "model": {
+    "n": 585,
+    "weighted": false,
+    "labels": [
+     "GEOPOLITICAL",
+     "MACROECONOMIC",
+     "CREDIT_FUNDING",
+     "MA_CORPORATE_ACTION",
+     "REGULATORY_LEGAL",
+     "PRODUCT_OPERATIONS",
+     "EARNINGS_FINANCIAL_PERFORMANCE",
+     "MARKET_VALUATION",
+     "NONE"
+    ],
+    "accuracy": 0.3658,
+    "macro_f1": 0.3186,
+    "macro_f1_ci95": [
+     0.2808,
+     0.3518
+    ],
+    "event_macro_f1": 0.4779,
+    "per_class": {
+     "GEOPOLITICAL": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0.0
+     },
+     "MACROECONOMIC": {
+      "precision": 0.8144,
+      "recall": 0.316,
+      "f1": 0.4553,
+      "support": 250.0
+     },
+     "CREDIT_FUNDING": {
+      "precision": 0.4706,
+      "recall": 0.3478,
+      "f1": 0.4,
+      "support": 23.0
+     },
+     "MA_CORPORATE_ACTION": {
+      "precision": 0.6154,
+      "recall": 0.3137,
+      "f1": 0.4156,
+      "support": 51.0
+     },
+     "REGULATORY_LEGAL": {
+      "precision": 0.5862,
+      "recall": 0.3542,
+      "f1": 0.4416,
+      "support": 48.0
+     },
+     "PRODUCT_OPERATIONS": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0.0
+     },
+     "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "precision": 0.9,
+      "recall": 0.4576,
+      "f1": 0.6067,
+      "support": 118.0
+     },
+     "MARKET_VALUATION": {
+      "precision": 0.7843,
+      "recall": 0.4211,
+      "f1": 0.5479,
+      "support": 95.0
+     },
+     "NONE": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 0.0
+     }
+    },
+    "confusion": [
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      20.0,
+      79.0,
+      4.0,
+      3.0,
+      8.0,
+      34.0,
+      5.0,
+      3.0,
+      94.0
+     ],
+     [
+      0.0,
+      3.0,
+      8.0,
+      1.0,
+      0.0,
+      3.0,
+      0.0,
+      1.0,
+      7.0
+     ],
+     [
+      0.0,
+      0.0,
+      2.0,
+      16.0,
+      2.0,
+      9.0,
+      0.0,
+      1.0,
+      21.0
+     ],
+     [
+      0.0,
+      0.0,
+      2.0,
+      5.0,
+      17.0,
+      2.0,
+      0.0,
+      1.0,
+      21.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      2.0,
+      0.0,
+      1.0,
+      1.0,
+      10.0,
+      54.0,
+      5.0,
+      45.0
+     ],
+     [
+      0.0,
+      13.0,
+      1.0,
+      0.0,
+      1.0,
+      7.0,
+      1.0,
+      40.0,
+      32.0
+     ],
+     [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    ],
+    "log_loss": 1.9286,
+    "brier": 0.8366,
+    "ece": 0.2498,
+    "served": {
+     "macro_f1": 0.2282,
+     "accuracy": 0.2479,
+     "coverage": 0.6,
+     "accuracy_when_decided": 0.4131,
+     "classified_precision": 0.6776,
+     "status_mix": {
+      "CLASSIFIED": 0.3658,
+      "NO_EVENT": 0.2342,
+      "UNCERTAIN": 0.4
+     },
+     "detection": {
+      "precision": 1.0,
+      "recall": 0.7658,
+      "f1": 0.8674
+     }
+    },
+    "served_f1_ci95": [
+     0.1938,
+     0.2631
+    ]
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.0,
+     "macro_f1": 0.0,
+     "detection_f1": 0.0
+    },
+    "placeholder_keywords": {
+     "accuracy": 0.506,
+     "macro_f1": 0.4162,
+     "detection_f1": 1.0
+    },
+    "tfn_topic_probe": {
+     "accuracy": 0.9128,
+     "macro_f1": 0.8804,
+     "detection_f1": 1.0
+    }
+   }
+  }
+ ],
+ "acceptance": {
+  "rule": "Pre-registered: served 9-class macro-F1 CI lower bound above every baseline on gold_history and replay_check, and event-vs-NONE F1 on gold_history not below the best baseline. Reported either way.",
+  "met": false,
+  "checks": [
+   {
+    "name": "served macro-F1 on gold history rows: CI lower bound above the best baseline",
+    "model": 0.2643,
+    "baseline": 0.3323,
+    "detail": "model 0.325 [0.264, 0.381] vs best baseline 0.332",
+    "passed": false
+   },
+   {
+    "name": "served macro-F1 on replay check set: CI lower bound above the best baseline",
+    "model": 0.3813,
+    "baseline": 0.2507,
+    "detail": "model 0.508 [0.381, 0.552] vs best baseline 0.251",
+    "passed": true
+   },
+   {
+    "name": "event-vs-NONE F1 on gold history rows at least the best baseline's",
+    "model": 0.6957,
+    "baseline": 0.488,
+    "detail": "model 0.696 vs 0.488",
+    "passed": true
+   }
+  ]
+ },
+ "confident_errors": [
+  {
+   "eval_set": "gold_history",
+   "text": "\"I drove the Tesla last night. A big heads up to every short. First time in a Tesla. The car is a spaceship. I wouldn't get in the way of @elonmusk ... you don'",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.983,
+   "confidence": 0.4144
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Cramer reveals the biggest winners and losers from the JP Morgan Healthcare Conference",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.9746,
+   "confidence": 0.5502
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Cramer Remix: This stock is like Tesla, except it's making money",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.9671,
+   "confidence": 0.4251
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Cramer's lightning round: McDonald's stock could be going to $200",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.964,
+   "confidence": 0.6369
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Jimmy just said $TSLA is a buy here https://t.co/PlNCEBswrZ",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.9611,
+   "confidence": 0.5504
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "$CELH announced a strategic investment by $PEP. This is a tried and true strategy and a great example of how the stock market machine operates. $CELH was strong",
+   "truth": "MA_CORPORATE_ACTION",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.9578,
+   "confidence": 0.4439
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Just met with @SundarPichai, President of @Google, who is obviously doing quite well. He stated strongly that he is totally committed to the U.S. Military, not ",
+   "truth": "GEOPOLITICAL",
+   "served": "NO_EVENT",
+   "top_class": "GEOPOLITICAL",
+   "p_none": 0.9552,
+   "confidence": 0.485
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Cramer's lightning round: 'Take a look at Boeing'",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.95,
+   "confidence": 0.3635
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Cramer's lightning round: You buy Johnson & Johnson",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.9499,
+   "confidence": 0.4975
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Embargo over! We drove the @NIOGlobal ET7 on Sunday - the EV world is in for a huge shock. Competent, refined, and speedy luxury for such a compelling price. NI",
+   "truth": "PRODUCT_OPERATIONS",
+   "served": "NO_EVENT",
+   "top_class": "REGULATORY_LEGAL",
+   "p_none": 0.9493,
+   "confidence": 0.3219
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "I held the Asus ProArt P14 next to my MacBook Pro 14 — and Apple should be genuinely terrified of Nvidia's RTX Spark",
+   "truth": "PRODUCT_OPERATIONS",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.9459,
+   "confidence": 0.4311
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Tech Sector Review: Apple Joins The Party - http://seeitmarket.com/tech-sector-review-apple-aapl-joins-party-16079/... blog by @DDCapitalFund $XLK $AAPL",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "REGULATORY_LEGAL",
+   "p_none": 0.9442,
+   "confidence": 0.2802
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "$AAPL They have tons of cash, so why not? https://bloomberg.com/news/articles/2017-05-04/apple-buys-more-company-debt-than-the-world-s-biggest-bond-funds...",
+   "truth": "CREDIT_FUNDING",
+   "served": "NO_EVENT",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.9439,
+   "confidence": 0.3031
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "CNBC is being very positive on $TSLA results so far. Seems weird. https://t.co/Emtg5x9cu8",
+   "truth": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "served": "NO_EVENT",
+   "top_class": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "p_none": 0.942,
+   "confidence": 0.3748
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "$AMZN upgraded by Stifel $2400. What's @smartertrader going to do with his puts? LMAO! Oh my, Stupid getting stupid.",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.9416,
+   "confidence": 0.677
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "Boeing Demand Is Strong. Can Production Finally Catch Up?",
+   "truth": "NONE",
+   "served": "CLASSIFIED:PRODUCT_OPERATIONS",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.0356,
+   "confidence": 0.977
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "Why is Meta stock surging after Muse AI launch? How will the AI agent make money?",
+   "truth": "PRODUCT_OPERATIONS",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.9175,
+   "confidence": 0.7511
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "TFI International to add investment executive to board",
+   "truth": "NONE",
+   "served": "CLASSIFIED:PRODUCT_OPERATIONS",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.1179,
+   "confidence": 0.9826
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "US Supreme Court Alito wont participate in climate case involving oil companies | WTVB | 1590 AM · 95.5 FM",
+   "truth": "REGULATORY_LEGAL",
+   "served": "NO_EVENT",
+   "top_class": "REGULATORY_LEGAL",
+   "p_none": 0.8189,
+   "confidence": 0.277
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "EXCLUSIVE: Small AI Model Matches GPT - 4.1 at Forecasting as Olas Founding Member Says Frontier Models Face Increasing Economic Pressure",
+   "truth": "NONE",
+   "served": "CLASSIFIED:PRODUCT_OPERATIONS",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.0792,
+   "confidence": 0.8611
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "Arshiner Launches Spooktacularly You Pre - Halloween",
+   "truth": "NONE",
+   "served": "CLASSIFIED:PRODUCT_OPERATIONS",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.1501,
+   "confidence": 0.9275
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "US Stock Futures Rise as Meta Muse Fuels AI Rally",
+   "truth": "PRODUCT_OPERATIONS",
+   "served": "CLASSIFIED:MARKET_VALUATION",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.043,
+   "confidence": 0.8034
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "BofA identifies Russell 2000 stocks positioned for Fed hiking cycles (IWM: NYSEARCA)",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.7638,
+   "confidence": 0.5359
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "Aveo : Schemes - Final Election Results #Aveo #Stock #MarketScreener",
+   "truth": "MA_CORPORATE_ACTION",
+   "served": "NO_EVENT",
+   "top_class": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "p_none": 0.7407,
+   "confidence": 0.4763
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "Barclays Issues Pessimistic Forecast for Kimco Realty (NYSE: KIM) Stock Price",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.7368,
+   "confidence": 0.6789
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "News About Muse Drove a 1 - Day 11% Jump in Meta Stock. But the AI Agent Could Be Even More Valuable Than the Market Is Giving It Credit For.",
+   "truth": "PRODUCT_OPERATIONS",
+   "served": "NO_EVENT",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.7343,
+   "confidence": 0.3941
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "September series selloff broadens beyond largecaps, SMIDs join the correction",
+   "truth": "MARKET_VALUATION",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.7318,
+   "confidence": 0.7408
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "Converse pulls controversial ad, apologizes following backlash over alleged KKK imagery",
+   "truth": "NONE",
+   "served": "CLASSIFIED:REGULATORY_LEGAL",
+   "top_class": "REGULATORY_LEGAL",
+   "p_none": 0.2087,
+   "confidence": 0.8921
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "UnitedHealthcare Is Dropping Prior Authorization for Roughly 1,700 Medical Procedures in October. Only About 120 Apply to Medicare Advantage, Where It Denied 17",
+   "truth": "PRODUCT_OPERATIONS",
+   "served": "NO_EVENT",
+   "top_class": "PRODUCT_OPERATIONS",
+   "p_none": 0.6935,
+   "confidence": 0.2872
+  },
+  {
+   "eval_set": "replay_check",
+   "text": "Is Caterpillar the Best Industrials Stock to Buy Right Now?",
+   "truth": "NONE",
+   "served": "CLASSIFIED:MARKET_VALUATION",
+   "top_class": "MARKET_VALUATION",
+   "p_none": 0.2506,
+   "confidence": 0.9151
+  }
+ ],
+ "limitations": [
+  "Labels are produced by an AI annotator (Claude) following the project's labelling guide, not by humans, and the gold set is annotated by the same family: shared bias is possible and is not measured. The annotator's self-consistency (training labels) bounds noise only. A human adjudication of the 60 queued gold rows is still outstanding.",
+  "The abstention policy was changed once after a first full evaluation (from two tuned thresholds to one fixed commit threshold). The first run's numbers are kept in docs/evidence/ and discussed in docs/EVENT_MODEL.md; the gold and replay-check sets are therefore not perfectly untouched by design choices.",
+  "Roughly 3,000 annotated rows. Rare classes (GEOPOLITICAL, CREDIT_FUNDING, ...) have few examples: see the per-class reliability table. A class flagged unreliable is never asserted; its documents are shown as UNCERTAIN.",
+  "NONE (not a market event) is a judgement call (a scheduling notice, a promotion, an opinion without a fact). A different convention would move the NONE rate and the EARNINGS numbers.",
+  "Dev rows select the model, fit its calibration and decide which classes are flagged unreliable. Scores on dev rows are therefore optimistic: use the gold and replay-check rows, which no choice depended on.",
+  "Event type is judged from the headline or tweet alone (no article body, no price data). Multi-event texts get the dominant event only; there is no second label.",
+  "Bag-of-words model: it does not understand negation scope, numbers or entities (it classifies the text, not the company).",
+  "The model was fitted on train only and never refitted on dev, so it uses about 75% of the annotated rows.",
+  "TFN crosswalk silver rows (if used) carry topic-derived, not event-derived, labels; the ablation in this card shows whether they helped.",
+  "Probability calibration was fitted on dev rows; on other sources probabilities can be over-confident (see ECE per evaluation set)."
+ ]
+}
