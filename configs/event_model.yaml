@@ -1,0 +1,69 @@
+# Event classification model (the second real NLP stage). Everything that decides what the model is lives here, not in code;
+# values are validated at startup, a typo fails loudly. Changing training-relevant values changes the artifact: bump `version`.
+version: "tfidf-lr-event-v1"
+model_dir: models/event/tfidf-lr-event-v1   # model.joblib + model_card.json (committed; the API refuses to start without them)
+table: data/modeling/event_train.jsonl      # annotated rows + TFN silver, split (python -m eventshock.modeling event-table)
+labels_file: data/event_labels/event_labels.csv   # the annotator's labels (blind sheets filled in; committed)
+manifest_file: data/event_labels/manifest.json    # strata, weights and split of every labelled row
+seed: 20261005
+
+# ---- labelling pools (python -m eventshock.modeling event-pools). Rows are drawn from our own sources and the TFN topic corpus
+# and never overlap the gold set (by id, or by near-duplicate text). The annotator sees only id, source, ticker and text.
+labels:
+  seed: 20261006
+  near_duplicate_threshold: 0.8        # candidates this close to a gold text / TFN text are dropped; template spam is collapsed to one
+  population_per_source:               # exact simple random samples of the (template-collapsed) population: the unbiased NONE rate
+    top-tweets: 400
+    stock-tweets: 400
+    headlines: 400
+    gdelt-gkg: 500
+  rare_per_class: 60                   # candidates whose PLACEHOLDER keyword class is this one: used to FIND rare events, never as labels
+  tfn_topic_rows:                      # TFN topic id -> rows. Relabelled by the annotator: the topic is not trusted as the label
+    2: 130    # Company | Product News (0 trainable rows in the crosswalk: PRODUCT_OPERATIONS must come from here)
+    3: 100    # Treasuries | Corporate Debt (CREDIT_FUNDING is thin)
+    5: 100    # Earnings (70% scheduling notices)
+    6: 100    # Energy | Oil (unmapped; holds GEOPOLITICAL and MACRO)
+    9: 110    # General News | Opinion (unmapped)
+    16: 130   # Politics (GEOPOLITICAL has no trainable rows)
+    17: 100   # Personnel Change (unmapped)
+    18: 90    # Stock Commentary
+    19: 90    # Stock Movement
+  replay_check:                        # fresh documents of the served replay pack: evaluation only, never trained on
+    gdelt-doc: 100
+    gdelt-gkg: 60
+    tfn-replay: 40
+  consistency_rows: 200                # re-labelled blind by a second pass: the annotator's self-agreement bounds label noise
+  dev_fraction: 0.25                   # share of annotated rows (by near-duplicate group, stratified) held out for selection
+
+# ---- training. TFN silver (topic crosswalk, strong+medium tiers) is an optional extra source: an ablation on dev decides.
+silver:
+  use: true
+  max_rows_per_class: 600              # silver is capped so it cannot swamp the in-domain labels
+  sample_weight: 0.5                   # annotated rows weigh 1.0
+word: {ngram_range: [1, 2], min_df: 2}
+char: {ngram_range: [2, 5], min_df: 3}
+max_iter: 1000
+grid:
+  preprocessing: [raw, normalised]
+  C: [1, 3, 10]
+  class_weight: [balanced, null]
+selection_rule: valid_log_loss_after_temperature
+temperature_grid: [0.5, 4.0, 0.01]
+
+# ---- what the served model is allowed to claim. One rule on the calibrated nine-class posterior (see pipeline/event_model.py):
+# the arg-max class is committed (NO_EVENT if it is NONE, else CLASSIFIED) only when its probability reaches `commit_threshold`;
+# otherwise the document is UNCERTAIN. 0.5 is "more likely than not", which is meaningful because the probabilities are calibrated;
+# it is deliberately not tuned (a first two-threshold tuned policy was tried and dropped, see docs/EVENT_MODEL.md).
+abstention:
+  commit_threshold: 0.5
+  min_train_examples: 40               # a class with fewer annotated + silver training rows is flagged unreliable
+  min_dev_support: 8                   # below this a class's dev F1 is reported as unmeasured, not trusted
+  dev_f1_floor: 0.35                   # measured dev F1 below this -> unreliable
+  route_unreliable_to_uncertain: true  # an unreliable class is never asserted: the signal becomes UNCERTAIN instead
+
+evaluation:
+  ece_bins: 10
+  bootstrap_resamples: 1000
+  bootstrap_seed: 7
+  confident_errors: 15
+  near_duplicate_threshold: 0.7

@@ -7,7 +7,7 @@ GDELT_THROTTLE ?= 20
 PRICES_START ?= 2014-01-01
 PRICES_END ?= 2026-10-02
 
-.PHONY: audit probe gold-sample gold-validate gold-score train-sentiment fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
+.PHONY: audit probe gold-sample gold-validate gold-score train-sentiment train-event event-pools event-merge event-table fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
 
 setup: setup-api setup-web  ## install everything
 
@@ -88,6 +88,18 @@ probe:  ## seconds-long classical baselines on the audit tables (needs `uv pip i
 
 train-sentiment:  ## train + select + calibrate + evaluate the sentiment model -> models/sentiment/ (needs data/modeling/sentiment.jsonl; ~1 min)
 	$(PY) -m eventshock.modeling train-sentiment
+
+event-pools:  ## draw the blind event-labelling batches into data/event_labels/batches (refuses to overwrite labels)
+	$(PY) -m eventshock.modeling event-pools
+
+event-merge:  ## validate the annotator's answers (data/event_labels/answers/*.jsonl) and merge them into event_labels.csv
+	$(PY) -m eventshock.modeling event-merge
+
+event-table:  ## build data/modeling/event_train.jsonl (annotated rows + capped TFN silver) and verify it is disjoint from gold/replay-check
+	$(PY) -m eventshock.modeling event-table
+
+train-event:  ## train + tune + calibrate + evaluate the event model -> models/event/ (needs data/modeling/event_train.jsonl)
+	$(PY) -m eventshock.modeling train-event
 
 gold-sample:  ## draw the blind gold sample into data/gold (refuses to overwrite labels)
 	$(PY) -m eventshock.modeling gold-sample

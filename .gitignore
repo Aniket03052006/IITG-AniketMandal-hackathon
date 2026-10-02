@@ -25,8 +25,13 @@ data/history/
 data/modeling/*
 # ...except the TFN sentiment table (2 MB, MIT data): `make train-sentiment` must work from a clone
 !data/modeling/sentiment.jsonl
+# ...and the event training table (annotated + silver rows, a few MB; CC0 / MIT / GDELT-metadata sources): `make train-event` must work from a clone
+!data/modeling/event_train.jsonl
 .kilo/
 
 # Local tooling state (kept on disk, not in the repo)
 .claude/
 .hallmark/
+
+# Blind annotation batches are regenerable from the manifest (`make event-pools` is refused once labels exist); answers and labels are committed
+data/event_labels/batches/

@@ -209,3 +209,84 @@ def load_sentiment_model_config(config_dir: Path) -> SentimentModelConfig:
         return SentimentModelConfig.model_validate(_load(path))
     except ValueError as exc:
         raise ConfigError(f"invalid {path}: {exc}") from exc
+
+
+class EventLabelsConfig(_Strict):
+    """How the annotation pools are drawn (modeling.event_labels). Nothing here is a model hyper-parameter."""
+
+    seed: int
+    near_duplicate_threshold: float = Field(gt=0, le=1)
+    population_per_source: dict[str, int]
+    rare_per_class: int = Field(ge=0)
+    tfn_topic_rows: dict[int, int]
+    replay_check: dict[str, int]
+    consistency_rows: int = Field(ge=0)
+    dev_fraction: float = Field(gt=0, lt=0.5)
+
+    @model_validator(mode="after")
+    def _valid(self) -> EventLabelsConfig:
+        for name, d in (("population_per_source", self.population_per_source), ("tfn_topic_rows", self.tfn_topic_rows),
+                        ("replay_check", self.replay_check)):
+            if any(n <= 0 for n in d.values()):
+                raise ValueError(f"{name}: every quota must be positive")
+        return self
+
+
+class SilverConfig(_Strict):
+    use: bool
+    max_rows_per_class: int = Field(ge=1)
+    sample_weight: float = Field(gt=0, le=1)
+
+
+class AbstentionConfig(_Strict):
+    commit_threshold: float = Field(gt=0, lt=1)
+    min_train_examples: int = Field(ge=1)
+    min_dev_support: int = Field(ge=1)
+    dev_f1_floor: float = Field(ge=0, lt=1)
+    route_unreliable_to_uncertain: bool
+
+
+class EventEvalConfig(_Strict):
+    ece_bins: int = Field(default=10, ge=2)
+    bootstrap_resamples: int = Field(default=1000, ge=100)
+    bootstrap_seed: int = 7
+    confident_errors: int = Field(default=15, ge=0)
+    near_duplicate_threshold: float = Field(default=0.7, gt=0, le=1)
+
+
+class EventModelConfig(_Strict):
+    """configs/event_model.yaml: how the event model is labelled, trained, selected, evaluated and where it lives."""
+
+    version: str
+    model_dir: str
+    table: str
+    labels_file: str
+    manifest_file: str
+    seed: int
+    labels: EventLabelsConfig
+    silver: SilverConfig
+    word: WordFeatures = WordFeatures()
+    char: CharFeatures = CharFeatures()
+    max_iter: int = Field(default=1000, ge=100)
+    grid: CandidateGrid
+    selection_rule: str = "valid_log_loss_after_temperature"
+    temperature_grid: tuple[float, float, float] = (0.5, 4.0, 0.01)
+    abstention: AbstentionConfig
+    evaluation: EventEvalConfig = EventEvalConfig()
+
+    @model_validator(mode="after")
+    def _valid(self) -> EventModelConfig:
+        if self.selection_rule != "valid_log_loss_after_temperature":
+            raise ValueError("unknown selection_rule")
+        lo, hi, step = self.temperature_grid
+        if not 0 < lo < hi or step <= 0:
+            raise ValueError("temperature_grid must be (lo, hi, step) with 0 < lo < hi and step > 0")
+        return self
+
+
+def load_event_model_config(config_dir: Path) -> EventModelConfig:
+    path = config_dir / "event_model.yaml"
+    try:
+        return EventModelConfig.model_validate(_load(path))
+    except ValueError as exc:
+        raise ConfigError(f"invalid {path}: {exc}") from exc

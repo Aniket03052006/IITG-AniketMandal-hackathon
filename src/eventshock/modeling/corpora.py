@@ -154,7 +154,8 @@ def stratified_group_split(group_labels: dict[int, str], sizes: dict[int, int], 
     for lab in sorted(by_label):
         total = sum(sizes[g] for g in by_label[lab]) + sum(sizes[g] for g, v in out.items() if group_labels[g] == lab)
         got = {s: 0.0 for s in fractions}
-        got["test"] += sum(sizes[g] for g, v in out.items() if group_labels[g] == lab)
+        if "test" in got:  # forced-test groups only exist (and only count toward a share) when the split has a test side
+            got["test"] += sum(sizes[g] for g, v in out.items() if group_labels[g] == lab)
         for g in sorted(by_label[lab], key=lambda x: hashlib.sha256(f"{seed}:{x}".encode()).hexdigest()):
             split = max(fractions, key=lambda s: fractions[s] * total - got[s])
             out[g] = split
