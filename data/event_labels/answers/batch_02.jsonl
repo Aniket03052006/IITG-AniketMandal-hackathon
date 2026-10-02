@@ -1,0 +1,200 @@
+{"label_id": "E0201", "event_class": "NONE", "secondary_class": "", "notes": "opinion/chatter"}
+{"label_id": "E0202", "event_class": "NONE", "secondary_class": "", "notes": "criminal trial of individual, no company event"}
+{"label_id": "E0203", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0204", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0205", "event_class": "NONE", "secondary_class": "", "notes": "promotional link"}
+{"label_id": "E0206", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "airport passenger cap, operational disruption"}
+{"label_id": "E0207", "event_class": "REGULATORY_LEGAL", "secondary_class": "MA_CORPORATE_ACTION", "notes": "court filing over canceled deal"}
+{"label_id": "E0208", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E0209", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "analyst view on competitive threat"}
+{"label_id": "E0210", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E0211", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "product development report"}
+{"label_id": "E0212", "event_class": "NONE", "secondary_class": "", "notes": "spam price chatter"}
+{"label_id": "E0213", "event_class": "NONE", "secondary_class": "", "notes": "opinion question"}
+{"label_id": "E0214", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "central bank economist on Brexit"}
+{"label_id": "E0215", "event_class": "NONE", "secondary_class": "", "notes": "generic gainers list"}
+{"label_id": "E0216", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "recall warning"}
+{"label_id": "E0217", "event_class": "NONE", "secondary_class": "", "notes": "minor hire, no risk relevance"}
+{"label_id": "E0218", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E0219", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0220", "event_class": "NONE", "secondary_class": "", "notes": "CEO opinion on oil prices, unsure"}
+{"label_id": "E0221", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E0222", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E0223", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E0224", "event_class": "NONE", "secondary_class": "", "notes": "trade call"}
+{"label_id": "E0225", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "sales volume numbers"}
+{"label_id": "E0226", "event_class": "NONE", "secondary_class": "", "notes": "prediction/opinion"}
+{"label_id": "E0227", "event_class": "NONE", "secondary_class": "", "notes": "watchlist chatter"}
+{"label_id": "E0228", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "aircraft order talks"}
+{"label_id": "E0229", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E0230", "event_class": "NONE", "secondary_class": "", "notes": "usage ranking"}
+{"label_id": "E0231", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E0232", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "supplier factory investment"}
+{"label_id": "E0233", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E0234", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "analyst opinion"}
+{"label_id": "E0235", "event_class": "NONE", "secondary_class": "", "notes": "earnings ticker list"}
+{"label_id": "E0236", "event_class": "NONE", "secondary_class": "", "notes": "retail deal promotion"}
+{"label_id": "E0237", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "worker safety report"}
+{"label_id": "E0238", "event_class": "NONE", "secondary_class": "", "notes": "movers list"}
+{"label_id": "E0239", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "infrastructure investment"}
+{"label_id": "E0240", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0241", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "venture stake lead"}
+{"label_id": "E0242", "event_class": "NONE", "secondary_class": "", "notes": "price chatter"}
+{"label_id": "E0243", "event_class": "NONE", "secondary_class": "", "notes": "question"}
+{"label_id": "E0244", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0245", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0246", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "MARKET_VALUATION", "notes": "data scandal exposure, opinion-framed"}
+{"label_id": "E0247", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0248", "event_class": "NONE", "secondary_class": "", "notes": "price speculation"}
+{"label_id": "E0249", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0250", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E0251", "event_class": "NONE", "secondary_class": "", "notes": "insult"}
+{"label_id": "E0252", "event_class": "NONE", "secondary_class": "", "notes": "options chart"}
+{"label_id": "E0253", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E0254", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0255", "event_class": "NONE", "secondary_class": "", "notes": "chart analysis"}
+{"label_id": "E0256", "event_class": "NONE", "secondary_class": "", "notes": "no content"}
+{"label_id": "E0257", "event_class": "NONE", "secondary_class": "", "notes": "dismissive commentary on Fed minutes, unsure"}
+{"label_id": "E0258", "event_class": "NONE", "secondary_class": "", "notes": "trading plan"}
+{"label_id": "E0259", "event_class": "NONE", "secondary_class": "", "notes": "teaser link"}
+{"label_id": "E0260", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0261", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "ROIC fact, opinion framed"}
+{"label_id": "E0262", "event_class": "NONE", "secondary_class": "", "notes": "awards, no risk relevance"}
+{"label_id": "E0263", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0264", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0265", "event_class": "NONE", "secondary_class": "", "notes": "spam"}
+{"label_id": "E0266", "event_class": "NONE", "secondary_class": "", "notes": "consumer how-to"}
+{"label_id": "E0267", "event_class": "NONE", "secondary_class": "", "notes": "watchlist"}
+{"label_id": "E0268", "event_class": "NONE", "secondary_class": "", "notes": "promotion"}
+{"label_id": "E0269", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E0270", "event_class": "NONE", "secondary_class": "", "notes": "irrelevant"}
+{"label_id": "E0271", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0272", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E0273", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E0274", "event_class": "NONE", "secondary_class": "", "notes": "generic price remark"}
+{"label_id": "E0275", "event_class": "NONE", "secondary_class": "", "notes": "speculation"}
+{"label_id": "E0276", "event_class": "NONE", "secondary_class": "", "notes": "ETF distribution notice, spam tickers"}
+{"label_id": "E0277", "event_class": "NONE", "secondary_class": "", "notes": "commentary, unclear event"}
+{"label_id": "E0278", "event_class": "NONE", "secondary_class": "", "notes": "mention stats"}
+{"label_id": "E0279", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E0280", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0281", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0282", "event_class": "NONE", "secondary_class": "", "notes": "options flow list"}
+{"label_id": "E0283", "event_class": "NONE", "secondary_class": "", "notes": "promotion"}
+{"label_id": "E0284", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0285", "event_class": "NONE", "secondary_class": "", "notes": "explainer"}
+{"label_id": "E0286", "event_class": "NONE", "secondary_class": "", "notes": "consumer column"}
+{"label_id": "E0287", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0288", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "attraction closure after injuries"}
+{"label_id": "E0289", "event_class": "NONE", "secondary_class": "", "notes": "generic price remark"}
+{"label_id": "E0290", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0291", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "possible partnership report, ambiguous"}
+{"label_id": "E0292", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "key engineer departure"}
+{"label_id": "E0293", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "customs clearance resolution"}
+{"label_id": "E0294", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E0295", "event_class": "NONE", "secondary_class": "", "notes": "opinion/prediction"}
+{"label_id": "E0296", "event_class": "NONE", "secondary_class": "", "notes": "calendar of dates"}
+{"label_id": "E0297", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E0298", "event_class": "NONE", "secondary_class": "", "notes": "promo"}
+{"label_id": "E0299", "event_class": "NONE", "secondary_class": "", "notes": "opinion on capital allocation"}
+{"label_id": "E0300", "event_class": "NONE", "secondary_class": "", "notes": "opinion headline"}
+{"label_id": "E0301", "event_class": "NONE", "secondary_class": "", "notes": "rumor"}
+{"label_id": "E0302", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E0303", "event_class": "NONE", "secondary_class": "", "notes": "trivia"}
+{"label_id": "E0304", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0305", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0306", "event_class": "NONE", "secondary_class": "", "notes": "how-to"}
+{"label_id": "E0307", "event_class": "NONE", "secondary_class": "", "notes": "joke"}
+{"label_id": "E0308", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E0309", "event_class": "NONE", "secondary_class": "", "notes": "page blocking, minor, unclear company impact"}
+{"label_id": "E0310", "event_class": "NONE", "secondary_class": "", "notes": "chart remark"}
+{"label_id": "E0311", "event_class": "NONE", "secondary_class": "", "notes": "trade brag"}
+{"label_id": "E0312", "event_class": "NONE", "secondary_class": "", "notes": "ticker list"}
+{"label_id": "E0313", "event_class": "NONE", "secondary_class": "", "notes": "joke"}
+{"label_id": "E0314", "event_class": "NONE", "secondary_class": "", "notes": "consumer how-to"}
+{"label_id": "E0315", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E0316", "event_class": "NONE", "secondary_class": "", "notes": "feature explainer"}
+{"label_id": "E0317", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0318", "event_class": "NONE", "secondary_class": "", "notes": "human interest"}
+{"label_id": "E0319", "event_class": "NONE", "secondary_class": "", "notes": "trade idea"}
+{"label_id": "E0320", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0321", "event_class": "NONE", "secondary_class": "", "notes": "advice"}
+{"label_id": "E0322", "event_class": "NONE", "secondary_class": "", "notes": "speculation about settlement"}
+{"label_id": "E0323", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0324", "event_class": "NONE", "secondary_class": "", "notes": "price remark"}
+{"label_id": "E0325", "event_class": "NONE", "secondary_class": "", "notes": "personal plan"}
+{"label_id": "E0326", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "trade deal"}
+{"label_id": "E0327", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "production lag"}
+{"label_id": "E0328", "event_class": "NONE", "secondary_class": "", "notes": "conference participation"}
+{"label_id": "E0329", "event_class": "NONE", "secondary_class": "", "notes": "feature story"}
+{"label_id": "E0330", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "fleet deliveries"}
+{"label_id": "E0331", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "partnership"}
+{"label_id": "E0332", "event_class": "NONE", "secondary_class": "", "notes": "question"}
+{"label_id": "E0333", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0334", "event_class": "NONE", "secondary_class": "", "notes": "watchlist"}
+{"label_id": "E0335", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0336", "event_class": "NONE", "secondary_class": "", "notes": "generic remark"}
+{"label_id": "E0337", "event_class": "NONE", "secondary_class": "", "notes": "analysis feature, no discrete event"}
+{"label_id": "E0338", "event_class": "NONE", "secondary_class": "", "notes": "routine holdings spam"}
+{"label_id": "E0339", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "contract win"}
+{"label_id": "E0340", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E0341", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics commentary"}
+{"label_id": "E0342", "event_class": "NONE", "secondary_class": "", "notes": "personal order"}
+{"label_id": "E0343", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E0344", "event_class": "NONE", "secondary_class": "", "notes": "minor hiring"}
+{"label_id": "E0345", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "investment increase"}
+{"label_id": "E0346", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0347", "event_class": "NONE", "secondary_class": "", "notes": "position remark"}
+{"label_id": "E0348", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "buy view"}
+{"label_id": "E0349", "event_class": "NONE", "secondary_class": "", "notes": "trade brag"}
+{"label_id": "E0350", "event_class": "NONE", "secondary_class": "", "notes": "opinion/demo"}
+{"label_id": "E0351", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "delivery numbers"}
+{"label_id": "E0352", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "market cap ranking shift"}
+{"label_id": "E0353", "event_class": "NONE", "secondary_class": "", "notes": "chart remark"}
+{"label_id": "E0354", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "project announcement"}
+{"label_id": "E0355", "event_class": "NONE", "secondary_class": "", "notes": "chart speculation"}
+{"label_id": "E0356", "event_class": "NONE", "secondary_class": "", "notes": "conference participation"}
+{"label_id": "E0357", "event_class": "NONE", "secondary_class": "", "notes": "spam"}
+{"label_id": "E0358", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "valuation multiples"}
+{"label_id": "E0359", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "analyst forecasts bear market"}
+{"label_id": "E0360", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0361", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0362", "event_class": "NONE", "secondary_class": "", "notes": "comment"}
+{"label_id": "E0363", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "supply deal"}
+{"label_id": "E0364", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "investor view"}
+{"label_id": "E0365", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0366", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "GPU purchase"}
+{"label_id": "E0367", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "investment, opinion-framed"}
+{"label_id": "E0368", "event_class": "NONE", "secondary_class": "", "notes": "old quote opinion"}
+{"label_id": "E0369", "event_class": "NONE", "secondary_class": "", "notes": "lifestyle"}
+{"label_id": "E0370", "event_class": "NONE", "secondary_class": "", "notes": "rumor"}
+{"label_id": "E0371", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0372", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E0373", "event_class": "NONE", "secondary_class": "", "notes": "no content"}
+{"label_id": "E0374", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "late insider filings, opinion-framed"}
+{"label_id": "E0375", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "initiation of coverage"}
+{"label_id": "E0376", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "delivery numbers"}
+{"label_id": "E0377", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "facility construction"}
+{"label_id": "E0378", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0379", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0380", "event_class": "NONE", "secondary_class": "", "notes": "options activity list"}
+{"label_id": "E0381", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0382", "event_class": "NONE", "secondary_class": "", "notes": "speculation"}
+{"label_id": "E0383", "event_class": "NONE", "secondary_class": "", "notes": "industry sales stats, opinion framed"}
+{"label_id": "E0384", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E0385", "event_class": "NONE", "secondary_class": "", "notes": "spam promotion"}
+{"label_id": "E0386", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E0387", "event_class": "NONE", "secondary_class": "", "notes": "entertainment"}
+{"label_id": "E0388", "event_class": "NONE", "secondary_class": "", "notes": "crime news, no market channel"}
+{"label_id": "E0389", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0390", "event_class": "NONE", "secondary_class": "", "notes": "joke"}
+{"label_id": "E0391", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "supplier tech reveal"}
+{"label_id": "E0392", "event_class": "NONE", "secondary_class": "", "notes": "vague teaser"}
+{"label_id": "E0393", "event_class": "NONE", "secondary_class": "", "notes": "executive quote"}
+{"label_id": "E0394", "event_class": "NONE", "secondary_class": "", "notes": "meeting, no concrete outcome"}
+{"label_id": "E0395", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E0396", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0397", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "weekly roundup, leads with Twitter deal"}
+{"label_id": "E0398", "event_class": "NONE", "secondary_class": "", "notes": "meme"}
+{"label_id": "E0399", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E0400", "event_class": "REGULATORY_LEGAL", "secondary_class": "PRODUCT_OPERATIONS", "notes": "airspace ban on aircraft"}

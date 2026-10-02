@@ -1,0 +1,200 @@
+{"label_id": "E2001", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2002", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2003", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2004", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2005", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2006", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2007", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2008", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2009", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2010", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2011", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2012", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2013", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2014", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2015", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2016", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2017", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2018", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2019", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2020", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2021", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2022", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2023", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2024", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2025", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2026", "event_class": "MARKET_VALUATION", "secondary_class": "PRODUCT_OPERATIONS", "notes": "valuation lead, data center secondary"}
+{"label_id": "E2027", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2028", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2029", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2030", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2031", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2032", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2033", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2034", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2035", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2036", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "REGULATORY_LEGAL", "notes": "concession amendment secondary"}
+{"label_id": "E2037", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2038", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2039", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E2040", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2041", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2042", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2043", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "CREDIT_FUNDING", "notes": "no capital raise needed secondary"}
+{"label_id": "E2044", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2045", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2046", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2047", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2048", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2049", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2050", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2051", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2052", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2053", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2054", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2055", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2056", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2057", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2058", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2059", "event_class": "NONE", "secondary_class": "", "notes": "S-1 filing, unclear event type"}
+{"label_id": "E2060", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2061", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2062", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2063", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2064", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2065", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2066", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2067", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2068", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2069", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2070", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2071", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2072", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2073", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2074", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2075", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2076", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2077", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2078", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2079", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2080", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2081", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2082", "event_class": "CREDIT_FUNDING", "secondary_class": "GEOPOLITICAL", "notes": ""}
+{"label_id": "E2083", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2084", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2085", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2086", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2087", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2088", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2089", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2090", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2091", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2092", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2093", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2094", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2095", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2096", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "EARNINGS_FINANCIAL_PERFORMANCE", "notes": "president named, guidance reaffirmed"}
+{"label_id": "E2097", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2098", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2099", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2100", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2101", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2102", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2103", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2104", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2105", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2106", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2107", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2108", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2109", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2110", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2111", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2112", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2113", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2114", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2115", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E2116", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2117", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2118", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2119", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2120", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2121", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2122", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2123", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2124", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2125", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2126", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2127", "event_class": "NONE", "secondary_class": "", "notes": "earnings call transcript, no results stated"}
+{"label_id": "E2128", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2129", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2130", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2131", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2132", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2133", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2134", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2135", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2136", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2137", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2138", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2139", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2140", "event_class": "NONE", "secondary_class": "", "notes": "weapons test, no clear market channel"}
+{"label_id": "E2141", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2142", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2143", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2144", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2145", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2146", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2147", "event_class": "NONE", "secondary_class": "", "notes": "abstain: no clear reportable event or unverified"}
+{"label_id": "E2148", "event_class": "CREDIT_FUNDING", "secondary_class": "GEOPOLITICAL", "notes": ""}
+{"label_id": "E2149", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2150", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2151", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2152", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2153", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2154", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2155", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2156", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2157", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2158", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2159", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2160", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2161", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2162", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2163", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2164", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2165", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2166", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2167", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2168", "event_class": "NONE", "secondary_class": "", "notes": "joke/unverified bankruptcy claim"}
+{"label_id": "E2169", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2170", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E2171", "event_class": "GEOPOLITICAL", "secondary_class": "MACROECONOMIC", "notes": ""}
+{"label_id": "E2172", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2173", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2174", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2175", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2176", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E2177", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2178", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2179", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2180", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E2181", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2182", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2183", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2184", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2185", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2186", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2187", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2188", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "REGULATORY_LEGAL", "notes": "regulatory pressure secondary"}
+{"label_id": "E2189", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2190", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2191", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2192", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2193", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2194", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2195", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2196", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2197", "event_class": "NONE", "secondary_class": "", "notes": "not an event: chatter/promo/opinion/notice"}
+{"label_id": "E2198", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2199", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2200", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}

@@ -1,0 +1,200 @@
+{"label_id": "E2801", "event_class": "NONE", "secondary_class": "", "notes": "feature article"}
+{"label_id": "E2802", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2803", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2804", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2805", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2806", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E2807", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2808", "event_class": "NONE", "secondary_class": "", "notes": "opinion article"}
+{"label_id": "E2809", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2810", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2811", "event_class": "NONE", "secondary_class": "", "notes": "minor promotions at small firm"}
+{"label_id": "E2812", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2813", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2814", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2815", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E2816", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2817", "event_class": "NONE", "secondary_class": "", "notes": "minor promotions"}
+{"label_id": "E2818", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2819", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "volume/flow ranking loss; borderline"}
+{"label_id": "E2820", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2821", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2822", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2823", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2824", "event_class": "NONE", "secondary_class": "", "notes": "board appointment at small firm"}
+{"label_id": "E2825", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "sovereign instability; borderline"}
+{"label_id": "E2826", "event_class": "NONE", "secondary_class": "", "notes": "earnings preview"}
+{"label_id": "E2827", "event_class": "NONE", "secondary_class": "", "notes": "premarket movers list"}
+{"label_id": "E2828", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2829", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2830", "event_class": "NONE", "secondary_class": "", "notes": "death of private person"}
+{"label_id": "E2831", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2832", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2833", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2834", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2835", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2836", "event_class": "NONE", "secondary_class": "", "notes": "minor appointment"}
+{"label_id": "E2837", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2838", "event_class": "NONE", "secondary_class": "", "notes": "ceremonial meeting"}
+{"label_id": "E2839", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2840", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2841", "event_class": "NONE", "secondary_class": "", "notes": "bare price tick"}
+{"label_id": "E2842", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2843", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2844", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2845", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2846", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "exchange listing non-compliance notice"}
+{"label_id": "E2847", "event_class": "NONE", "secondary_class": "", "notes": "board appointment"}
+{"label_id": "E2848", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2849", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2850", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2851", "event_class": "NONE", "secondary_class": "", "notes": "political comment"}
+{"label_id": "E2852", "event_class": "NONE", "secondary_class": "", "notes": "bare price tick"}
+{"label_id": "E2853", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2854", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2855", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2856", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2857", "event_class": "NONE", "secondary_class": "", "notes": "podcast promotion"}
+{"label_id": "E2858", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "Italian government collapse, sovereign-risk channel; borderline"}
+{"label_id": "E2859", "event_class": "NONE", "secondary_class": "", "notes": "background commentary"}
+{"label_id": "E2860", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2861", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2862", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "EARNINGS_FINANCIAL_PERFORMANCE", "notes": "CEO succession leads; H1 sales and outlook secondary"}
+{"label_id": "E2863", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "pending legislation"}
+{"label_id": "E2864", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2865", "event_class": "NONE", "secondary_class": "", "notes": "political statement"}
+{"label_id": "E2866", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2867", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2868", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2869", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2870", "event_class": "NONE", "secondary_class": "", "notes": "board appointment"}
+{"label_id": "E2871", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2872", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "listed-company CFO change"}
+{"label_id": "E2873", "event_class": "NONE", "secondary_class": "", "notes": "explainer"}
+{"label_id": "E2874", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "weekly oil inventory data; borderline"}
+{"label_id": "E2875", "event_class": "NONE", "secondary_class": "", "notes": "domestic poll"}
+{"label_id": "E2876", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2877", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "production/sales volumes"}
+{"label_id": "E2878", "event_class": "NONE", "secondary_class": "", "notes": "political opinion"}
+{"label_id": "E2879", "event_class": "NONE", "secondary_class": "", "notes": "private-firm appointment"}
+{"label_id": "E2880", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "listed-company COO change"}
+{"label_id": "E2881", "event_class": "NONE", "secondary_class": "", "notes": "price chatter"}
+{"label_id": "E2882", "event_class": "NONE", "secondary_class": "", "notes": "gossip"}
+{"label_id": "E2883", "event_class": "NONE", "secondary_class": "", "notes": "small-firm appointment"}
+{"label_id": "E2884", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "generic rates move; borderline"}
+{"label_id": "E2885", "event_class": "NONE", "secondary_class": "", "notes": "analyst comment"}
+{"label_id": "E2886", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2887", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2888", "event_class": "CREDIT_FUNDING", "secondary_class": "GEOPOLITICAL", "notes": "sovereign debt freeze due to war"}
+{"label_id": "E2889", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2890", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2891", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2892", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "Italian government crisis; borderline"}
+{"label_id": "E2893", "event_class": "NONE", "secondary_class": "", "notes": "political opinion"}
+{"label_id": "E2894", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2895", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2896", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "Italian government crisis; borderline"}
+{"label_id": "E2897", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "listed-company CFO change"}
+{"label_id": "E2898", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "oil supply response; borderline"}
+{"label_id": "E2899", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2900", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "Italian government crisis; borderline"}
+{"label_id": "E2901", "event_class": "NONE", "secondary_class": "", "notes": "diplomatic remark, no market channel"}
+{"label_id": "E2902", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2903", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2904", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "executive departure"}
+{"label_id": "E2905", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "sovereign instability; borderline"}
+{"label_id": "E2906", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "CEO appointment"}
+{"label_id": "E2907", "event_class": "NONE", "secondary_class": "", "notes": "political commentary"}
+{"label_id": "E2908", "event_class": "NONE", "secondary_class": "", "notes": "no market channel"}
+{"label_id": "E2909", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "weekly oil inventory data; borderline"}
+{"label_id": "E2910", "event_class": "NONE", "secondary_class": "", "notes": "price chatter"}
+{"label_id": "E2911", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2912", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2913", "event_class": "NONE", "secondary_class": "", "notes": "small-firm appointment"}
+{"label_id": "E2914", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2915", "event_class": "NONE", "secondary_class": "", "notes": "board appointment"}
+{"label_id": "E2916", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2917", "event_class": "NONE", "secondary_class": "", "notes": "bare price move, no cause"}
+{"label_id": "E2918", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2919", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2920", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2921", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2922", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "pending legislation"}
+{"label_id": "E2923", "event_class": "NONE", "secondary_class": "", "notes": "bare price remark"}
+{"label_id": "E2924", "event_class": "NONE", "secondary_class": "", "notes": "bare price remark"}
+{"label_id": "E2925", "event_class": "NONE", "secondary_class": "", "notes": "individual hire"}
+{"label_id": "E2926", "event_class": "NONE", "secondary_class": "", "notes": "briefing notice"}
+{"label_id": "E2927", "event_class": "NONE", "secondary_class": "", "notes": "no market channel"}
+{"label_id": "E2928", "event_class": "NONE", "secondary_class": "", "notes": "non-profit appointment"}
+{"label_id": "E2929", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2930", "event_class": "NONE", "secondary_class": "", "notes": "political proposal"}
+{"label_id": "E2931", "event_class": "NONE", "secondary_class": "", "notes": "hearing notice"}
+{"label_id": "E2932", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2933", "event_class": "NONE", "secondary_class": "", "notes": "board appointment"}
+{"label_id": "E2934", "event_class": "NONE", "secondary_class": "", "notes": "no market channel"}
+{"label_id": "E2935", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2936", "event_class": "NONE", "secondary_class": "", "notes": "bare price remark"}
+{"label_id": "E2937", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2938", "event_class": "NONE", "secondary_class": "", "notes": "minor appointment"}
+{"label_id": "E2939", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2940", "event_class": "NONE", "secondary_class": "", "notes": "minor appointments"}
+{"label_id": "E2941", "event_class": "CREDIT_FUNDING", "secondary_class": "MA_CORPORATE_ACTION", "notes": "financing for acquisition"}
+{"label_id": "E2942", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "EIA outlook release; borderline"}
+{"label_id": "E2943", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "Italian government crisis; borderline"}
+{"label_id": "E2944", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "EARNINGS_FINANCIAL_PERFORMANCE", "notes": "CEO search with guidance reaffirmed"}
+{"label_id": "E2945", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2946", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2947", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2948", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2949", "event_class": "NONE", "secondary_class": "", "notes": "chart chatter"}
+{"label_id": "E2950", "event_class": "NONE", "secondary_class": "", "notes": "executive opinion"}
+{"label_id": "E2951", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "fiscal inflation support; borderline"}
+{"label_id": "E2952", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2953", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2954", "event_class": "NONE", "secondary_class": "", "notes": "ceremonial meeting"}
+{"label_id": "E2955", "event_class": "NONE", "secondary_class": "", "notes": "commentary on hedges"}
+{"label_id": "E2956", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "CEO return"}
+{"label_id": "E2957", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2958", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2959", "event_class": "NONE", "secondary_class": "", "notes": "minor promotion"}
+{"label_id": "E2960", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "listed-company finance chief change"}
+{"label_id": "E2961", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2962", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2963", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2964", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2965", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2966", "event_class": "NONE", "secondary_class": "", "notes": "board appointment"}
+{"label_id": "E2967", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2968", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "executive board change"}
+{"label_id": "E2969", "event_class": "NONE", "secondary_class": "", "notes": "explainer"}
+{"label_id": "E2970", "event_class": "NONE", "secondary_class": "", "notes": "small-firm appointment"}
+{"label_id": "E2971", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "Italian government collapse; borderline"}
+{"label_id": "E2972", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2973", "event_class": "NONE", "secondary_class": "", "notes": "price move"}
+{"label_id": "E2974", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "gas supply disruption"}
+{"label_id": "E2975", "event_class": "NONE", "secondary_class": "", "notes": "death of private person"}
+{"label_id": "E2976", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2977", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "CFO resignation and clinic contracts"}
+{"label_id": "E2978", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2979", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2980", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "Treasury auction rates"}
+{"label_id": "E2981", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "state-imposed governance change; borderline vs geopolitical"}
+{"label_id": "E2982", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2983", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2984", "event_class": "NONE", "secondary_class": "", "notes": "minor hire"}
+{"label_id": "E2985", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2986", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "president and CFO change"}
+{"label_id": "E2987", "event_class": "NONE", "secondary_class": "", "notes": "price remark"}
+{"label_id": "E2988", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2989", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2990", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "weekly oil inventory data; borderline"}
+{"label_id": "E2991", "event_class": "NONE", "secondary_class": "", "notes": "advisory board appointments"}
+{"label_id": "E2992", "event_class": "NONE", "secondary_class": "", "notes": "individual hire"}
+{"label_id": "E2993", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2994", "event_class": "NONE", "secondary_class": "", "notes": "weekly commentary"}
+{"label_id": "E2995", "event_class": "NONE", "secondary_class": "", "notes": "board appointment"}
+{"label_id": "E2996", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2997", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2998", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2999", "event_class": "NONE", "secondary_class": "", "notes": "general commentary"}
+{"label_id": "E3000", "event_class": "NONE", "secondary_class": "", "notes": "price remark"}

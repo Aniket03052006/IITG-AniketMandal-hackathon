@@ -1,0 +1,70 @@
+{"label_id": "E3001", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "Saudi output report; oil supply"}
+{"label_id": "E3002", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3003", "event_class": "NONE", "secondary_class": "", "notes": "opinion/question on China stimulus"}
+{"label_id": "E3004", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": "fund raise"}
+{"label_id": "E3005", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E3006", "event_class": "NONE", "secondary_class": "", "notes": "chart commentary"}
+{"label_id": "E3007", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E3008", "event_class": "NONE", "secondary_class": "", "notes": "generic price remark"}
+{"label_id": "E3009", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E3010", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3011", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3012", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3013", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3014", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3015", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3016", "event_class": "NONE", "secondary_class": "", "notes": "question"}
+{"label_id": "E3017", "event_class": "NONE", "secondary_class": "", "notes": "pre-data chatter"}
+{"label_id": "E3018", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "new strategy launch"}
+{"label_id": "E3019", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3020", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3021", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3022", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3023", "event_class": "NONE", "secondary_class": "", "notes": "bare futures open"}
+{"label_id": "E3024", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E3025", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3026", "event_class": "CREDIT_FUNDING", "secondary_class": "MACROECONOMIC", "notes": "sovereign downgrade; macro secondary"}
+{"label_id": "E3027", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3028", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3029", "event_class": "CREDIT_FUNDING", "secondary_class": "GEOPOLITICAL", "notes": "sovereign debt treatment"}
+{"label_id": "E3030", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3031", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3032", "event_class": "NONE", "secondary_class": "", "notes": "lawmaker opinion"}
+{"label_id": "E3033", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3034", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3035", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3036", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "political shock with market channel"}
+{"label_id": "E3037", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3038", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E3039", "event_class": "NONE", "secondary_class": "", "notes": "generic outlook"}
+{"label_id": "E3040", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3041", "event_class": "NONE", "secondary_class": "", "notes": "advocacy opinion"}
+{"label_id": "E3042", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "political shock with market channel"}
+{"label_id": "E3043", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3044", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3045", "event_class": "NONE", "secondary_class": "", "notes": "bare yield update"}
+{"label_id": "E3046", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3047", "event_class": "NONE", "secondary_class": "", "notes": "explainer"}
+{"label_id": "E3048", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "flows"}
+{"label_id": "E3049", "event_class": "NONE", "secondary_class": "", "notes": "commentary"}
+{"label_id": "E3050", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3051", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "sanctions-related trading"}
+{"label_id": "E3052", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "political shock with market channel"}
+{"label_id": "E3053", "event_class": "NONE", "secondary_class": "", "notes": "columnist opinion"}
+{"label_id": "E3054", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3055", "event_class": "NONE", "secondary_class": "", "notes": "bare futures move"}
+{"label_id": "E3056", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3057", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "flows"}
+{"label_id": "E3058", "event_class": "CREDIT_FUNDING", "secondary_class": "GEOPOLITICAL", "notes": "sovereign debt delay"}
+{"label_id": "E3059", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "political shock with market channel"}
+{"label_id": "E3060", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3061", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3062", "event_class": "NONE", "secondary_class": "", "notes": "bare new supply note"}
+{"label_id": "E3063", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3064", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E3065", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3066", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E3067", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E3068", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E3069", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E3070", "event_class": "NONE", "secondary_class": "", "notes": "estimate post"}

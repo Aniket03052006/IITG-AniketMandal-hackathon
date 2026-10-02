@@ -1,0 +1,200 @@
+{"label_id": "R0001", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0002", "event_class": "NONE", "secondary_class": "", "notes": "feature piece, no event"}
+{"label_id": "R0003", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "R0004", "event_class": "NONE", "secondary_class": "", "notes": "domestic UK policy, no clear market channel"}
+{"label_id": "R0005", "event_class": "NONE", "secondary_class": "", "notes": "advocacy site claim about lobbying"}
+{"label_id": "R0006", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "broker portfolio picks"}
+{"label_id": "R0007", "event_class": "CREDIT_FUNDING", "secondary_class": "MA_CORPORATE_ACTION", "notes": "private credit raised for acquisition"}
+{"label_id": "R0008", "event_class": "NONE", "secondary_class": "", "notes": "ad controversy, unsure of risk relevance"}
+{"label_id": "R0009", "event_class": "NONE", "secondary_class": "", "notes": "local development phase signal, no company event"}
+{"label_id": "R0010", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "growth outlook statement"}
+{"label_id": "R0011", "event_class": "NONE", "secondary_class": "", "notes": "clinical practice article"}
+{"label_id": "R0012", "event_class": "NONE", "secondary_class": "", "notes": "political gossip"}
+{"label_id": "R0013", "event_class": "NONE", "secondary_class": "", "notes": "scam warning, not about the company"}
+{"label_id": "R0014", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "R0015", "event_class": "NONE", "secondary_class": "", "notes": "routine software patch"}
+{"label_id": "R0016", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0017", "event_class": "NONE", "secondary_class": "", "notes": "retrospective commentary"}
+{"label_id": "R0018", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0019", "event_class": "MARKET_VALUATION", "secondary_class": "MACROECONOMIC", "notes": "broker view on rate-hike positioning"}
+{"label_id": "R0020", "event_class": "NONE", "secondary_class": "", "notes": "individual lawsuit, no company event"}
+{"label_id": "R0021", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0022", "event_class": "NONE", "secondary_class": "", "notes": "human interest"}
+{"label_id": "R0023", "event_class": "NONE", "secondary_class": "", "notes": "stock comparison opinion"}
+{"label_id": "R0024", "event_class": "NONE", "secondary_class": "", "notes": "political; no market channel stated"}
+{"label_id": "R0025", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0026", "event_class": "NONE", "secondary_class": "", "notes": "routine board appointment"}
+{"label_id": "R0027", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "MARKET_VALUATION", "notes": "2030 targets drive share drop"}
+{"label_id": "R0028", "event_class": "NONE", "secondary_class": "", "notes": "opinion/commentary"}
+{"label_id": "R0029", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0030", "event_class": "NONE", "secondary_class": "", "notes": "wealth profile"}
+{"label_id": "R0031", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0032", "event_class": "NONE", "secondary_class": "", "notes": "generic study, no company"}
+{"label_id": "R0033", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "R0034", "event_class": "NONE", "secondary_class": "", "notes": "promotion"}
+{"label_id": "R0035", "event_class": "NONE", "secondary_class": "", "notes": "interview comment"}
+{"label_id": "R0036", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "R0037", "event_class": "NONE", "secondary_class": "", "notes": "doodle"}
+{"label_id": "R0038", "event_class": "NONE", "secondary_class": "", "notes": "listicle"}
+{"label_id": "R0039", "event_class": "NONE", "secondary_class": "", "notes": "routine insider sale"}
+{"label_id": "R0040", "event_class": "NONE", "secondary_class": "", "notes": "prize award"}
+{"label_id": "R0041", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "index inclusion and block selling flows"}
+{"label_id": "R0042", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "Hormuz supply route"}
+{"label_id": "R0043", "event_class": "NONE", "secondary_class": "", "notes": "opinion/question"}
+{"label_id": "R0044", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "foldable launch"}
+{"label_id": "R0045", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "business expansion"}
+{"label_id": "R0046", "event_class": "REGULATORY_LEGAL", "secondary_class": "PRODUCT_OPERATIONS", "notes": "FDA clinical hold"}
+{"label_id": "R0047", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "MARKET_VALUATION", "notes": "Muse launch lifts futures"}
+{"label_id": "R0048", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0049", "event_class": "NONE", "secondary_class": "", "notes": "transcript notice, no results stated"}
+{"label_id": "R0050", "event_class": "NONE", "secondary_class": "", "notes": "celebrity gossip"}
+{"label_id": "R0051", "event_class": "NONE", "secondary_class": "", "notes": "analysis/opinion"}
+{"label_id": "R0052", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0053", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0054", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0055", "event_class": "NONE", "secondary_class": "", "notes": "promotional tweet"}
+{"label_id": "R0056", "event_class": "NONE", "secondary_class": "", "notes": "promotion"}
+{"label_id": "R0057", "event_class": "NONE", "secondary_class": "", "notes": "unconfirmed product leak"}
+{"label_id": "R0058", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "licensing/partnership deal, closest class"}
+{"label_id": "R0059", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0060", "event_class": "NONE", "secondary_class": "", "notes": "stock comparison opinion"}
+{"label_id": "R0061", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "price move, no cause given"}
+{"label_id": "R0062", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "R0063", "event_class": "NONE", "secondary_class": "", "notes": "opinion with no new fact"}
+{"label_id": "R0064", "event_class": "NONE", "secondary_class": "", "notes": "generic comparison"}
+{"label_id": "R0065", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "R0066", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "bank view on asset flows"}
+{"label_id": "R0067", "event_class": "NONE", "secondary_class": "", "notes": "conference promotion"}
+{"label_id": "R0068", "event_class": "NONE", "secondary_class": "", "notes": "stock comparison opinion"}
+{"label_id": "R0069", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0070", "event_class": "NONE", "secondary_class": "", "notes": "political analysis"}
+{"label_id": "R0071", "event_class": "NONE", "secondary_class": "", "notes": "analysis/opinion"}
+{"label_id": "R0072", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "power supply for data centres"}
+{"label_id": "R0073", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "R0074", "event_class": "NONE", "secondary_class": "", "notes": "classified ad spam"}
+{"label_id": "R0075", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0076", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "contract award dispute filing"}
+{"label_id": "R0077", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "recusal in oil company climate case"}
+{"label_id": "R0078", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "operational policy change"}
+{"label_id": "R0079", "event_class": "NONE", "secondary_class": "", "notes": "listicle"}
+{"label_id": "R0080", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "potential deal being weighed"}
+{"label_id": "R0081", "event_class": "NONE", "secondary_class": "", "notes": "no-news succession remark"}
+{"label_id": "R0082", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "R0083", "event_class": "NONE", "secondary_class": "", "notes": "routine distribution notice"}
+{"label_id": "R0084", "event_class": "NONE", "secondary_class": "", "notes": "vague commentary"}
+{"label_id": "R0085", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "MARKET_VALUATION", "notes": ""}
+{"label_id": "R0086", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0087", "event_class": "NONE", "secondary_class": "", "notes": "analysis page"}
+{"label_id": "R0088", "event_class": "NONE", "secondary_class": "", "notes": "crime news, no market relevance"}
+{"label_id": "R0089", "event_class": "NONE", "secondary_class": "", "notes": "law-firm solicitation"}
+{"label_id": "R0090", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "R0091", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "R0092", "event_class": "NONE", "secondary_class": "", "notes": "generic stock list"}
+{"label_id": "R0093", "event_class": "NONE", "secondary_class": "", "notes": "commentator opinion"}
+{"label_id": "R0094", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "MARKET_VALUATION", "notes": ""}
+{"label_id": "R0095", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "patent verdict"}
+{"label_id": "R0096", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "new rule"}
+{"label_id": "R0097", "event_class": "NONE", "secondary_class": "", "notes": "routine disclosure of trade"}
+{"label_id": "R0098", "event_class": "NONE", "secondary_class": "", "notes": "call for pact, no concrete market channel"}
+{"label_id": "R0099", "event_class": "NONE", "secondary_class": "", "notes": "minor branch opening"}
+{"label_id": "R0100", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "R0101", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "vendor product launch"}
+{"label_id": "R0102", "event_class": "NONE", "secondary_class": "", "notes": "PR participation"}
+{"label_id": "R0103", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0104", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0105", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0106", "event_class": "NONE", "secondary_class": "", "notes": "promo/research claim"}
+{"label_id": "R0107", "event_class": "NONE", "secondary_class": "", "notes": "small charitable gift"}
+{"label_id": "R0108", "event_class": "NONE", "secondary_class": "", "notes": "game news"}
+{"label_id": "R0109", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "court dispute"}
+{"label_id": "R0110", "event_class": "NONE", "secondary_class": "", "notes": "ranking"}
+{"label_id": "R0111", "event_class": "NONE", "secondary_class": "", "notes": "back-office adoption"}
+{"label_id": "R0112", "event_class": "NONE", "secondary_class": "", "notes": "analysis page"}
+{"label_id": "R0113", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "R0114", "event_class": "NONE", "secondary_class": "", "notes": "health article"}
+{"label_id": "R0115", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "R0116", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0117", "event_class": "NONE", "secondary_class": "", "notes": "bare filing notice"}
+{"label_id": "R0118", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "trial result"}
+{"label_id": "R0119", "event_class": "NONE", "secondary_class": "", "notes": "no content"}
+{"label_id": "R0120", "event_class": "NONE", "secondary_class": "", "notes": "advice article"}
+{"label_id": "R0121", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0122", "event_class": "NONE", "secondary_class": "", "notes": "prediction piece"}
+{"label_id": "R0123", "event_class": "NONE", "secondary_class": "", "notes": "rumour"}
+{"label_id": "R0124", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "standalone dividend declaration on ETF"}
+{"label_id": "R0125", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "R0126", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0127", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0128", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "new product plan"}
+{"label_id": "R0129", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "production ramp"}
+{"label_id": "R0130", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "force majeure on project"}
+{"label_id": "R0131", "event_class": "NONE", "secondary_class": "", "notes": "consumer toy item"}
+{"label_id": "R0132", "event_class": "NONE", "secondary_class": "", "notes": "profile piece"}
+{"label_id": "R0133", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "contract win"}
+{"label_id": "R0134", "event_class": "NONE", "secondary_class": "", "notes": "minor app feature"}
+{"label_id": "R0135", "event_class": "NONE", "secondary_class": "", "notes": "opinion/question"}
+{"label_id": "R0136", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0137", "event_class": "NONE", "secondary_class": "", "notes": "opinion/question"}
+{"label_id": "R0138", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0139", "event_class": "NONE", "secondary_class": "", "notes": "promotion"}
+{"label_id": "R0140", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0141", "event_class": "NONE", "secondary_class": "", "notes": "local incident"}
+{"label_id": "R0142", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "supply route/freight disruption, weak"}
+{"label_id": "R0143", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "R0144", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "compliance with Indian rule"}
+{"label_id": "R0145", "event_class": "NONE", "secondary_class": "", "notes": "promotion"}
+{"label_id": "R0146", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "R0147", "event_class": "NONE", "secondary_class": "", "notes": "ETF promotion"}
+{"label_id": "R0148", "event_class": "NONE", "secondary_class": "", "notes": "generic stock list"}
+{"label_id": "R0149", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "sector repricing"}
+{"label_id": "R0150", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0151", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0152", "event_class": "REGULATORY_LEGAL", "secondary_class": "CREDIT_FUNDING", "notes": "agency approval of grant transfer"}
+{"label_id": "R0153", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "CEO exit and trial results"}
+{"label_id": "R0154", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "leadership change"}
+{"label_id": "R0155", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "trial milestone"}
+{"label_id": "R0156", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0157", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "private valuation step-up"}
+{"label_id": "R0158", "event_class": "NONE", "secondary_class": "", "notes": "ETF promotion"}
+{"label_id": "R0159", "event_class": "MARKET_VALUATION", "secondary_class": "MACROECONOMIC", "notes": ""}
+{"label_id": "R0160", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "potential site deal"}
+{"label_id": "R0161", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "checkout integration"}
+{"label_id": "R0162", "event_class": "NONE", "secondary_class": "", "notes": "generic stock list"}
+{"label_id": "R0163", "event_class": "NONE", "secondary_class": "", "notes": "routine appointment"}
+{"label_id": "R0164", "event_class": "NONE", "secondary_class": "", "notes": "industry statistic, no market channel"}
+{"label_id": "R0165", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "estimate cut by analyst"}
+{"label_id": "R0166", "event_class": "NONE", "secondary_class": "", "notes": "generic stock list"}
+{"label_id": "R0167", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "fund raise"}
+{"label_id": "R0168", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "IPO"}
+{"label_id": "R0169", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "R0170", "event_class": "NONE", "secondary_class": "", "notes": "local news"}
+{"label_id": "R0171", "event_class": "NONE", "secondary_class": "", "notes": "opinion remark"}
+{"label_id": "R0172", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "launch"}
+{"label_id": "R0173", "event_class": "NONE", "secondary_class": "", "notes": "political news"}
+{"label_id": "R0174", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "R0175", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "business cooperation"}
+{"label_id": "R0176", "event_class": "NONE", "secondary_class": "", "notes": "commentary"}
+{"label_id": "R0177", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "movers list"}
+{"label_id": "R0178", "event_class": "NONE", "secondary_class": "", "notes": "statement, no event"}
+{"label_id": "R0179", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "R0180", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "standalone dividend declaration"}
+{"label_id": "R0181", "event_class": "NONE", "secondary_class": "", "notes": "bare report number, no content"}
+{"label_id": "R0182", "event_class": "NONE", "secondary_class": "", "notes": "briefing headline"}
+{"label_id": "R0183", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "R0184", "event_class": "NONE", "secondary_class": "", "notes": "minor feature"}
+{"label_id": "R0185", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "scheme of arrangement result"}
+{"label_id": "R0186", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "MARKET_VALUATION", "notes": "ETF gains on earnings"}
+{"label_id": "R0187", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "standalone dividend declaration"}
+{"label_id": "R0188", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "poison pill defence"}
+{"label_id": "R0189", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "R0190", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "R0191", "event_class": "NONE", "secondary_class": "", "notes": "opinion/promo"}
+{"label_id": "R0192", "event_class": "NONE", "secondary_class": "", "notes": "news roundup"}
+{"label_id": "R0193", "event_class": "NONE", "secondary_class": "", "notes": "daily roundup"}
+{"label_id": "R0194", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "R0195", "event_class": "NONE", "secondary_class": "", "notes": "promo article"}
+{"label_id": "R0196", "event_class": "NONE", "secondary_class": "", "notes": "institution self-description"}
+{"label_id": "R0197", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "guidance cut"}
+{"label_id": "R0198", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "R0199", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "analyst downgrade"}
+{"label_id": "R0200", "event_class": "NONE", "secondary_class": "", "notes": "bare link"}

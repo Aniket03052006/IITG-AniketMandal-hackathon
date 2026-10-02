@@ -1,0 +1,7 @@
+{
+ "agreement": 0.92,
+ "kappa": 0.8769,
+ "n": 200,
+ "note": "same annotator, second blind pass: an upper bound on label noise, NOT an independent inter-annotator kappa",
+ "share_none_first_pass": 0.55
+}

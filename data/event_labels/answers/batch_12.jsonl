@@ -1,0 +1,200 @@
+{"label_id": "E2201", "event_class": "NONE", "secondary_class": "", "notes": "trade plan, scheduled data"}
+{"label_id": "E2202", "event_class": "NONE", "secondary_class": "", "notes": "stock surge remark, no discrete event"}
+{"label_id": "E2203", "event_class": "NONE", "secondary_class": "", "notes": "lottery"}
+{"label_id": "E2204", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2205", "event_class": "NONE", "secondary_class": "", "notes": "ideas only, no concrete event"}
+{"label_id": "E2206", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2207", "event_class": "NONE", "secondary_class": "", "notes": "promotional opinion"}
+{"label_id": "E2208", "event_class": "NONE", "secondary_class": "", "notes": "opinion article"}
+{"label_id": "E2209", "event_class": "NONE", "secondary_class": "", "notes": "opinion article"}
+{"label_id": "E2210", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2211", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2212", "event_class": "NONE", "secondary_class": "", "notes": "retail promotion"}
+{"label_id": "E2213", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2214", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2215", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2216", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "patent issuance, minor"}
+{"label_id": "E2217", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "Fed capital rules on banks"}
+{"label_id": "E2218", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "shareholder returns pledge incl. buy-backs"}
+{"label_id": "E2219", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "policy change on arbitration"}
+{"label_id": "E2220", "event_class": "NONE", "secondary_class": "", "notes": "ticker list only"}
+{"label_id": "E2221", "event_class": "NONE", "secondary_class": "", "notes": "generic trading remark"}
+{"label_id": "E2222", "event_class": "NONE", "secondary_class": "", "notes": "routine liquidity contract report"}
+{"label_id": "E2223", "event_class": "NONE", "secondary_class": "", "notes": "listicle"}
+{"label_id": "E2224", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2225", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "new joint company"}
+{"label_id": "E2226", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics, scheduled discussion"}
+{"label_id": "E2227", "event_class": "NONE", "secondary_class": "", "notes": "opinion article"}
+{"label_id": "E2228", "event_class": "NONE", "secondary_class": "", "notes": "obituary"}
+{"label_id": "E2229", "event_class": "NONE", "secondary_class": "", "notes": "meeting scheduling"}
+{"label_id": "E2230", "event_class": "CREDIT_FUNDING", "secondary_class": "MA_CORPORATE_ACTION", "notes": "acquisition financing structure"}
+{"label_id": "E2231", "event_class": "NONE", "secondary_class": "", "notes": "diplomatic statement, no market channel"}
+{"label_id": "E2232", "event_class": "NONE", "secondary_class": "", "notes": "chatter"}
+{"label_id": "E2233", "event_class": "NONE", "secondary_class": "", "notes": "factbox, no new event"}
+{"label_id": "E2234", "event_class": "NONE", "secondary_class": "", "notes": "digest of links"}
+{"label_id": "E2235", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "asset sale of bitcoin holdings; could be financial"}
+{"label_id": "E2236", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2237", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2238", "event_class": "NONE", "secondary_class": "", "notes": "pun/question"}
+{"label_id": "E2239", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "oil supply capacity view"}
+{"label_id": "E2240", "event_class": "NONE", "secondary_class": "", "notes": "opinion article"}
+{"label_id": "E2241", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2242", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2243", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "earnings call transcript of reported results"}
+{"label_id": "E2244", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": "capital raise comment"}
+{"label_id": "E2245", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2246", "event_class": "NONE", "secondary_class": "", "notes": "options watchlist"}
+{"label_id": "E2247", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2248", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "supply contract"}
+{"label_id": "E2249", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "leadership change"}
+{"label_id": "E2250", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "official oil price outlook"}
+{"label_id": "E2251", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2252", "event_class": "NONE", "secondary_class": "", "notes": "spam ticker dump"}
+{"label_id": "E2253", "event_class": "NONE", "secondary_class": "", "notes": "opinion/prediction"}
+{"label_id": "E2254", "event_class": "NONE", "secondary_class": "", "notes": "media dispute, no clear event"}
+{"label_id": "E2255", "event_class": "NONE", "secondary_class": "", "notes": "competitive remark, no discrete fact"}
+{"label_id": "E2256", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2257", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "expected launch"}
+{"label_id": "E2258", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2259", "event_class": "REGULATORY_LEGAL", "secondary_class": "PRODUCT_OPERATIONS", "notes": "new rules cause product disruption"}
+{"label_id": "E2260", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E2261", "event_class": "NONE", "secondary_class": "", "notes": "link promotion"}
+{"label_id": "E2262", "event_class": "MARKET_VALUATION", "secondary_class": "MACROECONOMIC", "notes": "bear market after pandemic declaration"}
+{"label_id": "E2263", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2264", "event_class": "NONE", "secondary_class": "", "notes": "promotional event"}
+{"label_id": "E2265", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "no new acquisitions statement"}
+{"label_id": "E2266", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2267", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "state stakes in companies"}
+{"label_id": "E2268", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2269", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2270", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2271", "event_class": "NONE", "secondary_class": "", "notes": "social report, no market channel"}
+{"label_id": "E2272", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2273", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2274", "event_class": "NONE", "secondary_class": "", "notes": "preview of upcoming readout"}
+{"label_id": "E2275", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "slot allocation"}
+{"label_id": "E2276", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2277", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "earnings call transcript"}
+{"label_id": "E2278", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2279", "event_class": "NONE", "secondary_class": "", "notes": "opinion/advocacy"}
+{"label_id": "E2280", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2281", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2282", "event_class": "NONE", "secondary_class": "", "notes": "commentary"}
+{"label_id": "E2283", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": "supplier collapse"}
+{"label_id": "E2284", "event_class": "NONE", "secondary_class": "", "notes": "generic price remark"}
+{"label_id": "E2285", "event_class": "NONE", "secondary_class": "", "notes": "opinion/sarcasm"}
+{"label_id": "E2286", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2287", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2288", "event_class": "NONE", "secondary_class": "", "notes": "CEO defence, no concrete action"}
+{"label_id": "E2289", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": "collapsed schemes"}
+{"label_id": "E2290", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2291", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2292", "event_class": "NONE", "secondary_class": "", "notes": "promotional"}
+{"label_id": "E2293", "event_class": "NONE", "secondary_class": "", "notes": "penny stock chatter"}
+{"label_id": "E2294", "event_class": "NONE", "secondary_class": "", "notes": "opinion headline"}
+{"label_id": "E2295", "event_class": "NONE", "secondary_class": "", "notes": "executive comment"}
+{"label_id": "E2296", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2297", "event_class": "NONE", "secondary_class": "", "notes": "opinionated remark"}
+{"label_id": "E2298", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics, no market channel stated"}
+{"label_id": "E2299", "event_class": "NONE", "secondary_class": "", "notes": "apology, no market channel"}
+{"label_id": "E2300", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "CEO departure"}
+{"label_id": "E2301", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": "Fed call/hike"}
+{"label_id": "E2302", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "MA_CORPORATE_ACTION", "notes": "executive departure during deal"}
+{"label_id": "E2303", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "job pledges"}
+{"label_id": "E2304", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "E2305", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2306", "event_class": "GEOPOLITICAL", "secondary_class": "MARKET_VALUATION", "notes": "nickel trading halt amid sanctions"}
+{"label_id": "E2307", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": "fund close"}
+{"label_id": "E2308", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2309", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2310", "event_class": "NONE", "secondary_class": "", "notes": "speculation"}
+{"label_id": "E2311", "event_class": "NONE", "secondary_class": "", "notes": "small fund raise, no market channel"}
+{"label_id": "E2312", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2313", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2314", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2315", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "CREDIT_FUNDING", "notes": "nationalisation"}
+{"label_id": "E2316", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2317", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "partnership"}
+{"label_id": "E2318", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "board change, minor"}
+{"label_id": "E2319", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "contract award"}
+{"label_id": "E2320", "event_class": "NONE", "secondary_class": "", "notes": "weather"}
+{"label_id": "E2321", "event_class": "NONE", "secondary_class": "", "notes": "commentary"}
+{"label_id": "E2322", "event_class": "NONE", "secondary_class": "", "notes": "spam ticker dump"}
+{"label_id": "E2323", "event_class": "NONE", "secondary_class": "", "notes": "funeral"}
+{"label_id": "E2324", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "sales slump"}
+{"label_id": "E2325", "event_class": "NONE", "secondary_class": "", "notes": "promo/politics"}
+{"label_id": "E2326", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2327", "event_class": "NONE", "secondary_class": "", "notes": "generic market remark"}
+{"label_id": "E2328", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "E2329", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2330", "event_class": "NONE", "secondary_class": "", "notes": "retrospective feature"}
+{"label_id": "E2331", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "aircraft order"}
+{"label_id": "E2332", "event_class": "NONE", "secondary_class": "", "notes": "price tick"}
+{"label_id": "E2333", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2334", "event_class": "NONE", "secondary_class": "", "notes": "consumer question"}
+{"label_id": "E2335", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "board chair transition"}
+{"label_id": "E2336", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2337", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "E2338", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2339", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2340", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "order decision"}
+{"label_id": "E2341", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "CEO appointment"}
+{"label_id": "E2342", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2343", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "oil production diplomacy"}
+{"label_id": "E2344", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2345", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2346", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2347", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2348", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "plant shutdowns"}
+{"label_id": "E2349", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2350", "event_class": "NONE", "secondary_class": "", "notes": "lifestyle"}
+{"label_id": "E2351", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "CREDIT_FUNDING", "notes": "restructuring and cash raising"}
+{"label_id": "E2352", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "MA_CORPORATE_ACTION", "notes": "buyback also announced"}
+{"label_id": "E2353", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2354", "event_class": "NONE", "secondary_class": "", "notes": "governance vote"}
+{"label_id": "E2355", "event_class": "NONE", "secondary_class": "", "notes": "commentary on existing rating"}
+{"label_id": "E2356", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2357", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "contract"}
+{"label_id": "E2358", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2359", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2360", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2361", "event_class": "NONE", "secondary_class": "", "notes": "after-hours remark"}
+{"label_id": "E2362", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "share slide"}
+{"label_id": "E2363", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2364", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "tariffs"}
+{"label_id": "E2365", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2366", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "consolidation talks"}
+{"label_id": "E2367", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2368", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "E2369", "event_class": "NONE", "secondary_class": "", "notes": "study"}
+{"label_id": "E2370", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "joint bid"}
+{"label_id": "E2371", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "E2372", "event_class": "NONE", "secondary_class": "", "notes": "penny stock chatter"}
+{"label_id": "E2373", "event_class": "NONE", "secondary_class": "", "notes": "earnings preview"}
+{"label_id": "E2374", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "trade policy"}
+{"label_id": "E2375", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics poll"}
+{"label_id": "E2376", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "gas supply cut warning"}
+{"label_id": "E2377", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "registrations/deliveries"}
+{"label_id": "E2378", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2379", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "executive appointment, minor"}
+{"label_id": "E2380", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "waste incident"}
+{"label_id": "E2381", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "fund flows"}
+{"label_id": "E2382", "event_class": "NONE", "secondary_class": "", "notes": "no market channel"}
+{"label_id": "E2383", "event_class": "NONE", "secondary_class": "", "notes": "scheduling notice"}
+{"label_id": "E2384", "event_class": "NONE", "secondary_class": "", "notes": "question"}
+{"label_id": "E2385", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2386", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "congressional testimony call"}
+{"label_id": "E2387", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "digital tax"}
+{"label_id": "E2388", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "court order"}
+{"label_id": "E2389", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "partnership"}
+{"label_id": "E2390", "event_class": "NONE", "secondary_class": "", "notes": "price move remark"}
+{"label_id": "E2391", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2392", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2393", "event_class": "NONE", "secondary_class": "", "notes": "domestic politics"}
+{"label_id": "E2394", "event_class": "NONE", "secondary_class": "", "notes": "hire announcement, minor"}
+{"label_id": "E2395", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "E2396", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "E2397", "event_class": "NONE", "secondary_class": "", "notes": "travel policy report"}
+{"label_id": "E2398", "event_class": "NONE", "secondary_class": "", "notes": "opinion warning"}
+{"label_id": "E2399", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "E2400", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "PPI redress"}
