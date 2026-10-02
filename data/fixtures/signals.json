@@ -45,7 +45,9 @@
           "PRODUCT_OPERATIONS": 0.0233,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.0233,
           "MARKET_VALUATION": 0.0233
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 9,
@@ -177,7 +179,9 @@
           "PRODUCT_OPERATIONS": 0.0233,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.0233,
           "MARKET_VALUATION": 0.0233
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 8,
@@ -288,7 +292,9 @@
           "PRODUCT_OPERATIONS": 0.1,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.0317,
           "MARKET_VALUATION": 0.0317
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 8,
@@ -407,7 +413,9 @@
           "PRODUCT_OPERATIONS": 0.0183,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.0183,
           "MARKET_VALUATION": 0.08
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 7,
@@ -526,7 +534,9 @@
           "PRODUCT_OPERATIONS": 0.5798,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.0367,
           "MARKET_VALUATION": 0.2
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 6,
@@ -622,7 +632,9 @@
           "PRODUCT_OPERATIONS": 0.6198,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.1,
           "MARKET_VALUATION": 0.0467
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 3,
@@ -722,7 +734,9 @@
           "PRODUCT_OPERATIONS": 0.0183,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.05,
           "MARKET_VALUATION": 0.0183
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 6,
@@ -828,7 +842,9 @@
           "PRODUCT_OPERATIONS": 0.69,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.1,
           "MARKET_VALUATION": 0.035
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 7,
@@ -947,7 +963,9 @@
           "PRODUCT_OPERATIONS": 0.06,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.8002,
           "MARKET_VALUATION": 0.0233
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 7,
@@ -1058,7 +1076,9 @@
           "PRODUCT_OPERATIONS": 0.0417,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.15,
           "MARKET_VALUATION": 0.5998
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 4,
@@ -1147,7 +1167,9 @@
           "PRODUCT_OPERATIONS": 0.03,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.03,
           "MARKET_VALUATION": 0.03
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 3,
@@ -1245,7 +1267,9 @@
           "PRODUCT_OPERATIONS": 0.7302,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.1,
           "MARKET_VALUATION": 0.0283
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 2,
@@ -1338,7 +1362,9 @@
           "PRODUCT_OPERATIONS": 0.04,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.04,
           "MARKET_VALUATION": 0.46
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 3,
@@ -1427,7 +1453,9 @@
           "PRODUCT_OPERATIONS": 0.5198,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.0467,
           "MARKET_VALUATION": 0.0467
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": null,
       "evidence": {
@@ -1504,7 +1532,9 @@
           "PRODUCT_OPERATIONS": 0.0333,
           "EARNINGS_FINANCIAL_PERFORMANCE": 0.14,
           "MARKET_VALUATION": 0.0333
-        }
+        },
+        "status": "CLASSIFIED",
+        "no_event_probability": null
       },
       "impact": {
         "score": 6,

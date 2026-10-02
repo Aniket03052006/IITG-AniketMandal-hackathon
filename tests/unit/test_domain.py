@@ -6,8 +6,10 @@ import pytest
 from pydantic import ValidationError
 
 from eventshock.domain import (
+    EventAudit,
     EventCategory,
     EventClassification,
+    EventStatus,
     Evidence,
     ImpactAssessment,
     ModelVersions,
@@ -99,6 +101,34 @@ class TestEventClassification:
         probs[EventCategory.GEOPOLITICAL] = 0.86
         with pytest.raises(ValidationError, match="arg-max"):
             EventClassification(category=EventCategory.MACROECONOMIC, probabilities=probs)
+
+
+class TestEventStatus:
+    def test_defaults_describe_a_stage_that_cannot_abstain(self):
+        e = event()
+        assert e.status is EventStatus.CLASSIFIED and e.no_event_probability is None
+
+    def test_a_non_event_keeps_a_valid_best_guess_but_says_so(self):
+        probs = {c: 0.02 for c in EventCategory}
+        probs[EventCategory.CREDIT_FUNDING] = 1 - 0.02 * 7
+        e = EventClassification(category=EventCategory.CREDIT_FUNDING, probabilities=probs, status=EventStatus.NO_EVENT,
+                                no_event_probability=0.9)
+        assert e.status is EventStatus.NO_EVENT and e.category is EventCategory.CREDIT_FUNDING
+
+    def test_no_event_probability_is_a_probability(self):
+        with pytest.raises(ValidationError):
+            EventClassification(category=EventCategory.GEOPOLITICAL, probabilities=event().probabilities, no_event_probability=1.5)
+
+    def test_unknown_status_is_rejected(self):
+        with pytest.raises(ValidationError):
+            EventClassification(category=EventCategory.GEOPOLITICAL, probabilities=event().probabilities, status="MAYBE")
+
+    def test_audit_needs_a_real_sha256(self):
+        ok = dict(model_id="m", model_version="v", artifact_sha256="a" * 64, confidence=0.6, no_event_probability=0.1, calibrated=True,
+                  unreliable_class=False, seen_in_training=False)
+        assert EventAudit(**ok).model_id == "m"
+        with pytest.raises(ValidationError):
+            EventAudit(**{**ok, "artifact_sha256": "short"})
 
 
 class TestImpact:

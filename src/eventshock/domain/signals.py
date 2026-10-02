@@ -9,7 +9,7 @@ from pydantic import Field, field_validator, model_validator
 
 from .base import ContractModel
 from .documents import EntityMention, RawDocument, _require_aware
-from .enums import DataOrigin, EventCategory, SignalStatus, SourceType
+from .enums import DataOrigin, EventCategory, EventStatus, SignalStatus, SourceType
 from .provenance import SignalProvenance
 
 _PROB_TOL = 1e-3
@@ -36,7 +36,14 @@ class EventClassification(ContractModel):
     """What happened: a category plus a probability for every taxonomy class."""
 
     category: EventCategory
-    probabilities: dict[EventCategory, float]
+    probabilities: dict[EventCategory, float] = Field(
+        description="over the eight classes; for a trained model, conditional on the text being an event")
+    status: EventStatus = Field(
+        default=EventStatus.CLASSIFIED,
+        description="CLASSIFIED | NO_EVENT | UNCERTAIN: whether `category` is a finding (see EventStatus)")
+    no_event_probability: float | None = Field(
+        default=None, ge=0, le=1,
+        description="calibrated P(not a market event); null where the stage cannot say so")
 
     @model_validator(mode="after")
     def _valid(self) -> EventClassification:

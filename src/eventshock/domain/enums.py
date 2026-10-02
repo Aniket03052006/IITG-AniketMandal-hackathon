@@ -16,6 +16,21 @@ class EventCategory(StrEnum):
     MARKET_VALUATION = "MARKET_VALUATION"
 
 
+class EventStatus(StrEnum):
+    """What the event stage is willing to claim about a document (the taxonomy itself is unchanged).
+
+    CLASSIFIED: a market event of ``category``.
+    NO_EVENT: the model judges the text is not a market event (chatter, promotion, opinion, a notice).
+        ``category`` is then only its best guess *if* it were one, and must not be shown as a finding.
+    UNCERTAIN: probably an event, but the model will not commit to a type (low confidence, or a class
+        its model card flags unreliable).
+    """
+
+    CLASSIFIED = "CLASSIFIED"
+    NO_EVENT = "NO_EVENT"
+    UNCERTAIN = "UNCERTAIN"
+
+
 class SourceType(StrEnum):
     NEWS = "NEWS"
     SOCIAL = "SOCIAL"
@@ -35,8 +50,9 @@ class DataOrigin(StrEnum):
     # Real documents run through the real ingestion pipeline; sentiment/event/impact are still
     # placeholder rules (see ``SignalProvenance.stage_origins``), not trained models.
     REAL_SOURCE_PLACEHOLDER_NLP = "REAL_SOURCE_PLACEHOLDER_NLP"
-    # Real documents where at least one stage (today: sentiment) is a trained model and the rest are still
-    # placeholder rules. Which is which is recorded per signal in ``SignalProvenance.stage_origins``.
+    # Real documents where at least one stage (sentiment, event type) is a trained model and the rest (impact)
+    # are still placeholder rules. Which is which is recorded per signal in
+    # ``SignalProvenance.stage_origins``.
     REAL_SOURCE_MIXED_NLP = "REAL_SOURCE_MIXED_NLP"
     MODEL_OUTPUT = "MODEL_OUTPUT"
 

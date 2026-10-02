@@ -89,6 +89,22 @@ class SentimentAudit(ContractModel):
         description="the exact text (case, punctuation, URLs ignored) was in the model's train/valid data")
 
 
+class EventAudit(ContractModel):
+    """Which trained model classified this signal's event, and how far to trust this particular output."""
+
+    model_id: str
+    model_version: str
+    artifact_sha256: str = Field(min_length=64, max_length=64, description="sha256 of the scoring artifact")
+    confidence: float = Field(
+        ge=0, le=1, description="calibrated P(top event class) among all nine classes, NONE included")
+    no_event_probability: float = Field(ge=0, le=1)
+    calibrated: bool
+    unreliable_class: bool = Field(
+        description="the model card flags the top class as unreliable (never asserted)")
+    seen_in_training: bool = Field(
+        description="the exact text (case, punctuation, URLs ignored) was in the model's training data")
+
+
 class SignalProvenance(ContractModel):
     adapter: str
     snapshot_id: str
@@ -101,3 +117,5 @@ class SignalProvenance(ContractModel):
     stage_origins: dict[str, str] = Field(description="stage -> StageOrigin")
     sentiment: SentimentAudit | None = Field(
         default=None, description="present when the sentiment stage is a trained model")
+    event: EventAudit | None = Field(
+        default=None, description="present when the event stage is a trained model")
