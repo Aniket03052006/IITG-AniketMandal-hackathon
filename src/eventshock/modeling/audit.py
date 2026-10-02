@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import re
-import statistics as stats
 from collections import Counter, defaultdict
 from collections.abc import Iterable
 from dataclasses import asdict
@@ -28,7 +27,6 @@ from .corpora import (
     load_tfn_sentiment,
     load_tfn_topic,
     prepare_text_pool,
-    read_jsonl,
     stratified_group_split,
 )
 from .leakage import (
@@ -299,10 +297,3 @@ def run_audit(cfg: ModelingConfig, *, repo_root: Path, config_dir: Path, mapping
     result["errors"] = errors
     atomic_write_text(out_dir / "audit.json", json.dumps(result, indent=2, sort_keys=True, default=str) + "\n")
     return result
-
-
-def load_impact_rows(out_dir: Path) -> list[dict[str, Any]]:
-    return read_jsonl(out_dir / "impact_events.jsonl")
-
-
-__all__ = ["run_audit", "build_impact", "build_text", "profile_history", "load_impact_rows", "stats"]

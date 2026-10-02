@@ -4,9 +4,11 @@
 #   strong : the topic is essentially one event type                          -> trained on
 #   medium : mostly the mapped type, with a visible minority of other types   -> trained on, reported separately
 #   weak   : a grab-bag or a different notion of the class                    -> NOT trained on; only measured against gold
+# Tiers were set from reading samples and then REVISED after the first gold review (data/gold, 6 rows per topic: noisy,
+# re-check when more rows or human adjudication exist). Earnings, Stock Movement and M&A moved down; see docs/MODELING_READINESS.md.
 # A topic with `category: null` does not describe a type of event and is excluded everywhere.
 # Evaluation truth for event classes is the human/AI-annotated gold set (docs/GOLD_LABELING_GUIDE.md), never this file.
-version: "2"
+version: "3"
 dataset: zeroshot/twitter-financial-news-topic
 topics:
   0:  {name: "Analyst Update",              category: MARKET_VALUATION, tier: medium, rationale: "price-target and rating changes; valuation view, not an operating event"}
@@ -14,7 +16,7 @@ topics:
   2:  {name: "Company | Product News",      category: PRODUCT_OPERATIONS, tier: weak, rationale: "grab-bag: filings, listing notices, strikes, guidance, launches; about 40% is not product/operations. No cleaner PRODUCT_OPERATIONS source exists"}
   3:  {name: "Treasuries | Corporate Debt", category: CREDIT_FUNDING, tier: medium, rationale: "mixes sovereign yields/defaults with corporate credit"}
   4:  {name: "Dividend",                    category: EARNINGS_FINANCIAL_PERFORMANCE, tier: medium, rationale: "capital return; closest class, but arguably a corporate action"}
-  5:  {name: "Earnings",                    category: EARNINGS_FINANCIAL_PERFORMANCE, tier: strong, rationale: "results, EPS/revenue vs estimates, guidance"}
+  5:  {name: "Earnings",                    category: EARNINGS_FINANCIAL_PERFORMANCE, tier: weak, rationale: "about 70% of this topic is scheduling notices ('to announce results on...'), previews and call transcripts, not results (corpus regex, 683/987; gold 0/6). Reported results live in Financials"}
   6:  {name: "Energy | Oil",                category: null}
   7:  {name: "Financials",                  category: EARNINGS_FINANCIAL_PERFORMANCE, tier: strong, rationale: "mostly quarterly EPS/revenue prints of financial and other companies"}
   8:  {name: "Currencies",                  category: MACROECONOMIC, tier: medium, rationale: "FX moves; macro in effect but often market commentary"}
@@ -22,10 +24,10 @@ topics:
   10: {name: "Gold | Metals | Materials",   category: null}
   11: {name: "IPO",                         category: MA_CORPORATE_ACTION, tier: medium, rationale: "capital-markets corporate action; closest class"}
   12: {name: "Legal | Regulation",          category: REGULATORY_LEGAL, tier: strong, rationale: "lawsuits, settlements, rules, enforcement (includes law-firm solicitation spam)"}
-  13: {name: "M&A | Investments",           category: MA_CORPORATE_ACTION, tier: strong, rationale: "acquisitions, stakes, investments"}
+  13: {name: "M&A | Investments",           category: MA_CORPORATE_ACTION, tier: medium, rationale: "acquisitions, stakes, investments; gold 4/6 (misses: an executive hire, a regulatory review)"}
   14: {name: "Macro",                       category: MACROECONOMIC, tier: strong, rationale: "inflation, growth, labour, trade data across countries"}
   15: {name: "Markets",                     category: MARKET_VALUATION, tier: medium, rationale: "index/futures moves; broad repricing"}
   16: {name: "Politics",                    category: GEOPOLITICAL, tier: weak, rationale: "mostly domestic politics; GEOPOLITICAL here means conflict, sanctions and trade restrictions"}
   17: {name: "Personnel Change",            category: null}
   18: {name: "Stock Commentary",            category: MARKET_VALUATION, tier: weak, rationale: "opinion, trade ideas and promotion, not a market event"}
-  19: {name: "Stock Movement",              category: MARKET_VALUATION, tier: medium, rationale: "describes a price move that already happened (a consequence); never a feature for impact"}
+  19: {name: "Stock Movement",              category: MARKET_VALUATION, tier: weak, rationale: "describes a price move that already happened (a consequence) and usually names its cause (earnings, recall, ruling), which is the event; gold 2/6. Never a feature for impact"}

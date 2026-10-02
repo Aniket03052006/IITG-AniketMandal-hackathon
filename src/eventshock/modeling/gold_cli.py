@@ -92,7 +92,7 @@ def _apply(args: argparse.Namespace) -> int:
         n += 1
     write_sheet(path, rows, columns=list(rows[0].keys()))
     manifest = _manifest()
-    rep = validate_sheet(rows, manifest, prefix="ai_")
+    rep = validate_sheet(rows, manifest, prefix="ai_", subset=path.resolve() != SHEET.resolve())
     print(f"applied {n} labels; {rep.complete}/{rep.rows} complete; {len(rep.errors)} vocabulary errors")
     for e in rep.errors[:10]:
         print("  ", e)
@@ -100,7 +100,8 @@ def _apply(args: argparse.Namespace) -> int:
 
 
 def _validate(args: argparse.Namespace) -> int:
-    rep = validate_sheet(read_sheet(Path(args.sheet)), _manifest(), require_complete=args.require_complete)
+    rep = validate_sheet(read_sheet(Path(args.sheet)), _manifest(), require_complete=args.require_complete,
+                         subset=Path(args.sheet).resolve() != SHEET.resolve())
     print(f"{rep.complete}/{rep.rows} rows completely labelled")
     print("event:", rep.event_distribution, "\nsentiment:", rep.sentiment_distribution)
     for e in rep.errors:
@@ -127,7 +128,8 @@ def _consistency(args: argparse.Namespace) -> int:
 def _score(args: argparse.Namespace) -> int:
     adj = read_sheet(ADJ) if ADJ.exists() else []
     cons = [r for r in read_sheet(CONSISTENCY) if r.get("ai_event_class", "").strip()] if CONSISTENCY.exists() else []
-    out = score_gold(read_sheet(SHEET), _manifest(), adj, cons)
+    mapping = load_topic_mapping(CONFIG_DIR)
+    out = score_gold(read_sheet(SHEET), _manifest(), adj, cons, tiers={t: mapping.tier(t) for t in mapping.topics})
     text = json.dumps(out, indent=1, sort_keys=True, ensure_ascii=False)
     if args.out:
         atomic_write_text(Path(args.out), text + "\n")

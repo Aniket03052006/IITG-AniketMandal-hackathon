@@ -21,6 +21,7 @@ from eventshock.modeling.gold import (
     score_gold,
     validate_sheet,
     weighted_scores,
+    wilson,
     write_sheet,
 )
 from eventshock.pipeline.config import load_enrichment_config
@@ -153,8 +154,7 @@ class TestProbe:
 def labelled(rows, man, *, event="NONE", sentiment="0"):
     out = []
     for r in rows:
-        pop = man["items"][r["gold_id"]]["population"]
-        out.append({**r, "ai_sentiment": sentiment, "ai_event_class": event, "ai_secondary_class": "", "ai_entity_ok": "na" if pop == "tfn" else "y",
+        out.append({**r, "ai_sentiment": sentiment, "ai_event_class": event, "ai_secondary_class": "", "ai_entity_ok": "y" if r["ticker"] else "na",
                     "ai_notes": ""})
     return out
 
@@ -184,15 +184,20 @@ class TestValidate:
         rows[0]["ai_secondary_class"] = "GEOPOLITICAL"
         assert not validate_sheet(rows, self.man).ok
 
-    def test_tfn_rows_take_na_and_history_rows_take_y_or_n(self):
+    def test_rows_without_a_ticker_take_na_and_rows_with_one_take_y_or_n(self):
         rows = labelled(self.rows, self.man)
         tfn = next(r for r in rows if self.man["items"][r["gold_id"]]["population"] == "tfn")
-        hist = next(r for r in rows if self.man["items"][r["gold_id"]]["population"] == "history")
+        hist = next(r for r in rows if self.man["items"][r["gold_id"]]["population"] == "history" and r["ticker"])
         tfn["ai_entity_ok"], hist["ai_entity_ok"] = "y", "na"
         assert len(validate_sheet(rows, self.man).errors) == 2
 
     def test_id_mismatch_with_the_manifest_is_an_error(self):
         assert not validate_sheet(self.rows[1:], self.man).ok
+
+    def test_a_subset_sheet_is_valid_only_when_declared(self):
+        assert validate_sheet(self.rows[:5], self.man, subset=True).ok
+        extra = [{**self.rows[0], "gold_id": "G999"}]
+        assert not validate_sheet(extra, self.man, subset=True).ok
 
 
 class TestSheetIO:
@@ -239,7 +244,7 @@ class TestScoring:
     def test_sentiment_baselines_and_history_estimates(self):
         out = score_gold(self.sheet(), self.man())
         assert out["weak_labels_vs_gold"]["population:history"]["placeholder_sentiment"]["accuracy"] == 0.75  # -0.5 -> -1 hit (w=3), 0.5 -> +1 vs gold 0 miss (w=1)
-        assert out["history_population_estimates"]["share_none"] == 0.25 and out["history_population_estimates"]["entity_ok_rate"] == 0.75
+        assert out["history_population_estimates"]["share_none"] == 0.25 and out["history_population_estimates"]["entity_ok_rate_among_resolved"] == 0.75
 
     def test_human_override_wins_and_agreement_is_reported(self):
         adj = [{c: "" for c in ADJ_COLUMNS} | {"gold_id": "G2", "ai_event_class": "NONE", "ai_sentiment": "0", "human_event_class": "EARNINGS_FINANCIAL_PERFORMANCE"}]
@@ -252,6 +257,21 @@ class TestScoring:
         second = [{**r, "ai_event_class": "NONE" if r["gold_id"] == "G1" else r["ai_event_class"]} for r in self.sheet()]
         out = score_gold(self.sheet(), self.man(), (), second)["self_consistency"]
         assert out["event"]["agreement"] == 0.75 and "NOT an independent" in out["note"]
+
+    def test_current_tiers_override_the_frozen_ones(self):
+        out = score_gold(self.sheet(), self.man(), tiers={5: "weak"})
+        assert out["topic_mapping_precision"]["05 Earnings"]["tier"] == "weak" and out["mapping_precision_by_tier"] == {"weak": 0.5}
+
+    def test_random_strata_report_unweighted_shares_with_a_wilson_interval(self):
+        man = self.man()
+        for gid in ("G3", "G4"):
+            man["items"][gid]["stratum"] = "rand:stock-tweets"
+        out = score_gold(self.sheet(), man)["random_strata"]["rand:stock-tweets"]
+        assert out["n"] == 2 and out["share_none"] == 0.5 and out["none_ci95"][0] < 0.5 < out["none_ci95"][1]
+
+    def test_wilson_interval(self):
+        lo, hi = wilson(50, 100)
+        assert 0.40 < lo < 0.41 and 0.59 < hi < 0.60 and wilson(0, 0)[0] != wilson(0, 0)[0]
 
     def test_metrics_helpers(self):
         assert cohens_kappa(["a", "a", "b", "b"], ["a", "a", "b", "b"]) == 1.0

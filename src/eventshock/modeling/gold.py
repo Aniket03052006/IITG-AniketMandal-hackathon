@@ -266,14 +266,15 @@ class ValidationReport:
 
 
 def validate_sheet(rows: Sequence[dict[str, str]], manifest: dict[str, Any], *, require_complete: bool = False,
-                   prefix: str = "ai_") -> ValidationReport:
+                   prefix: str = "ai_", subset: bool = False) -> ValidationReport:
+    """``subset=True`` for sheets that deliberately hold only some manifest ids (the consistency sheet)."""
     errors: list[str] = []
     ids = [r.get("gold_id", "") for r in rows]
     if len(set(ids)) != len(ids):
         errors.append("duplicate gold_id values")
     missing = set(manifest["items"]) - set(ids)
     extra = set(ids) - set(manifest["items"])
-    if missing:
+    if missing and not subset:
         errors.append(f"{len(missing)} manifest ids missing from the sheet, e.g. {sorted(missing)[:3]}")
     if extra:
         errors.append(f"{len(extra)} sheet ids unknown to the manifest, e.g. {sorted(extra)[:3]}")
@@ -294,8 +295,7 @@ def validate_sheet(rows: Sequence[dict[str, str]], manifest: dict[str, Any], *, 
         if sec and (sec not in EVENT_CLASSES or sec == e):
             errors.append(f"{gid}: {prefix}secondary_class {sec!r} must be one of the 8 classes and differ from the primary")
             bad = True
-        pop = manifest["items"].get(gid, {}).get("population")
-        allowed = {"na"} if pop == "tfn" else {"y", "n"}
+        allowed = {"y", "n"} if r.get("ticker", "").strip() else {"na"}  # no ticker (TFN rows, unresolved history rows) -> na
         if ent not in allowed:
             errors.append(f"{gid}: {prefix}entity_ok {ent!r} must be {' or '.join(sorted(allowed))}")
             bad = True
@@ -324,6 +324,17 @@ def effective_labels(sheet: Sequence[dict[str, str]], adjudication: Sequence[dic
             "entity_ok": h.get("human_entity_ok", "").strip() or r["ai_entity_ok"].strip(),
             "overridden": "yes" if any(h.get(k, "").strip() for k in ("human_sentiment", "human_event_class", "human_entity_ok")) else "no"}
     return out
+
+
+def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """95% Wilson interval for a proportion k/n."""
+    if n == 0:
+        return (float("nan"), float("nan"))
+    p = k / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return (round(c - h, 3), round(c + h, 3))
 
 
 def cohens_kappa(a: Sequence[str], b: Sequence[str]) -> float:
@@ -357,7 +368,8 @@ def weighted_scores(pairs: Sequence[tuple[str, str, float]], classes: Sequence[s
 
 
 def score_gold(sheet: Sequence[dict[str, str]], manifest: dict[str, Any], adjudication: Sequence[dict[str, str]] = (),
-               consistency: Sequence[dict[str, str]] = ()) -> dict[str, Any]:
+               consistency: Sequence[dict[str, str]] = (), tiers: dict[int, str | None] | None = None) -> dict[str, Any]:
+    """``tiers`` (topic id -> current tier) overrides the tiers frozen in the manifest at sampling time."""
     lab = effective_labels(sheet, adjudication)
     items = manifest["items"]
     out: dict[str, Any] = {"annotator": manifest.get("annotator"), "labelled": len(lab), "overridden_by_human": sum(v["overridden"] == "yes" for v in lab.values())}
@@ -368,7 +380,8 @@ def score_gold(sheet: Sequence[dict[str, str]], manifest: dict[str, Any], adjudi
         w = items[gid]["weak"]
         if items[gid]["population"] != "tfn":
             continue
-        t = topics.setdefault(f"{w['topic']:02d} {w['topic_name']}", {"tier": w["tier"], "mapped_class": w["mapped_class"], "n": 0,
+        tier = tiers.get(w["topic"], w["tier"]) if tiers else w["tier"]
+        t = topics.setdefault(f"{w['topic']:02d} {w['topic_name']}", {"tier": tier, "mapped_class": w["mapped_class"], "n": 0,
                                                                       "match": 0, "none": 0, "gold": Counter()})
         t["n"] += 1
         t["gold"][v["event"]] += 1
@@ -424,9 +437,22 @@ def score_gold(sheet: Sequence[dict[str, str]], manifest: dict[str, Any], adjudi
     out["history_population_estimates"] = {
         "n": sum(items[g]["population"] == "history" for g in lab),
         "share_none": wshare(lambda v: v["event"] == "NONE", "history"),
-        "entity_ok_rate": wshare(lambda v: v["entity_ok"] == "y", "history"),
+        "entity_ok_rate_among_resolved": round(
+            sum(items[g]["weight"] for g, v in lab.items() if items[g]["population"] == "history" and v["entity_ok"] == "y")
+            / max(1e-9, sum(items[g]["weight"] for g, v in lab.items() if items[g]["population"] == "history" and v["entity_ok"] in ("y", "n"))), 3),
         "sentiment_distribution": wdist("sentiment", "history"),
         "note": "inclusion-probability weighted over all history strata; the targeted strata make this approximate"}
+
+    # ---- unweighted estimates from the exact simple-random strata (the unbiased, easy-to-explain numbers)
+    rand: dict[str, dict[str, Any]] = {}
+    for stratum in sorted({it["stratum"] for it in items.values() if it["stratum"].startswith("rand:")}):
+        ids = [g for g in lab if items[g]["stratum"] == stratum]
+        none = sum(lab[g]["event"] == "NONE" for g in ids)
+        rand[stratum] = {"n": len(ids), "share_none": round(none / len(ids), 3) if ids else None, "none_ci95": wilson(none, len(ids)),
+                         "event_counts": dict(sorted(Counter(lab[g]["event"] for g in ids).items())),
+                         "sentiment_counts": dict(sorted(Counter(lab[g]["sentiment"] for g in ids).items())),
+                         "entity_ok_share_of_resolved": round(sum(lab[g]["entity_ok"] == "y" for g in ids) / max(1, sum(lab[g]["entity_ok"] in ("y", "n") for g in ids)), 3)}
+    out["random_strata"] = rand
 
     # ---- agreement: AI vs human overrides, and self-consistency
     if adjudication:

@@ -49,14 +49,14 @@ def _probe(args: argparse.Namespace) -> int:
     print(f"sentiment (C={sent['chosen_C']}, train {sent['train_rows']}) re-split test:")
     for k, v in sent["test"].items():
         print(f"  {k:20s} {f(v)}")
-    print(f"  published-valid tfidf {f(sent['published_valid_tfidf_logreg'])}   <- optimistic (near-duplicate leakage)")
+    print(f"  published-valid tfidf {f(sent['published_valid_tfidf_logreg'])}   <- published split: carries near-duplicate leakage")
     if "phrasebank_eval_only" in sent:
         for k, v in sent["phrasebank_eval_only"].items():
             print(f"  phrasebank {k:20s} {f(v)}")
     print(f"event (trainable tiers, classes {len(ev['classes'])}, train {ev['train_rows']}) re-split test:")
     for k, v in ev["test"].items():
         print(f"  {k:20s} {f(v)}")
-    print(f"  published-valid tfidf {f(ev['published_valid_tfidf_logreg'])}   <- optimistic (near-duplicate leakage)")
+    print(f"  published-valid tfidf {f(ev['published_valid_tfidf_logreg'])}   <- published split: carries near-duplicate leakage")
     print("impact (tabular event-time features only, no text):")
     for split, d in imp["splits"].items():
         print(f"  {split:5s} " + "  ".join(f"{t}: rho {v['spearman']:+.3f} lift {v['top_decile_lift']:.2f} (n={v['n']})" for t, v in d.items()))

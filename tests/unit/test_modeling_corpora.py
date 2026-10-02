@@ -99,11 +99,15 @@ class TestGroupSplit:
 
 class TestTopicTiers:
     def test_real_mapping_is_tiered_and_weak_topics_are_not_trainable(self):
-        assert MAPPING.tier(5) == "strong" and MAPPING.trainable(5) is EventCategory.EARNINGS_FINANCIAL_PERFORMANCE
+        assert MAPPING.tier(7) == "strong" and MAPPING.trainable(7) is EventCategory.EARNINGS_FINANCIAL_PERFORMANCE
         assert MAPPING.tier(2) == "weak" and MAPPING.trainable(2) is None  # Company | Product News is a grab-bag
         assert MAPPING.trainable(2, "weak") is EventCategory.PRODUCT_OPERATIONS
         assert MAPPING.trainable(6) is None  # unmapped topic
         assert MAPPING.trainable(0, "strong") is None and MAPPING.trainable(0, "medium") is EventCategory.MARKET_VALUATION
+
+    def test_the_gold_review_demoted_earnings_stock_movement_and_ma(self):
+        assert [MAPPING.tier(i) for i in (5, 19, 13)] == ["weak", "weak", "medium"]
+        assert MAPPING.trainable(5) is None and MAPPING.trainable(19) is None
 
     def test_the_audit_finding_is_pinned_geopolitical_and_product_ops_have_no_trainable_topic(self):
         trainable = {MAPPING.trainable(i) for i in MAPPING.topics} - {None}
