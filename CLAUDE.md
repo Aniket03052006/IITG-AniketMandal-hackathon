@@ -74,16 +74,17 @@ Be honest — failed approaches and dead ends belong there; it feeds the deck's 
 - Commit only when the user asks. Small, incremental commits, imperative messages.
 - `1.Submission Guidelines_External.docx.md` is git-ignored on purpose; leave it that way.
 
-## Current repo state (Stage 3: sentiment model, 2026-10-02)
+## Current repo state (Stage 3b: sentiment + event models, 2026-10-02)
 - Git: branch `main`, incremental commits already exist; commit only when asked.
-- **Sentiment is now a trained model** (`tfidf-lr-v1`: TF-IDF + logistic regression + temperature scaling; `src/eventshock/pipeline/sentiment_model.py`, artifact + card in `models/sentiment/tfidf-lr-v1/`, config `configs/sentiment_model.yaml`, `make train-sentiment`). Event type and impact are **still placeholder rules**; signals carry `data_origin = REAL_SOURCE_MIXED_NLP`, `stage_origins` sentiment=`MODEL`, and `provenance.sentiment` (artifact sha256, confidence, `seen_in_training`). Read `docs/SENTIMENT_MODEL.md` (results, domain gap, failure policy) before changing it. The server refuses to start without the verified artifact; there is no lexicon fall-back. Gold labels and PhraseBank are evaluation-only.
+- **Sentiment is now a trained model** (`tfidf-lr-v1`: TF-IDF + logistic regression + temperature scaling; `src/eventshock/pipeline/sentiment_model.py`, artifact + card in `models/sentiment/tfidf-lr-v1/`, config `configs/sentiment_model.yaml`, `make train-sentiment`). Signals carry `data_origin = REAL_SOURCE_MIXED_NLP`, `stage_origins` sentiment=`MODEL`, and `provenance.sentiment` (artifact sha256, confidence, `seen_in_training`). Read `docs/SENTIMENT_MODEL.md` (results, domain gap, failure policy) before changing it. The server refuses to start without the verified artifact; there is no lexicon fall-back. Gold labels and PhraseBank are evaluation-only.
+- **Event type is now a trained model too** (`tfidf-lr-event-v1`: 9-way TF-IDF + logistic regression, 8 classes + `NONE`, temperature-calibrated, one fixed 0.5 commit threshold; `pipeline/event_model.py`, `models/event/tfidf-lr-event-v1/`, `configs/event_model.yaml`, `make train-event`). It can return `EventStatus` `CLASSIFIED | NO_EVENT | UNCERTAIN`; non-events and uncertain events get **no impact** (`PARTIAL`), so the stress engine never fires on them. Impact is **still the placeholder heuristic**. Labels are AI-annotated (`data/event_labels/`, `ai:claude`), not human; the pre-registered acceptance bar is **not met** on the gold set. `MA_CORPORATE_ACTION` is never asserted. Read `docs/EVENT_MODEL.md` (data, protocol, results, the one policy change made after seeing held-out numbers, limits) before changing it. The server refuses to start without both verified artifacts. Gold and the replay check set are evaluation-only; never train or select on them. Commands: `make event-pools event-merge event-table train-event`.
 - Stage 1: FastAPI + Pydantic backend (`src/eventshock/`), deterministic stress engine, React/Vite/TS/Tailwind UI (`web/`),
   configs, fixtures, tests, docs. Stage-1 fictional fixtures remain as the `demo` profile (`EVENTSHOCK_PROFILE=demo`).
 - Stage 2 (default `replay` profile; its sentiment stage has since been replaced by the model above): real documents (GDELT DOC 2.0 metadata + Twitter Financial News sample) from a
   hash-pinned snapshot in `data/replay/` run through `src/eventshock/pipeline/` (normalise → validate/quarantine → entity
   resolution → dedup → placeholder enrichment) into the same `RiskSignal` → stress → UI path. Signals carry
-  `data_origin = REAL_SOURCE_PLACEHOLDER_NLP` (plain `PlaceholderEnricher`) or `REAL_SOURCE_MIXED_NLP` (the served path) and a `provenance` block. Sentiment (except TFN labels), event type and impact
-  are **placeholder rules** (`configs/placeholder_enrichment.yaml`); keep that distinction visible in any new code or UI.
+  `data_origin = REAL_SOURCE_PLACEHOLDER_NLP` (plain `PlaceholderEnricher`) or `REAL_SOURCE_MIXED_NLP` (the served path) and a `provenance` block. The plain enricher's sentiment (except TFN labels),
+  event type and impact are **placeholder rules** (`configs/placeholder_enrichment.yaml`); in the served path only impact still is. Keep that distinction visible in any new code or UI.
   Network access exists only in `ingestion/fetch.py` (`make fetch-gdelt|fetch-tfn`, resumable); the server never calls out.
   Data layout and licences: `docs/DATA_LICENSES.md`. Architecture: `docs/ARCHITECTURE.md`.
 - Stage 3 prep (modeling-data audit, no models trained): `src/eventshock/modeling/` builds the modeling tables, leakage checks and
@@ -117,6 +118,7 @@ make fixtures   # regenerate deterministic Stage-1 demo data (tests assert it is
 make ingest     # run the ingestion pipeline over data/replay, export to data/processed
 make fetch-gdelt fetch-tfn   # download source data into data/raw (network); then `make replay-pack` freezes it
 make train-sentiment  # train + select + calibrate + evaluate the sentiment model -> models/sentiment/ (~2 min)
+make train-event      # train + calibrate + evaluate the event model -> models/event/ (~2 min; --dev-only OUT iterates without scoring held-out sets)
 make types      # re-export OpenAPI and regenerate web/src/api/schema.d.ts after changing API models
 make logo       # rebuild SVG logos (web/public/*.svg) with outlined wordmark
 ```

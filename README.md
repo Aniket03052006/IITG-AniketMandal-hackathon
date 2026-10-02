@@ -66,7 +66,7 @@ extension points: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | Tests | pytest (backend), Vitest + Testing Library (frontend) | Contracts, formulas, golden replay, UI states |
 | Ingestion (Stage 2) | stdlib only: adapters → validate → entity resolution → dedup → enrichment | Deterministic replay from hash-pinned snapshots |
 | Sentiment (Stage 3) | **TF-IDF + logistic regression + temperature scaling** (scikit-learn), trained on Twitter Financial News, committed artifact with model card | Small, CPU-only, byte-reproducible; evaluation and failure modes in [docs/SENTIMENT_MODEL.md](docs/SENTIMENT_MODEL.md) |
-| Planned (later stages) | Event classifier, calibrated impact model (XGBoost + SHAP), EDGAR/NewsAPI adapters, DuckDB/SQLite | Behind the extension points in `ports.py` |
+| Planned (later stages) | Calibrated impact model (XGBoost + SHAP), EDGAR/NewsAPI adapters, DuckDB/SQLite | Behind the extension points in `ports.py` |
 
 ## 3. Dataset Used
 
@@ -144,7 +144,7 @@ low-impact event (*What-if*), the partial signal (blocked), and the unresolved-e
 
 What the prototype demonstrates today:
 
-- A feed of multi-source events with sentiment, event class and 1–10 impact, each with its evidence
+- A feed of multi-source events with sentiment, event class (or "not an event" / "uncertain") and 1–10 impact, each with its evidence
   trail and a persistent *demo fixture* label.
 - A rule-based trigger (`impact ≥ 7`) that maps an event class to an explicit scenario template and
   runs it against a multi-asset portfolio. For the headline demo event the book moves from
@@ -166,15 +166,16 @@ consequence in one place, and can inspect every number behind it.
 | Validation / quarantine, entity resolution, de-duplication, corroboration counts, provenance | **Real** (deterministic rules) |
 | Stress engine, scenario scaling, attribution, run ids | **Real, deterministic** |
 | Sentiment | **Trained model** (`tfidf-lr-v1`): macro-F1 0.78 on held-out Twitter Financial News, 0.47 on Financial PhraseBank, 0.44 on our own AI-labelled sources (95% CIs and baselines in the model card); labelled `MODEL` in the UI, with per-signal confidence and an *in-sample* flag |
-| Event type · impact | **Placeholder rules** (`placeholder-v0`), labelled in the UI; impact reads the model's tone magnitude |
+| Event type | **Trained model** (`tfidf-lr-event-v1`) trained on 2.3k AI-annotated in-domain labels. It can say *not a market event* or *uncertain*; it separates events from non-events with F1 0.70 on our own AI-labelled sources (the old keyword rules: 0.49), but names the exact type far less reliably (macro-F1 0.53 vs 0.33), never asserts `M&A / Corporate Action`, and **missed its pre-registered acceptance bar on the gold set** (0.33 [0.26, 0.38] vs 0.33); the full card, per-class reliability and error analysis are in [docs/EVENT_MODEL.md](docs/EVENT_MODEL.md) |
+| Impact | **Placeholder heuristic** (`placeholder-v0`), labelled in the UI; reads the models' category and tone; none for non-events |
 | Impact "drivers" bars | Placeholder heuristic terms, labelled *not a trained model* |
 | Portfolio | **Synthetic** positions on real issuers |
 | Scenario magnitudes | Illustrative configuration |
-| Event classifier, calibrated impact model, contradiction detection, domain-adapted sentiment | Not built yet |
+| Calibrated impact model, contradiction detection, domain-adapted sentiment, human-adjudicated labels | Not built yet |
 
 ## Limitations
 
-Event type and impact are placeholder rules, not models; sentiment is a trained model but weak outside its training domain (see [docs/SENTIMENT_MODEL.md](docs/SENTIMENT_MODEL.md)); the entity resolver is a 34-issuer dictionary; GDELT supplies headlines only (no article text); tweets carry no real timestamps; contradiction detection is not built; in-memory state only (the pipeline reruns at startup); no FX/commodity factors or option gamma; single-currency
+Impact is a placeholder rule, not a model; sentiment is a trained model but weak outside its training domain (see [docs/SENTIMENT_MODEL.md](docs/SENTIMENT_MODEL.md)); event type is a trained model whose labels come from an AI annotator (no human labels exist) and which is unreliable on several classes (see [docs/EVENT_MODEL.md](docs/EVENT_MODEL.md)); the entity resolver is a 34-issuer dictionary; GDELT supplies headlines only (no article text); tweets carry no real timestamps; contradiction detection is not built; in-memory state only (the pipeline reruns at startup); no FX/commodity factors or option gamma; single-currency
 synthetic book; no authentication. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the roadmap and
 [docs/PROJECT_JOURNEY.md](docs/PROJECT_JOURNEY.md) for what was built, what broke, and how it was fixed.
 

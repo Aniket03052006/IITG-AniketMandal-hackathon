@@ -30,7 +30,7 @@ flowchart LR
     NV -->|quarantine + reason| Q[(quarantine report)]
     NV --> ER[entity resolution<br/>dictionary, weak-alias guard]
     ER --> DD[dedup / cluster<br/>exact, syndicated, near, same-event]
-    DD --> EN[enricher port<br/>sentiment: trained model<br/>event, impact: placeholder-v0]
+    DD --> EN[enricher port<br/>sentiment, event type: trained models<br/>impact: placeholder-v0]
     EN --> RS[RiskSignal + provenance]
     RS --> REPO[InMemorySignalRepository] --> API[FastAPI] --> UI[React UI]
     RS --> STRESS[StressService, unchanged]
@@ -44,14 +44,14 @@ flowchart LR
 | Validation | closed set of reject codes; every record ends in exactly one bucket (quarantined / folded duplicate / report inside a signal) |
 | Entity resolution | cashtag → legal name → alias → bare ticker → *weak alias* (ordinary words like Apple/Visa/Target: case-sensitive and only with finance context or another strong mention) → restrained fuzzy; multiple issuers cap confidence; anything uncertain is `UNKNOWN_ENTITY`; the audit records what was considered and refused |
 | Dedup | blocked by entity; star clustering against the earliest report (no single-link chaining); exact duplicates are folded and not counted, syndicated/near/same-event reports become `Evidence.corroborating` |
-| Enrichment | `Enricher` port. `ModelSentimentEnricher` = trained sentiment model (`pipeline/sentiment_model.py`, artifact in `models/sentiment/`, integrity-checked at load, never falls back to the lexicon) + `placeholder-v0` event/impact rules. Documents the model cannot score are quarantined (`UNSCORABLE_TEXT`). Every stage is labelled in `SignalProvenance.stage_origins` and `ModelVersions`; `SignalProvenance.sentiment` carries model id, artifact sha256, confidence and `seen_in_training`; `data_origin = REAL_SOURCE_MIXED_NLP` |
+| Enrichment | `Enricher` port. `ModelEnricher` (served) = trained sentiment model (`pipeline/sentiment_model.py`) + trained event model (`pipeline/event_model.py`, 9-way: 8 classes + `NONE`, calibrated, one 0.5 commit threshold) + the `placeholder-v0` impact heuristic. Artifacts in `models/sentiment/` and `models/event/` are integrity-checked at load and never fall back to rules. An event the model judges a non-event (`NO_EVENT`) or will not type (`UNCERTAIN`) gets **no impact**: the signal is `PARTIAL` with a reason and the stress engine reports it unavailable. `ModelSentimentEnricher` and `PlaceholderEnricher` remain as regression anchors. Documents a model cannot score are quarantined (`UNSCORABLE_TEXT`). Every stage is labelled in `SignalProvenance.stage_origins` and `ModelVersions`; `SignalProvenance.sentiment` / `.event` carry model id, artifact sha256, calibrated confidence and `seen_in_training`; `data_origin = REAL_SOURCE_MIXED_NLP` |
 | Profiles | `data.profile: replay` (default, real pack) or `demo` (Stage-1 fixtures); same container, same contracts |
 | Dependencies | ingestion is stdlib (`urllib`, `difflib`, `hashlib`); the sentiment model adds numpy, scikit-learn, joblib (pinned in `requirements.txt`; the artifact is refused if the scikit-learn version differs) |
-| Model card | `GET /api/models/sentiment` serves `models/sentiment/*/model_card.json` (typed: `SentimentModelCard`); the Data pipeline page renders it |
+| Model cards | `GET /api/models/sentiment` and `GET /api/models/event` serve the typed model cards (`SentimentModelCard`, `EventModelCard`); the Data pipeline page renders both. The event card adds the pre-registered acceptance verdict, per-class reliability and the abstention policy |
 
 What is real: ingestion, validation, entity resolution, deduplication, corroboration counts, provenance, the sentiment
-model, the stress engine. What is a stand-in: event type, impact (which reads the model's tone magnitude), the portfolio
-(synthetic positions on real issuers), scenario magnitudes.
+model, the event model (weak, flagged per class, see EVENT_MODEL.md), the stress engine. What is a stand-in: impact (which
+reads the models' category and tone), the portfolio (synthetic positions on real issuers), scenario magnitudes.
 
 ## What exists today
 
@@ -164,8 +164,8 @@ A well-formed stress request always returns 200; `status` says whether numbers w
 | ~~Real/replay ingestion (GDELT, Twitter Financial News)~~ **done in Stage 2**; NewsAPI / EDGAR 8-K next | `ingestion/*.py` adapters | `SourceAdapter` → `RawDocument` | `RawDocument` |
 | ~~Validation + dedup~~ **done**; contradiction detection still open | `pipeline/validate.py`, `dedup.py` | between adapter and NLP | `Evidence.corroborating`, `contradicted_by` |
 | ~~Entity resolution~~ **done** (dictionary); NER/market-wide pseudo-entities open | `pipeline/entities.py` | fills `EntityMention` incl. `UNKNOWN_ENTITY` | `EntityMention` |
-| Sentiment (FinBERT) | replaces `pipeline/enrich.py` (`Enricher` port) | fills `SentimentResult`; `model_versions.sentiment` | `SentimentResult` |
-| Event classification | `nlp/events.py` (+ taxonomy mapping table) | fills `EventClassification` | taxonomy in `event_taxonomy.yaml` |
+| ~~Sentiment~~ **done in Stage 3** (TF-IDF + LR); a domain-adapted model is open | `pipeline/sentiment_model.py` | fills `SentimentResult`; `model_versions.sentiment` | `SentimentResult` |
+| ~~Event classification~~ **done in Stage 3b** (`pipeline/event_model.py`, [EVENT_MODEL.md](EVENT_MODEL.md)); embeddings and human-adjudicated labels next | `pipeline/event_model.py` | fills `EventClassification` incl. `status` | taxonomy in `event_taxonomy.yaml` |
 | Calibrated impact (XGBoost + SHAP) | `impact/` (dataset, train, calibrate, predict) | fills `ImpactAssessment`; real SHAP into `drivers`; flips `data_origin` to `MODEL_OUTPUT` | `ImpactAssessment` |
 | Evidence / corroboration | `risk/evidence.py` | fills `Evidence` from the narrative layer | `Evidence` |
 | Signal store | SQLite repository (pipeline output is currently rebuilt in memory at startup) | implements `SignalRepository` (replace `InMemorySignalRepository`) | `RiskSignal` |

@@ -35,6 +35,9 @@ download (research access is by application). The Kaggle card-transaction datase
 | `data/gold/gold_sample.csv`, `gold_manifest.json`, `adjudication.csv`, `consistency_sheet.csv`, `gold_scores.json` | ~400 texts sampled from the history snapshot (CC0 Kaggle tweets and headlines, GDELT GKG titles) and 120 Twitter-Financial-News topic tweets (MIT per dataset card; tweet content originates on X) plus our labels (annotator `ai:claude`; a human may override in `adjudication.csv`) | **Yes** (about 320 KB, incl. `gold_scores.json`). Removal for the TFN rows: delete them from the sheet and manifest, re-run `gold-sample` |
 | `data/modeling/sentiment.jsonl` | TFN sentiment (MIT, attribution above) exact-deduplicated and re-split; the training table of the sentiment model | **Yes** (2 MB) so `make train-sentiment` works from a clone |
 | `models/sentiment/tfidf-lr-v1/` | a TF-IDF + logistic-regression model trained on that table (its weights derive from MIT data). PhraseBank (CC BY-NC-SA) and the AI-annotated gold set were used for evaluation only, never for training or selection; the card quotes aggregate scores and no PhraseBank text | **Yes** (1.7 MB) |
+| `data/event_labels/` (`event_labels.csv`, `manifest.json`, `answers/*.jsonl`, `consistency.json`) and `data/modeling/event_train.jsonl` | ~3,270 texts from the history snapshot (CC0 Kaggle tweets and headlines, GDELT GKG titles), TFN topic tweets (MIT per dataset card; tweet content originates on X) and 200 titles/posts of the replay pack (GDELT metadata, TFN sample), plus the AI annotator's labels (`ai:claude`, blind; see EVENT_MODEL.md). No publisher text. The blind input batches are regenerable and git-ignored | **Yes** (about 2 MB + 0.6 MB + 0.4 MB). Removal for the TFN rows: delete them from the label CSV/manifest and re-run `make event-table train-event` |
+| `models/event/tfidf-lr-event-v1/` | a TF-IDF + logistic-regression model trained on that table (weights derive from CC0 / MIT texts and our labels). The gold set was used for evaluation only | **Yes** (2.7 MB: artifact + model card) |
+| `docs/evidence/event_first_run_two_threshold_card.json` | the event model card of the first full run, kept so a design change made after it stays auditable | **Yes** |
 | `data/modeling/*` (the rest: `impact_events.jsonl`, `event_silver.jsonl`, `phrasebank_eval.jsonl`, `audit.json`, `probe*.json`) | the raw datasets above, re-split, deduplicated and joined to prices | **No** (git-ignored; rebuild with `make audit`). `phrasebank_eval.jsonl` is CC BY-NC-SA and must never be committed or trained on |
 | Yahoo prices | refetched from 2014-01-01 (`make fetch-prices`) so H1 2015 has a 250-session history | No |
 
@@ -46,8 +49,9 @@ download (research access is by application). The Kaggle card-transaction datase
 | `data/raw/` | bulk / fresh downloads (`make fetch-gdelt`, `make fetch-gkg`, `make fetch-tfn`, `make fetch-kaggle`, `make fetch-prices`) | no |
 | `data/history/` | curated modelling snapshot (2015-2026; `scripts/build_history_pack.py`) read by the same pipeline | no |
 | `data/processed/` | pipeline exports (`make ingest`) | no |
-| `data/modeling/` | modeling tables and audit output (`make audit`); only `sentiment.jsonl` (the sentiment training table) is tracked | partly |
-| `models/sentiment/` | the trained sentiment artifact and its model card (`make train-sentiment`) | yes |
+| `data/modeling/` | modeling tables and audit output (`make audit`); only `sentiment.jsonl` and `event_train.jsonl` (the training tables) are tracked | partly |
+| `models/sentiment/`, `models/event/` | the trained artifacts and their model cards (`make train-sentiment`, `make train-event`) | yes |
+| `data/event_labels/` | the annotator's event labels, blind-pool manifest and answer files (`make event-pools`, `make event-merge`) | yes |
 | `data/gold/` | the gold set: blind sheet, manifest, adjudication, consistency | yes |
 | `data/fixtures/` | Stage-1 fictional demo data (`EVENTSHOCK_PROFILE=demo`) | yes |
 
