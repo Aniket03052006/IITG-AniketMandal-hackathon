@@ -1,0 +1,51 @@
+# PLACEHOLDER enrichment (version placeholder-v0). Deterministic keyword/lexicon rules that stand in for the
+# sentiment, event and impact models of later stages. Nothing here is trained or calibrated.
+version: "placeholder-v0"
+
+sentiment:
+  neutral_mass: 2.0             # pseudo-count of neutrality: score = (pos - neg) / (pos + neg + neutral_mass)
+  positive: [beats, beat, surges, surge, soars, soar, rallies, rally, jumps, jump, record, upgrade,
+             upgraded, raises, boosts, wins, growth, rises, gains, profit, approval, approved, partnership,
+             expands, launches, strong, outperform, bullish, buyback, dividend]
+  negative: [plunges, plunge, falls, fall, slumps, slump, misses, miss, downgrade, downgraded, cuts, cut,
+             probe, lawsuit, sues, fraud, layoffs, recall, bankruptcy, bankrupt, default, defaults, loses,
+             warning, warns, weak, bearish, fined, fine, investigation, outage, breach, strike, halts, delays]
+
+# First matching category by keyword hits; ties break in the order listed. No hit => MARKET_VALUATION prior.
+event_keywords:
+  GEOPOLITICAL: [sanctions, sanction, war, invasion, ceasefire, geopolitical, tariff, tariffs, embargo,
+                 conflict, missile, military, tensions, blockade, opec, export controls]
+  MACROECONOMIC: [fed, federal reserve, interest rate, rates, inflation, cpi, gdp, recession, jobs report,
+                  central bank, ecb, treasury yields, unemployment, rate cut, rate hike]
+  CREDIT_FUNDING: [bond, bonds, debt, credit rating, downgrades debt, default, bankruptcy, liquidity,
+                   refinancing, notes offering, loan, covenant, funding, junk, moody's, fitch]
+  MA_CORPORATE_ACTION: [acquire, acquires, acquisition, merger, merge, takeover, buyout, stake, divest,
+                        spin-off, spinoff, buys, to buy, tender offer, joint venture]
+  REGULATORY_LEGAL: [lawsuit, sues, probe, investigation, antitrust, fined, fine, regulator, sec, ftc, doj,
+                     settlement, court, ruling, fda, approval, approved, subpoena, compliance]
+  PRODUCT_OPERATIONS: [launch, launches, unveils, recall, outage, supply chain, production, factory, strike,
+                       breach, cyberattack, shortage, delay, delays, plant, release, rollout]
+  EARNINGS_FINANCIAL_PERFORMANCE: [earnings, eps, revenue, profit, quarter, quarterly, guidance, forecast,
+                                   sales, results, beats estimates, misses estimates, outlook, margin]
+  MARKET_VALUATION: [price target, upgrade, downgrade, upgraded, downgraded, rating, shares, stock,
+                     valuation, rally, slump, plunge, surge, initiates, overweight, underweight]
+
+event_probability:
+  matched_primary: 0.55         # mass on the matched category (+0.08 per extra hit, max 0.80); rest is spread evenly
+  per_extra_hit: 0.08
+  max_primary: 0.80
+  unmatched_market_valuation: 0.30
+
+# impact.raw = category_prior + tone_weight*|sentiment| + corroboration_weight*min(1, log2(domains)/3); score = ceil(raw*10)
+impact:
+  tone_weight: 0.20
+  corroboration_weight: 0.10
+  category_prior:
+    GEOPOLITICAL: 0.55
+    MACROECONOMIC: 0.50
+    CREDIT_FUNDING: 0.55
+    MA_CORPORATE_ACTION: 0.45
+    REGULATORY_LEGAL: 0.50
+    PRODUCT_OPERATIONS: 0.40
+    EARNINGS_FINANCIAL_PERFORMANCE: 0.40
+    MARKET_VALUATION: 0.25

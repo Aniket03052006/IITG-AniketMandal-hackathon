@@ -1,0 +1,54 @@
+# Ingestion pipeline rules (Stage 2). Behaviour lives here, not in code; every value is validated at startup.
+version: "1"
+
+validation:
+  min_text_chars: 15            # shorter text is not a usable report
+  max_text_chars: 2000          # longer is boilerplate/scrape debris, not a headline or tweet
+  min_alpha_ratio: 0.45         # share of letters in the text; guards symbol/number soup
+  allowed_languages: [en]       # anything else is quarantined (abstain, do not translate)
+  future_skew_minutes: 5        # tolerated clock skew vs the replay clock
+
+entity_resolution:
+  version: "er-v1"
+  min_link_confidence: 0.5      # below this the mention is stored as UNKNOWN_ENTITY
+  multi_entity_cap: 0.6         # primary confidence is capped when several issuers compete
+  confidence:
+    cashtag: 0.98
+    legal_name: 0.95
+    alias: 0.85
+    weak_alias: 0.70
+    fuzzy: 0.65
+  fuzzy:
+    enabled: true
+    min_ratio: 0.92
+    min_alias_chars: 7
+  # Aliases that are also ordinary words. They only count when written exactly like this
+  # (case-sensitive) AND the text carries finance context (below) or another strong mention.
+  weak_aliases: [Apple, Amazon, Meta, Visa, Target, Ford, Shell, Intel, Oracle, Nike, BP, GE]
+  # Ordinary-language uses of those words, blanked out before a weak alias is looked for
+  # ("price target", "visa waiver", "shell company"). Regular expressions, case-insensitive.
+  weak_alias_neutralisers:
+    - '\b(?:price|average|consensus|analyst|new|bold|sales|emissions|revenue|profit|earnings|year-end|\d{4})\s+targets?\b'
+    - '\btargets?\s+(?:price|date|fund|funds|audience|market|range|list|practice|of|for|is|was|at)\b'
+    - '\bvisa\s+(?:waiver|application|applications|fee|fees|requirement|requirements|ban|bans|processing|appointment|free|policy|program|programme)\b'
+    - '\b(?:tourist|work|student|travel|h-1b|h1b|entry)\s+visas?\b'
+    - '\b(?:a|an|the|empty|mere|just|hollow)\s+shell\b'
+    - '\bshell\s+(?:company|companies|game|script|corporation|corporations|account|accounts)\b'
+    - '\bintel\s+(?:agency|agencies|gathering|community|officials?|chief)\b'
+    - '\bamazon\s+(?:rainforest|river|basin|forest)\b'
+    - '\bapple\s+(?:pie|juice|cider|harvest|orchard|tree|trees|dessert|desserts|picking|festival|cake|crumble|sauce)\b'
+    - '\boracle\s+(?:bone|bones|of|at delphi)\b'
+  finance_context:
+    [shares, share, stock, stocks, earnings, quarter, quarterly, revenue, profit, profits, analyst,
+     analysts, investors, investor, ceo, cfo, dividend, guidance, forecast, nasdaq, nyse, market,
+     markets, billion, million, sales, upgrade, downgrade, upgraded, downgraded, price target,
+     antitrust, lawsuit, acquisition, acquire, deal, bond, bonds, debt, margin, outlook, valuation,
+     rally, slump, plunge, surge, fined, regulator, recall, buyback, ipo, wall street, s&p, patent, jury,
+     court, owes, ruling, settlement, bn, trillion, layoffs, executive, chief, probe, merger, takeover]
+
+dedup:
+  window_hours: 72              # near-duplicates must be this close in time (trusted timestamps only)
+  near_duplicate_threshold: 0.80    # token Jaccard
+  same_event_threshold: 0.60
+  same_event_min_shared_tokens: 4
+  same_event_window_hours: 48
