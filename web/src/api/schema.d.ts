@@ -38,6 +38,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/models/event": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Event Model
+         * @description The event model card: training data, abstention, per-class reliability, scores and failure modes.
+         */
+        get: operations["event_model_api_models_event_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/models/sentiment": {
         parameters: {
             query?: never;
@@ -238,6 +258,31 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Acceptance */
+        Acceptance: {
+            /** Checks */
+            checks: components["schemas"]["AcceptanceCheck"][];
+            /** Met */
+            met: boolean;
+            /**
+             * Rule
+             * @description the bar, fixed before the gold set was scored
+             */
+            rule: string;
+        };
+        /** AcceptanceCheck */
+        AcceptanceCheck: {
+            /** Baseline */
+            baseline: number | null;
+            /** Detail */
+            detail: string;
+            /** Model */
+            model: number | null;
+            /** Name */
+            name: string;
+            /** Passed */
+            passed: boolean;
+        };
         /**
          * AppliedShock
          * @description A scenario shock after severity scaling and entity binding.
@@ -265,6 +310,18 @@ export interface components {
          * @enum {string}
          */
         AssetClass: "EQUITY" | "BOND" | "LOAN" | "DERIVATIVE";
+        /** BaselineScores */
+        BaselineScores: {
+            /** Accuracy */
+            accuracy: number;
+            /**
+             * Detection F1
+             * @description event vs not-an-event F1 (a baseline that never says NONE gets recall 1)
+             */
+            detection_f1: number | null;
+            /** Macro F1 */
+            macro_f1: number;
+        };
         /** CalibrationInfo */
         CalibrationInfo: {
             /** Ece Test After */
@@ -308,6 +365,26 @@ export interface components {
             /** Support */
             support: number;
         };
+        /** ClassReliability */
+        ClassReliability: {
+            /** Annotated Train */
+            annotated_train: number;
+            /** Dev F1 */
+            dev_f1: number | null;
+            /** Dev Support */
+            dev_support: number;
+            /** Label */
+            label: string;
+            /** Reason */
+            reason: string;
+            /**
+             * Status
+             * @description ok | unreliable | unmeasured
+             */
+            status: string;
+            /** Train Examples */
+            train_examples: number;
+        };
         /** ConfidentError */
         ConfidentError: {
             /** Confidence */
@@ -322,6 +399,22 @@ export interface components {
             text: string;
             /** Truth */
             truth: string;
+        };
+        /** ConsistencyInfo */
+        ConsistencyInfo: {
+            /** Agreement */
+            agreement: number | null;
+            /** Kappa */
+            kappa: number | null;
+            /** N */
+            n: number;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Share None First Pass */
+            share_none_first_pass: number | null;
         };
         /** Contribution */
         Contribution: {
@@ -553,6 +646,99 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** EventAbstention */
+        EventAbstention: {
+            /**
+             * Commit Threshold
+             * @description the arg-max of the 9-class posterior is committed only at or above this probability
+             */
+            commit_threshold: number;
+            /** Dev Classified Precision */
+            dev_classified_precision: number | null;
+            /** Dev Classified Share */
+            dev_classified_share: number;
+            /**
+             * Dev Coverage
+             * @description share of weighted dev rows the model commits to (not UNCERTAIN)
+             */
+            dev_coverage: number;
+            /** Dev No Event Precision */
+            dev_no_event_precision: number | null;
+            /** Dev Population N */
+            dev_population_n: number;
+            /** Rationale */
+            rationale: string;
+            /** Route Unreliable To Uncertain */
+            route_unreliable_to_uncertain: boolean;
+            /** Unreliable Classes */
+            unreliable_classes: string[];
+        };
+        /**
+         * EventAudit
+         * @description Which trained model classified this signal's event, and how far to trust this particular output.
+         */
+        EventAudit: {
+            /**
+             * Artifact Sha256
+             * @description sha256 of the scoring artifact
+             */
+            artifact_sha256: string;
+            /** Calibrated */
+            calibrated: boolean;
+            /**
+             * Confidence
+             * @description calibrated P(top event class) among all nine classes, NONE included
+             */
+            confidence: number;
+            /** Model Id */
+            model_id: string;
+            /** Model Version */
+            model_version: string;
+            /** No Event Probability */
+            no_event_probability: number;
+            /**
+             * Seen In Training
+             * @description the exact text (case, punctuation, URLs ignored) was in the model's training data
+             */
+            seen_in_training: boolean;
+            /**
+             * Unreliable Class
+             * @description the model card flags the top class as unreliable (never asserted)
+             */
+            unreliable_class: boolean;
+        };
+        /** EventCalibration */
+        EventCalibration: {
+            /** Ece Dev Population After */
+            ece_dev_population_after: number;
+            /** Ece Dev Population Before */
+            ece_dev_population_before: number;
+            /** Fitted On */
+            fitted_on: string;
+            /** Method */
+            method: string;
+            /** Reliability Dev Population */
+            reliability_dev_population: components["schemas"]["ReliabilityBin"][];
+            /** Temperature */
+            temperature: number;
+        };
+        /** EventCandidate */
+        EventCandidate: {
+            /** C */
+            C: number;
+            /** Class Weight */
+            class_weight: string | null;
+            /** Dev Log Loss */
+            dev_log_loss: number;
+            /** Dev Macro F1 */
+            dev_macro_f1: number;
+            /** Preprocessing */
+            preprocessing: string;
+            /** Selected */
+            selected: boolean;
+            /** Temperature */
+            temperature: number;
+        };
         /**
          * EventCategory
          * @description The PRD's eight-class event taxonomy (docs: PRD §11.2).
@@ -565,10 +751,229 @@ export interface components {
          */
         EventClassification: {
             category: components["schemas"]["EventCategory"];
-            /** Probabilities */
+            /**
+             * No Event Probability
+             * @description calibrated P(not a market event); null where the stage cannot say so
+             */
+            no_event_probability: number | null;
+            /**
+             * Probabilities
+             * @description over the eight classes; for a trained model, conditional on the text being an event
+             */
             probabilities: {
                 [key: string]: number;
             };
+            /**
+             * @description CLASSIFIED | NO_EVENT | UNCERTAIN: whether `category` is a finding (see EventStatus)
+             * @default CLASSIFIED
+             */
+            status: components["schemas"]["EventStatus"];
+        };
+        /** EventConfidentError */
+        EventConfidentError: {
+            /** Confidence */
+            confidence: number;
+            /** Eval Set */
+            eval_set: string;
+            /** P None */
+            p_none: number;
+            /**
+             * Served
+             * @description CLASSIFIED:<class> | NO_EVENT | UNCERTAIN:<best guess>
+             */
+            served: string;
+            /** Text */
+            text: string;
+            /** Top Class */
+            top_class: string;
+            /** Truth */
+            truth: string;
+        };
+        /**
+         * EventDetection
+         * @description Event vs not-an-event, at the served decision (anything but NO_EVENT counts as 'an event').
+         */
+        EventDetection: {
+            /** F1 */
+            f1: number;
+            /** Precision */
+            precision: number;
+            /** Recall */
+            recall: number;
+        };
+        /** EventEvalMetrics */
+        EventEvalMetrics: {
+            /** Accuracy */
+            accuracy: number;
+            /** Brier */
+            brier: number | null;
+            /** Confusion */
+            confusion: number[][];
+            /** Ece */
+            ece: number | null;
+            /**
+             * Event Macro F1
+             * @description macro-F1 over the 8 event classes only (rows whose truth is NONE do not count as a class)
+             */
+            event_macro_f1: number;
+            /**
+             * Labels
+             * @description row/column order of the confusion matrix: truth (rows) x arg-max class (columns)
+             */
+            labels: string[];
+            /** Log Loss */
+            log_loss: number | null;
+            /**
+             * Macro F1
+             * @description 9-class macro-F1 of the arg-max, over classes that occur in the truth
+             */
+            macro_f1: number;
+            /** Macro F1 Ci95 */
+            macro_f1_ci95: [
+                number,
+                number
+            ] | null;
+            /** N */
+            n: number;
+            /** Per Class */
+            per_class: {
+                [key: string]: components["schemas"]["ClassMetrics"];
+            };
+            served: components["schemas"]["ServedDecision"];
+            /** Served F1 Ci95 */
+            served_f1_ci95: [
+                number,
+                number
+            ] | null;
+            /** Weighted */
+            weighted: boolean;
+        };
+        /** EventEvalSet */
+        EventEvalSet: {
+            /** Baselines */
+            baselines: {
+                [key: string]: components["schemas"]["BaselineScores"];
+            };
+            /** Description */
+            description: string;
+            /** Id */
+            id: string;
+            model: components["schemas"]["EventEvalMetrics"] | null;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /**
+             * Role
+             * @description in_domain | indicative | secondary
+             */
+            role: string;
+            /**
+             * Status
+             * @description ok | skipped
+             */
+            status: string;
+            /** Title */
+            title: string;
+        };
+        /** EventModelCard */
+        EventModelCard: {
+            /**
+             * Ablation
+             * @description dev log-loss with and without the TFN silver rows
+             */
+            ablation: {
+                [key: string]: number;
+            };
+            abstention: components["schemas"]["EventAbstention"];
+            acceptance: components["schemas"]["Acceptance"];
+            /** Algorithm */
+            algorithm: string;
+            /** Artifact Bytes */
+            artifact_bytes: number;
+            /** Artifact File */
+            artifact_file: string;
+            /** Artifact Sha256 */
+            artifact_sha256: string;
+            calibration: components["schemas"]["EventCalibration"];
+            /** Candidates */
+            candidates: components["schemas"]["EventCandidate"][];
+            /** Class Reliability */
+            class_reliability: components["schemas"]["ClassReliability"][];
+            /**
+             * Classes
+             * @description the 9 classes the model scores: the 8 event categories and NONE
+             */
+            classes: string[];
+            /** Confident Errors */
+            confident_errors: components["schemas"]["EventConfidentError"][];
+            /** Evaluations */
+            evaluations: components["schemas"]["EventEvalSet"][];
+            /** Id */
+            id: string;
+            /** Libraries */
+            libraries: {
+                [key: string]: string;
+            };
+            /** Limitations */
+            limitations: string[];
+            /** Output Definition */
+            output_definition: string;
+            /** Preprocessing */
+            preprocessing: string;
+            /** Selection Rule */
+            selection_rule: string;
+            training: components["schemas"]["EventTrainingInfo"];
+            /** Version */
+            version: string;
+        };
+        /**
+         * EventStatus
+         * @description What the event stage is willing to claim about a document (the taxonomy itself is unchanged).
+         *
+         *     CLASSIFIED: a market event of ``category``.
+         *     NO_EVENT: the model judges the text is not a market event (chatter, promotion, opinion, a notice).
+         *         ``category`` is then only its best guess *if* it were one, and must not be shown as a finding.
+         *     UNCERTAIN: probably an event, but the model will not commit to a type (low confidence, or a class
+         *         its model card flags unreliable).
+         * @enum {string}
+         */
+        EventStatus: "CLASSIFIED" | "NO_EVENT" | "UNCERTAIN";
+        /** EventTrainingInfo */
+        EventTrainingInfo: {
+            /** Annotator */
+            annotator: string;
+            /** Config Digest */
+            config_digest: string;
+            consistency: components["schemas"]["ConsistencyInfo"];
+            /** Label Distribution Dev */
+            label_distribution_dev: {
+                [key: string]: number;
+            };
+            /** Label Distribution Train */
+            label_distribution_train: {
+                [key: string]: number;
+            };
+            /** Labels File */
+            labels_file: string;
+            /** Labels Sha256 */
+            labels_sha256: string;
+            /**
+             * Rows
+             * @description rows per split and kind, e.g. train/annotated, train/silver, dev, replay_check
+             */
+            rows: {
+                [key: string]: number;
+            };
+            /** Seed */
+            seed: number;
+            /** Silver Note */
+            silver_note: string;
+            /** Table */
+            table: string;
+            /** Table Sha256 */
+            table_sha256: string;
         };
         /**
          * Evidence
@@ -810,6 +1215,12 @@ export interface components {
             stage_origins: {
                 [key: string]: string;
             };
+            /**
+             * Superseded Requests
+             * @description distinct requests from an abandoned earlier download plan, left out of fetch_log
+             * @default 0
+             */
+            superseded_requests: number;
             /**
              * Window End
              * Format: date-time
@@ -1219,6 +1630,39 @@ export interface components {
              */
             score: number;
         };
+        /**
+         * ServedDecision
+         * @description What the product shows, scored against the truth: CLASSIFIED -> its class, NO_EVENT -> NONE, UNCERTAIN -> no class.
+         */
+        ServedDecision: {
+            /** Accuracy */
+            accuracy: number;
+            /** Accuracy When Decided */
+            accuracy_when_decided: number;
+            /**
+             * Classified Precision
+             * @description of CLASSIFIED rows, the share whose class equals the truth
+             */
+            classified_precision: number | null;
+            /**
+             * Coverage
+             * @description share of rows the model commits to a class or to NONE (not UNCERTAIN)
+             */
+            coverage: number;
+            detection: components["schemas"]["EventDetection"];
+            /**
+             * Macro F1
+             * @description 9-class macro-F1 of the served label; UNCERTAIN is always wrong
+             */
+            macro_f1: number;
+            /**
+             * Status Mix
+             * @description share of rows per status
+             */
+            status_mix: {
+                [key: string]: number;
+            };
+        };
         /** SeverityScaling */
         SeverityScaling: {
             /** Formula */
@@ -1275,6 +1719,8 @@ export interface components {
             content_sha256: string;
             dedup: components["schemas"]["DedupAudit"];
             entity_audit: components["schemas"]["EntityAudit"];
+            /** @description present when the event stage is a trained model */
+            event: components["schemas"]["EventAudit"] | null;
             /** Pipeline Version */
             pipeline_version: string;
             /**
@@ -1313,6 +1759,8 @@ export interface components {
             entity_id: string;
             /** Entity Name */
             entity_name: string | null;
+            /** @description CLASSIFIED: `category` is a finding; otherwise it is only a best guess */
+            event_status: components["schemas"]["EventStatus"];
             /** Headline */
             headline: string;
             /** Id */
@@ -1568,6 +2016,26 @@ export interface operations {
             };
         };
     };
+    event_model_api_models_event_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventModelCard"];
+                };
+            };
+        };
+    };
     sentiment_model_api_models_sentiment_get: {
         parameters: {
             query?: never;
@@ -1726,6 +2194,7 @@ export interface operations {
                 source_type?: components["schemas"]["SourceType"] | null;
                 min_impact?: number | null;
                 q?: string | null;
+                event_status?: components["schemas"]["EventStatus"] | null;
             };
             header?: never;
             path?: never;

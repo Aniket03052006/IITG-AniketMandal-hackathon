@@ -6,6 +6,7 @@ import type {
   RiskSignal,
   ScenarioList,
   SentimentModelCard,
+  EventModelCard,
   SignalPage,
   StressRequest,
   StressResult,
@@ -51,6 +52,7 @@ export interface SignalFilters {
   source_type?: string;
   min_impact?: number;
   q?: string;
+  event_status?: string;
 }
 
 export const api = {
@@ -65,6 +67,7 @@ export const api = {
   scenarios: () => request<ScenarioList>("/scenarios"),
   pipelineReport: () => request<PipelineReport>("/pipeline/report"),
   sentimentModel: () => request<SentimentModelCard>("/models/sentiment"),
+  eventModel: () => request<EventModelCard>("/models/event"),
   portfolioSummary: () => request<PortfolioSummary>("/portfolio/summary"),
   portfolioExposure: () => request<PortfolioExposure>("/portfolio/exposure"),
   stressTest: (body: StressRequest) =>

@@ -1,6 +1,82 @@
 {
   "components": {
     "schemas": {
+      "Acceptance": {
+        "additionalProperties": false,
+        "properties": {
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/AcceptanceCheck"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "met": {
+            "title": "Met",
+            "type": "boolean"
+          },
+          "rule": {
+            "description": "the bar, fixed before the gold set was scored",
+            "title": "Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule",
+          "met",
+          "checks"
+        ],
+        "title": "Acceptance",
+        "type": "object"
+      },
+      "AcceptanceCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "model",
+          "baseline",
+          "detail",
+          "passed"
+        ],
+        "title": "AcceptanceCheck",
+        "type": "object"
+      },
       "AppliedShock": {
         "description": "A scenario shock after severity scaling and entity binding.",
         "properties": {
@@ -49,6 +125,38 @@
         ],
         "title": "AssetClass",
         "type": "string"
+      },
+      "BaselineScores": {
+        "additionalProperties": false,
+        "properties": {
+          "accuracy": {
+            "title": "Accuracy",
+            "type": "number"
+          },
+          "detection_f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "event vs not-an-event F1 (a baseline that never says NONE gets recall 1)",
+            "title": "Detection F1"
+          },
+          "macro_f1": {
+            "title": "Macro F1",
+            "type": "number"
+          }
+        },
+        "required": [
+          "accuracy",
+          "macro_f1",
+          "detection_f1"
+        ],
+        "title": "BaselineScores",
+        "type": "object"
       },
       "CalibrationInfo": {
         "additionalProperties": false,
@@ -172,6 +280,58 @@
         "title": "ClassMetrics",
         "type": "object"
       },
+      "ClassReliability": {
+        "additionalProperties": false,
+        "properties": {
+          "annotated_train": {
+            "title": "Annotated Train",
+            "type": "integer"
+          },
+          "dev_f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dev F1"
+          },
+          "dev_support": {
+            "title": "Dev Support",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "description": "ok | unreliable | unmeasured",
+            "title": "Status",
+            "type": "string"
+          },
+          "train_examples": {
+            "title": "Train Examples",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "label",
+          "train_examples",
+          "annotated_train",
+          "dev_support",
+          "dev_f1",
+          "status",
+          "reason"
+        ],
+        "title": "ClassReliability",
+        "type": "object"
+      },
       "ConfidentError": {
         "additionalProperties": false,
         "properties": {
@@ -209,6 +369,62 @@
           "score"
         ],
         "title": "ConfidentError",
+        "type": "object"
+      },
+      "ConsistencyInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "agreement": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement"
+          },
+          "kappa": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kappa"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          },
+          "share_none_first_pass": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share None First Pass"
+          }
+        },
+        "required": [
+          "n",
+          "agreement",
+          "kappa",
+          "share_none_first_pass",
+          "note"
+        ],
+        "title": "ConsistencyInfo",
         "type": "object"
       },
       "Contribution": {
@@ -825,6 +1041,231 @@
         "title": "EvalSet",
         "type": "object"
       },
+      "EventAbstention": {
+        "additionalProperties": false,
+        "properties": {
+          "commit_threshold": {
+            "description": "the arg-max of the 9-class posterior is committed only at or above this probability",
+            "title": "Commit Threshold",
+            "type": "number"
+          },
+          "dev_classified_precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dev Classified Precision"
+          },
+          "dev_classified_share": {
+            "title": "Dev Classified Share",
+            "type": "number"
+          },
+          "dev_coverage": {
+            "description": "share of weighted dev rows the model commits to (not UNCERTAIN)",
+            "title": "Dev Coverage",
+            "type": "number"
+          },
+          "dev_no_event_precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dev No Event Precision"
+          },
+          "dev_population_n": {
+            "title": "Dev Population N",
+            "type": "integer"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          },
+          "route_unreliable_to_uncertain": {
+            "title": "Route Unreliable To Uncertain",
+            "type": "boolean"
+          },
+          "unreliable_classes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unreliable Classes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "commit_threshold",
+          "rationale",
+          "dev_population_n",
+          "dev_coverage",
+          "dev_classified_share",
+          "dev_classified_precision",
+          "dev_no_event_precision",
+          "route_unreliable_to_uncertain",
+          "unreliable_classes"
+        ],
+        "title": "EventAbstention",
+        "type": "object"
+      },
+      "EventAudit": {
+        "description": "Which trained model classified this signal's event, and how far to trust this particular output.",
+        "properties": {
+          "artifact_sha256": {
+            "description": "sha256 of the scoring artifact",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Artifact Sha256",
+            "type": "string"
+          },
+          "calibrated": {
+            "title": "Calibrated",
+            "type": "boolean"
+          },
+          "confidence": {
+            "description": "calibrated P(top event class) among all nine classes, NONE included",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "no_event_probability": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "No Event Probability",
+            "type": "number"
+          },
+          "seen_in_training": {
+            "description": "the exact text (case, punctuation, URLs ignored) was in the model's training data",
+            "title": "Seen In Training",
+            "type": "boolean"
+          },
+          "unreliable_class": {
+            "description": "the model card flags the top class as unreliable (never asserted)",
+            "title": "Unreliable Class",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "model_id",
+          "model_version",
+          "artifact_sha256",
+          "confidence",
+          "no_event_probability",
+          "calibrated",
+          "unreliable_class",
+          "seen_in_training"
+        ],
+        "title": "EventAudit",
+        "type": "object"
+      },
+      "EventCalibration": {
+        "additionalProperties": false,
+        "properties": {
+          "ece_dev_population_after": {
+            "title": "Ece Dev Population After",
+            "type": "number"
+          },
+          "ece_dev_population_before": {
+            "title": "Ece Dev Population Before",
+            "type": "number"
+          },
+          "fitted_on": {
+            "title": "Fitted On",
+            "type": "string"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "reliability_dev_population": {
+            "items": {
+              "$ref": "#/components/schemas/ReliabilityBin"
+            },
+            "title": "Reliability Dev Population",
+            "type": "array"
+          },
+          "temperature": {
+            "title": "Temperature",
+            "type": "number"
+          }
+        },
+        "required": [
+          "method",
+          "temperature",
+          "fitted_on",
+          "ece_dev_population_before",
+          "ece_dev_population_after",
+          "reliability_dev_population"
+        ],
+        "title": "EventCalibration",
+        "type": "object"
+      },
+      "EventCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "C": {
+            "title": "C",
+            "type": "number"
+          },
+          "class_weight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Weight"
+          },
+          "dev_log_loss": {
+            "title": "Dev Log Loss",
+            "type": "number"
+          },
+          "dev_macro_f1": {
+            "title": "Dev Macro F1",
+            "type": "number"
+          },
+          "preprocessing": {
+            "title": "Preprocessing",
+            "type": "string"
+          },
+          "selected": {
+            "title": "Selected",
+            "type": "boolean"
+          },
+          "temperature": {
+            "title": "Temperature",
+            "type": "number"
+          }
+        },
+        "required": [
+          "preprocessing",
+          "C",
+          "class_weight",
+          "temperature",
+          "dev_log_loss",
+          "dev_macro_f1",
+          "selected"
+        ],
+        "title": "EventCandidate",
+        "type": "object"
+      },
       "EventCategory": {
         "description": "The PRD's eight-class event taxonomy (docs: PRD \u00a711.2).",
         "enum": [
@@ -846,22 +1287,549 @@
           "category": {
             "$ref": "#/components/schemas/EventCategory"
           },
+          "no_event_probability": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "calibrated P(not a market event); null where the stage cannot say so",
+            "title": "No Event Probability"
+          },
           "probabilities": {
             "additionalProperties": {
               "type": "number"
             },
+            "description": "over the eight classes; for a trained model, conditional on the text being an event",
             "propertyNames": {
               "$ref": "#/components/schemas/EventCategory"
             },
             "title": "Probabilities",
             "type": "object"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EventStatus",
+            "default": "CLASSIFIED",
+            "description": "CLASSIFIED | NO_EVENT | UNCERTAIN: whether `category` is a finding (see EventStatus)"
           }
         },
         "required": [
           "category",
-          "probabilities"
+          "probabilities",
+          "status",
+          "no_event_probability"
         ],
         "title": "EventClassification",
+        "type": "object"
+      },
+      "EventConfidentError": {
+        "additionalProperties": false,
+        "properties": {
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "eval_set": {
+            "title": "Eval Set",
+            "type": "string"
+          },
+          "p_none": {
+            "title": "P None",
+            "type": "number"
+          },
+          "served": {
+            "description": "CLASSIFIED:<class> | NO_EVENT | UNCERTAIN:<best guess>",
+            "title": "Served",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "top_class": {
+            "title": "Top Class",
+            "type": "string"
+          },
+          "truth": {
+            "title": "Truth",
+            "type": "string"
+          }
+        },
+        "required": [
+          "eval_set",
+          "text",
+          "truth",
+          "served",
+          "top_class",
+          "p_none",
+          "confidence"
+        ],
+        "title": "EventConfidentError",
+        "type": "object"
+      },
+      "EventDetection": {
+        "additionalProperties": false,
+        "description": "Event vs not-an-event, at the served decision (anything but NO_EVENT counts as 'an event').",
+        "properties": {
+          "f1": {
+            "title": "F1",
+            "type": "number"
+          },
+          "precision": {
+            "title": "Precision",
+            "type": "number"
+          },
+          "recall": {
+            "title": "Recall",
+            "type": "number"
+          }
+        },
+        "required": [
+          "precision",
+          "recall",
+          "f1"
+        ],
+        "title": "EventDetection",
+        "type": "object"
+      },
+      "EventEvalMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "accuracy": {
+            "title": "Accuracy",
+            "type": "number"
+          },
+          "brier": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brier"
+          },
+          "confusion": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "title": "Confusion",
+            "type": "array"
+          },
+          "ece": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ece"
+          },
+          "event_macro_f1": {
+            "description": "macro-F1 over the 8 event classes only (rows whose truth is NONE do not count as a class)",
+            "title": "Event Macro F1",
+            "type": "number"
+          },
+          "labels": {
+            "description": "row/column order of the confusion matrix: truth (rows) x arg-max class (columns)",
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "log_loss": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Log Loss"
+          },
+          "macro_f1": {
+            "description": "9-class macro-F1 of the arg-max, over classes that occur in the truth",
+            "title": "Macro F1",
+            "type": "number"
+          },
+          "macro_f1_ci95": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Macro F1 Ci95"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "per_class": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ClassMetrics"
+            },
+            "title": "Per Class",
+            "type": "object"
+          },
+          "served": {
+            "$ref": "#/components/schemas/ServedDecision"
+          },
+          "served_f1_ci95": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Served F1 Ci95"
+          },
+          "weighted": {
+            "title": "Weighted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "n",
+          "weighted",
+          "labels",
+          "accuracy",
+          "macro_f1",
+          "macro_f1_ci95",
+          "event_macro_f1",
+          "per_class",
+          "confusion",
+          "log_loss",
+          "brier",
+          "ece",
+          "served",
+          "served_f1_ci95"
+        ],
+        "title": "EventEvalMetrics",
+        "type": "object"
+      },
+      "EventEvalSet": {
+        "additionalProperties": false,
+        "properties": {
+          "baselines": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/BaselineScores"
+            },
+            "title": "Baselines",
+            "type": "object"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventEvalMetrics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          },
+          "role": {
+            "description": "in_domain | indicative | secondary",
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "description": "ok | skipped",
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "role",
+          "description",
+          "status",
+          "note",
+          "model",
+          "baselines"
+        ],
+        "title": "EventEvalSet",
+        "type": "object"
+      },
+      "EventModelCard": {
+        "additionalProperties": false,
+        "properties": {
+          "ablation": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "dev log-loss with and without the TFN silver rows",
+            "title": "Ablation",
+            "type": "object"
+          },
+          "abstention": {
+            "$ref": "#/components/schemas/EventAbstention"
+          },
+          "acceptance": {
+            "$ref": "#/components/schemas/Acceptance"
+          },
+          "algorithm": {
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "artifact_bytes": {
+            "title": "Artifact Bytes",
+            "type": "integer"
+          },
+          "artifact_file": {
+            "title": "Artifact File",
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Artifact Sha256",
+            "type": "string"
+          },
+          "calibration": {
+            "$ref": "#/components/schemas/EventCalibration"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/EventCandidate"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "class_reliability": {
+            "items": {
+              "$ref": "#/components/schemas/ClassReliability"
+            },
+            "title": "Class Reliability",
+            "type": "array"
+          },
+          "classes": {
+            "description": "the 9 classes the model scores: the 8 event categories and NONE",
+            "items": {
+              "type": "string"
+            },
+            "title": "Classes",
+            "type": "array"
+          },
+          "confident_errors": {
+            "items": {
+              "$ref": "#/components/schemas/EventConfidentError"
+            },
+            "title": "Confident Errors",
+            "type": "array"
+          },
+          "evaluations": {
+            "items": {
+              "$ref": "#/components/schemas/EventEvalSet"
+            },
+            "title": "Evaluations",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "libraries": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Libraries",
+            "type": "object"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "output_definition": {
+            "title": "Output Definition",
+            "type": "string"
+          },
+          "preprocessing": {
+            "title": "Preprocessing",
+            "type": "string"
+          },
+          "selection_rule": {
+            "title": "Selection Rule",
+            "type": "string"
+          },
+          "training": {
+            "$ref": "#/components/schemas/EventTrainingInfo"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "algorithm",
+          "preprocessing",
+          "classes",
+          "output_definition",
+          "artifact_file",
+          "artifact_sha256",
+          "artifact_bytes",
+          "libraries",
+          "training",
+          "selection_rule",
+          "ablation",
+          "candidates",
+          "calibration",
+          "abstention",
+          "class_reliability",
+          "evaluations",
+          "acceptance",
+          "confident_errors",
+          "limitations"
+        ],
+        "title": "EventModelCard",
+        "type": "object"
+      },
+      "EventStatus": {
+        "description": "What the event stage is willing to claim about a document (the taxonomy itself is unchanged).\n\nCLASSIFIED: a market event of ``category``.\nNO_EVENT: the model judges the text is not a market event (chatter, promotion, opinion, a notice).\n    ``category`` is then only its best guess *if* it were one, and must not be shown as a finding.\nUNCERTAIN: probably an event, but the model will not commit to a type (low confidence, or a class\n    its model card flags unreliable).",
+        "enum": [
+          "CLASSIFIED",
+          "NO_EVENT",
+          "UNCERTAIN"
+        ],
+        "title": "EventStatus",
+        "type": "string"
+      },
+      "EventTrainingInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "annotator": {
+            "title": "Annotator",
+            "type": "string"
+          },
+          "config_digest": {
+            "title": "Config Digest",
+            "type": "string"
+          },
+          "consistency": {
+            "$ref": "#/components/schemas/ConsistencyInfo"
+          },
+          "label_distribution_dev": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Label Distribution Dev",
+            "type": "object"
+          },
+          "label_distribution_train": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Label Distribution Train",
+            "type": "object"
+          },
+          "labels_file": {
+            "title": "Labels File",
+            "type": "string"
+          },
+          "labels_sha256": {
+            "title": "Labels Sha256",
+            "type": "string"
+          },
+          "rows": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "rows per split and kind, e.g. train/annotated, train/silver, dev, replay_check",
+            "title": "Rows",
+            "type": "object"
+          },
+          "seed": {
+            "title": "Seed",
+            "type": "integer"
+          },
+          "silver_note": {
+            "title": "Silver Note",
+            "type": "string"
+          },
+          "table": {
+            "title": "Table",
+            "type": "string"
+          },
+          "table_sha256": {
+            "title": "Table Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "labels_file",
+          "labels_sha256",
+          "table",
+          "table_sha256",
+          "annotator",
+          "rows",
+          "label_distribution_train",
+          "label_distribution_dev",
+          "silver_note",
+          "consistency",
+          "seed",
+          "config_digest"
+        ],
+        "title": "EventTrainingInfo",
         "type": "object"
       },
       "Evidence": {
@@ -1381,6 +2349,12 @@
             "title": "Stage Origins",
             "type": "object"
           },
+          "superseded_requests": {
+            "default": 0,
+            "description": "distinct requests from an abandoned earlier download plan, left out of fetch_log",
+            "title": "Superseded Requests",
+            "type": "integer"
+          },
           "window_end": {
             "format": "date-time",
             "title": "Window End",
@@ -1407,7 +2381,8 @@
           "quarantine_by_code",
           "quarantine_sample",
           "stage_origins",
-          "fetch_log"
+          "fetch_log",
+          "superseded_requests"
         ],
         "title": "PipelineReport",
         "type": "object"
@@ -2386,6 +3361,64 @@
         "title": "SentimentResult",
         "type": "object"
       },
+      "ServedDecision": {
+        "additionalProperties": false,
+        "description": "What the product shows, scored against the truth: CLASSIFIED -> its class, NO_EVENT -> NONE, UNCERTAIN -> no class.",
+        "properties": {
+          "accuracy": {
+            "title": "Accuracy",
+            "type": "number"
+          },
+          "accuracy_when_decided": {
+            "title": "Accuracy When Decided",
+            "type": "number"
+          },
+          "classified_precision": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "of CLASSIFIED rows, the share whose class equals the truth",
+            "title": "Classified Precision"
+          },
+          "coverage": {
+            "description": "share of rows the model commits to a class or to NONE (not UNCERTAIN)",
+            "title": "Coverage",
+            "type": "number"
+          },
+          "detection": {
+            "$ref": "#/components/schemas/EventDetection"
+          },
+          "macro_f1": {
+            "description": "9-class macro-F1 of the served label; UNCERTAIN is always wrong",
+            "title": "Macro F1",
+            "type": "number"
+          },
+          "status_mix": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "share of rows per status",
+            "title": "Status Mix",
+            "type": "object"
+          }
+        },
+        "required": [
+          "macro_f1",
+          "accuracy",
+          "coverage",
+          "accuracy_when_decided",
+          "classified_precision",
+          "status_mix",
+          "detection"
+        ],
+        "title": "ServedDecision",
+        "type": "object"
+      },
       "SeverityScaling": {
         "properties": {
           "formula": {
@@ -2505,6 +3538,17 @@
           "entity_audit": {
             "$ref": "#/components/schemas/EntityAudit"
           },
+          "event": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventAudit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "present when the event stage is a trained model"
+          },
           "pipeline_version": {
             "title": "Pipeline Version",
             "type": "string"
@@ -2551,7 +3595,8 @@
           "entity_audit",
           "dedup",
           "stage_origins",
-          "sentiment"
+          "sentiment",
+          "event"
         ],
         "title": "SignalProvenance",
         "type": "object"
@@ -2589,6 +3634,10 @@
               }
             ],
             "title": "Entity Name"
+          },
+          "event_status": {
+            "$ref": "#/components/schemas/EventStatus",
+            "description": "CLASSIFIED: `category` is a finding; otherwise it is only a best guess"
           },
           "headline": {
             "title": "Headline",
@@ -2666,6 +3715,7 @@
           "ticker",
           "sector",
           "category",
+          "event_status",
           "sentiment_score",
           "impact_score",
           "status",
@@ -3179,7 +4229,7 @@
     }
   },
   "info": {
-    "description": "Event-driven risk signals and deterministic portfolio stress testing. Replay profile: real source documents through the ingestion pipeline (trained sentiment model; event and impact are still placeholder rules); demo profile: fixtures. The stress engine is real in both.",
+    "description": "Event-driven risk signals and deterministic portfolio stress testing. Replay profile: real source documents through the ingestion pipeline (trained sentiment and event models; impact is still a placeholder rule); demo profile: fixtures. The stress engine is real in both.",
     "title": "EventShock API",
     "version": "0.1.0"
   },
@@ -3228,6 +4278,28 @@
         "summary": "Meta",
         "tags": [
           "meta"
+        ]
+      }
+    },
+    "/api/models/event": {
+      "get": {
+        "description": "The event model card: training data, abstention, per-class reliability, scores and failure modes.",
+        "operationId": "event_model_api_models_event_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventModelCard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Event Model",
+        "tags": [
+          "models"
         ]
       }
     },
@@ -3474,6 +4546,22 @@
                 }
               ],
               "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "event_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/EventStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Event Status"
             }
           }
         ],

@@ -20,5 +20,8 @@ export const useStressTest = () => useMutation({ mutationFn: api.stressTest });
 export const usePipelineReport = (enabled: boolean) =>
   useQuery({ queryKey: ["pipeline-report"], queryFn: api.pipelineReport, staleTime: Infinity, enabled });
 
+export const useEventModel = (enabled: boolean) =>
+  useQuery({ queryKey: ["event-model"], queryFn: api.eventModel, staleTime: Infinity, enabled });
+
 export const useSentimentModel = (enabled: boolean) =>
   useQuery({ queryKey: ["sentiment-model"], queryFn: api.sentimentModel, staleTime: Infinity, enabled });
