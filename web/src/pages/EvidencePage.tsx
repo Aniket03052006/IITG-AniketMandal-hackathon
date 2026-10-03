@@ -1,12 +1,22 @@
 import clsx from "clsx";
 import { useMemo, useState } from "react";
 import { useEvidence, useMeta } from "../api/hooks";
-import type { EvidenceBundle, EvidenceContrast, EvidenceFeature, EvidenceIncrement, EvidenceProtocolRun, StageStatus } from "../api/types";
+import type { EvidenceBundle, EvidenceContrast, EvidenceFeature, EvidenceIncrement, EvidenceProtocolRun } from "../api/types";
 import { axisFor, Interval, Verdict } from "../components/Interval";
-import { Card, EmptyState, ErrorState, InlineNote, Loading, PageHeader, StatusTag } from "../components/ui";
-import { KIND_LABEL, type ImpactKind } from "../lib/impact";
+import { Card, EmptyState, ErrorState, InlineNote, Loading, StatusTag } from "../components/ui";
+import { EngineTile, StageTile } from "../components/evidence/StageTile";
+import { EventModelPanel } from "../components/EventModelPanel";
+import { Formula } from "../components/Math";
+import { ImpactModelPanel } from "../components/ImpactModelPanel";
+import { SentimentModelPanel } from "../components/SentimentModelPanel";
+import { Tabs, useTab } from "../components/Tabs";
+import { KindLegend } from "../components/ProvenanceKind";
+import * as TeX from "../lib/formulas";
+import { PipelineView } from "./PipelinePage";
+import { eventIsModel, sentimentIsModel } from "../lib/provenance";
+import { impactIsModel } from "../lib/impact";
 
-const STAGE_NAME: Record<string, string> = { sentiment: "Sentiment", event: "Event type", impact: "Impact" };
+
 const AVAIL_NAME: Record<string, string> = {
   a: "Known before the event",
   b: "Published at event time",
@@ -16,54 +26,11 @@ const AVAIL_NAME: Record<string, string> = {
   circular: "Circular (derived from the label)",
 };
 
-function KindTag({ kind }: { kind: string }) {
-  const k = kind as ImpactKind;
-  const tone = k === "validated" ? "ok" : k === "experimental" ? "warn" : "demo";
-  return <StatusTag tone={tone}>{KIND_LABEL[k] ?? kind}</StatusTag>;
-}
-
-function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
-  return (
-    <div className="lg:col-span-12">
-      <p className="eyebrow mb-2">
-        <span className="num">{n}</span> · {title}
-      </p>
-      {children}
-    </div>
-  );
-}
-
 function Unavailable({ what, command }: { what: string; command: string }) {
   return (
     <InlineNote tone="warn" title={`${what} has not been produced`}>
       Nothing is shown rather than a guess. Run <code className="num">{command}</code> to produce it.
     </InlineNote>
-  );
-}
-
-/* ----------------------------------------------------------------------------------------------------- 1. verdicts */
-function Verdicts({ stages }: { stages: StageStatus[] }) {
-  return (
-    <div className="grid gap-4 md:grid-cols-3">
-      {stages.map((s) => (
-        <Card key={s.stage} title={STAGE_NAME[s.stage] ?? s.stage} aside={<KindTag kind={s.kind} />}>
-          <p className="num text-xs text-muted">{s.model_id ?? "no model loaded"}</p>
-          <p className="mt-2 text-sm text-ink-2">{s.summary}</p>
-          {s.failed.length > 0 && (
-            <p className="mt-3 text-xs text-ink-2">
-              <span className="font-medium text-warn">Checks failed ({s.failed.length}):</span> {s.failed.join("; ")}
-            </p>
-          )}
-          {s.not_evaluable.length > 0 && (
-            <p className="mt-1 text-xs text-muted">
-              <span className="font-medium">Not evaluable:</span> {s.not_evaluable.join("; ")}
-            </p>
-          )}
-          {s.passed.length > 0 && <p className="mt-1 text-xs text-muted">Passed: {s.passed.join("; ")}</p>}
-          {s.artifact_sha256 && <p className="num mt-3 truncate text-xs text-muted">sha256 {s.artifact_sha256.slice(0, 16)}…</p>}
-        </Card>
-      ))}
-    </div>
   );
 }
 
@@ -603,11 +570,150 @@ function RepresentationCard({ r }: { r: EvidenceBundle["representation"] }) {
   );
 }
 
-/* ----------------------------------------------------------------------------------------------------- page */
+/* ----------------------------------------------------------------------------------------------------- math */
+function MathTab({ b }: { b: EvidenceBundle }) {
+  void b;
+  return (
+    <div className="space-y-10">
+      <p className="max-w-[70ch] text-ink-2">The calculations behind each stage, written once. They mirror the code and the pre-registered configuration; no number here is tuned for display.</p>
+      <section>
+        <h3 className="mb-3 text-lg font-semibold">Sentiment</h3>
+        <Formula tex={TeX.SENTIMENT} reading={TeX.SENTIMENT_READING} />
+      </section>
+      <section>
+        <h3 className="mb-3 text-lg font-semibold">Event understanding</h3>
+        <Formula tex={TeX.eventDecision(0.5)} reading={TeX.EVENT_READING} />
+      </section>
+      <section>
+        <h3 className="mb-3 text-lg font-semibold">Impact</h3>
+        <div className="space-y-5">
+          <Formula tex={TeX.TARGET} reading={TeX.TARGET_READING} />
+          <Formula tex={TeX.PREDICTION} reading={TeX.PREDICTION_READING} />
+          <Formula tex={TeX.SCORE_CHAIN} reading={TeX.SCORE_CHAIN_READING} />
+          <Formula tex={TeX.INTERVAL} reading="The bracket is empirical: what comparable past events actually realised." />
+        </div>
+      </section>
+      <section>
+        <h3 className="mb-1 text-lg font-semibold">Stress engine</h3>
+        <p className="mb-3 text-sm text-muted">Worked example at impact 7 against a reference of 7.</p>
+        <div className="space-y-5">
+          <Formula tex={TeX.stressScale(7, 7, 0.5, 1.5, 1)} reading="The scale applied to every shock of the scenario." />
+          <Formula tex={TeX.SHOCK_SCALING} reading="Each shock is multiplied by the scale." />
+          {TeX.REVALUATION.map((v) => (
+            <div key={v.id}>
+              <h4 className="mb-1 text-sm font-medium">{v.title}</h4>
+              <Formula tex={v.tex} reading={v.reading} />
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Methodology({ b }: { b: EvidenceBundle }) {
+  return (
+    <div className="space-y-10">
+      <section>
+        <h3 className="mb-2 text-lg font-semibold">Four kinds of number, never blurred</h3>
+        <p className="mb-4 max-w-[68ch] text-sm text-muted">Every figure in EventShock is one of these, and says which.</p>
+        <KindLegend />
+      </section>
+      <section>
+        <h3 className="mb-2 text-lg font-semibold">Temporal discipline: nothing from the future</h3>
+        <ul className="list-disc space-y-2 pl-5 text-ink-2">
+          <li>Each input has one availability class: known in advance, published before the report, or from the report itself. Anything known only afterwards is refused, and a model that asks for it does not run.</li>
+          <li>A filing counts as "before" only if it was accepted strictly earlier than the report. A test replaces every later filing with decoys and requires identical features.</li>
+          <li>Splits are chronological with a five-session embargo, and held-out periods are scored once.</li>
+          <li>Acceptance bars are written before results are seen; the configuration hash is recorded.</li>
+        </ul>
+      </section>
+      <section>
+        <FeaturesCard features={b.features} />
+      </section>
+      <section>
+        <h3 className="mb-3 text-lg font-semibold">How to reproduce it</h3>
+        <Card title="Inputs and hashes" aside="every number is read from these files">
+          <ul className="space-y-1.5 text-sm">
+            {b.generated_from.length === 0 && <li className="text-muted">No evidence files have been produced yet.</li>}
+            {b.generated_from.map((f) => (
+              <li key={f.file} className="flex flex-wrap items-baseline justify-between gap-2">
+                <span className="num text-xs">{f.file}</span>
+                <span className="num text-xs text-muted">{f.sha256?.slice(0, 20)}…</span>
+              </li>
+            ))}
+            {b.study.preregistration && (
+              <li className="flex flex-wrap items-baseline justify-between gap-2">
+                <span className="num text-xs">{b.study.preregistration.file} (pre-registration)</span>
+                <span className="num text-xs text-muted">{b.study.preregistration.sha256?.slice(0, 20)}…</span>
+              </li>
+            )}
+          </ul>
+        </Card>
+      </section>
+    </div>
+  );
+}
+
+function Evaluation({ b }: { b: EvidenceBundle }) {
+  const { data: meta } = useMeta();
+  return (
+    <div className="space-y-10">
+      <section>
+        <h3 className="mb-1 text-lg font-semibold">Does event information add value, or only the volatility regime?</h3>
+        <p className="mb-3 max-w-[70ch] text-sm text-muted">The honest finding: the calendar adds real skill, the text models add none beyond it, and what remains is the volatility regime.</p>
+        <div className="grid gap-5">
+          <StudyCard s={b.study} />
+          {b.study.available && <TrackFCard t={b.study.track_f} />}
+        </div>
+      </section>
+      <section>
+        <h3 className="mb-3 text-lg font-semibold">Keywords, semantics or both?</h3>
+        <RepresentationCard r={b.representation} />
+      </section>
+      <section>
+        <h3 className="mb-1 text-lg font-semibold">Each model's own card</h3>
+        <p className="mb-3 text-sm text-muted">Confusion matrices, calibration, acceptance checks and limits, as produced by training.</p>
+        <div className="space-y-4">
+          {sentimentIsModel(meta) && (
+            <details className="expand">
+              <summary><span className="font-medium text-ink">Sentiment model card</span></summary>
+              <div className="expand-body"><SentimentModelPanel enabled /></div>
+            </details>
+          )}
+          {eventIsModel(meta) && (
+            <details className="expand">
+              <summary><span className="font-medium text-ink">Event model card</span></summary>
+              <div className="expand-body"><EventModelPanel enabled /></div>
+            </details>
+          )}
+          {impactIsModel(meta) && (
+            <details className="expand">
+              <summary><span className="font-medium text-ink">Impact model card</span></summary>
+              <div className="expand-body"><ImpactModelPanel enabled /></div>
+            </details>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+const TABS = [
+  { id: "methodology", label: "Methodology" },
+  { id: "evaluation", label: "Evaluation" },
+  { id: "datasets", label: "Datasets" },
+  { id: "mathematics", label: "Mathematics" },
+  { id: "limitations", label: "Limitations" },
+  { id: "pipeline", label: "How it is built" },
+] as const;
+
+/** "How much evidence supports EventShock?": four plain verdicts first, the full technical record one tab away. */
 export function EvidencePage() {
   const { data: meta } = useMeta();
   const enabled = !!meta?.replay;
   const { data: b, error, isLoading, refetch } = useEvidence(enabled);
+  const [tab, setTab] = useTab(TABS.map((t) => t.id), "methodology");
   if (meta && !meta.replay) {
     return (
       <EmptyState title="No evidence in the demo profile">
@@ -619,58 +725,35 @@ export function EvidencePage() {
   if (isLoading || !b) return <Loading label="Loading the evidence" />;
   return (
     <>
-      <PageHeader
-        title="Model evidence"
-        sub="What each stage is, what it learned from, what it was allowed to see, and what the measurements say. Nothing is promoted without its pre-registered bar, and what is missing is named."
-      />
-      <div className="grid gap-8 lg:grid-cols-12">
-        <Section n={1} title="What each stage is">
-          <Verdicts stages={b.stages} />
-        </Section>
-        <Section n={2} title="What it learned from">
-          <DataCard d={b.data} />
-        </Section>
-        <Section n={3} title="What it was allowed to see">
-          <FeaturesCard features={b.features} />
-        </Section>
-        <Section n={4} title="Does event information add value, or only the volatility regime?">
-          <div className="grid gap-5">
-            <StudyCard s={b.study} />
-            {b.study.available && <TrackFCard t={b.study.track_f} />}
-          </div>
-        </Section>
-        <Section n={5} title="Which representation of the text">
-          <RepresentationCard r={b.representation} />
-        </Section>
-        <Section n={6} title="How to reproduce it">
-          <Card title="Inputs and hashes" aside="every number above is read from these files">
-            <ul className="space-y-1.5 text-sm">
-              {b.generated_from.length === 0 && <li className="text-muted">No evidence files have been produced yet.</li>}
-              {b.generated_from.map((f) => (
-                <li key={f.file} className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="num text-xs">{f.file}</span>
-                  <span className="num text-xs text-muted">{f.sha256?.slice(0, 20)}…</span>
-                </li>
-              ))}
-              {b.study.preregistration && (
-                <li className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="num text-xs">{b.study.preregistration.file} (pre-registration)</span>
-                  <span className="num text-xs text-muted">{b.study.preregistration.sha256?.slice(0, 20)}…</span>
-                </li>
-              )}
-            </ul>
-          </Card>
-        </Section>
-        <Section n={7} title="Limits, stated plainly">
-          <Card>
-            <ul className="list-disc space-y-1.5 pl-5 text-sm text-ink-2">
+      <header className="mb-8">
+        <h1 className="text-2xl font-semibold">How much evidence supports EventShock?</h1>
+        <p className="mt-1 max-w-[68ch] text-md text-ink-2">
+          Four stages, each with an honest verdict. Nothing is called validated unless it passed the bar written before the results were seen, and what is missing is named.
+        </p>
+      </header>
+      <div className="tiles mb-12">
+        {b.stages.map((s) => (
+          <StageTile key={s.stage} s={s} />
+        ))}
+        <EngineTile />
+      </div>
+      <Tabs tabs={[...TABS]} active={tab} onChange={setTab} label="Evidence views">
+        {tab === "methodology" && <Methodology b={b} />}
+        {tab === "evaluation" && <Evaluation b={b} />}
+        {tab === "datasets" && <DataCard d={b.data} />}
+        {tab === "mathematics" && <MathTab b={b} />}
+        {tab === "limitations" && (
+          <div>
+            <p className="mb-4 max-w-[68ch] text-ink-2">Stated plainly, because a judge should not have to find them.</p>
+            <ul className="list-disc space-y-2.5 pl-5 text-ink-2">
               {b.limitations.map((l) => (
                 <li key={l}>{l}</li>
               ))}
             </ul>
-          </Card>
-        </Section>
-      </div>
+          </div>
+        )}
+        {tab === "pipeline" && <PipelineView />}
+      </Tabs>
     </>
   );
 }

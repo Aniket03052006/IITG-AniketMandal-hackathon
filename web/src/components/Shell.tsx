@@ -1,17 +1,13 @@
 import clsx from "clsx";
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { useMeta } from "../api/hooks";
+import { useMeta, useSignals } from "../api/hooks";
+import { FEATURED, lastEvent, pickFeatured } from "../lib/featured";
 import { dateTime } from "../lib/format";
 import { profileLabel, profileNote } from "../lib/provenance";
 import { Database, EventIcon, EvidenceIcon, FeedIcon, StressIcon } from "./icons";
 import { Logo } from "./Logo";
-import { StatusTag } from "./ui";
-
-const NAV = [
-  { to: "/", label: "Risk Feed", icon: FeedIcon, end: true, match: (p: string) => p === "/" },
-  { to: "/stress", label: "Portfolio Stress", icon: StressIcon, end: false, match: (p: string) => p.startsWith("/stress") },
-];
+import { ThemeSwitch } from "./ThemeSwitch";
 
 function ModeBadge() {
   const { data } = useMeta();
@@ -22,26 +18,34 @@ function ModeBadge() {
         {profileLabel(data)}
       </div>
       {data && (
-        <p className="mt-1.5 leading-snug text-muted">
-          {profileNote(data)} Clock pinned to{" "}
-          <span className="num text-ink-2">{dateTime(data.as_of)}</span>.
-        </p>
+        <>
+          <p className="mt-1.5 leading-snug text-muted">
+            Clock pinned to <span className="num text-ink-2">{dateTime(data.as_of)}</span>, so every run reads the same.
+          </p>
+          <details className="disclosure mt-1.5">
+            <summary>What is real here?</summary>
+            <p className="mt-1.5 leading-snug text-muted">{profileNote(data)}</p>
+          </details>
+        </>
       )}
     </div>
   );
 }
 
+/** The four places the story visits. Event Intelligence is a real link: the event you last opened, else the featured one. */
 export function Shell() {
   const { pathname } = useLocation();
   const { data: meta } = useMeta();
-  const eventActive = pathname.startsWith("/events/");
-  const nav = meta?.replay
-    ? [
-        ...NAV,
-        { to: "/pipeline", label: "Data Pipeline", icon: Database, end: false, match: (p: string) => p.startsWith("/pipeline") },
-        { to: "/evidence", label: "Model Evidence", icon: EvidenceIcon, end: false, match: (p: string) => p.startsWith("/evidence") },
-      ]
-    : NAV;
+  const all = useSignals({});
+  const featured = pickFeatured(all.data?.items ?? [])?.id ?? FEATURED.hero.id;
+  const eventTo = `/events/${lastEvent() ?? featured}`;
+
+  const nav = [
+    { to: "/", label: "Risk Feed", icon: FeedIcon, active: pathname === "/" },
+    { to: eventTo, label: "Event Intelligence", icon: EventIcon, active: pathname.startsWith("/events/") },
+    { to: "/stress", label: "Portfolio Stress", icon: StressIcon, active: pathname.startsWith("/stress") },
+    ...(meta?.replay ? [{ to: "/evidence", label: "Evidence", icon: EvidenceIcon, active: pathname.startsWith("/evidence") || pathname.startsWith("/pipeline") }] : []),
+  ];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -51,19 +55,22 @@ export function Shell() {
     clsx(
       "flex min-h-10 items-center gap-2.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors",
       "duration-[var(--duration-fast)] ease-[var(--ease-out)]",
-      active ? clsx("bg-paper-3 text-ink", rail && "shadow-[inset_2px_0_0_var(--color-accent)]") : "text-ink-2 hover:bg-paper-2 hover:text-ink",
+      active ? clsx("bg-paper-3 text-ink", rail && "shadow-[inset_2px_0_0_var(--color-accent)]") : "text-ink-2 hover:bg-paper-3 hover:text-ink",
     );
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
-      {/* Mobile / tablet top bar */}
-      <header className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-rule bg-paper px-4 py-2 lg:hidden">
-        <NavLink to="/" aria-label="EventShock home" className="rounded-md py-1">
-          <Logo size={24} />
-        </NavLink>
-        <nav aria-label="Primary" className="flex gap-1">
+      {/* Mobile / tablet top bar (scrolls away so the sticky flow rail gets the room) */}
+      <header className="border-b border-rule bg-paper px-4 pt-2 lg:hidden">
+        <div className="flex items-center justify-between">
+          <NavLink to="/" aria-label="EventShock home" className="rounded-md py-1">
+            <Logo size={24} />
+          </NavLink>
+          <ThemeSwitch compact />
+        </div>
+        <nav aria-label="Primary" className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-2">
           {nav.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.end} className={() => link(n.match(pathname))}>
+            <NavLink key={n.label} to={n.to} className={() => link(n.active)}>
               <n.icon /> <span>{n.label}</span>
             </NavLink>
           ))}
@@ -71,22 +78,20 @@ export function Shell() {
       </header>
 
       {/* Desktop rail */}
-      <aside className="sticky top-0 hidden h-dvh flex-col gap-6 border-r border-rule bg-paper px-3 py-5 lg:flex">
+      <aside className="sticky top-0 hidden h-dvh flex-col gap-6 overflow-y-auto border-r border-rule bg-paper px-3 py-5 lg:flex">
         <NavLink to="/" aria-label="EventShock home" className="rounded-md px-3 py-1">
           <Logo />
         </NavLink>
         <nav aria-label="Primary" className="flex flex-col gap-1">
           {nav.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.end} className={() => link(n.match(pathname), true)}>
+            <NavLink key={n.label} to={n.to} className={() => link(n.active, true)} aria-current={n.active ? "page" : undefined}>
               <n.icon /> {n.label}
             </NavLink>
           ))}
-          <span className={clsx(link(eventActive, true), !eventActive && "pointer-events-none opacity-50")} aria-current={eventActive ? "page" : undefined}>
-            <EventIcon /> Event Intelligence
-          </span>
         </nav>
         <div className="mt-auto flex flex-col gap-3">
           <ModeBadge />
+          <ThemeSwitch />
           <a className="px-3 text-xs text-muted underline-offset-2 hover:text-ink hover:underline" href="/api/docs" target="_blank" rel="noreferrer">
             API reference
           </a>
@@ -94,13 +99,6 @@ export function Shell() {
       </aside>
 
       <main className="min-w-0 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
-        {meta && (
-          <div className="mb-6 flex flex-wrap items-center gap-2 lg:hidden">
-            <StatusTag tone="demo" icon={<Database size={12} />}>
-              {profileLabel(meta)}
-            </StatusTag>
-          </div>
-        )}
         <div className="mx-auto max-w-[78rem]">
           <Outlet />
         </div>

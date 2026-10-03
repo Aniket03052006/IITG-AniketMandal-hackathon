@@ -1,12 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { ApiError } from "./api/client";
 import { Shell } from "./components/Shell";
 import { EmptyState } from "./components/ui";
 import { EventPage } from "./pages/EventPage";
 import { EvidencePage } from "./pages/EvidencePage";
 import { FeedPage } from "./pages/FeedPage";
-import { PipelinePage } from "./pages/PipelinePage";
 import { StressPage } from "./pages/StressPage";
 
 const queryClient = new QueryClient({
@@ -35,7 +34,7 @@ export function App() {
           <Route element={<Shell />}>
             <Route index element={<FeedPage />} />
             <Route path="events/:id" element={<EventPage />} />
-            <Route path="pipeline" element={<PipelinePage />} />
+            <Route path="pipeline" element={<Navigate to="/evidence?tab=pipeline" replace />} />
             <Route path="evidence" element={<EvidencePage />} />
             <Route path="stress" element={<StressPage />} />
             <Route path="*" element={<NotFound />} />
