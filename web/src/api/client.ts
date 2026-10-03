@@ -9,6 +9,7 @@ import type {
   EventModelCard,
   ImpactModelCard,
   EvidenceBundle,
+  SignalContext,
   SignalPage,
   StressRequest,
   StressResult,
@@ -66,6 +67,7 @@ export const api = {
     return request<SignalPage>(`/signals${qs ? `?${qs}` : ""}`);
   },
   signal: (id: string) => request<RiskSignal>(`/signals/${encodeURIComponent(id)}`),
+  signalContext: (id: string) => request<SignalContext>(`/signals/${encodeURIComponent(id)}/context`),
   scenarios: () => request<ScenarioList>("/scenarios"),
   pipelineReport: () => request<PipelineReport>("/pipeline/report"),
   sentimentModel: () => request<SentimentModelCard>("/models/sentiment"),

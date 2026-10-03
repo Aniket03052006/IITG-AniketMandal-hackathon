@@ -9,6 +9,9 @@ export const useSignals = (filters: SignalFilters) =>
 export const useSignal = (id: string | undefined) =>
   useQuery({ queryKey: ["signal", id], queryFn: () => api.signal(id as string), enabled: !!id });
 
+export const useSignalContext = (id: string | undefined) =>
+  useQuery({ queryKey: ["signal-context", id], queryFn: () => api.signalContext(id as string), enabled: !!id, staleTime: Infinity });
+
 export const useScenarios = () => useQuery({ queryKey: ["scenarios"], queryFn: api.scenarios, staleTime: Infinity });
 
 export const usePortfolioSummary = () => useQuery({ queryKey: ["pf-summary"], queryFn: api.portfolioSummary });
