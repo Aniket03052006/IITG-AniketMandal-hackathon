@@ -259,6 +259,7 @@ class EventModelConfig(_Strict):
 
     version: str
     model_dir: str
+    served_model_dir: str | None = None  # the event model the product serves (e.g. the hybrid); model_dir stays the TF-IDF reference used by training, evaluation and impact parity
     table: str
     labels_file: str
     manifest_file: str
@@ -288,5 +289,128 @@ def load_event_model_config(config_dir: Path) -> EventModelConfig:
     path = config_dir / "event_model.yaml"
     try:
         return EventModelConfig.model_validate(_load(path))
+    except ValueError as exc:
+        raise ConfigError(f"invalid {path}: {exc}") from exc
+
+
+class ImpactHgbGrid(_Strict):
+    max_depth: list[int]
+    max_iter: list[int]
+    learning_rate: list[float]
+    min_samples_leaf: list[int]
+    l2_regularization: list[float]
+
+
+class ImpactTfidf(_Strict):
+    ngram_range: tuple[int, int] = (1, 2)
+    min_df: int = Field(default=5, ge=1)
+    max_features: int = Field(default=20000, ge=100)
+
+
+class ImpactFit(_Strict):
+    issuer_weight_cap: float = Field(gt=0, le=1)
+    hgb: ImpactHgbGrid
+    ridge_alpha: list[float]
+    tfidf: ImpactTfidf = ImpactTfidf()
+
+
+class ImpactFolds(_Strict):
+    first_fold_start: str
+    step_months: int = Field(ge=1, le=12)
+    embargo_sessions: int = Field(ge=2)
+    min_train_episodes: int = Field(ge=100)
+
+
+class ImpactLadderStep(_Strict):
+    id: str
+    family: str
+    rung: str | None = None
+
+    @model_validator(mode="after")
+    def _valid(self) -> ImpactLadderStep:
+        if self.family not in {"constant", "metadata", "ridge", "hgb_additive", "hgb_full", "ridge_tfidf"}:
+            raise ValueError(f"unknown ladder family {self.family!r}")
+        if self.family not in {"constant", "metadata"} and self.rung not in {"R2", "R2s", "R3", "R3s", "R3h", "F0", "F1", "F2"}:
+            raise ValueError(f"ladder step {self.id}: unknown rung {self.rung!r}")
+        return self
+
+
+class ImpactCalibration(_Strict):
+    percentile_points: int = Field(ge=51)
+    min_bin_episodes: int = Field(ge=10)
+    extreme_score: int = Field(ge=2, le=10)
+    interval: tuple[float, float]
+    severity_cap: float = Field(gt=7)
+
+    @model_validator(mode="after")
+    def _valid(self) -> ImpactCalibration:
+        lo, hi = self.interval
+        if not 0 < lo < hi < 1:
+            raise ValueError("calibration.interval must satisfy 0 < lo < hi < 1")
+        return self
+
+
+class ImpactEvalConfig(_Strict):
+    bootstrap_resamples: int = Field(ge=100)
+    bootstrap_seed: int
+    min_stratum_episodes: int = Field(ge=1)
+    per_issuer_min_episodes: int = Field(ge=1)
+
+
+class ImpactScopeGate(_Strict):
+    min_heldout_episodes: int = Field(ge=1)
+    live_min_episodes: int = Field(ge=1)
+
+
+class ImpactAcceptance(_Strict):
+    """The pre-registered bar. Field names carry the check id; see docs/IMPACT_MODEL.md for the wording of each."""
+
+    c1_spearman_ci_lower_above: float
+    c2_mae_improvement_vs_constant_ci_upper_below: float
+    c3_not_worse_than_market_state_baseline_by: float
+    c4_bucket_monotonicity_spearman_min: float
+    c5_interval_coverage_tolerance: float = Field(gt=0, lt=0.5)
+    c6_leakage_suite_clean: bool
+    c7_real_minus_placebo_spearman_above: float
+    c8_live_spearman_ci_lower_above: float
+
+
+class ImpactModelConfig(_Strict):
+    """configs/impact_model.yaml: how the impact model is fitted, selected, calibrated, evaluated, and where it lives."""
+
+    version: str
+    model_dir: str
+    served_model_dir: str | None = None  # the artifact served when it differs from the v1 reference in model_dir
+    require: bool
+    table: str
+    manifest_file: str
+    seed: int
+    feature_schema: str
+    rates_symbol: str
+    min_link_confidence: float = Field(ge=0, le=1)
+    fit: ImpactFit
+    folds: ImpactFolds
+    ladder: list[ImpactLadderStep]
+    calibration: ImpactCalibration
+    evaluation: ImpactEvalConfig
+    scopes: dict[str, ImpactScopeGate]
+    acceptance: ImpactAcceptance
+
+    @model_validator(mode="after")
+    def _valid(self) -> ImpactModelConfig:
+        ids = [s.id for s in self.ladder]
+        if len(ids) != len(set(ids)):
+            raise ValueError("ladder step ids must be unique")
+        if not ids or ids[0] != "R0-constant":
+            raise ValueError("the ladder must start with the R0-constant baseline")
+        if set(self.scopes) != {"ISSUER", "MARKET"}:
+            raise ValueError("scopes must define ISSUER and MARKET")
+        return self
+
+
+def load_impact_model_config(config_dir: Path) -> ImpactModelConfig:
+    path = config_dir / "impact_model.yaml"
+    try:
+        return ImpactModelConfig.model_validate(_load(path))
     except ValueError as exc:
         raise ConfigError(f"invalid {path}: {exc}") from exc

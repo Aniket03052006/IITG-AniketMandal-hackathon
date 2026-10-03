@@ -16,6 +16,19 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+def _impact_clause(c: Container) -> str:
+    st = c.impact_status
+    if st is None or st.mode != "MODEL":
+        return "impact is a PLACEHOLDER rule, not a trained model"
+    life = ", ".join(f"{s.lower()} {v.lower()}" for s, v in st.scopes.items())
+    words = {"PRODUCTION": "validated", "CALIBRATED": "experimental", "TRAINED": "experimental"}
+    kinds = sorted({words.get(v, "placeholder") for s, v in st.scopes.items() if s in st.served_scopes})
+    ref = (f"; its event-type inputs come from {c.impact_event_reference}, the model it was trained on"
+           if c.impact_event_reference else "")
+    return (f"impact is a trained model ({st.model_id}; {life}{ref}), labelled {' / '.join(kinds)} per "
+            "signal, with the PLACEHOLDER rule for any signal the model cannot score")
+
+
 def _notices(c: Container) -> list[str]:
     if c.pipeline_report is None:
         first = "Signals are hand-authored demo fixtures (fixture-v0), not model output."
@@ -23,8 +36,7 @@ def _notices(c: Container) -> list[str]:
         first = (
             "Documents are real (GDELT news metadata, Twitter Financial News posts) replayed from a frozen "
             f"snapshot. Sentiment ({c.sentiment_card.id}) and event type ({c.event_card.id}, which can say "
-            "\"not an event\" or \"uncertain\") are trained models; impact is a PLACEHOLDER rule, not a "
-            "trained model."
+            f"\"not an event\" or \"uncertain\") are trained models; {_impact_clause(c)}."
         )
     elif c.sentiment_card is not None:
         first = (
@@ -76,4 +88,5 @@ def meta(c: Container = Depends(get_container)) -> Meta:
         engine_version=ENGINE_VERSION,
         taxonomy=[TaxonomyItem(**t.model_dump()) for t in c.taxonomy.categories],
         notices=_notices(c),
+        impact=c.impact_status,
     )

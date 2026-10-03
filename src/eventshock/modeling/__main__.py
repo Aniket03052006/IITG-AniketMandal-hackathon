@@ -76,6 +76,55 @@ def _train_event(args: argparse.Namespace) -> int:
     return train_main(["--dev-only", args.dev_only] if args.dev_only else [])
 
 
+def _impact_table(args: argparse.Namespace) -> int:
+    from .impact_dataset import build_dataset
+
+    m = build_dataset(repo_root=REPO_ROOT, config_dir=CONFIG_DIR)
+    print(f"impact table: {m['rows']} rows  sha256 {m['table_sha256'][:12]}  ->  {m['table']}")
+    for scope in ("ISSUER", "MARKET"):
+        print(f"  {scope}: rows {m['by_scope_split_rows'][scope]}  episodes {m['by_scope_split_episodes'][scope]}")
+        print(f"          excluded {m['exclusions'][scope]}")
+    print(f"  text stage excluded {m['text_stage_exclusions']}")
+    return 0
+
+
+def _impact_table_v2(args: argparse.Namespace) -> int:
+    from .impact_dataset_v2 import build_dataset_v2
+
+    m = build_dataset_v2(repo_root=REPO_ROOT, config_dir=CONFIG_DIR, history_signals=REPO_ROOT / "data/processed/history_v2/signals.jsonl",
+                         out_table=REPO_ROOT / "data/modeling/impact_table_v2.jsonl", out_manifest=REPO_ROOT / "data/modeling/impact_dataset_v2.json")
+    print(f"impact table v2: {m['rows']} rows  sha256 {m['table_sha256'][:12]}  ->  {m['table']}")
+    for scope in ("ISSUER", "MARKET"):
+        print(f"  {scope}: episodes by protocol {m['by_scope_protocol_split_episodes'][scope]}")
+        print(f"          by year {m['by_scope_year'][scope]}")
+        print(f"          excluded {m['exclusions'][scope]}")
+    print(f"  text stage excluded {m['text_stage_exclusions']}")
+    return 0
+
+
+def _filing_events(args: argparse.Namespace) -> int:
+    from .filing_events import build_filing_table
+
+    m = build_filing_table(repo_root=REPO_ROOT, config_dir=CONFIG_DIR, out_table=REPO_ROOT / "data/modeling/filing_events.jsonl",
+                           out_manifest=REPO_ROOT / "data/modeling/filing_events.json")
+    print(f"filing events: {m['event_episodes']} event episodes, {m['matched_pairs']} matched controls  sha256 {m['table_sha256'][:12]}")
+    print(f"  by year {m['events_by_year']}")
+    print(f"  by item group {m['events_by_item_group']}  excluded {m['exclusions']}")
+    return 0
+
+
+def _impact_study(args: argparse.Namespace) -> int:
+    from .impact_study import main as study_main
+
+    return study_main(["--dev-only"] if args.dev_only else [])
+
+
+def _train_impact(args: argparse.Namespace) -> int:
+    from .impact_train import main as train_main
+
+    return train_main(["--dev-only", args.dev_only] if args.dev_only else [])
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m eventshock.modeling", description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -85,6 +134,15 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("train-event", help="train, tune, calibrate and evaluate the event model; write models/event/*")
     p.add_argument("--dev-only", metavar="OUT_DIR", help="iterate on dev rows only, writing to OUT_DIR; never scores the held-out sets")
     p.set_defaults(fn=_train_event)
+    sub.add_parser("impact-table", help="build the impact modeling table (both scopes, text features, exclusions) + manifest").set_defaults(fn=_impact_table)
+    sub.add_parser("impact-table-v2", help="build the v2 impact table (history v2, calendar features, protocol splits) + manifest").set_defaults(fn=_impact_table_v2)
+    sub.add_parser("filing-events", help="build the filing-anchored event table (8-K events + matched quiet-session controls)").set_defaults(fn=_filing_events)
+    st = sub.add_parser("impact-study", help="the Stage 4 study: protocols, incremental value of each block, regime-vs-event battery -> docs/evidence/impact_study.json")
+    st.add_argument("--dev-only", action="store_true", help="never score the held-out sets (val/test/live); writes nothing under docs/evidence")
+    st.set_defaults(fn=_impact_study)
+    q = sub.add_parser("train-impact", help="select, fit, calibrate and evaluate the impact model; write models/impact/*")
+    q.add_argument("--dev-only", metavar="OUT_DIR", help="iterate on train + val only, writing to OUT_DIR; never scores test or live")
+    q.set_defaults(fn=_train_impact)
     from . import gold_cli  # noqa: PLC0415
 
     gold_cli.register(sub)

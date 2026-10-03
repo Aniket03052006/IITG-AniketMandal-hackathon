@@ -184,6 +184,11 @@ class HistoryDoc:
     placeholder_event: str  # placeholder-v0 keyword class, NOT a label
     placeholder_sentiment: float  # placeholder-v0 lexicon score, NOT a label
     gkg_tone: float | None = field(default=None)  # GDELT machine tone (positive - negative), a silver cross-check only
+    body: str = ""  # the pipeline scores ``f"{headline} {body}"``; the impact dataset must feed the text models the same string
+
+    @property
+    def scored_text(self) -> str:
+        return f"{self.text} {self.body}".strip()
 
 
 def _tone(md: dict[str, Any]) -> float | None:
@@ -218,7 +223,7 @@ def iter_history_docs(path: Path) -> Iterator[HistoryDoc]:
                     dataset_tickers=tuple(tags), cluster_id=s["provenance"]["dedup"]["cluster_id"],
                     member_count=int(s["provenance"]["dedup"]["member_count"]),
                     placeholder_event=s["event"]["category"], placeholder_sentiment=float(s["sentiment"]["score"]),
-                    gkg_tone=_tone(md))
+                    gkg_tone=_tone(md), body=d.get("body") or "")
             except (KeyError, ValueError, TypeError) as exc:
                 raise ValueError(f"{path}:{n}: not a valid exported signal ({exc!r})") from exc
 

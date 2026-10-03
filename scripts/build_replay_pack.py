@@ -261,6 +261,12 @@ def main() -> None:
         ],
         "entities": {"file": "entities.json", "sha256": sha256_file(OUT / "entities.json")},
         "portfolio": {"file": "portfolio.json", "sha256": sha256_file(OUT / "portfolio.json")},
+        # derived market features: built by `make market-context` (needs data/raw/prices); kept if already present
+        **({"market_context": {"file": "market/context.json", "sha256": sha256_file(OUT / "market" / "context.json")}}
+           if (OUT / "market" / "context.json").is_file() else {}),
+        # pinned event-model vectors: built by `make replay-embeddings`; kept if already present (re-freezing must not unpin them)
+        **({"embeddings": {"file": "embeddings/event-e5-large.npz", "sha256": sha256_file(OUT / "embeddings" / "event-e5-large.npz")}}
+           if (OUT / "embeddings" / "event-e5-large.npz").is_file() else {}),
         "fetch_log": fetch_log,
         "fetch_plan": fetch_plan,
     }

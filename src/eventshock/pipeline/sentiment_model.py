@@ -145,6 +145,18 @@ class SentimentModel:
         """Why this text cannot be scored, or None."""
         return self._reason(text)
 
+    def unscorable_reasons(self, texts: list[str]) -> list[str | None]:
+        """``unscorable_reason`` for many texts with one vectorisation (the dataset builder scores ~100k documents)."""
+        if not texts:
+            return []
+        good = [i for i, t in enumerate(texts) if isinstance(t, str)]
+        out: list[str | None] = [f"text is {type(t).__name__}, not str" if not isinstance(t, str) else None for t in texts]
+        if good:
+            x = self._features([texts[i] for i in good])
+            for k, i in enumerate(good):
+                out[i] = self._reason(texts[i], x[k])
+        return out
+
     def probabilities(self, texts: list[str]) -> Any:
         """Calibrated (n, 3) class probabilities in ``CLASSES`` order, unrounded. Raises ``SentimentInputError``."""
         import numpy as np

@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 
 from ...pipeline.event_card import EventModelCard
+from ...pipeline.impact_card import ImpactModelCard
 from ...pipeline.sentiment_card import SentimentModelCard
 from ..deps import Container, get_container
 
@@ -23,3 +24,12 @@ def event_model(c: Container = Depends(get_container)) -> EventModelCard:
     if c.event_card is None:
         raise HTTPException(status_code=404, detail="no event model: running the demo-fixture profile")
     return c.event_card
+
+
+@router.get("/impact", response_model=ImpactModelCard)
+def impact_model(c: Container = Depends(get_container)) -> ImpactModelCard:
+    """The impact model card: per-scope lifecycle, baselines vs model, calibration, acceptance, limits."""
+    if c.impact_card is None:
+        raise HTTPException(
+            status_code=404, detail="no impact model: the demo profile, or no artifact (heuristic impact)")
+    return c.impact_card

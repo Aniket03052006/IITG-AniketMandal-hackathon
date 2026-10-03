@@ -162,14 +162,22 @@ def utc_stamp(ts: str) -> datetime:
     return datetime.strptime(ts, "%Y%m%d%H%M%S").replace(tzinfo=UTC)
 
 
-def select_files(master_lines: Iterable[str], start: str, end: str, kind: str = "gkg.csv.zip") -> list[str]:
-    """https URLs of masterfilelist entries of ``kind`` whose 14-digit timestamp lies in [start, end]."""
+def select_files(master_lines: Iterable[str], start: str, end: str, kind: str = "gkg.csv.zip",
+                 slots: frozenset[str] | None = None) -> list[str]:
+    """https URLs of masterfilelist entries of ``kind`` whose 14-digit timestamp lies in [start, end].
+
+    ``slots`` (optional set of ``HHMM`` strings, UTC) keeps only files stamped at those times of day: a deterministic,
+    evenly spread sample (e.g. six slots = 6 of GDELT's 96 daily files, about 6% of the flow). ``None`` keeps every file.
+    """
     out = []
     for line in master_lines:
         parts = line.split()
         if len(parts) != 3 or not parts[2].endswith(kind):
             continue
         stamp = parts[2].rsplit("/", 1)[-1][:14]
-        if stamp.isdigit() and start <= stamp <= end:
-            out.append("https://" + parts[2].split("://", 1)[-1])  # the list says http; the server speaks https
+        if not (stamp.isdigit() and start <= stamp <= end):
+            continue
+        if slots is not None and stamp[8:12] not in slots:
+            continue
+        out.append("https://" + parts[2].split("://", 1)[-1])  # the list says http; the server speaks https
     return sorted(set(out))

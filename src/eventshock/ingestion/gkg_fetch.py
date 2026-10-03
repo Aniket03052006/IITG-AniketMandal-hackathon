@@ -59,12 +59,13 @@ def process_file(url: str, flt: GkgFilter, *, transport: Transport, keep_dir: Pa
 def fetch_gkg(master: Path, flt: GkgFilter, *, start: str, end: str, out: Path, workers: int = 4,
               keep_dir: Path | None = None, transport: Transport = urllib_transport,
               sleep: Callable[[float], None] | None = None,
-              progress: Callable[[str], None] | None = None) -> GkgFetchResult:
+              progress: Callable[[str], None] | None = None,
+              slots: frozenset[str] | None = None) -> GkgFetchResult:
     import time
 
     sleep = sleep or time.sleep
     log_path = out.with_suffix(".log.jsonl")
-    urls = select_files(master.read_text(encoding="utf-8").split("\n"), start, end)
+    urls = select_files(master.read_text(encoding="utf-8").split("\n"), start, end, slots=slots)
     records = _lines(out)
     log = _lines(log_path)
     done = {e["file"] for e in log if e.get("status") == "ok"}
@@ -120,11 +121,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--filter", type=Path, required=True, help="JSON written by scripts/replay_universe.py")
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--slots", default=None,
+                    help="comma-separated HHMM (UTC) file slots to sample per day, e.g. 0000,0400,0800,1200,1600,2000 (default: every file)")
     ap.add_argument("--keep-zips", type=Path, default=None, help="also save the downloaded zips here (default: discard)")
     args = ap.parse_args(argv)
     flt = GkgFilter.from_json(json.loads(args.filter.read_text(encoding="utf-8")))
+    slots = frozenset(x.strip() for x in args.slots.split(",") if x.strip()) if args.slots else None
+    if slots and not all(len(x) == 4 and x.isdigit() for x in slots):
+        ap.error("--slots must be HHMM values such as 0400")
     res = fetch_gkg(args.master, flt, start=args.start, end=args.end, out=args.out, workers=args.workers,
-                    keep_dir=args.keep_zips, progress=lambda m: print(m, file=sys.stderr, flush=True))
+                    keep_dir=args.keep_zips, slots=slots, progress=lambda m: print(m, file=sys.stderr, flush=True))
     s = res.stats
     print(f"gkg: {res.files_done}/{res.files_total} files ok, {len(res.files_failed)} failed; this run read {s.rows} rows "
           f"(translated {s.translated}, no title {s.no_title}, malformed {s.malformed}) and kept "

@@ -16,6 +16,7 @@ import random
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
+from datetime import datetime
 
 from .market import PriceStore
 from .text import has_near_duplicate
@@ -116,7 +117,40 @@ FEATURE_REGISTRY: dict[str, tuple[str, str]] = {
     "f_volume_ratio": (AT_EVENT_TIME, "volume of s0-1 vs the 20 sessions before it"),
     "f_vix_level": (AT_EVENT_TIME, "VIX close of s0-1"),
     "f_vix_chg_5d": (AT_EVENT_TIME, "sessions < s0"),
+    "f_resid_vol_5d_ratio": (AT_EVENT_TIME, "RMS abnormal return of sessions s0-5..s0-1 over the trailing sigma"),
+    "f_resid_vol_20d_ratio": (AT_EVENT_TIME, "RMS abnormal return of sessions s0-20..s0-1 over the trailing sigma"),
+    "is_news": (AT_EVENT_TIME, "NEWS vs SOCIAL, from the source type"),
+    "t_pre_open": (AT_EVENT_TIME, "timing flag: report before the open (from the timestamp)"),
+    "t_in_session": (AT_EVENT_TIME, "timing flag: report during the session"),
+    "t_date_only": (AT_EVENT_TIME, "timing flag: the source gave a date but no time"),
+    "t_first_seen": (AT_EVENT_TIME, "timing flag: the time is when GDELT first crawled the page"),
+    **{f"ev_p_{c}": (AT_EVENT_TIME, "event model probability from the report's own text") for c in (
+        "geopolitical", "macroeconomic", "credit_funding", "ma_corporate_action", "regulatory_legal", "product_operations",
+        "earnings_financial_performance", "market_valuation", "none")},
+    "sent_pos": (AT_EVENT_TIME, "sentiment model P(positive) from the report's own text"),
+    "sent_neg": (AT_EVENT_TIME, "sentiment model P(negative) from the report's own text"),
+    "sent_abs": (AT_EVENT_TIME, "|P(positive) - P(negative)| from the report's own text"),
+    **{f"m_{k}": (AT_EVENT_TIME, "market-scope state of sessions < s0") for k in (
+        "sigma_60", "ret_1d", "ret_5d", "ret_20d", "dev_vol_5d_ratio", "dev_vol_20d_ratio", "vix_level", "vix_chg_5d",
+        "vix_rel_60", "rate_level", "rate_chg_5d")},
+    # structured event context (pipeline/event_context.py). Class a: known before the event; class b: published at event time
+    # (a filing the SEC accepted strictly before the report). Class c is banned below.
+    "earn_days_to_expected": (AT_EVENT_TIME, "a: days to the expected earnings release, projected from the issuer's own EARLIER 8-K item 2.02 dates"),
+    "earn_window": (AT_EVENT_TIME, "a: the expected earnings release is within about a day (same projection)"),
+    "earn_days_since_last": (AT_EVENT_TIME, "a: days since the issuer's last earlier item-2.02 filing"),
+    "f8k_hours_since_last": (AT_EVENT_TIME, "b: hours since the issuer's last 8-K accepted strictly before the report"),
+    "f8k_count_24h": (AT_EVENT_TIME, "b: 8-Ks accepted in the 24 hours strictly before the report"),
+    **{f"f8k_{g}_24h": (AT_EVENT_TIME, f"b: an 8-K with a {g} item accepted in the 24 hours strictly before the report")
+       for g in ("earnings", "deal", "distress", "financing", "leadership")},
+    **{f"item_{g}": (AT_EVENT_TIME, f"b: the filing's own {g} item codes: the report is the filing, so they are published at event time")
+       for g in ("earnings", "deal", "distress", "financing", "leadership", "other")},
+    "fomc_s0": (AT_EVENT_TIME, "a: a scheduled FOMC decision falls on the reaction session (calendar published ahead)"),
+    "fomc_s1": (AT_EVENT_TIME, "a: a scheduled FOMC decision falls on the session after the reaction session"),
     # banned
+    "eps_surprise": (POST_EVENT, "realised EPS minus consensus: known only once results are out (consensus is also not free data)"),
+    "filing_at_or_after": (POST_EVENT, "a filing accepted at or after the report is the outcome side of the event"),
+    "later_periodic_report": (POST_EVENT, "a 10-Q/10-K filed after the report"),
+    "filing_items_same_event": (POST_EVENT, "item codes of the 8-K that the report is itself about, when read from after the report"),
     "source_count": (POST_EVENT, "cluster size includes reports up to 72h after the first report"),
     "unique_domain_count": (POST_EVENT, "cluster-level, includes later reports"),
     "coverage_velocity": (POST_EVENT, "spans the whole cluster, including later reports"),
@@ -158,6 +192,48 @@ def future_invariance(store: PriceStore, events: Sequence[tuple[str, int]], *, s
     n = len(events)
     return ([Finding("future_invariance", "ERROR", f"{len(bad)} features changed when the future was scrambled: {bad[:3]}")]
             if bad else [Finding("future_invariance", "INFO", f"{n} events: features unchanged when all prices from s0 on are noise")])
+
+
+def market_future_invariance(store: PriceStore, sessions: Sequence[int], rates_symbol: str | None, *, seed: int = 1) -> list[Finding]:
+    """Market-scope features at session ``s0`` must be bit-identical when every price from ``s0`` on is scrambled."""
+    bad = []
+    for s0 in sessions:
+        base = store.market_features_asof(s0, rates_symbol)
+        scr = store.scrambled_from(s0, seed).market_features_asof(s0, rates_symbol)
+        if base is None or scr is None:
+            continue
+        for k in base:
+            a, b = base[k], scr[k]
+            if not (a == b or (a != a and b != b)):
+                bad.append(f"{store.dates[s0]}:{k}")
+    return ([Finding("market_future_invariance", "ERROR", f"{len(bad)} market features changed when the future was scrambled: {bad[:3]}")]
+            if bad else [Finding("market_future_invariance", "INFO", f"{len(sessions)} sessions: market features unchanged when all prices from s0 on are noise")])
+
+
+def calendar_future_invariance(calendar, events: Sequence[tuple[str | None, datetime, str | None, str | None]], *, seed: int = 1
+                               ) -> list[Finding]:
+    """Calendar features of a report at ``t`` must be bit-identical when every filing accepted at/after ``t`` is replaced by decoys.
+
+    ``events`` are ``(ticker or None for the market scope, t, s0_date, s1_date)``.
+    """
+    bad: list[str] = []
+    for ticker, t, d0, d1 in events:
+        pert = calendar.perturbed_from(t, seed)
+        a = calendar.market_features(d0, d1) if ticker is None else calendar.issuer_features(ticker, t, d0, d1)
+        b = pert.market_features(d0, d1) if ticker is None else pert.issuer_features(ticker, t, d0, d1)
+        for k in a:
+            if not (a[k] == b[k] or (a[k] != a[k] and b[k] != b[k])):
+                bad.append(f"{ticker}@{t.isoformat()}:{k}")
+    if bad:
+        return [Finding("calendar_future_invariance", "ERROR", f"{len(bad)} calendar features changed when later filings were replaced: {bad[:3]}")]
+    return [Finding("calendar_future_invariance", "INFO", f"{len(events)} events: calendar features unchanged when every filing at/after the report is replaced")]
+
+
+#: availability class of the structured features (a: known before the event, b: published at event time), shown in the evidence page
+def availability_class(name: str) -> str | None:
+    from ..pipeline.event_context import ISSUER_CALENDAR, MARKET_CALENDAR
+
+    return ISSUER_CALENDAR.get(name) or MARKET_CALENDAR.get(name)
 
 
 # ----------------------------------------------------------------------------------- metadata & placebo skill

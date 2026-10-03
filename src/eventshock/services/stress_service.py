@@ -106,6 +106,8 @@ class StressService:
                 threshold=threshold,
                 forced=force,
                 impact_overridden=override is not None,
+                impact_origin=_impact_origin(signal),
+                impact_lifecycle=_impact_lifecycle(signal),
                 calculated_at=self._clock(),
             )
 
@@ -232,3 +234,16 @@ class StressService:
             sort_keys=True,
         )
         return "run_" + hashlib.sha256(payload.encode()).hexdigest()[:12]
+
+
+def _impact_origin(signal: RiskSignal) -> str | None:
+    if signal.impact is None:
+        return None
+    if signal.provenance is None:
+        return None  # demo fixtures: no per-stage record
+    return "MODEL" if signal.provenance.stage_origins.get("impact") == "MODEL" else "PLACEHOLDER"
+
+
+def _impact_lifecycle(signal: RiskSignal) -> str | None:
+    audit = signal.provenance.impact if signal.provenance else None
+    return audit.lifecycle.value if audit else None

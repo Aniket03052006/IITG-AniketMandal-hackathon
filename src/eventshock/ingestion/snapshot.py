@@ -55,6 +55,12 @@ class SnapshotManifest(ContractModel):
     sources: list[SourceFile] = Field(min_length=1)
     entities: AuxFile
     portfolio: AuxFile
+    market_context: AuxFile | None = Field(
+        default=None, description="derived event-time market features for the window (statistics only, no prices); "
+                                  "absent = the impact model cannot score this snapshot")
+    embeddings: AuxFile | None = Field(
+        default=None, description="hash-pinned float16 sentence-embedding vectors of the exact strings the replay pipeline scores, so the hybrid event model "
+                                  "runs offline without torch; absent = vectors come from a live encoder or the model falls back")
     fetch_log: list[dict[str, Any]] = Field(default_factory=list)
     fetch_plan: list[str] = Field(
         default_factory=list,
@@ -144,6 +150,14 @@ class Snapshot:
     def portfolio_path(self) -> Path:
         return self.root / self.manifest.portfolio.file
 
+    def market_context_path(self) -> Path | None:
+        mc = self.manifest.market_context
+        return self.root / mc.file if mc else None
+
+    def embeddings_path(self) -> Path | None:
+        e = self.manifest.embeddings
+        return self.root / e.file if e else None
+
 
 def _verify(root: Path, rel: str, expected_sha: str, label: str) -> Path:
     path = (root / rel).resolve()
@@ -176,6 +190,10 @@ def load_snapshot(root: Path) -> Snapshot:
             raise ConfigError(f"source {src.name}: manifest says {src.records} records, file has {actual}")
     _verify(root, manifest.entities.file, manifest.entities.sha256, "entity master")
     _verify(root, manifest.portfolio.file, manifest.portfolio.sha256, "portfolio")
+    if manifest.market_context:
+        _verify(root, manifest.market_context.file, manifest.market_context.sha256, "market context")
+    if manifest.embeddings:
+        _verify(root, manifest.embeddings.file, manifest.embeddings.sha256, "pinned embeddings")
     return Snapshot(root=root, manifest=manifest)
 
 

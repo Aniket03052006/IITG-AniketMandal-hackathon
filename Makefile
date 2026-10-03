@@ -7,7 +7,7 @@ GDELT_THROTTLE ?= 20
 PRICES_START ?= 2014-01-01
 PRICES_END ?= 2026-10-02
 
-.PHONY: audit probe gold-sample gold-validate gold-score train-sentiment train-event event-pools event-merge event-table fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
+.PHONY: market-context impact-table train-impact audit probe gold-sample gold-validate gold-score train-sentiment train-event event-pools event-merge event-table fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
 
 setup: setup-api setup-web  ## install everything
 
@@ -98,6 +98,15 @@ event-merge:  ## validate the annotator's answers (data/event_labels/answers/*.j
 event-table:  ## build data/modeling/event_train.jsonl (annotated rows + capped TFN silver) and verify it is disjoint from gold/replay-check
 	$(PY) -m eventshock.modeling event-table
 
+market-context:  ## freeze the event-time market features of the replay window into data/replay/market/context.json (needs data/raw/prices)
+	$(PY) scripts/build_market_context.py
+
+impact-table:  ## build data/modeling/impact_table.jsonl + manifest (needs `make ingest-history`-style signals, data/raw/prices, both text models)
+	PYTHONPATH=src $(PY) -m eventshock.modeling impact-table
+
+train-impact:  ## select, fit, calibrate and evaluate the impact model -> models/impact/ (--dev-only OUT iterates without scoring test/live)
+	PYTHONPATH=src $(PY) -m eventshock.modeling train-impact
+
 train-event:  ## train + tune + calibrate + evaluate the event model -> models/event/ (needs data/modeling/event_train.jsonl)
 	$(PY) -m eventshock.modeling train-event
 
@@ -119,3 +128,71 @@ types:  ## regenerate frontend API types from the FastAPI schema
 
 logo:  ## rebuild SVG logos (needs fonttools + brotli via uv)
 	uv run --with fonttools --with brotli python scripts/build_logo.py
+
+# ---- Stage 4: structured events, 2023-25 news, representation study (see docs/EVIDENCE_V2.md)
+.PHONY: fetch-edgar fetch-fomc events-calendar fetch-gkg-2023 bakeoff-texts bakeoff-embed bakeoff
+fetch-edgar:  ## SEC filing index for the 34 issuers (needs EVENTSHOCK_SEC_CONTACT in .env) -> data/raw/edgar
+	PYTHONPATH=src $(PY) -m eventshock.ingestion.edgar --symbols-file data/raw/prices/symbols.json --out data/raw/edgar
+
+fetch-fomc:  ## FOMC decision dates (federalreserve.gov) -> data/raw/fomc
+	PYTHONPATH=src $(PY) -m eventshock.ingestion.fomc --out data/raw/fomc
+
+events-calendar:  ## offline: build the committed data/events/ tables from data/raw/edgar + data/raw/fomc
+	$(PY) scripts/build_event_calendar.py
+
+fetch-gkg-2023:  ## GKG 2023-01..2025-12, six 15-minute files per UTC day (configs/evidence_v2.yaml), resumable, zips discarded (~3 h)
+	PYTHONPATH=src $(PY) -m eventshock.ingestion.gkg_fetch --master data/raw/gdelt_gkg/masterfilelist.txt --start 20230101000000 --end 20251231235959 \
+		--slots 0000,0400,0800,1200,1600,2000 --filter data/raw/gdelt_gkg/filter.json --out data/raw/gdelt_gkg/filtered_2023_25.jsonl --workers 6
+
+bakeoff-texts:  ## every labelled text the representation study encodes -> data/modeling/bakeoff_texts.jsonl
+	PYTHONPATH=src $(PY) -c "from pathlib import Path; from eventshock.modeling.representations.corpus import write_texts; print(write_texts(Path('.'), Path('data/modeling/bakeoff_texts.jsonl')), 'texts')"
+
+bakeoff-embed:  ## frozen encoders (needs the optional .venv-emb: torch + transformers) -> data/modeling/embeddings (cached, resumable)
+	PYTHONPATH=src .venv-emb/bin/python -m eventshock.modeling.representations.encoders --texts data/modeling/bakeoff_texts.jsonl
+
+bakeoff:  ## the pre-registered representation comparison -> docs/evidence/representation_bakeoff.json (main venv; needs bakeoff-embed first)
+	PYTHONPATH=src $(PY) -m eventshock.modeling.representations.bakeoff
+
+.PHONY: history-v2 ingest-history-v2 impact-table-v2 impact-study
+history-v2:  ## v1 history + GKG 2023-25 -> data/history_v2 (needs `make fetch-gkg-2023`)
+	$(PY) scripts/build_history_v2.py
+
+ingest-history-v2:  ## run the pipeline over history v2 -> data/processed/history_v2/signals.jsonl
+	PYTHONPATH=src $(PY) -m eventshock.pipeline --replay-dir data/history_v2 --export data/processed/history_v2
+
+impact-table-v2:  ## the v2 impact table: protocol splits + calendar features (needs ingest-history-v2, events-calendar, prices)
+	PYTHONPATH=src $(PY) -m eventshock.modeling impact-table-v2
+
+impact-study:  ## Stage 4 study -> docs/evidence/impact_study.json (long: use `--dev-only` through python -m eventshock.modeling impact-study)
+	PYTHONPATH=src $(PY) -m eventshock.modeling impact-study
+
+.PHONY: filing-events
+filing-events:  ## Track F: 8-K events (exact SEC timestamps, item codes) + matched quiet-session controls -> data/modeling/filing_events.jsonl
+	PYTHONPATH=src $(PY) -m eventshock.modeling filing-events
+
+.PHONY: replay-embeddings-texts bakeoff-embed-replay replay-embeddings train-event-hybrid
+replay-embeddings-texts:  ## record the exact strings the replay pipeline scores -> data/modeling/replay_event_texts.jsonl
+	PYTHONPATH=src $(PY) scripts/build_replay_embeddings.py texts
+
+bakeoff-embed-replay:  ## (.venv-emb) encode those strings with the hybrid model's encoder
+	PYTHONPATH=src .venv-emb/bin/python -m eventshock.modeling.representations.encoders --texts data/modeling/replay_event_texts.jsonl --models intfloat/multilingual-e5-large
+
+replay-embeddings:  ## pin the vectors (float16) in data/replay/embeddings/ and in the replay manifest
+	PYTHONPATH=src $(PY) scripts/build_replay_embeddings.py pack
+
+train-event-hybrid:  ## fit, calibrate, evaluate the adopted hybrid event model -> models/event/hybrid-event-v2/ (needs bakeoff evidence + embeddings)
+	PYTHONPATH=src $(PY) -m eventshock.modeling.hybrid_train
+
+.PHONY: train-impact-v2
+train-impact-v2:  ## fit, calibrate, evaluate impact-v2 (document level, Stage 4 protocol) -> models/impact/impact-v2/ (long; needs impact-table-v2 and impact-study)
+	PYTHONPATH=src $(PY) -u -m eventshock.modeling.impact_train_v2
+
+.PHONY: freeze-check freeze-write smoke
+freeze-check:  ## verify the final model state against docs/freeze_manifest.json (models, configs, gold, calendar, replay, evidence)
+	$(PY) scripts/freeze_manifest.py --check
+
+freeze-write:  ## rewrite docs/freeze_manifest.json: only after a deliberate, journaled change
+	$(PY) scripts/freeze_manifest.py --write
+
+smoke:  ## start the real server (replay profile), check API, model ids/hashes, evidence, stress and the UI (~2 min)
+	$(PY) scripts/smoke_e2e.py

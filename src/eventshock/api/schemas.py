@@ -45,6 +45,11 @@ class SignalSummary(ContractModel):
         description="CLASSIFIED: `category` is a finding; otherwise it is only a best guess")
     sentiment_score: float
     impact_score: int | None
+    impact_origin: str | None = Field(
+        default=None, description="MODEL | PLACEHOLDER: what produced impact_score")
+    impact_lifecycle: str | None = Field(default=None, description="lifecycle of the impact model, if used")
+    impact_score_low: int | None = None
+    impact_score_high: int | None = None
     status: SignalStatus
     source_count: int
     data_origin: str
@@ -86,6 +91,16 @@ class ReplayInfo(ContractModel):
     sources: list[str]
 
 
+class ImpactStatus(ContractModel):
+    """What the impact stage is in this running app, derived from the loaded card (never hard-coded copy)."""
+
+    mode: str = Field(description="MODEL (a trained model scores what it can) | PLACEHOLDER (heuristic only)")
+    model_id: str | None
+    scopes: dict[str, str] = Field(default_factory=dict, description="scope -> lifecycle of the model for it")
+    served_scopes: list[str] = Field(default_factory=list)
+    reason: str | None = Field(default=None, description="why the app is on the heuristic, when it is")
+
+
 class Meta(ContractModel):
     app: str
     version: str
@@ -102,6 +117,7 @@ class Meta(ContractModel):
     engine_version: str
     taxonomy: list[TaxonomyItem]
     notices: list[str]
+    impact: ImpactStatus | None = Field(default=None, description="null for the demo-fixture profile")
 
 
 class ExposureRow(ContractModel):

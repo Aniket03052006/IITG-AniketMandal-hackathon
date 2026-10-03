@@ -24,6 +24,12 @@ def _summary(s: RiskSignal) -> SignalSummary:
         event_status=s.event.status,
         sentiment_score=s.sentiment.score,
         impact_score=s.impact.score if s.impact else None,
+        impact_origin=(None if s.impact is None or s.provenance is None else
+                       "MODEL" if s.provenance.stage_origins.get("impact") == "MODEL" else "PLACEHOLDER"),
+        impact_lifecycle=(s.provenance.impact.lifecycle.value if s.provenance and s.provenance.impact
+                          else None),
+        impact_score_low=s.impact.score_low if s.impact else None,
+        impact_score_high=s.impact.score_high if s.impact else None,
         status=s.status,
         source_count=s.evidence.source_count,
         data_origin=s.data_origin.value,

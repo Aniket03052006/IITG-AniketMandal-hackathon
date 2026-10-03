@@ -68,15 +68,34 @@ class ImpactDriver(ContractModel):
     feature: str
     contribution: float
     note: str = ""
+    value: float | None = Field(default=None, description="the feature's value, if it has one")
 
 
 class ImpactAssessment(ContractModel):
-    """Market-response *proxy* on a 1-10 scale (never a probability of loss)."""
+    """Market-response *proxy* on a 1-10 scale (never a probability of loss).
+
+    From the placeholder heuristic only ``score``/``raw``/``drivers`` are filled. From the trained model the
+    rest is filled too: the continuous prediction, what comparable past events realised, and attributions.
+    """
 
     score: int = Field(ge=1, le=10)
     raw: float = Field(ge=0, le=1, description="continuous, pre-quantisation output")
     drivers: list[ImpactDriver] = Field(default_factory=list)
     quantisation: str = "ceil(raw * 10), min 1"
+    scope: str | None = Field(default=None, description="ISSUER | MARKET; null for the heuristic")
+    predicted_severity: float | None = Field(
+        default=None, ge=0, description="predicted |z|: the two-session abnormal move, in sigma units")
+    comparable_events: int | None = Field(
+        default=None, ge=0, description="out-of-fold historical ticker-sessions in this score bucket")
+    score_low: int | None = Field(default=None, ge=1, le=10, description="10th pct of the score realised")
+    score_high: int | None = Field(default=None, ge=1, le=10, description="90th pct of the score realised")
+    realised_severity_low: float | None = Field(default=None, ge=0, description="their 10th percentile |z|")
+    realised_severity_median: float | None = Field(default=None, ge=0)
+    realised_severity_high: float | None = Field(default=None, ge=0, description="their 90th percentile |z|")
+    p_extreme: float | None = Field(
+        default=None, ge=0, le=1, description="share that realised an extreme move (score >= 7)")
+    driver_basis: str | None = Field(
+        default=None, description="units of the driver contributions, and how they add up to the prediction")
 
 
 class CorroboratingSource(ContractModel):

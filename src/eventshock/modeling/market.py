@@ -15,15 +15,15 @@ from __future__ import annotations
 
 import csv
 import math
-from bisect import bisect_left
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime
 from itertools import accumulate
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from ..domain import UNKNOWN_ENTITY
+from ..pipeline.market_context import SessionRules, anchor_session
 from .config import ImpactConfig
 from .corpora import HistoryDoc
 
@@ -56,6 +56,18 @@ class ImpactTarget:
     abs_z: float
     car: float
     fit: Fit
+    score: int
+
+
+@dataclass(frozen=True)
+class MarketTarget:
+    """Market-wide severity: the S&P 500's own excess move over the same window, in trailing-sigma units."""
+
+    z: float
+    abs_z: float
+    car: float
+    mu: float
+    sigma: float
     score: int
 
 
@@ -121,29 +133,12 @@ class PriceStore:
         return sum(v) / len(v) if v else NAN
 
     # ----------------------------------------------------------------------------------------- anchoring
-    def anchor(self, ts: datetime, origin: str) -> tuple[int | None, str]:
-        """(s0, timing). ``s0`` is the first session whose close is after publication.
+    def session_rules(self) -> SessionRules:
+        return SessionRules(self.cfg.exchange_timezone, self.cfg.session_open, self.cfg.session_close)
 
-        timing: OFF_HOURS (after close / weekend: whole reaction follows the report), PRE_OPEN, IN_SESSION (part of the
-        session's move precedes the report: contaminated), DATE_ONLY (no time of day), FIRST_SEEN (GDELT crawl time,
-        which lags publication). Early-close days (13:00 ET) are treated as ordinary sessions.
-        """
-        n = len(self.dates)
-        if origin == "SOURCE_DATE_ONLY":
-            i = bisect_left(self.dates, ts.astimezone(UTC).date().isoformat())
-            return (i if i < n else None), "DATE_ONLY"
-        local = ts.astimezone(self.tz)
-        d = local.date().isoformat()
-        i = bisect_left(self.dates, d)
-        is_session = i < n and self.dates[i] == d
-        t = local.time()
-        if is_session and t < self.cfg.session_close:
-            s0, timing = i, ("PRE_OPEN" if t < self.cfg.session_open else "IN_SESSION")
-        else:
-            s0, timing = (i + 1 if is_session else i), "OFF_HOURS"
-        if origin == "GDELT_FIRST_SEEN":
-            timing = "FIRST_SEEN"
-        return (s0 if s0 < n else None), timing
+    def anchor(self, ts: datetime, origin: str) -> tuple[int | None, str]:
+        """(s0, timing). See ``pipeline.market_context.anchor_session`` (the one implementation, shared with serving)."""
+        return anchor_session(self.dates, ts, origin, self.session_rules())
 
     # ----------------------------------------------------------------------------------------- the model
     def _prefix(self, t: str) -> dict[str, list[float]]:
@@ -236,6 +231,15 @@ class PriceStore:
             vals = r[s0 - k:s0]
             return math.prod(1 + v for v in vals if v == v) - 1
 
+        def resid_vol_ratio(k: int) -> float:
+            """RMS abnormal return of the last ``k`` sessions (< s0) relative to the trailing sigma: is vol heating up?"""
+            ar = []
+            for i in range(s0 - k, s0):
+                pk = p[i] if fit.c != 0.0 else 0.0
+                if y[i] == y[i] and m[i] == m[i] and pk == pk:
+                    ar.append(y[i] - fit.a - fit.b * m[i] - fit.c * pk)
+            return math.sqrt(sum(v * v for v in ar) / len(ar)) / fit.sigma if len(ar) >= max(3, k // 2) else NAN
+
         vix = self.close.get(self.cfg.volatility_symbol)
         vols = [v for v in self.volume[t][s0 - 21:s0 - 1] if v == v]
         v_prev = self.volume[t][s0 - 1]
@@ -244,10 +248,77 @@ class PriceStore:
             "ret_1d": cum(y, 1), "ret_5d": cum(y, 5), "ret_20d": cum(y, 20), "mkt_ret_5d": cum(m, 5),
             "sector_ret_5d": cum(p, 5) if p and fit.c != 0.0 else 0.0,
             "volume_ratio": (v_prev / (sum(vols) / len(vols))) if vols and v_prev == v_prev and sum(vols) > 0 else NAN,
+            "resid_vol_5d_ratio": resid_vol_ratio(5), "resid_vol_20d_ratio": resid_vol_ratio(20),
         }
         if vix:
             out["vix_level"] = vix[s0 - 1]
             out["vix_chg_5d"] = vix[s0 - 1] / vix[s0 - 6] - 1 if vix[s0 - 6] == vix[s0 - 6] and vix[s0 - 6] > 0 else NAN
+        return out
+
+    # ------------------------------------------------------------------------------- market-wide scope
+    def market_fit_before(self, start: int) -> tuple[float, float] | None:
+        """(mu, sigma) of the market's daily return from sessions strictly before ``start``; None without enough history."""
+        cfg = self.cfg
+        m = self.ret[self.market]
+        lo = max(1, start - cfg.beta_window)
+        if start - lo < cfg.min_history_sessions:
+            return None
+        win = [v for v in m[lo:start] if v == v]
+        if len(win) < cfg.min_history_sessions:
+            return None
+        mu = sum(win) / len(win)
+        slo = max(1, start - cfg.sigma_window)
+        sig = [v for v in m[slo:start] if v == v]
+        if len(sig) < cfg.sigma_window * 0.5:
+            return None
+        sigma = math.sqrt(sum((v - mu) ** 2 for v in sig) / len(sig))
+        return (mu, sigma) if sigma > 0 else None
+
+    def market_target(self, start: int) -> tuple[MarketTarget | None, str]:
+        """Excess S&P 500 move over sessions [start, start + W - 1] in units of trailing sigma (model fitted before ``start``)."""
+        W = self.cfg.window_sessions
+        if start + W > len(self.dates):
+            return None, "CENSORED"
+        fit = self.market_fit_before(start)
+        if fit is None:
+            return None, "INSUFFICIENT_HISTORY"
+        mu, sigma = fit
+        m = self.ret[self.market]
+        car = 0.0
+        for k in range(start, start + W):
+            if m[k] != m[k]:
+                return None, "MISSING_RETURN"
+            car += m[k] - mu
+        z = car / (sigma * math.sqrt(W))
+        return MarketTarget(z, abs(z), car, mu, sigma, score_from_abs_z(abs(z), self.cfg.score_cutpoints)), ""
+
+    def market_features_asof(self, s0: int, rates_symbol: str | None = None) -> dict[str, float] | None:
+        """Market-state features at ``s0``: the S&P's own recent move and vol, VIX, 10y yield. Reads only sessions < s0."""
+        fit = self.market_fit_before(s0)
+        if fit is None or s0 < 22:
+            return None
+        mu, sigma = fit
+        m = self.ret[self.market]
+
+        def cum(k: int) -> float:
+            return math.prod(1 + v for v in m[s0 - k:s0] if v == v) - 1
+
+        def dev_ratio(k: int) -> float:
+            d = [v - mu for v in m[s0 - k:s0] if v == v]
+            return math.sqrt(sum(v * v for v in d) / len(d)) / sigma if len(d) >= max(3, k // 2) else NAN
+
+        out = {"sigma_60": sigma, "ret_1d": cum(1), "ret_5d": cum(5), "ret_20d": cum(20),
+               "dev_vol_5d_ratio": dev_ratio(5), "dev_vol_20d_ratio": dev_ratio(20)}
+        vix = self.close.get(self.cfg.volatility_symbol)
+        if vix:
+            base = [v for v in vix[s0 - 61:s0 - 1] if v == v]
+            out["vix_level"] = vix[s0 - 1]
+            out["vix_chg_5d"] = vix[s0 - 1] / vix[s0 - 6] - 1 if vix[s0 - 6] == vix[s0 - 6] and vix[s0 - 6] > 0 else NAN
+            out["vix_rel_60"] = vix[s0 - 1] / (sum(base) / len(base)) if base and vix[s0 - 1] == vix[s0 - 1] else NAN
+        rate = self.close.get(rates_symbol) if rates_symbol else None
+        if rate:
+            out["rate_level"] = rate[s0 - 1]
+            out["rate_chg_5d"] = rate[s0 - 1] - rate[s0 - 6] if rate[s0 - 1] == rate[s0 - 1] and rate[s0 - 6] == rate[s0 - 6] else NAN
         return out
 
 
@@ -305,6 +376,52 @@ def impact_rows(docs: Iterator[HistoryDoc] | Sequence[HistoryDoc], store: PriceS
             "z": tgt.z, "abs_z": tgt.abs_z, "car": tgt.car, "score": tgt.score, "factor_model": tgt.fit.factor_model,
             "placebo_abs_z": placebo.abs_z if placebo else None,
             "placeholder_event": doc.placeholder_event,  # audit only; registered as CIRCULAR, never a feature
+        })
+    sizes: dict[str, int] = {}
+    for r in rows:
+        sizes[r["episode"]] = sizes.get(r["episode"], 0) + 1
+    for r in rows:
+        r["episode_size"] = sizes[r["episode"]]
+        r["weight"] = 1.0 / sizes[r["episode"]]
+    return rows, dict(sorted(drops.items()))
+
+
+def market_rows(docs: Iterator[HistoryDoc] | Sequence[HistoryDoc], store: PriceStore, cfg: ImpactConfig, rates_symbol: str | None
+                ) -> tuple[list[dict], dict[str, int]]:
+    """Market-scope rows: documents that name no listed issuer, scored against the S&P 500's own move (its sessions are the episodes)."""
+    rows: list[dict] = []
+    drops: dict[str, int] = {}
+
+    def drop(reason: str) -> None:
+        drops[reason] = drops.get(reason, 0) + 1
+
+    for doc in docs:
+        if doc.entity_id != UNKNOWN_ENTITY:
+            drop("HAS_ISSUER")
+            continue
+        s0, timing = store.anchor(doc.published_at, doc.origin)
+        if s0 is None:
+            drop("BEYOND_PRICES")
+            continue
+        tgt, why = store.market_target(s0)
+        if tgt is None:
+            drop(why)
+            continue
+        feats = store.market_features_asof(s0, rates_symbol)
+        if feats is None:
+            drop("INSUFFICIENT_HISTORY")
+            continue
+        placebo, _ = store.market_target(s0 + cfg.placebo_offset_sessions)
+        local = doc.published_at.astimezone(store.tz)
+        rows.append({
+            "id": doc.id, "scope": "MARKET", "adapter": doc.adapter, "source_type": doc.source_type, "ticker": None, "sector": None,
+            "published_at": doc.published_at.isoformat(), "origin": doc.origin, "timing": timing, "s0": s0,
+            "s0_date": store.dates[s0], "episode": f"MKT|{store.dates[s0]}", "link_confidence": doc.link_confidence,
+            "novelty": doc.novelty, "dow": local.weekday(), "local_hour": local.hour + local.minute / 60,
+            **{f"m_{k}": v for k, v in feats.items()},
+            "z": tgt.z, "abs_z": tgt.abs_z, "car": tgt.car, "score": tgt.score,
+            "placebo_abs_z": placebo.abs_z if placebo else None,
+            "placeholder_event": doc.placeholder_event,
         })
     sizes: dict[str, int] = {}
     for r in rows:

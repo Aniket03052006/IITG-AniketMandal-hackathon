@@ -48,8 +48,11 @@ ignore = ["B008"]  # FastAPI Depends() in defaults is the framework idiom
 
 [tool.ruff.lint.per-file-ignores]
 "scripts/*.py" = ["E501"]
+"experiments/**" = ["E501"]
 # Stage-2 data-pipeline modules keep dense, table-like argument lists; line length is not enforced there.
 "src/eventshock/pipeline/*.py" = ["E501"]
 "src/eventshock/ingestion/*.py" = ["E501"]
 "src/eventshock/modeling/*.py" = ["E501"]
+"src/eventshock/modeling/representations/*.py" = ["E501"]
+"src/eventshock/services/evidence.py" = ["E501"]
 "tests/**" = ["E501"]

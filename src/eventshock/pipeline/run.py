@@ -157,6 +157,10 @@ def run_documents(
                for c in clusters]
     # novelty needs the other clusters, so it is filled in a second pass
     signals = _apply_novelty(signals, clusters)
+    # impact (when it is a trained model) reads novelty, so it is the last enrichment step
+    refine = getattr(enricher, "refine_impact", None)
+    if refine is not None:
+        signals = [refine(s) for s in signals]
 
     for c in clusters:
         src = str(c.canonical.doc.raw_metadata.get("adapter", c.canonical.doc.source))

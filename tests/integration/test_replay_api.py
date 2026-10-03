@@ -10,13 +10,16 @@ class TestMetaAndReport:
         m = replay_client.get("/api/meta").json()
         assert m["profile"] == "replay" and m["data_origin"] == "REAL_SOURCE_MIXED_NLP"
         assert m["replay"]["snapshot_id"] and len(m["replay"]["output_digest"]) == 64
-        assert any("trained models" in n and "event type" in n and "impact is a PLACEHOLDER" in n for n in m["notices"])
+        assert any("trained models" in n and "event type" in n and "impact is a trained model" in n and "experimental" in n
+                   and "PLACEHOLDER rule for any signal the model cannot score" in n for n in m["notices"])
         so = m["replay"]["stage_origins"]
-        assert so["sentiment"].startswith("MODEL") and so["event"].startswith("MODEL") and so["impact"] == "PLACEHOLDER"
+        assert so["sentiment"].startswith("MODEL") and so["event"].startswith("MODEL") and so["impact"].startswith("MODEL (impact-v2")
+        assert m["impact"]["mode"] == "MODEL" and m["impact"]["served_scopes"] == ["ISSUER", "MARKET"] and m["impact"]["reason"] is None
+        assert set(m["impact"]["scopes"].values()) <= {"TRAINED", "CALIBRATED", "PRODUCTION"}
 
     def test_demo_profile_meta_is_unchanged(self, client):
         m = client.get("/api/meta").json()
-        assert m["profile"] == "demo" and m["data_origin"] == "DEMO_FIXTURE" and m["replay"] is None
+        assert m["profile"] == "demo" and m["data_origin"] == "DEMO_FIXTURE" and m["replay"] is None and m["impact"] is None
 
     def test_pipeline_report_accounts_for_every_record(self, replay_client):
         r = replay_client.get("/api/pipeline/report").json()
@@ -53,10 +56,11 @@ class TestSignals:
         p = s["provenance"]
         assert p["snapshot_id"] and p["record_ref"] and len(p["content_sha256"]) == 64
         assert p["dedup"]["member_count"] == s["evidence"]["source_count"]
-        assert p["stage_origins"] == {"sentiment": "MODEL", "event": "MODEL", "impact": "PLACEHOLDER_RULES"}
-        assert s["model_versions"]["impact"].startswith("placeholder") and s["model_versions"]["event"].startswith("tfidf-lr-event-v1+")
+        assert {k: p["stage_origins"][k] for k in ("sentiment", "event")} == {"sentiment": "MODEL", "event": "MODEL"}
+        assert p["stage_origins"]["impact"] in {"MODEL", "PLACEHOLDER_RULES"}
+        assert s["model_versions"]["event"].startswith("hybrid-event-v2+")
         e = p["event"]
-        assert e["model_id"] == "tfidf-lr-event-v1" and len(e["artifact_sha256"]) == 64 and e["calibrated"] is True
+        assert e["model_id"] == "hybrid-event-v2" and len(e["artifact_sha256"]) == 64 and e["calibrated"] is True
         assert 0 <= e["confidence"] <= 1 and 0 <= e["no_event_probability"] <= 1 and isinstance(e["seen_in_training"], bool)
         assert s["event"]["status"] in {"CLASSIFIED", "NO_EVENT", "UNCERTAIN"}
         assert s["model_versions"]["sentiment"].startswith("tfidf-lr-v1+")
@@ -133,7 +137,7 @@ class TestSentimentModelEndpoint:
 class TestEventModelEndpoint:
     def test_card_is_served_with_results_reliability_and_limits(self, replay_client):
         c = replay_client.get("/api/models/event").json()
-        assert c["id"] == "tfidf-lr-event-v1" and len(c["artifact_sha256"]) == 64 and c["limitations"]
+        assert c["id"] == "hybrid-event-v2" and len(c["artifact_sha256"]) == 64 and c["limitations"]
         assert c["classes"][-1] == "NONE" and len(c["classes"]) == 9
         assert {r["label"] for r in c["class_reliability"]} == set(c["classes"][:-1])
         assert all(r["status"] in {"ok", "unreliable", "unmeasured"} and r["reason"] for r in c["class_reliability"])
@@ -191,3 +195,166 @@ class TestStressEngineIgnoresSentimentValues:
 
 def test_demo_profile_still_serves_the_golden_fixtures(client):
     assert client.get("/api/signals/sig_0001").status_code == 200
+
+
+class TestImpactModel:
+    def test_card_endpoint_matches_the_artifact_and_carries_the_evidence(self, replay_client, replay_container):
+        card = replay_client.get("/api/models/impact").json()
+        assert card["id"] == "impact-v2" and len(card["artifact_sha256"]) == 64
+        assert card["artifact_sha256"] == replay_container.impact_card.artifact_sha256
+        assert [s["scope"] for s in card["scopes"]] == ["ISSUER", "MARKET"]
+        for sc in card["scopes"]:
+            assert sc["lifecycle"] in {"TRAINED", "CALIBRATED", "PRODUCTION"} and sc["served"]
+            assert sc["ladder"][0]["id"] == "R0-constant" and any(e["chosen"] for e in sc["ladder"])
+            assert {r["id"] for r in sc["evaluations"]} >= {"oof", "val", "test", "val+test", "live"}
+            assert [c["id"] for c in sc["acceptance"]["checks"]] == [f"C{i}" for i in range(1, 12)]
+            if sc["lifecycle"] != "PRODUCTION":
+                assert sc["acceptance"]["met"] is False and any(c["passed"] is not True for c in sc["acceptance"]["checks"])
+        # the paired comparison with the model it replaces is on the card, including the scope where it is worse
+        vs = {(v["scope"], v["set_id"]): v for v in card["vs_previous"]}
+        assert vs[("ISSUER", "val+test")]["delta_mae"]["hi"] < 0 and vs[("MARKET", "val+test")]["delta_mae"]["lo"] > 0
+        assert all(v["previous_id"] == "impact-v1" for v in vs.values())
+
+    def test_no_impact_card_in_the_demo_profile(self, client):
+        assert client.get("/api/models/impact").status_code == 404
+
+    def test_a_model_scored_signal_carries_a_complete_audit_and_a_calibrated_estimate(self, replay_client):
+        items = replay_client.get("/api/signals").json()["items"]
+        scored = next(i for i in items if i["impact_origin"] == "MODEL")
+        assert scored["impact_lifecycle"] in {"TRAINED", "CALIBRATED", "PRODUCTION"} and 1 <= scored["impact_score"] <= 10
+        s = replay_client.get(f"/api/signals/{scored['id']}").json()
+        a, i = s["provenance"]["impact"], s["impact"]
+        assert a["feature_schema"] == "impact-features-v2" and a["calibrated"] and a["inputs"]
+        assert i["scope"] == a["scope"] and i["predicted_severity"] >= 0 and i["drivers"][0]["feature"] == "baseline"
+        assert i["comparable_events"] > 0 and 0 <= i["p_extreme"] <= 1 and i["score_low"] <= i["score_high"]
+        assert "impact-v2" in s["model_versions"]["impact"]
+
+    def test_placeholder_signals_say_so_and_carry_no_model_fields(self, replay_client):
+        items = replay_client.get("/api/signals").json()["items"]
+        ph = next(i for i in items if i["impact_origin"] == "PLACEHOLDER" and i["impact_score"] is not None)
+        s = replay_client.get(f"/api/signals/{ph['id']}").json()
+        assert s["provenance"]["impact"] is None and s["provenance"]["impact_note"]
+        assert s["impact"]["predicted_severity"] is None and s["model_versions"]["impact"].startswith("placeholder")
+        assert ph["impact_lifecycle"] is None
+
+    def test_a_stress_run_records_which_stage_produced_the_trigger(self, replay_client):
+        items = replay_client.get("/api/signals").json()["items"]
+        for origin, lifecycle in (("MODEL", True), ("PLACEHOLDER", False)):
+            it = next(i for i in items if i["impact_origin"] == origin and i["impact_score"] is not None)
+            r = replay_client.post("/api/stress-test", json={"signal_id": it["id"], "force": True}).json()
+            assert r["audit"]["impact_origin"] == origin and (r["audit"]["impact_lifecycle"] is not None) is lifecycle
+
+
+class TestImpactDegradesHonestly:
+    def test_a_missing_artifact_serves_the_labelled_heuristic_and_says_why(self, tmp_path):
+        from eventshock.api.deps import build_container
+        from eventshock.config import Settings
+
+        c = build_container(Settings(profile="replay", impact_model_dir=tmp_path / "nope"))
+        assert c.impact_card is None and c.impact_status.mode == "PLACEHOLDER" and "make train-impact" in c.impact_status.reason
+        sigs = c.signals.list()
+        assert all(s.provenance.impact is None and s.model_versions.impact in (None, "") or s.model_versions.impact.startswith("placeholder")
+                   for s in sigs)
+        assert all(s.provenance.stage_origins["impact"] == "PLACEHOLDER_RULES" for s in sigs)
+
+    def test_a_tampered_artifact_stops_start_up(self, tmp_path):
+        import shutil
+
+        from eventshock.api.deps import build_container
+        from eventshock.config import REPO_ROOT, ConfigError, Settings
+
+        d = tmp_path / "impact"
+        shutil.copytree(REPO_ROOT / "models" / "impact" / "impact-v1", d)
+        with (d / "model.joblib").open("ab") as fh:
+            fh.write(b"x")
+        import pytest
+
+        with pytest.raises(ConfigError, match="does not match its model card"):
+            build_container(Settings(profile="replay", impact_model_dir=d))
+
+
+class TestImpactV2Serving:
+    """impact-v2 reads an event calendar: the loader must refuse to run without one or with a modified one, and a missing v2 artifact falls back to v1, labelled."""
+
+    @staticmethod
+    def _calendar():
+        from eventshock.config import REPO_ROOT
+        from eventshock.pipeline.event_context import EventCalendar
+
+        return EventCalendar.load(REPO_ROOT / "data" / "events", REPO_ROOT / "configs" / "sec_items.yaml")
+
+    def test_a_model_that_reads_the_calendar_refuses_to_load_without_one(self):
+        import pytest
+
+        from eventshock.config import REPO_ROOT, ConfigError
+        from eventshock.pipeline.impact_model import ImpactModel
+
+        with pytest.raises(ConfigError, match="reads the event calendar"):
+            ImpactModel.load(REPO_ROOT / "models" / "impact" / "impact-v2", 0.8, None)
+
+    def test_a_modified_calendar_is_refused_by_hash(self):
+        import pytest
+
+        from eventshock.config import REPO_ROOT, ConfigError
+        from eventshock.pipeline.impact_model import ImpactModel
+
+        cal = self._calendar()
+        cal.digests = {**cal.digests, "sec_filings": "0" * 64}
+        with pytest.raises(ConfigError, match="do not match the hashes pinned"):
+            ImpactModel.load(REPO_ROOT / "models" / "impact" / "impact-v2", 0.8, cal)
+
+    def test_the_committed_calendar_matches_the_hashes_pinned_in_the_card(self, replay_container):
+        cal = self._calendar()
+        assert replay_container.impact_card.dataset["calendar"] == cal.digests
+
+    def test_the_served_model_uses_calendar_features_and_labels_their_availability(self, replay_client):
+        items = replay_client.get("/api/signals").json()["items"]
+        names = set()
+        for it in [i for i in items if i["impact_origin"] == "MODEL"][:60]:
+            s = replay_client.get(f"/api/signals/{it['id']}").json()
+            names |= {d["feature"] for d in s["impact"]["drivers"]}
+            if s["provenance"]["impact"]["scope"] == "ISSUER":
+                assert any(k.startswith("earn_") for k in s["provenance"]["impact"]["inputs"]), "issuer inputs must include the calendar block"
+        assert names  # drivers are present on every scored signal
+
+    def test_a_missing_served_artifact_falls_back_to_the_v1_reference(self, tmp_path, monkeypatch):
+        from eventshock.api import deps
+        from eventshock.config import Settings
+        from eventshock.pipeline.config import load_impact_model_config
+
+        real = load_impact_model_config
+
+        def patched(config_dir):
+            return real(config_dir).model_copy(update={"served_model_dir": str(tmp_path / "missing-v2")})
+
+        monkeypatch.setattr(deps, "load_impact_model_config", patched)
+        c = deps.build_container(Settings(profile="replay"))
+        assert c.impact_card is not None and c.impact_card.id == "impact-v1"
+
+
+class TestEvidenceEndpoint:
+    def test_three_stage_statuses_use_the_product_vocabulary_and_nothing_is_called_validated_without_its_bar(self, replay_client):
+        b = replay_client.get("/api/evidence").json()
+        stages = {s["stage"]: s for s in b["stages"]}
+        assert set(stages) == {"sentiment", "event", "impact"}
+        assert {s["kind"] for s in stages.values()} <= {"placeholder", "experimental", "validated"}
+        assert stages["impact"]["kind"] == "experimental" and stages["impact"]["failed"]          # the served impact-v2 card still fails C5 and C7 (and C10, C11 on the market scope)
+        assert stages["event"]["kind"] == "experimental" and stages["event"]["failed"]
+        # the hybrid passes its scored bars but has no independent set: the sentence must say exactly that, not "did NOT meet its bar on the gold set"
+        assert "passed 3 of 4 checks" in stages["event"]["summary"] and "took no part in adopting" in stages["event"]["summary"]
+
+    def test_feature_table_marks_class_c_as_refused_and_calendar_features_by_availability(self, replay_client):
+        feats = {f["name"]: f for f in replay_client.get("/api/evidence").json()["features"]}
+        for banned in ("eps_surprise", "filing_at_or_after", "source_count", "ticker"):
+            assert feats[banned]["allowed"] is False
+        assert feats["earn_window"]["availability"] == "a" and feats["f8k_earnings_24h"]["availability"] == "b" and feats["f_sigma_60"]["allowed"]
+        assert all(f["why"] for f in feats.values())
+
+    def test_missing_evidence_files_are_reported_as_unavailable_with_the_command_that_makes_them(self, replay_client):
+        b = replay_client.get("/api/evidence").json()
+        for view in (b["study"], b["representation"]):
+            if not view["available"]:
+                assert view["command"].startswith("make ")
+
+    def test_no_evidence_in_the_demo_profile(self, client):
+        assert client.get("/api/evidence").status_code == 404

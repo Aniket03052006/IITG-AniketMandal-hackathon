@@ -22,12 +22,15 @@ from ..domain import (
     EventStatus,
     ImpactAssessment,
     ImpactDriver,
+    RiskSignal,
     SentimentAudit,
     SentimentResult,
     StageOrigin,
 )
 from .config import EnrichmentConfig
 from .event_model import EventModel
+from .impact_model import ImpactInput, ImpactModel, ImpactSkip
+from .market_context import MarketContext
 from .normalize import match_form
 from .sentiment_model import SentimentModel
 
@@ -235,3 +238,60 @@ class ModelEnricher(ModelSentimentEnricher):
         if event.status is EventStatus.UNCERTAIN:
             return "Event type uncertain: the event model will not commit to a type, so no impact is scored"
         return None
+
+
+class ImpactModelEnricher(ModelEnricher):
+    """Trained sentiment, event and impact models. Impact is assigned *after* novelty (a past-only feature that needs the other
+    clusters), by ``refine_impact``, which ``run_documents`` calls on every signal that carries an impact.
+
+    A signal the impact model can score gets the model's calibrated estimate, its audit and ``stage_origins["impact"] = MODEL``.
+    One it cannot (several issuers, a weak entity link, a replay-assigned clock, no market context for that session) keeps the
+    placeholder heuristic, labelled as such, with the reason in ``provenance.impact_note``. Nothing is blended.
+    """
+
+    def __init__(self, cfg: EnrichmentConfig, sentiment_model: SentimentModel, event_model: EventModel,
+                 impact_model: ImpactModel, context: MarketContext, impact_event_model: EventModel | None = None) -> None:
+        super().__init__(cfg, sentiment_model, event_model)
+        # impact-v1 was fitted on the probabilities of the TF-IDF event model. When the served event model is another one (the hybrid), the impact stage keeps
+        # reading the reference model's probabilities for its features: feeding it different numbers than it was trained on would be train/serve skew.
+        self.impact_event_model = impact_event_model
+        from .impact_features import FEATURE_SCHEMA
+
+        if context.feature_schema != FEATURE_SCHEMA:
+            from ..config import ConfigError
+
+            raise ConfigError(f"market context was built for feature schema {context.feature_schema!r}, the impact model uses "
+                              f"{FEATURE_SCHEMA!r}; rebuild it with `make market-context`")
+        self.impact_model = impact_model
+        self.context = context
+        self.version = f"{self.version}+impact:{impact_model.model_id}"
+
+    @property
+    def report_stage_origins(self) -> dict[str, str]:
+        life = ", ".join(f"{s} {v.value.lower()}" for s, v in sorted(self.impact_model.lifecycle.items()))
+        return {**super().report_stage_origins,
+                "impact": f"MODEL ({self.impact_model.model_id}: {life}; placeholder heuristic for signals it cannot score)"}
+
+    def refine_impact(self, signal: RiskSignal) -> RiskSignal:
+        if signal.impact is None or signal.provenance is None:
+            return signal
+        prov = signal.provenance
+        event = signal.event
+        if self.impact_event_model is not None:
+            d = self.impact_event_model.decide(f"{signal.document.headline} {signal.document.body or ''}".strip())
+            event = EventClassification(category=d.category, probabilities=d.probabilities, status=d.status, no_event_probability=d.no_event_probability)
+        inp = ImpactInput(
+            ticker=signal.entity.ticker, entity_unknown=signal.entity.is_unknown, multi_entity=prov.entity_audit.multi_entity,
+            link_confidence=signal.entity.link_confidence, published_at=signal.document.published_at,
+            timestamp_origin=prov.timestamp_origin.value, source_type=signal.document.source_type.value,
+            novelty=signal.evidence.novelty_score, event=event, sentiment=signal.sentiment)
+        out = self.impact_model.assess(inp, self.context)
+        origins = dict(prov.stage_origins)
+        if isinstance(out, ImpactSkip):
+            origins["impact"] = StageOrigin.PLACEHOLDER_RULES.value
+            return signal.model_copy(update={"provenance": prov.model_copy(update={"stage_origins": origins, "impact_note": out.reason})})
+        origins["impact"] = StageOrigin.MODEL.value
+        versions = signal.model_versions.model_copy(update={"impact": f"{out.audit.model_id}+{out.audit.artifact_sha256[:8]}"})
+        return signal.model_copy(update={
+            "impact": out.assessment, "model_versions": versions,
+            "provenance": prov.model_copy(update={"stage_origins": origins, "impact": out.audit, "impact_note": None})})

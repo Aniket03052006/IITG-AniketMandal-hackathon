@@ -30,6 +30,28 @@ RESULT = run_snapshot(SNAP, CFG, ENR, ENRICHER)  # what the app serves
 SENTIMENT_ONLY = run_snapshot(SNAP, CFG, ENR, ModelSentimentEnricher(ENR, MODEL))  # the Stage-3 sentiment slice, a regression anchor
 PLACEHOLDER = run_snapshot(SNAP, CFG, ENR)  # the Stage-2 enricher, kept as a regression anchor
 
+# Fields the impact stage added to the contract (all null / absent for the heuristic). The three anchors above predate them, so
+# their digests are verified with these removed: the heuristic path must reproduce its pre-impact-model output byte for byte.
+_IMPACT_FIELDS = ("scope", "predicted_severity", "comparable_events", "score_low", "score_high", "realised_severity_low",
+                  "realised_severity_median", "realised_severity_high", "p_extreme", "driver_basis")
+
+
+def _legacy_digest(signals, *, strip_event_stage: bool = False) -> str:
+    import hashlib
+
+    payload = []
+    for s in sorted(signals, key=lambda s: s.id):
+        d = s.model_dump(mode="json")
+        assert d["provenance"].pop("impact") is None and d["provenance"].pop("impact_note") is None
+        if d["impact"] is not None:
+            assert all(d["impact"].pop(k) is None for k in _IMPACT_FIELDS)
+            assert all(dr.pop("value") is None for dr in d["impact"]["drivers"])
+        if strip_event_stage:
+            assert d["provenance"].pop("sentiment") is None and d["provenance"].pop("event") is None
+            assert d["event"].pop("status") == "CLASSIFIED" and d["event"].pop("no_event_probability") is None
+        payload.append(d)
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+
 
 def test_every_record_is_accounted_for_and_nothing_quarantined_is_a_signal():
     c = RESULT.report.counts
@@ -110,7 +132,7 @@ def test_golden_replay():
     update these values (and say why in docs/PROJECT_JOURNEY.md); an accidental one fails here."""
     got = RESULT.report.counts.model_dump()
     assert {k: got[k] for k in GOLDEN_COUNTS} == GOLDEN_COUNTS
-    assert RESULT.report.output_digest == GOLDEN_DIGEST
+    assert _legacy_digest(RESULT.signals) == GOLDEN_DIGEST
 
 
 def test_sentiment_only_enricher_behaviour_is_unchanged():
@@ -118,22 +140,14 @@ def test_sentiment_only_enricher_behaviour_is_unchanged():
     the same signals as before."""
     got = SENTIMENT_ONLY.report.counts.model_dump()
     assert {k: got[k] for k in GOLDEN_COUNTS} == GOLDEN_COUNTS
-    assert SENTIMENT_ONLY.report.output_digest == SENTIMENT_ONLY_DIGEST
+    assert _legacy_digest(SENTIMENT_ONLY.signals) == SENTIMENT_ONLY_DIGEST
     assert all(s.event.status is EventStatus.CLASSIFIED and s.provenance.event is None for s in SENTIMENT_ONLY.signals)
 
 
 def test_placeholder_enricher_behaviour_is_unchanged():
     """Without the null fields later stages added (`provenance.sentiment`, `provenance.event`, `event.status`,
     `event.no_event_probability`) the placeholder run reproduces its digest exactly."""
-    import hashlib
-
-    payload = []
-    for s in sorted(PLACEHOLDER.signals, key=lambda s: s.id):
-        d = s.model_dump(mode="json")
-        assert d["provenance"].pop("sentiment") is None and d["provenance"].pop("event") is None
-        assert d["event"].pop("status") == "CLASSIFIED" and d["event"].pop("no_event_probability") is None
-        payload.append(d)
-    digest = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
+    digest = _legacy_digest(PLACEHOLDER.signals, strip_event_stage=True)
     assert digest == PLACEHOLDER_DIGEST
     assert all(s.data_origin is DataOrigin.REAL_SOURCE_PLACEHOLDER_NLP for s in PLACEHOLDER.signals)
 
@@ -208,3 +222,94 @@ def test_the_event_model_is_not_the_placeholder_it_replaced():
 def test_replay_documents_seen_in_event_training_are_flagged():
     seen = [s for s in RESULT.signals if s.provenance.event.seen_in_training]
     assert len(seen) < 0.1 * len(RESULT.signals), "the replay pack is not the event model's training data"
+
+
+# --------------------------------------------------------------------------------------------- the impact stage
+from eventshock.pipeline.config import load_impact_model_config  # noqa: E402
+from eventshock.pipeline.enrich import ImpactModelEnricher  # noqa: E402
+from eventshock.pipeline.impact_features import ALL_FEATURES  # noqa: E402
+from eventshock.pipeline.impact_model import ImpactModel  # noqa: E402
+from eventshock.pipeline.market_context import MarketContext  # noqa: E402
+
+ICFG = load_impact_model_config(REPO_ROOT / "configs")
+IMPACT_MODEL = ImpactModel.load(REPO_ROOT / ICFG.model_dir, ICFG.min_link_confidence)
+CONTEXT = MarketContext.load(SNAP.market_context_path())
+IMPACT_ENRICHER = ImpactModelEnricher(ENR, MODEL, EVENT, IMPACT_MODEL, CONTEXT)
+IMPACTED = run_snapshot(SNAP, CFG, ENR, IMPACT_ENRICHER)  # what the app serves
+
+# Re-pinned deliberately: impact became a trained model (docs/IMPACT_MODEL.md). The artifact, the market context and the
+# replay pack are all hash-pinned, so this changes only when one of them is changed on purpose.
+GOLDEN_IMPACT_DIGEST = "aeedb4cd4ff0981d6c7236c547da00a4ac362594e5d6a6d268fc9b2c0512d3c8"
+GOLDEN_IMPACT_MIX = {("PARTIAL", "PLACEHOLDER_RULES", None): 1574, ("COMPLETE", "MODEL", "ISSUER"): 309,
+                     ("COMPLETE", "MODEL", "MARKET"): 273, ("COMPLETE", "PLACEHOLDER_RULES", None): 174}
+
+
+def test_impact_run_is_pinned_deterministic_and_input_order_independent():
+    assert IMPACTED.report.output_digest == GOLDEN_IMPACT_DIGEST
+    records, metas = read_snapshot(SNAP)
+    random.Random(11).shuffle(records)
+    m = SNAP.manifest
+    shuffled = run_documents(records, snapshot_id=m.snapshot_id, description=m.description, as_of=m.replay_as_of,
+                             window_start=m.window_start, window_end=m.window_end, entities=load_entities(SNAP.entities_path()),
+                             cfg=CFG, enrich_cfg=ENR, sources=metas, enricher=IMPACT_ENRICHER)
+    assert shuffled.report.output_digest == GOLDEN_IMPACT_DIGEST
+
+
+def test_the_impact_stage_changes_only_impact_fields():
+    """Sentiment, event, entity, dedup, evidence and status are exactly what the event-only run produced."""
+    def core(s):
+        d = s.model_dump(mode="json")
+        d["impact"] = None
+        d["model_versions"].pop("impact")
+        for k in ("impact", "impact_note"):
+            d["provenance"].pop(k)
+        d["provenance"]["stage_origins"].pop("impact")
+        return d
+
+    assert [core(s) for s in sorted(IMPACTED.signals, key=lambda s: s.id)] == [core(s) for s in sorted(RESULT.signals, key=lambda s: s.id)]
+
+
+def test_every_signal_labels_which_stage_produced_its_impact():
+    mix: dict = {}
+    for s in IMPACTED.signals:
+        o = s.provenance.stage_origins["impact"]
+        scope = s.provenance.impact.scope.value if s.provenance.impact else None
+        mix[(s.status.value, o, scope)] = mix.get((s.status.value, o, scope), 0) + 1
+        if s.provenance.impact is not None:
+            a = s.provenance.impact
+            assert o == "MODEL" and s.status is SignalStatus.COMPLETE and s.impact.scope == a.scope.value
+            assert a.artifact_sha256 == IMPACT_MODEL.artifact_sha256 and a.model_id == IMPACT_MODEL.model_id
+            assert s.model_versions.impact == f"{IMPACT_MODEL.model_id}+{IMPACT_MODEL.artifact_sha256[:8]}"
+            assert a.lifecycle is IMPACT_MODEL.lifecycle[a.scope.value]
+            assert set(a.inputs) | set(a.missing_inputs) == set(IMPACT_MODEL.features(a.scope.value)) <= set(ALL_FEATURES)
+            assert s.impact.predicted_severity is not None and s.impact.drivers[0].feature == "baseline"
+            assert a.market_context_as_of == CONTEXT.last_session
+        elif s.status is SignalStatus.COMPLETE:
+            assert o == "PLACEHOLDER_RULES" and s.model_versions.impact.startswith("placeholder")
+            assert s.provenance.impact_note and s.impact.predicted_severity is None
+        else:
+            assert s.impact is None
+    assert mix == GOLDEN_IMPACT_MIX
+
+
+def test_documents_without_a_real_clock_are_never_scored_by_the_model():
+    synthetic = [s for s in IMPACTED.signals if s.provenance.timestamp_origin.value == "SYNTHETIC_REPLAY_CLOCK"]
+    assert synthetic and all(s.provenance.impact is None for s in synthetic)
+    assert any("no real timestamp" in (s.provenance.impact_note or "") for s in synthetic)
+
+
+def test_the_model_never_reads_cluster_corroboration():
+    """`unique_domains` / `source_count` are post-event information. Changing them must not change the model's estimate."""
+    s = next(s for s in IMPACTED.signals if s.provenance.impact is not None)
+    bumped = s.model_copy(update={"evidence": s.evidence.model_copy(update={"source_count": 99, "unique_domain_count": 50,
+                                                                           "coverage_velocity": 9.0})})
+    again = IMPACT_ENRICHER.refine_impact(bumped.model_copy(update={"impact": RESULT_BY_ID[s.id].impact}))
+    assert again.impact == s.impact and again.provenance.impact == s.provenance.impact
+
+
+RESULT_BY_ID = {s.id: s for s in RESULT.signals}
+
+
+def test_the_demo_still_has_a_triggering_signal_on_a_known_issuer():
+    assert any(s.impact is not None and s.impact.score >= 7 and s.provenance.impact is not None
+               for s in IMPACTED.signals if s.entity.entity_id != UNKNOWN_ENTITY)

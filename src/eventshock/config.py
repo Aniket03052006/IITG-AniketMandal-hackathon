@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     replay_dir: Path | None = None
     sentiment_model_dir: Path | None = None  # overrides model_dir in configs/sentiment_model.yaml
     event_model_dir: Path | None = None  # overrides model_dir in configs/event_model.yaml
+    impact_model_dir: Path | None = None  # overrides model_dir in configs/impact_model.yaml
     profile: Literal["replay", "demo"] | None = None
     web_dist_dir: Path = REPO_ROOT / "web" / "dist"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"

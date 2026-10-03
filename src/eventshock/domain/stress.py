@@ -109,6 +109,10 @@ class StressAudit(ContractModel):
     threshold: float
     forced: bool
     impact_overridden: bool
+    impact_origin: str | None = Field(
+        default=None, description="MODEL | PLACEHOLDER: what produced the impact this run used")
+    impact_lifecycle: str | None = Field(
+        default=None, description="lifecycle of the trained impact model for this signal (null: heuristic)")
     calculated_at: datetime
     calculation: str = "deterministic engine (no model, no randomness)"
 

@@ -30,6 +30,23 @@ class StageOrigin(StrEnum):
     MODEL = "MODEL"  # a trained, versioned, evaluated model (see ``SentimentAudit`` / the model card)
 
 
+class ImpactLifecycle(StrEnum):
+    """How far the impact stage has got. The UI maps it to three words: a heuristic is *placeholder*,
+    TRAINED and CALIBRATED are *experimental*, only PRODUCTION (all checks passed) is *validated*."""
+
+    NOT_AVAILABLE = "NOT_AVAILABLE"  # no model artifact: the placeholder heuristic is all there is
+    DATASET = "DATASET"  # a leak-checked dataset exists, nothing is fitted
+    BASELINE = "BASELINE"  # only baselines exist, or none was beaten: the heuristic keeps serving, labelled
+    TRAINED = "TRAINED"  # a fitted, chronologically evaluated model, not calibrated
+    CALIBRATED = "CALIBRATED"  # fitted + calibrated score and uncertainty, but an acceptance check failed
+    PRODUCTION = "PRODUCTION"  # fitted, calibrated, and every pre-registered acceptance check passed
+
+
+class ImpactScope(StrEnum):
+    ISSUER = "ISSUER"  # one resolved listed issuer: the target is its abnormal return
+    MARKET = "MARKET"  # no listed issuer (macro / geopolitical): the target is the S&P 500's own excess move
+
+
 class DedupRelation(StrEnum):
     EXACT_DUPLICATE = "EXACT_DUPLICATE"  # same article/text from the same outlet; folded, not counted
     SYNDICATED = "SYNDICATED"  # identical text on another outlet
@@ -105,6 +122,27 @@ class EventAudit(ContractModel):
         description="the exact text (case, punctuation, URLs ignored) was in the model's training data")
 
 
+class ImpactAudit(ContractModel):
+    """Which trained impact model scored this signal, on what inputs, and how far to trust this score."""
+
+    model_id: str
+    model_version: str
+    artifact_sha256: str = Field(min_length=64, max_length=64, description="sha256 of the scoring artifact")
+    lifecycle: ImpactLifecycle
+    scope: ImpactScope
+    feature_schema: str
+    calibrated: bool
+    session: str = Field(description="the session the reaction is measured from: an ISO date, or NEXT")
+    timing: str = Field(description="OFF_HOURS | PRE_OPEN | IN_SESSION | DATE_ONLY | FIRST_SEEN")
+    timing_reliable: bool = Field(
+        description="false for a first-seen crawl time, a date-only stamp, or an in-session report: "
+                    "part of the move may precede the report, so the score is less trustworthy")
+    market_context_as_of: str = Field(description="last session of the frozen market context used")
+    inputs: dict[str, float] = Field(default_factory=dict, description="the numeric features the model saw")
+    missing_inputs: list[str] = Field(
+        default_factory=list, description="features absent at event time (the model handles them natively)")
+
+
 class SignalProvenance(ContractModel):
     adapter: str
     snapshot_id: str
@@ -119,3 +157,7 @@ class SignalProvenance(ContractModel):
         default=None, description="present when the sentiment stage is a trained model")
     event: EventAudit | None = Field(
         default=None, description="present when the event stage is a trained model")
+    impact: ImpactAudit | None = Field(
+        default=None, description="present when this signal's impact comes from the trained impact model")
+    impact_note: str | None = Field(
+        default=None, description="why the trained model did not score this (the labelled heuristic did)")

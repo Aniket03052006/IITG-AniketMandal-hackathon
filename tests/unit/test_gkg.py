@@ -169,3 +169,12 @@ class TestFetcher:
         res2 = self.run(env, recording)
         assert all(("121500" in u or "123000" in u) for u in calls) and len(calls) == 2
         assert res2.files_done == 3 and len([x for x in out.read_text().split("\n") if x]) == 3  # no duplicates
+
+
+def test_select_files_slots_sample_fixed_times_of_day():
+    master = [f"1 x http://d/gdeltv2/202401{d:02d}{hhmm}00.gkg.csv.zip" for d in (1, 2) for hhmm in ("0000", "0015", "0400", "1200")]
+    got = select_files(master, "20240101000000", "20240102235959", slots=frozenset({"0000", "1200"}))
+    assert [u.rsplit("/", 1)[1][:12] for u in got] == ["202401010000", "202401011200", "202401020000", "202401021200"]
+    # no slots: every file; an empty-intersection slot set: nothing (never silently "all")
+    assert len(select_files(master, "20240101000000", "20240102235959")) == 8
+    assert select_files(master, "20240101000000", "20240102235959", slots=frozenset({"0300"})) == []
