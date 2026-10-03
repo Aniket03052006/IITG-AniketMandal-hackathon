@@ -1,14 +1,22 @@
-import clsx from "clsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMeta, usePortfolioExposure, usePortfolioSummary, useScenarios, useSignal, useSignals, useStressTest } from "../api/hooks";
 import type { ExposureRow, StressResult } from "../api/types";
-import { ArrowRight, Play, Spinner } from "../components/icons";
-import { AuditPanel, Breakdown, PositionsTable, ResultHero, ShocksTable, TopPositions } from "../components/stress";
-import { impactKind, summaryKind } from "../lib/impact";
-import { Card, CategoryTag, EmptyState, ErrorState, ImpactMeter, InlineNote, Loading, Notice, PageHeader, Stat, StatusTag } from "../components/ui";
+import { FlowRail } from "../components/FlowRail";
+import { useOpenDrawer } from "../components/Drawer";
+import { ArrowRight, Play, Spinner, Wrench } from "../components/icons";
+import { ContributionDrill } from "../components/portfolio/ContributionDrill";
+import { ResultHero } from "../components/portfolio/ResultHero";
+import { StressDrawers } from "../components/portfolio/StressDrawers";
+import { Waterfall } from "../components/portfolio/Waterfall";
+import { WhatIf } from "../components/portfolio/WhatIf";
+import { Sigma, Inputs as ListIcon } from "../components/icons";
+import { StateNotice } from "../components/StateNotice";
+import { EmptyState, ErrorState, ImpactMeter, Loading, Skeleton, Stat, StatusTag } from "../components/ui";
 import { ASSET_CLASS_LABEL, money, pct } from "../lib/format";
+import { impactKind, summaryKind } from "../lib/impact";
 import { categoryLabeler } from "../lib/taxonomy";
+import { KindBadge } from "../components/ProvenanceKind";
 
 function ExposureBars({ rows, labelFn }: { rows: ExposureRow[]; labelFn?: (r: ExposureRow) => string }) {
   const max = Math.max(...rows.map((r) => r.share), 0.0001);
@@ -34,13 +42,17 @@ function PortfolioGlance() {
   const s = summary.data;
   const e = exposure.data;
   return (
-    <Card title="The portfolio being stressed" aside={<StatusTag tone="demo">Synthetic</StatusTag>}>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+    <section className="glance" aria-label="The portfolio being stressed">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold">The portfolio being stressed</h2>
+        <StatusTag tone="demo">Synthetic</StatusTag>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
         <Stat label="Total value" value={s ? money(s.total_value) : "–"} sub={s?.base_currency} />
         <Stat label="Positions" value={s?.asset_count ?? "–"} sub="Equities, bonds, loans, derivatives" />
         <Stat label="Issuers" value={s?.entity_count ?? "–"} />
       </div>
-      {s && <p className="mt-3 text-xs text-muted">{s.description}</p>}
+      {s && <p className="mt-3 max-w-[70ch] text-xs text-muted">{s.description}</p>}
       {e && (
         <div className="mt-5 grid gap-6 md:grid-cols-2">
           <div>
@@ -53,10 +65,11 @@ function PortfolioGlance() {
           </div>
         </div>
       )}
-    </Card>
+    </section>
   );
 }
 
+/** The payoff screen: the event's consequence for a portfolio, drawn to scale, drillable, and testable at another severity. */
 export function StressPage() {
   const [params, setParams] = useSearchParams();
   const signalId = params.get("signal") ?? "";
@@ -69,49 +82,56 @@ export function StressPage() {
   const signal = useSignal(signalId || undefined);
   const scenarios = useScenarios();
   const exposure = usePortfolioExposure();
-  const stress = useStressTest();
-
-  const [whatIf, setWhatIf] = useState(false);
-  const [impact, setImpact] = useState(7);
-  const autoRan = useRef<string>("");
+  const main = useStressTest(); // at the event's own impact
+  const sim = useStressTest(); // what-if severity
+  const [, setOpen] = useOpenDrawer();
 
   const s = signal.data;
+  const eventImpact = s?.impact?.score ?? null;
+  const [severity, setSeverity] = useState<number>(7);
+  const autoRan = useRef("");
   const threshold = meta?.trigger_threshold ?? 7;
   const defaultScenarioId = s ? scenarios.data?.default_by_category[s.event.category] : undefined;
   const scenarioId = scenarioParam || defaultScenarioId || "";
   const selectedScenario = scenarios.data?.scenarios.find((x) => x.id === scenarioId);
   const entityNames = useMemo(() => new Map((exposure.data?.by_entity ?? []).map((r) => [r.key, r.label])), [exposure.data]);
+  const partial = s?.status === "PARTIAL";
 
-  // Reset local state when the chosen event changes.
   useEffect(() => {
-    stress.reset();
-    setWhatIf(false);
-    if (s?.impact) setImpact(s.impact.score);
+    main.reset();
+    sim.reset();
+    if (eventImpact != null) setSeverity(eventImpact);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signalId, s?.id]);
 
-  const run = (opts: { force?: boolean } = {}) => {
+  const run = (force = false) => {
     if (!signalId) return;
-    const force = opts.force || whatIf;
-    stress.mutate({
-      signal_id: signalId,
-      scenario_id: scenarioParam || undefined,
-      force,
-      impact_override: whatIf ? impact : undefined,
-    });
+    main.mutate({ signal_id: signalId, scenario_id: scenarioParam || undefined, force });
   };
 
-  // Arriving from "Run stress test" on an event: run once, then drop the flag from the URL.
   useEffect(() => {
     if (wantRun && s && autoRan.current !== s.id) {
       autoRan.current = s.id;
-      stress.mutate({ signal_id: s.id, scenario_id: scenarioParam || undefined });
+      main.mutate({ signal_id: s.id, scenario_id: scenarioParam || undefined });
       const next = new URLSearchParams(params);
       next.delete("run");
       setParams(next, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wantRun, s?.id]);
+
+  // a different severity: recompute with the real engine, debounced so dragging does not flood it
+  const base: StressResult | undefined = main.data?.status === "COMPLETED" ? main.data : undefined;
+  const differs = eventImpact != null && severity !== eventImpact;
+  useEffect(() => {
+    if (!base || !signalId || !differs) return;
+    const t = setTimeout(() => sim.mutate({ signal_id: signalId, scenario_id: scenarioParam || undefined, force: true, impact_override: severity }), 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [severity, base?.run_id, differs]);
+
+  const shown: StressResult | undefined = differs && sim.data?.status === "COMPLETED" ? sim.data : base;
+  const result = main.data;
 
   const set = (key: string, value: string | null) => {
     const next = new URLSearchParams(params);
@@ -122,62 +142,41 @@ export function StressPage() {
     setParams(next, { replace: true });
   };
 
-  const result: StressResult | undefined = stress.data;
-  const partial = s?.status === "PARTIAL";
-
   return (
     <>
-      <PageHeader
-        title="Portfolio Stress"
-        sub="Pick an event, apply its mapped scenario, and see what the shock does to a synthetic wholesale-banking book. The arithmetic is deterministic and shown."
-      />
+      {s && (
+        <FlowRail
+          active="stress"
+          eventId={s.id}
+          context={
+            <>
+              <span className="font-medium text-ink">{s.entity.entity_name ?? "Company not identified"}</span>
+              {s.event.status === "CLASSIFIED" ? ` · ${label(s.event.category)}` : ""}
+              {s.impact ? ` · impact ${s.impact.score}/10` : ""}
+            </>
+          }
+        />
+      )}
 
-      {/* Controls */}
-      <Card className="mb-5" title="Scenario run">
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="block">
-            <span className="eyebrow mb-1.5 block">Event</span>
-            <select className="field" value={signalId} onChange={(e) => set("signal", e.target.value || null)}>
-              <option value="">Select an event…</option>
-              {[...(signals.data?.items ?? [])]
-                .sort((a, b) => (b.impact_score ?? -1) - (a.impact_score ?? -1))
-                .map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.impact_score ?? "–"} · {x.entity_name ?? "Unresolved entity"}: {x.headline.slice(0, 70)}
-                  </option>
-                ))}
-            </select>
-          </label>
-          <label className="block">
-            <span className="eyebrow mb-1.5 block">Scenario template</span>
-            <select className="field" value={scenarioId} disabled={!s} onChange={(e) => set("scenario", e.target.value === defaultScenarioId ? null : e.target.value)}>
-              {!s && <option value="">Select an event first</option>}
-              {scenarios.data?.scenarios.map((x) => (
-                <option key={x.id} value={x.id}>
-                  {x.name}
-                  {x.id === defaultScenarioId ? " (mapped to this event)" : ""}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+      <header className="mb-6">
+        <h1 className="text-2xl font-semibold">Portfolio Stress</h1>
+        <p className="mt-1 max-w-[66ch] text-md text-ink-2">What the event's scenario does to a synthetic wholesale-banking book. The shocks are assumptions; the arithmetic is deterministic and shown.</p>
+      </header>
 
+      {/* The event and scenario in play */}
+      <section className="mb-8" aria-label="Event and scenario">
         {s && (
-          <div className="mt-5 flex flex-wrap items-start justify-between gap-x-8 gap-y-4 border-t border-rule pt-5">
-            <div className="min-w-0 basis-80 flex-1">
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <CategoryTag category={s.event.category} label={label(s.event.category)} />
-                {s.entity.entity_id !== "UNKNOWN_ENTITY" ? (
-                  <span className="text-sm text-ink-2">{s.entity.entity_name}</span>
-                ) : (
-                  <span className="text-sm text-warn">Entity unresolved</span>
-                )}
-              </div>
-              <Link to={`/events/${s.id}`} className="font-medium leading-snug underline-offset-2 hover:text-accent-strong hover:underline">
+          <div className="ctl">
+            <div className="min-w-0">
+              <p className="eyebrow">Event</p>
+              <Link to={`/events/${s.id}`} className="mt-1 block font-display text-lg font-semibold leading-snug underline-offset-2 hover:text-accent hover:underline">
                 {s.document.headline}
               </Link>
+              <p className="mt-1 text-sm text-muted">
+                {s.entity.entity_id !== "UNKNOWN_ENTITY" ? s.entity.entity_name : "Company not identified"} · scenario <span className="text-ink-2">{selectedScenario?.name ?? "none mapped"}</span>
+              </p>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-4">
               <ImpactMeter
                 score={s.impact?.score ?? null}
                 showLabel
@@ -185,61 +184,84 @@ export function StressPage() {
                 kind={s.impact && s.data_origin !== "DEMO_FIXTURE" ? impactKind(s) : undefined}
                 range={s.impact?.score_low != null && s.impact.score_high != null ? [s.impact.score_low, s.impact.score_high] : null}
               />
-              {!partial && (
-                <label className="flex items-center gap-2 text-sm text-ink-2">
-                  <input type="checkbox" className="accent-[var(--color-accent)]" checked={whatIf} onChange={(e) => setWhatIf(e.target.checked)} />
-                  What-if: override impact
-                </label>
-              )}
-              {whatIf && (
-                <label className="flex items-center gap-3 text-sm">
-                  <input type="range" min={1} max={10} step={0.5} value={impact} onChange={(e) => setImpact(Number(e.target.value))} aria-label="What-if impact score" className="w-40" />
-                  <span className="num w-10 text-ink">{impact.toFixed(1)}</span>
-                </label>
-              )}
+              <button className="btn btn-primary" data-loading={main.isPending} disabled={main.isPending || partial} onClick={() => run()}>
+                {main.isPending ? <Spinner size={14} /> : <Play size={13} />}
+                {main.isPending ? "Running" : result ? "Run again" : "Run scenario"}
+              </button>
             </div>
-            <button className="btn btn-primary self-end" data-loading={stress.isPending} disabled={stress.isPending || partial} onClick={() => run()}>
-              {stress.isPending ? <Spinner size={14} /> : <Play size={13} />}
-              {stress.isPending ? "Running" : result ? "Run again" : "Run stress test"}
-            </button>
           </div>
         )}
+        <details className="disclosure mt-3" open={!signalId || undefined}>
+          <summary>{signalId ? "Change event or scenario" : "Choose an event"}</summary>
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
+            <label className="block">
+              <span className="eyebrow mb-1.5 block">Event</span>
+              <select className="field" value={signalId} onChange={(e) => set("signal", e.target.value || null)}>
+                <option value="">Select an event…</option>
+                {[...(signals.data?.items ?? [])]
+                  .filter((x) => x.impact_score != null)
+                  .sort((a, b) => (b.impact_score ?? -1) - (a.impact_score ?? -1) || a.id.localeCompare(b.id))
+                  .slice(0, 150)
+                  .map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.impact_score ?? "–"} · {x.entity_name ?? "Unresolved entity"}: {x.headline.slice(0, 70)}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="eyebrow mb-1.5 block">Scenario template</span>
+              <select className="field" value={scenarioId} disabled={!s} onChange={(e) => set("scenario", e.target.value === defaultScenarioId ? null : e.target.value)}>
+                {!s && <option value="">Select an event first</option>}
+                {scenarios.data?.scenarios.map((x) => (
+                  <option key={x.id} value={x.id}>
+                    {x.name}
+                    {x.id === defaultScenarioId ? " (mapped to this event)" : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </details>
         {signal.isLoading && signalId && <Loading label="Loading event" />}
-        {signal.error && (
-          <div className="mt-4"><ErrorState error={signal.error} /></div>
-        )}
+        {signal.error && <div className="mt-4"><ErrorState error={signal.error} /></div>}
         {partial && s && (
-          <div className="mt-4">
-            <InlineNote tone="warn" title="This signal has no impact score">
-              {s.status_reason} It cannot be mapped to a scenario. Pick another event.
-            </InlineNote>
+          <div className="mt-4 max-w-[68ch]">
+            <StateNotice
+              tone="warn"
+              what="This signal has no impact score"
+              why={`${s.status_reason} It cannot be mapped to a scenario, and EventShock will not substitute a default.`}
+              next={<button className="btn" onClick={() => set("signal", null)}>Pick another event</button>}
+            />
           </div>
         )}
-      </Card>
+      </section>
 
-      {/* States */}
-      {stress.error && <ErrorState error={stress.error} retry={() => run()} />}
+      {main.error && <ErrorState error={main.error} retry={() => run()} />}
 
       {!signalId && (
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-          <Card title="Start from a triggering event" aside={`Impact ≥ ${threshold}`}>
+        <div className="grid gap-10">
+          <section aria-label="Triggering events">
+            <h2 className="mb-1 text-lg font-semibold">Start from a triggering event</h2>
+            <p className="mb-3 text-sm text-muted">Events at impact ≥ {threshold} trigger a scenario.</p>
             {signals.isLoading ? (
               <Loading />
             ) : (
-              <ul className="divide-y divide-rule">
+              <ul className="divide-y divide-rule border-y border-rule">
                 {(signals.data?.items ?? [])
                   .filter((x) => (x.impact_score ?? 0) >= threshold)
-                  .sort((a, b) => (b.impact_score ?? 0) - (a.impact_score ?? 0))
+                  .sort((a, b) => (b.impact_score ?? 0) - (a.impact_score ?? 0) || a.id.localeCompare(b.id))
                   .map((x) => (
                     <li key={x.id}>
-                      <button
-                        className="group flex w-full items-start gap-4 py-3 text-left transition-colors hover:bg-paper-3"
-                        onClick={() => setParams({ signal: x.id, run: "1" }, { replace: true })}
-                      >
-                        <span className="pl-2"><ImpactMeter score={x.impact_score} kind={x.data_origin === "DEMO_FIXTURE" ? undefined : summaryKind(x)} showKind={x.data_origin !== "DEMO_FIXTURE"} /></span>
+                      <button className="group flex w-full items-start gap-4 py-3 text-left transition-colors hover:bg-paper-3" onClick={() => setParams({ signal: x.id, run: "1" }, { replace: true })}>
+                        <span className="pl-2">
+                          <ImpactMeter score={x.impact_score} kind={x.data_origin === "DEMO_FIXTURE" ? undefined : summaryKind(x)} showKind={x.data_origin !== "DEMO_FIXTURE"} />
+                        </span>
                         <span className="min-w-0 flex-1">
                           <span className="block font-medium leading-snug group-hover:text-accent-strong">{x.headline}</span>
-                          <span className="mt-0.5 block text-xs text-muted">{x.entity_name ?? "Market-wide, no single issuer"} · {label(x.category)}</span>
+                          <span className="mt-0.5 block text-xs text-muted">
+                            {x.entity_name ?? "Market-wide, no single issuer"} · {label(x.category)}
+                          </span>
                         </span>
                         <ArrowRight size={14} className="mt-1 mr-2 shrink-0 text-muted" />
                       </button>
@@ -247,59 +269,91 @@ export function StressPage() {
                   ))}
               </ul>
             )}
-          </Card>
+          </section>
           <PortfolioGlance />
         </div>
       )}
 
-      {signalId && !stress.isPending && !partial && s && (!result || result.status !== "COMPLETED") && (
-        <div className="grid gap-5">
-          <ShocksTable shocks={[]} scenario={selectedScenario} />
+      {signalId && s && !partial && !main.isPending && !result && (
+        <div className="grid gap-10">
+          <StateNotice tone="info" what="Ready to run" why="Use Run scenario above to see the portfolio before and after." />
           <PortfolioGlance />
         </div>
       )}
+
+      {main.isPending && !result && <Skeleton className="h-64 w-full" />}
 
       {result && result.status !== "COMPLETED" && (
-        <Notice
-          tone={result.status === "NOT_TRIGGERED" ? "info" : "warn"}
-          title={
-            result.status === "NOT_TRIGGERED"
-              ? "Not triggered"
-              : result.status === "NO_SCENARIO"
-                ? "No scenario mapped"
-                : "Stress test unavailable"
-          }
-          action={
-            result.status === "NOT_TRIGGERED" ? (
-              <button className="btn" onClick={() => run({ force: true })}>Run as what-if anyway</button>
-            ) : undefined
-          }
-        >
-          {result.reason}
-        </Notice>
+        <div className="max-w-[72ch]">
+          <StateNotice
+            tone={result.status === "NOT_TRIGGERED" ? "info" : "warn"}
+            what={result.status === "NOT_TRIGGERED" ? "Below the trigger threshold" : result.status === "NO_SCENARIO" ? "No scenario mapped to this event type" : "Stress test unavailable"}
+            why={result.reason}
+            next={
+              result.status === "NOT_TRIGGERED" ? (
+                <button className="btn" onClick={() => run(true)}>
+                  Run as what-if anyway
+                </button>
+              ) : undefined
+            }
+          />
+        </div>
       )}
 
-      {result?.status === "COMPLETED" && (
-        <div className="grid gap-5">
-          <ResultHero r={result} />
-          <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-            <Breakdown r={result} entityNames={entityNames} />
-            <TopPositions r={result} />
-          </div>
-          <ShocksTable shocks={result.shocks} scenario={selectedScenario} />
-          {result.uncovered && result.uncovered.asset_count > 0 && (
-            <Notice tone="warn" title={`${result.uncovered.asset_count} positions received no shock (${pct(result.uncovered.share_of_portfolio, 1)} of value)`}>
-              They are not treated as safe; they are simply outside this scenario&apos;s reach. Pick a broader scenario to include them.
-            </Notice>
+      {shown && result?.status === "COMPLETED" && (
+        <div className="grid gap-12">
+          <ResultHero r={shown} s={s} onShowAssumptions={() => setOpen("assumptions")} />
+
+          {s?.entity.entity_id === "UNKNOWN_ENTITY" && (
+            <div className="max-w-[68ch]">
+              <StateNotice tone="warn" what="Only market-wide shocks applied" why="No company was linked to this event, so issuer- and sector-specific shocks had nothing to attach to." />
+            </div>
           )}
-          <PositionsTable positions={result.positions} />
-          <AuditPanel r={result} />
+
+          <div className="grid gap-12 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <section aria-label="Change by asset class">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-lg font-semibold">The change, step by step</h3>
+                <KindBadge kind="scenario" />
+              </div>
+              <Waterfall rows={shown.contributions?.by_asset_class ?? []} total={shown.summary?.pnl ?? 0} />
+            </section>
+            <ContributionDrill r={shown} entityNames={entityNames} />
+          </div>
+
+          {eventImpact != null && (
+            <WhatIf
+              eventImpact={eventImpact}
+              severity={severity}
+              onSeverity={setSeverity}
+              base={base}
+              scenario={sim.data?.status === "COMPLETED" ? sim.data : undefined}
+              pending={sim.isPending}
+              onShowMath={() => setOpen("math")}
+            />
+          )}
+
+          <div className="flex flex-wrap items-center gap-2 border-t border-rule pt-5" role="group" aria-label="Explanations">
+            <button type="button" className="btn" aria-haspopup="dialog" onClick={() => setOpen("math")}>
+              <Sigma size={14} /> How calculated?
+            </button>
+            <button type="button" className="btn" aria-haspopup="dialog" onClick={() => setOpen("assumptions")}>
+              <Wrench size={14} /> Assumptions
+            </button>
+            <button type="button" className="btn" aria-haspopup="dialog" onClick={() => setOpen("positions")}>
+              <ListIcon size={14} /> Show every position
+            </button>
+            <button type="button" className="btn btn-ghost" aria-haspopup="dialog" onClick={() => setOpen("audit")}>
+              Audit trail
+            </button>
+          </div>
         </div>
       )}
 
       {signalId && !s && !signal.isLoading && !signal.error && <EmptyState title="Event not found" />}
-      <div className={clsx(stress.isPending && "sr-only")} aria-live="polite">
-        {stress.isPending && "Running stress test"}
+      <StressDrawers r={shown} scenario={selectedScenario} />
+      <div className="sr-only" aria-live="polite">
+        {(main.isPending || sim.isPending) && "Running stress test"}
       </div>
     </>
   );

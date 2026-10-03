@@ -1,65 +1,35 @@
 import clsx from "clsx";
 import { Fragment, useMemo, useState } from "react";
-import type { AppliedShock, Contribution, PositionResult, Scenario, StressResult } from "../api/types";
-import { ASSET_CLASS_LABEL, FACTOR_LABEL, SCOPE_LABEL, money, moneyFull, pct, shockValue } from "../lib/format";
-import { lifecycleKind } from "../lib/impact";
+import type { AppliedShock, PositionResult, Scenario, StressResult } from "../api/types";
+import { ASSET_CLASS_LABEL, FACTOR_LABEL, SCOPE_LABEL, money, pct, shockValue } from "../lib/format";
 import { originLabel } from "../lib/provenance";
-import { ImpactLifecycleTag } from "./ImpactLifecycleTag";
 import { Chevron } from "./icons";
-import { Card, StatusTag } from "./ui";
+import { Card } from "./ui";
 
-/* ----------------------------------------------------------------------------- hero */
-
-export function ResultHero({ r }: { r: StressResult }) {
-  const s = r.summary;
-  if (!s || !r.scenario || !r.severity) return null;
-  return (
-    <section className="card card-pad" aria-label="Portfolio value before and after stress">
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusTag tone="ok">Computed · deterministic engine</StatusTag>
-        <StatusTag tone="warn">Illustrative scenario assumptions</StatusTag>
-        {r.audit.forced && <StatusTag tone="demo">What-if run</StatusTag>}
-        {r.audit.impact_origin && !r.audit.impact_overridden && (
-          <ImpactLifecycleTag kind={r.audit.impact_origin === "MODEL" ? lifecycleKind(r.audit.impact_lifecycle) : "placeholder"} detail="impact that triggered this" />
-        )}
-      </div>
-      <div className="mt-5 grid gap-x-10 gap-y-6 md:grid-cols-[repeat(3,minmax(0,auto))] md:justify-start">
-        <div className="min-w-0">
-          <p className="eyebrow">Before stress</p>
-          <p className="num mt-1 font-display text-4xl font-medium">{money(s.baseline_value)}</p>
-          <p className="num text-xs text-muted">{moneyFull(s.baseline_value)}</p>
-        </div>
-        <div className="min-w-0">
-          <p className="eyebrow">After stress</p>
-          <p className="num mt-1 font-display text-4xl font-medium">{money(s.stressed_value)}</p>
-          <p className="num text-xs text-muted">{moneyFull(s.stressed_value)}</p>
-        </div>
-        <div className="min-w-0">
-          <p className="eyebrow">Change</p>
-          <p className={clsx("num mt-1 font-display text-4xl font-medium", s.pnl < 0 ? "text-neg" : "text-pos")}>
-            {money(s.pnl, { signed: true })}
-          </p>
-          <p className={clsx("num text-sm", s.pnl < 0 ? "text-neg" : "text-pos")}>{pct(s.pnl_pct, 2, true)} of portfolio value</p>
-        </div>
-      </div>
-      <p className="mt-5 border-t border-rule pt-4 text-sm text-muted">
-        <span className="text-ink-2">{r.scenario.name}</span> v{r.scenario.version}. Severity scaling:{" "}
-        <span className="num text-ink-2">{r.severity.formula}</span>
-      </p>
-    </section>
+/** A card normally; just its content when shown inside a drawer (the drawer is already the container). */
+function Wrap({ bare, title, aside, pad = true, children }: { bare?: boolean; title: string; aside?: React.ReactNode; pad?: boolean; children: React.ReactNode }) {
+  return bare ? (
+    <div>
+      {aside && <p className="mb-2 text-xs text-muted">{aside}</p>}
+      {children}
+    </div>
+  ) : (
+    <Card title={title} aside={aside} pad={pad}>
+      {children}
+    </Card>
   );
 }
 
 /* --------------------------------------------------------------------------- shocks */
 
-export function ShocksTable({ shocks, scenario }: { shocks: AppliedShock[]; scenario?: Scenario }) {
+export function ShocksTable({ shocks, scenario, bare }: { shocks: AppliedShock[]; scenario?: Scenario; bare?: boolean }) {
   const scaled = shocks.length > 0;
   const rows = scaled
     ? shocks.map((s) => ({ factor: s.factor, scope: s.scope, base: s.base_value, applied: s.scaled_value as number | null, applicable: s.applicable, why: s.rationale }))
     : (scenario?.shocks ?? []).map((s) => ({ factor: s.factor, scope: s.scope, base: s.value, applied: null as number | null, applicable: true, why: s.rationale }));
   if (rows.length === 0) return null;
   return (
-    <Card title="Shock assumptions" aside={scaled ? "Scaled to this event's impact" : "At reference impact"} pad={false}>
+    <Wrap bare={bare} title="Shock assumptions" aside={scaled ? "Scaled to this event's impact" : "At reference impact"} pad={false}>
       <div className="scroll-x">
         <table className="dtable min-w-[40rem]">
           <thead>
@@ -90,140 +60,19 @@ export function ShocksTable({ shocks, scenario }: { shocks: AppliedShock[]; scen
       <p className="border-t border-rule px-4 py-2.5 text-xs text-muted">
         Most specific scope wins per factor (issuer, then sector, then market-wide), so nothing is double counted. Magnitudes are illustrative, not forecasts.
       </p>
-    </Card>
-  );
-}
-
-/* ----------------------------------------------------------------------- breakdowns */
-
-type Tab = "asset" | "sector" | "entity" | "factor";
-
-function LossBar({ baseline, delta, maxBase }: { baseline: number; delta: number; maxBase: number }) {
-  const lossFrac = baseline > 0 ? Math.min(1, Math.max(0, -delta) / baseline) : 0;
-  const w = maxBase > 0 ? (baseline / maxBase) * 100 : 0;
-  return (
-    <span className="block h-2.5" aria-hidden="true">
-      <span className="flex h-full overflow-hidden rounded-sm bg-paper-4" style={{ width: `${Math.max(w, 2)}%` }}>
-        <span className="h-full bg-faint" style={{ width: `${(1 - lossFrac) * 100}%` }} />
-        {lossFrac > 0 && <span className="h-full min-w-[2px] bg-neg" style={{ width: `${lossFrac * 100}%` }} />}
-      </span>
-    </span>
-  );
-}
-
-export function Breakdown({ r, entityNames }: { r: StressResult; entityNames: Map<string, string> }) {
-  const [tab, setTab] = useState<Tab>("asset");
-  const c = r.contributions;
-  if (!c) return null;
-  const sets: Record<Tab, { label: string; rows: Contribution[] }> = {
-    asset: { label: "Asset class", rows: c.by_asset_class },
-    sector: { label: "Sector", rows: c.by_sector },
-    entity: { label: "Issuer", rows: c.by_entity },
-    factor: { label: "Risk factor", rows: c.by_factor },
-  };
-  const rows = sets[tab].rows;
-  const maxBase = Math.max(0, ...rows.map((x) => x.baseline_value));
-  const maxAbs = Math.max(1, ...rows.map((x) => Math.abs(x.delta)));
-  const name = (x: Contribution) =>
-    tab === "asset" ? (ASSET_CLASS_LABEL[x.key] ?? x.key) : tab === "entity" ? (entityNames.get(x.key) ?? x.key) : tab === "factor" ? (FACTOR_LABEL[x.key] ?? x.key) : x.label;
-
-  return (
-    <Card
-      title="Where the change comes from"
-      aside={
-        <div role="group" aria-label="Group by" className="flex flex-wrap justify-end gap-1">
-          {(Object.keys(sets) as Tab[]).map((t) => (
-            <button key={t} className="chip" aria-pressed={tab === t} onClick={() => setTab(t)}>
-              {sets[t].label}
-            </button>
-          ))}
-        </div>
-      }
-    >
-      <div className="scroll-x">
-        <table className="dtable min-w-[36rem]">
-          <thead>
-            <tr>
-              <th>{sets[tab].label}</th>
-              {tab !== "factor" && <th className="text-right">Before</th>}
-              <th className="text-right">Change</th>
-              {tab !== "factor" && <th className="text-right">Δ %</th>}
-              <th className="text-right" title="Positions that gain offset the total, so shares can exceed 100%">Share of change</th>
-              <th className="w-[28%]">{tab === "factor" ? "Contribution" : "Before → after"}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((x) => (
-              <tr key={x.key}>
-                <td className="font-medium">{name(x)}</td>
-                {tab !== "factor" && <td className="num text-right text-muted">{money(x.baseline_value)}</td>}
-                <td className={clsx("num text-right", x.delta < 0 ? "text-neg" : x.delta > 0 ? "text-pos" : "text-muted")}>
-                  {money(x.delta, { signed: true })}
-                </td>
-                {tab !== "factor" && (
-                  <td className="num text-right text-muted">{x.baseline_value > 0 ? pct(x.delta / x.baseline_value, 2, true) : "–"}</td>
-                )}
-                <td className="num text-right">{x.share_of_loss === null ? "–" : pct(x.share_of_loss, 0)}</td>
-                <td className="pt-3">
-                  {tab === "factor" ? (
-                    <span className="block h-2.5 rounded-sm bg-paper-4" aria-hidden="true">
-                      <span className={clsx("block h-full rounded-sm", x.delta < 0 ? "bg-neg" : "bg-pos")} style={{ width: `${(Math.abs(x.delta) / maxAbs) * 100}%` }} />
-                    </span>
-                  ) : (
-                    <LossBar baseline={x.baseline_value} delta={x.delta} maxBase={maxBase} />
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {tab !== "factor" && (
-        <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
-          <span className="flex items-center gap-1.5"><i className="inline-block h-2 w-3 rounded-[1px] bg-faint" /> value after stress</span>
-          <span className="flex items-center gap-1.5"><i className="inline-block h-2 w-3 rounded-[1px] bg-neg" /> value lost</span>
-          <span>Bar length is proportional to value before stress.</span>
-        </p>
-      )}
-    </Card>
-  );
-}
-
-/* ---------------------------------------------------------------------- top positions */
-
-export function TopPositions({ r }: { r: StressResult }) {
-  const top = r.contributions?.top_positions ?? [];
-  const max = Math.max(1, ...top.map((t) => Math.abs(t.delta)));
-  if (top.length === 0) return null;
-  return (
-    <Card title="Largest loss contributors" aside={`Top ${top.length} positions`}>
-      <ol className="space-y-2.5">
-        {top.map((t, i) => (
-          <li key={t.key} className="grid grid-cols-[1.25rem_minmax(0,1fr)_5.25rem] items-center gap-3 text-sm">
-            <span className="num text-xs text-muted">{i + 1}</span>
-            <span className="min-w-0">
-              <span className="block truncate text-ink-2" title={t.label}>{t.label}</span>
-              <span className="mt-1 block h-1.5 rounded-sm bg-paper-4" aria-hidden="true">
-                <span className={clsx("block h-full rounded-sm", t.delta < 0 ? "bg-neg" : "bg-pos")} style={{ width: `${(Math.abs(t.delta) / max) * 100}%` }} />
-              </span>
-            </span>
-            <span className={clsx("num text-right", t.delta < 0 ? "text-neg" : "text-pos")}>{money(t.delta, { signed: true })}</span>
-          </li>
-        ))}
-      </ol>
-    </Card>
+    </Wrap>
   );
 }
 
 /* ------------------------------------------------------------------ positions table */
 
-export function PositionsTable({ positions }: { positions: PositionResult[] }) {
+export function PositionsTable({ positions, bare }: { positions: PositionResult[]; bare?: boolean }) {
   const [cls, setCls] = useState<string>("");
   const [open, setOpen] = useState<string | null>(null);
   const classes = useMemo(() => [...new Set(positions.map((p) => p.asset_class))], [positions]);
   const rows = cls ? positions.filter((p) => p.asset_class === cls) : positions;
   return (
-    <Card title="Every position" aside={`${rows.length} of ${positions.length}`} pad={false}>
+    <Wrap bare={bare} title="Every position" aside={`${rows.length} of ${positions.length}`} pad={false}>
       <div className="flex flex-wrap gap-1.5 px-4 pb-3" role="group" aria-label="Filter positions by asset class">
         <button className="chip" aria-pressed={cls === ""} onClick={() => setCls("")}>All</button>
         {classes.map((c) => (
@@ -296,13 +145,13 @@ export function PositionsTable({ positions }: { positions: PositionResult[] }) {
           </tbody>
         </table>
       </div>
-    </Card>
+    </Wrap>
   );
 }
 
 /* ------------------------------------------------------------------------------ audit */
 
-export function AuditPanel({ r }: { r: StressResult }) {
+export function AuditPanel({ r, bare }: { r: StressResult; bare?: boolean }) {
   const a = r.audit;
   const rows: [string, string][] = [
     ["Run id", r.run_id],
@@ -316,7 +165,7 @@ export function AuditPanel({ r }: { r: StressResult }) {
     ["Calculated at", new Date(a.calculated_at).toISOString().replace(".000Z", "Z")],
   ];
   return (
-    <Card title="Audit" aside="Same inputs, same result">
+    <Wrap bare={bare} title="Audit" aside="Same inputs, same result">
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-5 gap-y-1.5 text-xs sm:grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)]">
         {rows.map(([k, v]) => (
           <div key={k} className="contents">
@@ -326,6 +175,6 @@ export function AuditPanel({ r }: { r: StressResult }) {
         ))}
       </dl>
       <p className="mt-3 text-xs text-muted">{a.calculation}. Run id is a hash of signal, scenario version, impact, and portfolio holdings.</p>
-    </Card>
+    </Wrap>
   );
 }
