@@ -70,6 +70,7 @@ Not obtained, and said so: consensus earnings estimates (so no realised earnings
 | `models/sentiment/`, `models/event/` | the trained artifacts and their model cards (`make train-sentiment`, `make train-event`) | yes |
 | `data/event_labels/` | the annotator's event labels, blind-pool manifest and answer files (`make event-pools`, `make event-merge`) | yes |
 | `data/events/` | SEC filing acceptance times and 8-K item codes, FOMC decisions, manifest with hashes and known gaps (`make fetch-edgar fetch-fomc events-calendar`) | yes |
+| `data/outcomes/` | realised two-session moves after the replay reports (derived statistics from our own impact table: scope, issuer, session, |z|, score; no prices, no text), read only by the per-signal context endpoint (`make outcomes`) | yes |
 | `data/gold_v2/`, `data/probes/` | the 2023-2025 doubly annotated evaluation set; the polarity probe | yes |
 | `data/history_v2/`, `data/processed/history_v2/` | history v1 plus the 2023-2025 GKG sample, and its pipeline output | no |
 | `data/gold/` | the gold set: blind sheet, manifest, adjudication, consistency | yes |

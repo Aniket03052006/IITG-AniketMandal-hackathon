@@ -214,3 +214,22 @@ severity scaling and clamps, trigger rule, catalog completeness, config errors, 
 and error paths, SPA serving, and an e2e golden replay. `vitest` — formatters, severity bands,
 accessible meters, and page-level states (feed, filters, API outage, partial signal, not-triggered,
 completed run) against a mocked API.
+
+
+## Stage 5: the judge-facing UI and its one read-only endpoint
+
+The frontend tells one story, **text → event understanding → impact → evidence → scenario → portfolio stress**, as five chapters on the
+event page plus the stress and evidence screens. Technical depth sits behind progressive disclosure (drawers addressed by `?open=`, tabs by
+`?tab=`). Nothing in the models, the configuration or `RiskSignal` changed.
+
+`GET /api/signals/{id}/context` (`services/signal_context.py`) is the only backend addition, and it is read-only:
+
+- the impact model's inputs for that signal, grouped by family with their availability class (read from the audit the signal already carries);
+- the issuer's 8-K filings placed around the report using the calendar's own rule (a filing is *before* only if accepted **strictly** earlier),
+  each labelled *feeds the model* / *before, not used* / *after the report*;
+- the realised two-session move that followed (`data/outcomes/replay_outcomes.json`, exported by `make outcomes`), kept off the signal so it can
+  never become an input and the replay digest is untouched.
+
+The timeline in the UI is built from exactly that payload plus the signal's own cluster of reports; its view-model (`web/src/lib/timeline.ts`)
+returns only what the cursor has reached, so a later fact cannot be rendered in an earlier state (tested). There is no retrieval of similar
+*individual* past events anywhere in the system: "comparable events" are statistics of the model's own score bucket, and the UI says so.

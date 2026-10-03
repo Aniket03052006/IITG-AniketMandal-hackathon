@@ -35,6 +35,20 @@ provenance (source, timestamps, model/scenario/engine versions, data origin).
 
 It is decision support, not a trading bot.
 
+### Pain points it answers
+
+| The frustration | What EventShock does about it |
+|---|---|
+| "A sentiment score isn't an answer." | Sentiment, event type and **impact** are three separate readings; impact (1–10, with the range comparable events realised) is the headline. |
+| "I can't see why it said that." | A **Why?** drawer, plain-named drivers and a **Show inputs** panel listing exactly what the model saw, with typeset maths one click away. |
+| "Is that look-ahead leakage?" | Every input has an availability class, anything known only afterwards is refused, and a **timeline** shows what was known at each moment, apart from what was learned later and what happened. |
+| "How far can I trust it?" | Placeholder / experimental / validated tags, four kinds of number that are never blurred (prediction, history, assumption, outcome), and an evidence page with checks passed out of total. |
+| "So what does it do to my portfolio?" | Before → after value, what the scenario did *not* reach, a waterfall, a drill-down to single positions and a what-if severity slider on the real engine. |
+| "There's too much on screen." | One story in five chapters; depth sits behind drawers, tabs and expanders. |
+| "I have to present this anywhere." | Light by default with a dark toggle, phone to desktop layouts, a deterministic replay and a scripted 3:40 demo. |
+
+Every feature, the pain point behind it, where to see it and how we know it works: [`docs/FEATURES_AND_PAIN_POINTS.md`](docs/FEATURES_AND_PAIN_POINTS.md).
+
 ## 2. Architecture & Tech Stack
 
 ```mermaid
@@ -137,14 +151,14 @@ Useful commands:
 | `make fetch-edgar` `make fetch-fomc` `make events-calendar` | SEC 8-K filings (needs `EVENTSHOCK_SEC_CONTACT` in `.env`) and FOMC dates into the committed `data/events/` |
 | `make impact-table-v2` `make impact-study` `make train-impact-v2` | Stage 4: extended-history table, the pre-registered incremental-value study (`docs/evidence/impact_study.json`), and the served impact-v2 artifact (about 1 h, deterministic) |
 | `make bakeoff` `make train-event-hybrid` | Stage 4: representation comparison (`docs/evidence/representation_bakeoff.json`; embeddings need the optional `requirements-embed.txt`) and the hybrid event model |
+| `make outcomes` | export the realised moves after the replay reports to `data/outcomes/replay_outcomes.json` (read only by `GET /api/signals/{id}/context`; needs the local impact table) |
 | `make impact-table` `make train-impact` | rebuild the impact modeling table, then select / calibrate / evaluate the impact model into `models/impact/` (about 45 min; needs the local data) |
 
 Without the UI build, `python src/main.py` still serves the API; interactive docs are at `/api/docs`.
 
-**Demo path (about 90 seconds):** open the **Data Pipeline** page (what came in, what was quarantined, what was folded) → Risk Feed → open a high-impact signal from a real outlet → read its **Provenance** card (source record, entity decision, duplicates folded) → **Run stress test**. For the Stage-1 walkthrough (`EVENTSHOCK_PROFILE=demo`): Risk Feed → open *Meridian Bancorp flags funding gap…* (impact 9) →
-read sentiment, event type, impact drivers and evidence → **Run stress test** → before/after portfolio
-value, largest contributors, shock assumptions, per-position formulas, audit panel. Then try a
-low-impact event (*What-if*), the partial signal (blocked), and the unresolved-entity macro event.
+**Demo path (3 minutes 40 seconds, fully scripted in [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)):** Risk Feed (the pipeline in four real numbers) → **Open the event story** on Nike's Q3 earnings preview → *What the text says* (event type, sentiment, **Why?**) → *How severe* (**Show inputs**, **How calculated?**) → *What supports it* (comparable events; drag the timeline to see what EventShock knew at each moment) → **Run scenario** (portfolio before/after, uncovered exposure, drill-down) → **Test a different severity** → **Evidence** ("how much evidence supports EventShock?"). Everything is read from the frozen replay pack, so the same numbers appear on every run. Light theme is the default; the toggle is in the left rail. Screenshots of every screen, both themes and three viewport sizes are in [`docs/screenshots/`](docs/screenshots/README.md).
+
+For the Stage-1 walkthrough (`EVENTSHOCK_PROFILE=demo`): Risk Feed → open *Meridian Bancorp flags funding gap…* (impact 9) → read sentiment, event type, impact drivers and evidence → **Run scenario** → before/after portfolio value, drill-down, assumptions, audit. Then try a low-impact event (*run as what-if*), the partial signal (blocked, with the reason), and the unresolved-entity macro event.
 
 ## 5. Key Results & Domain Impact
 
@@ -154,7 +168,9 @@ What the prototype demonstrates today:
   trail and a persistent *demo fixture* label.
 - A rule-based trigger (`impact ≥ 7`) that maps an event class to an explicit scenario template and
   runs it against a multi-asset portfolio. For the headline demo event the book moves from
-  **$558.8M to $548.6M (−$10.2M, −1.82%)**, driven mostly by the issuer's own bonds and equity.
+  **$558.8M to $548.6M (−$10.2M, −1.82%)**, driven mostly by the issuer's own bonds and equity (demo profile). On the default replay profile the
+  hero event (Nike's Q3 earnings preview, impact 7, experimental model) moves the synthetic book from **$860.1M to $853.1M (−$6.9M, −0.81%)**, and the
+  UI states that 63.8% of the book was outside that scenario's reach.
 - Honest failure handling: partial signals are never given invented scores; below-threshold events are
   reported as *not triggered*; unresolved entities only receive market-wide shocks; positions a
   scenario cannot reach are listed as uncovered rather than treated as safe.
