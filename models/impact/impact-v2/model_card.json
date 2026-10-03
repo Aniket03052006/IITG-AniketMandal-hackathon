@@ -1,0 +1,5693 @@
+{
+ "artifact_bytes": 109081,
+ "artifact_file": "model.joblib",
+ "artifact_sha256": "31545b4913b36d3a5f9a85a21b9f0e48fa730eb36e085f9ad9f669819b2bcc86",
+ "dataset": {
+  "calendar": {
+   "fomc": "25e46f93f6597d61992c464c667e4f2f7e3f05a42ebbf629992b6e0786b5576f",
+   "sec_filings": "8a9e225e978e1946894f6c5c0578f5860e3c789ec363bc02dd47f6c03ca4bbb5",
+   "sec_items": "d07a9c3b0ef4a29575955517824b65f4ca4a597b4350b94dc4adfd250b5e6670"
+  },
+  "feature_schema": "impact-features-v2",
+  "history_signals_sha256": "517f142d1b46842018b35a90e37484da76f2dffff4f5c9b74f336aa0cd18779a",
+  "modeling_config_digest": "96c986a3f82418cb",
+  "preregistration_sha256": "59f2af5b33da50ff4fb331851d9c2d4b851a33b6684d34df94abf42fdb333b8f",
+  "rows": 145421,
+  "table_sha256": "140c5266d3508630b0af943e22f3561dbbeb3598ef6c22e102ef5fcc30104b14"
+ },
+ "feature_schema": "impact-features-v2",
+ "id": "impact-v2",
+ "libraries": {
+  "numpy": "2.5.3",
+  "scikit-learn": "1.9.1",
+  "scipy": "1.18.1"
+ },
+ "output_definition": "Per scope: predicted log1p(|z|) of the two-session market response (z = abnormal return / trailing sigma), rank-calibrated to a 1-10 EventShock score with an empirical uncertainty interval. Inputs: market state, timing, the frozen text-model outputs (read from the TF-IDF event model impact was fitted with) and the structured calendar (earnings dates, recent 8-K filings, FOMC), each tagged known-before or published-at-event-time.",
+ "scopes": [
+  {
+   "acceptance": {
+    "checks": [
+     {
+      "detail": "Spearman of prediction vs realised |z|; pass if the 95% interval's lower bound > 0.0",
+      "id": "C1",
+      "label": "Rank skill on held-out episodes (val+test)",
+      "passed": true,
+      "value": "+0.168 [+0.148, +0.187]"
+     },
+     {
+      "detail": "paired difference in log-severity MAE; pass if the 95% interval's upper bound < 0",
+      "id": "C2",
+      "label": "Error vs the constant baseline (val+test)",
+      "passed": true,
+      "value": "-0.008 [-0.010, -0.006]"
+     },
+     {
+      "detail": "point difference in log-severity MAE <= 0.002 on each of val and test (R2-ridge)",
+      "id": "C3",
+      "label": "Not worse than the market-state linear model",
+      "passed": true,
+      "value": "val -0.004 [-0.006, -0.001]; test -0.003 [-0.006, -0.001]"
+     },
+     {
+      "detail": "Spearman of bucket order vs bucket median |z| >= 0.8 (needs >= 4 buckets of >= 10 episodes)",
+      "id": "C4",
+      "label": "Score buckets ordered by realised severity (val+test)",
+      "passed": true,
+      "value": "+1.00"
+     },
+     {
+      "detail": "covered share within 0.1 of nominal",
+      "id": "C5",
+      "label": "Realised-score interval coverage (val+test)",
+      "passed": false,
+      "value": "0.93 (nominal 0.80)"
+     },
+     {
+      "detail": "feature registry, group straddle, time order + embargo, rolling folds, fit invariance",
+      "id": "C6",
+      "label": "Leakage suite clean",
+      "passed": true,
+      "value": "4 checks"
+     },
+     {
+      "detail": "skill that also predicts the window before the event is market state, not the event",
+      "id": "C7",
+      "label": "More skill on the real window than on the pre-event placebo (val+test)",
+      "passed": false,
+      "value": "-0.069 (real +0.168, placebo +0.236)"
+     },
+     {
+      "detail": "the served documents are news with first-seen or publisher clocks, unlike the 2022 tweets",
+      "id": "C8",
+      "label": "Rank skill on 2026 news with publisher timestamps",
+      "passed": true,
+      "value": "+0.084 [+0.013, +0.156]"
+     },
+     {
+      "detail": "from the episode-level evidence study (docs/evidence/impact_study.json; its selected model R3s-full, this artifact's R3s-additive): Spearman after removing the issuer x volatility-bucket regime from prediction and outcome; pass if the lower bound > 0",
+      "id": "C9",
+      "label": "Regime-neutral rank skill (test)",
+      "passed": true,
+      "value": "+0.174 [+0.143, +0.202] (n=4636)"
+     },
+     {
+      "detail": "from the episode-level evidence study (docs/evidence/impact_study.json; its selected model R3s-full, this artifact's R3s-additive): paired log-severity MAE difference; pass if the upper bound is below 0 on test and on live",
+      "id": "C10",
+      "label": "Block increment over market state (R3s-full vs R2-full)",
+      "passed": true,
+      "value": "test -0.0043 [-0.0065, -0.0021]; live -0.0065 [-0.0105, -0.0029]"
+     },
+     {
+      "detail": "from the episode-level evidence study (docs/evidence/impact_study.json; its selected model R3s-full, this artifact's R3s-additive): share of years (>= 100 episodes) where the block's point difference is below zero; pass if >= 0.75",
+      "id": "C11",
+      "label": "The block helps in most calendar years",
+      "passed": true,
+      "value": "10/10 years (1.00)"
+     }
+    ],
+    "met": false,
+    "rule": "Pre-registered in configs/impact_model.yaml before the first held-out run. PRODUCTION needs every check to pass: C1 rank skill above zero (val+test, 95% interval); C2 lower log-severity error than the constant (paired interval below zero); C3 not worse than the market-state-only linear model on val and on test; C4 predicted-score buckets ordered by realised severity; C5 the served realised-score interval covers close to its nominal share; C6 the leakage suite is clean; C7 more skill on the real window than on the pre-event placebo window; C8 skill on news (2026, publisher timestamps). A check that cannot be evaluated is not a pass."
+   },
+   "algorithm": "additive gradient boosting (one feature per interaction group) on log1p(|z|); params {'l2_regularization': 10.0, 'learning_rate': 0.05, 'max_depth': 2, 'max_iter': 250, 'min_samples_leaf': 60}",
+   "attribution": {
+    "exact": true,
+    "kind": "additive",
+    "max_abs_error": 5.55e-16,
+    "units": "ln(1 + |z|): baseline + contributions = prediction"
+   },
+   "calibration": {
+    "base_rate_extreme": 0.0318,
+    "bins_heldout": [
+     {
+      "n_episodes": 4551,
+      "p_extreme": {
+       "hi": 0.015,
+       "lo": 0.0087,
+       "value": 0.0114
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 3,
+      "score_high": 1,
+      "score_low": 1,
+      "severity_q10": 0.089,
+      "severity_q50": 0.522,
+      "severity_q90": 1.451
+     },
+     {
+      "n_episodes": 3063,
+      "p_extreme": {
+       "hi": 0.0155,
+       "lo": 0.008,
+       "value": 0.0111
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 4,
+      "score_high": 2,
+      "score_low": 2,
+      "severity_q10": 0.105,
+      "severity_q50": 0.595,
+      "severity_q90": 1.627
+     },
+     {
+      "n_episodes": 1224,
+      "p_extreme": {
+       "hi": 0.0338,
+       "lo": 0.0165,
+       "value": 0.0237
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 4,
+      "score_high": 3,
+      "score_low": 3,
+      "severity_q10": 0.102,
+      "severity_q50": 0.641,
+      "severity_q90": 1.795
+     },
+     {
+      "n_episodes": 415,
+      "p_extreme": {
+       "hi": 0.0558,
+       "lo": 0.0202,
+       "value": 0.0337
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 5,
+      "score_high": 4,
+      "score_low": 4,
+      "severity_q10": 0.104,
+      "severity_q50": 0.769,
+      "severity_q90": 2.128
+     },
+     {
+      "n_episodes": 276,
+      "p_extreme": {
+       "hi": 0.1303,
+       "lo": 0.0621,
+       "value": 0.0906
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 6,
+      "score_high": 5,
+      "score_low": 5,
+      "severity_q10": 0.202,
+      "severity_q50": 0.991,
+      "severity_q90": 2.821
+     },
+     {
+      "n_episodes": 152,
+      "p_extreme": {
+       "hi": 0.2963,
+       "lo": 0.1647,
+       "value": 0.2237
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 8,
+      "score_high": 6,
+      "score_low": 6,
+      "severity_q10": 0.157,
+      "severity_q50": 1.124,
+      "severity_q90": 4.29
+     },
+     {
+      "n_episodes": 128,
+      "p_extreme": {
+       "hi": 0.3064,
+       "lo": 0.1626,
+       "value": 0.2266
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 8,
+      "score_high": 7,
+      "score_low": 7,
+      "severity_q10": 0.27,
+      "severity_q50": 1.236,
+      "severity_q90": 4.934
+     },
+     {
+      "n_episodes": 88,
+      "p_extreme": {
+       "hi": 0.4331,
+       "lo": 0.2403,
+       "value": 0.3295
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 8,
+      "score_high": 10,
+      "score_low": 8,
+      "severity_q10": 0.286,
+      "severity_q50": 1.721,
+      "severity_q90": 5.025
+     }
+    ],
+    "bins_reference": [
+     {
+      "n_episodes": 5268,
+      "p_extreme": {
+       "hi": 0.0105,
+       "lo": 0.0057,
+       "value": 0.0078
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 3,
+      "score_high": 1,
+      "score_low": 1,
+      "severity_q10": 0.084,
+      "severity_q50": 0.496,
+      "severity_q90": 1.373
+     },
+     {
+      "n_episodes": 3380,
+      "p_extreme": {
+       "hi": 0.0221,
+       "lo": 0.0133,
+       "value": 0.0172
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 4,
+      "score_high": 2,
+      "score_low": 2,
+      "severity_q10": 0.113,
+      "severity_q50": 0.597,
+      "severity_q90": 1.622
+     },
+     {
+      "n_episodes": 1690,
+      "p_extreme": {
+       "hi": 0.0361,
+       "lo": 0.0205,
+       "value": 0.0272
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 4,
+      "score_high": 3,
+      "score_low": 3,
+      "severity_q10": 0.123,
+      "severity_q50": 0.662,
+      "severity_q90": 1.874
+     },
+     {
+      "n_episodes": 763,
+      "p_extreme": {
+       "hi": 0.0661,
+       "lo": 0.0354,
+       "value": 0.0485
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 5,
+      "score_high": 4,
+      "score_low": 4,
+      "severity_q10": 0.127,
+      "severity_q50": 0.728,
+      "severity_q90": 2.152
+     },
+     {
+      "n_episodes": 352,
+      "p_extreme": {
+       "hi": 0.1574,
+       "lo": 0.0895,
+       "value": 0.1193
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 7,
+      "score_high": 5,
+      "score_low": 5,
+      "severity_q10": 0.151,
+      "severity_q50": 0.879,
+      "severity_q90": 3.227
+     },
+     {
+      "n_episodes": 186,
+      "p_extreme": {
+       "hi": 0.2621,
+       "lo": 0.1479,
+       "value": 0.1989
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 8,
+      "score_high": 6,
+      "score_low": 6,
+      "severity_q10": 0.281,
+      "severity_q50": 1.3,
+      "severity_q90": 4.76
+     },
+     {
+      "n_episodes": 197,
+      "p_extreme": {
+       "hi": 0.3349,
+       "lo": 0.212,
+       "value": 0.269
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 9,
+      "score_high": 7,
+      "score_low": 7,
+      "severity_q10": 0.298,
+      "severity_q50": 1.741,
+      "severity_q90": 5.408
+     },
+     {
+      "n_episodes": 195,
+      "p_extreme": {
+       "hi": 0.4232,
+       "lo": 0.2901,
+       "value": 0.3538
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 9,
+      "score_high": 10,
+      "score_low": 8,
+      "severity_q10": 0.293,
+      "severity_q50": 2.123,
+      "severity_q90": 5.703
+     }
+    ],
+    "extreme_brier": 0.0221,
+    "extreme_brier_base_rate": 0.02429,
+    "extreme_score": 7,
+    "heldout_coverage": {
+     "hi": 0.932,
+     "lo": 0.921,
+     "value": 0.927
+    },
+    "method": "rank-calibrated: prediction -> percentile of the out-of-fold training predictions -> |z| at the same percentile of the realised severity distribution -> the target's own fixed cut points; interval = what comparable out-of-fold events realised",
+    "monotonicity_spearman": 1.0,
+    "nominal_coverage": 0.8,
+    "reference_episodes": 12031,
+    "reference_period": "2017-01-03..2023-12-21"
+   },
+   "direction": {
+    "hit_rate": {
+     "hi": 0.5264,
+     "lo": 0.4735,
+     "value": 0.4997
+    },
+    "n": 1480,
+    "note": "sign of (P(pos) - P(neg)) vs sign of the realised abnormal return; 0.5 is a coin flip. Reported, not used by the score."
+   },
+   "evaluations": [
+    {
+     "id": "oof",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0056,
+        "lo": 0.0021,
+        "value": 0.0038
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.3,
+        "lo": 0.2916,
+        "value": 0.2958
+       },
+       "placebo_spearman": {
+        "hi": -0.0042,
+        "lo": -0.0401,
+        "value": -0.0226
+       },
+       "rmse": 0.3834,
+       "spearman": {
+        "hi": -0.006,
+        "lo": -0.0427,
+        "value": -0.0248
+       },
+       "top_decile_lift": 0.9308
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0021,
+        "lo": -0.0056,
+        "value": -0.0038
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.296,
+        "lo": 0.2878,
+        "value": 0.292
+       },
+       "placebo_spearman": {
+        "hi": 0.2232,
+        "lo": 0.1882,
+        "value": 0.2059
+       },
+       "rmse": 0.3764,
+       "spearman": {
+        "hi": 0.1751,
+        "lo": 0.139,
+        "value": 0.1562
+       },
+       "top_decile_lift": 1.5918
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0036,
+        "lo": -0.0062,
+        "value": -0.0049
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0004,
+        "lo": -0.0026,
+        "value": -0.0011
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.295,
+        "lo": 0.2866,
+        "value": 0.2909
+       },
+       "placebo_spearman": {
+        "hi": 0.3079,
+        "lo": 0.2734,
+        "value": 0.2912
+       },
+       "rmse": 0.3744,
+       "spearman": {
+        "hi": 0.1938,
+        "lo": 0.1584,
+        "value": 0.1751
+       },
+       "top_decile_lift": 1.4855
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0037,
+        "lo": -0.0067,
+        "value": -0.0052
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": -0.0028,
+        "value": -0.0014
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.2946,
+        "lo": 0.2863,
+        "value": 0.2906
+       },
+       "placebo_spearman": {
+        "hi": 0.2942,
+        "lo": 0.2602,
+        "value": 0.2772
+       },
+       "rmse": 0.3739,
+       "spearman": {
+        "hi": 0.2008,
+        "lo": 0.1663,
+        "value": 0.1831
+       },
+       "top_decile_lift": 1.5395
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0066,
+        "lo": -0.0113,
+        "value": -0.0088
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0032,
+        "lo": -0.0067,
+        "value": -0.005
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.2911,
+        "lo": 0.2828,
+        "value": 0.287
+       },
+       "placebo_spearman": {
+        "hi": 0.1903,
+        "lo": 0.1555,
+        "value": 0.1736
+       },
+       "rmse": 0.3658,
+       "spearman": {
+        "hi": 0.2063,
+        "lo": 0.1699,
+        "value": 0.1873
+       },
+       "top_decile_lift": 2.0703
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0094,
+        "lo": -0.0138,
+        "value": -0.0116
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0055,
+        "lo": -0.01,
+        "value": -0.0078
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.2881,
+        "lo": 0.2802,
+        "value": 0.2842
+       },
+       "placebo_spearman": {
+        "hi": 0.2542,
+        "lo": 0.2199,
+        "value": 0.2387
+       },
+       "rmse": 0.3611,
+       "spearman": {
+        "hi": 0.2269,
+        "lo": 0.1902,
+        "value": 0.2084
+       },
+       "top_decile_lift": 2.0779
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0096,
+        "lo": -0.0141,
+        "value": -0.0118
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0056,
+        "lo": -0.0101,
+        "value": -0.008
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.2879,
+        "lo": 0.28,
+        "value": 0.284
+       },
+       "placebo_spearman": {
+        "hi": 0.2599,
+        "lo": 0.2248,
+        "value": 0.2434
+       },
+       "rmse": 0.361,
+       "spearman": {
+        "hi": 0.2297,
+        "lo": 0.1937,
+        "value": 0.2115
+       },
+       "top_decile_lift": 2.0434
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0073,
+        "lo": -0.0122,
+        "value": -0.0097
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0041,
+        "lo": -0.0077,
+        "value": -0.0059
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.2902,
+        "lo": 0.282,
+        "value": 0.2861
+       },
+       "placebo_spearman": {
+        "hi": 0.1916,
+        "lo": 0.1577,
+        "value": 0.1748
+       },
+       "rmse": 0.3644,
+       "spearman": {
+        "hi": 0.2096,
+        "lo": 0.1733,
+        "value": 0.1909
+       },
+       "top_decile_lift": 2.0855
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.01,
+        "lo": -0.0144,
+        "value": -0.0122
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0061,
+        "lo": -0.0106,
+        "value": -0.0084
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2875,
+        "lo": 0.2796,
+        "value": 0.2836
+       },
+       "placebo_spearman": {
+        "hi": 0.2556,
+        "lo": 0.2215,
+        "value": 0.2402
+       },
+       "rmse": 0.3603,
+       "spearman": {
+        "hi": 0.23,
+        "lo": 0.1931,
+        "value": 0.2112
+       },
+       "top_decile_lift": 2.0831
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0101,
+        "lo": -0.0146,
+        "value": -0.0122
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.006,
+        "lo": -0.0106,
+        "value": -0.0084
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.2875,
+        "lo": 0.2795,
+        "value": 0.2836
+       },
+       "placebo_spearman": {
+        "hi": 0.2562,
+        "lo": 0.2209,
+        "value": 0.2396
+       },
+       "rmse": 0.3606,
+       "spearman": {
+        "hi": 0.2321,
+        "lo": 0.196,
+        "value": 0.2137
+       },
+       "top_decile_lift": 2.0705
+      }
+     ],
+     "n_episodes": 12031,
+     "n_rows": 78148,
+     "period": "2017-01-03..2023-12-21",
+     "role": "selection and calibration reference",
+     "title": "Rolling-origin out-of-fold, training period"
+    },
+    {
+     "id": "val",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.007,
+        "lo": 0.0031,
+        "value": 0.0051
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.2891,
+        "lo": 0.2775,
+        "value": 0.283
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.3588,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 1.0624
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0031,
+        "lo": -0.007,
+        "value": -0.0051
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.2837,
+        "lo": 0.2719,
+        "value": 0.2779
+       },
+       "placebo_spearman": {
+        "hi": 0.2851,
+        "lo": 0.2357,
+        "value": 0.2618
+       },
+       "rmse": 0.3563,
+       "spearman": {
+        "hi": 0.1842,
+        "lo": 0.1298,
+        "value": 0.1589
+       },
+       "top_decile_lift": 1.2367
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0029,
+        "lo": -0.006,
+        "value": -0.0045
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0019,
+        "lo": -0.0007,
+        "value": 0.0006
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.2844,
+        "lo": 0.2728,
+        "value": 0.2785
+       },
+       "placebo_spearman": {
+        "hi": 0.2998,
+        "lo": 0.249,
+        "value": 0.2763
+       },
+       "rmse": 0.3545,
+       "spearman": {
+        "hi": 0.1663,
+        "lo": 0.1144,
+        "value": 0.1427
+       },
+       "top_decile_lift": 1.2828
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.003,
+        "lo": -0.0066,
+        "value": -0.0049
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0016,
+        "lo": -0.0011,
+        "value": 0.0002
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.284,
+        "lo": 0.2724,
+        "value": 0.2781
+       },
+       "placebo_spearman": {
+        "hi": 0.2978,
+        "lo": 0.2474,
+        "value": 0.2743
+       },
+       "rmse": 0.3545,
+       "spearman": {
+        "hi": 0.1722,
+        "lo": 0.1204,
+        "value": 0.1485
+       },
+       "top_decile_lift": 1.3351
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0042,
+        "lo": -0.0095,
+        "value": -0.007
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0005,
+        "lo": -0.0038,
+        "value": -0.0018
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.2813,
+        "lo": 0.2703,
+        "value": 0.276
+       },
+       "placebo_spearman": {
+        "hi": 0.2537,
+        "lo": 0.203,
+        "value": 0.2288
+       },
+       "rmse": 0.3485,
+       "spearman": {
+        "hi": 0.1961,
+        "lo": 0.1432,
+        "value": 0.1699
+       },
+       "top_decile_lift": 1.7545
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0057,
+        "lo": -0.0114,
+        "value": -0.0086
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0009,
+        "lo": -0.0062,
+        "value": -0.0035
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.2799,
+        "lo": 0.2691,
+        "value": 0.2744
+       },
+       "placebo_spearman": {
+        "hi": 0.2695,
+        "lo": 0.2207,
+        "value": 0.2447
+       },
+       "rmse": 0.345,
+       "spearman": {
+        "hi": 0.2005,
+        "lo": 0.1475,
+        "value": 0.1756
+       },
+       "top_decile_lift": 1.8241
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0064,
+        "lo": -0.0118,
+        "value": -0.0092
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0014,
+        "lo": -0.0066,
+        "value": -0.004
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.2794,
+        "lo": 0.2686,
+        "value": 0.2739
+       },
+       "placebo_spearman": {
+        "hi": 0.2797,
+        "lo": 0.2306,
+        "value": 0.2555
+       },
+       "rmse": 0.3438,
+       "spearman": {
+        "hi": 0.2041,
+        "lo": 0.152,
+        "value": 0.1792
+       },
+       "top_decile_lift": 1.8256
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0045,
+        "lo": -0.0099,
+        "value": -0.0073
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0002,
+        "lo": -0.0044,
+        "value": -0.0022
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.2811,
+        "lo": 0.2698,
+        "value": 0.2757
+       },
+       "placebo_spearman": {
+        "hi": 0.2486,
+        "lo": 0.1965,
+        "value": 0.2226
+       },
+       "rmse": 0.3479,
+       "spearman": {
+        "hi": 0.192,
+        "lo": 0.1399,
+        "value": 0.1663
+       },
+       "top_decile_lift": 1.7874
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.006,
+        "lo": -0.0117,
+        "value": -0.0089
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0012,
+        "lo": -0.0065,
+        "value": -0.0038
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2797,
+        "lo": 0.2687,
+        "value": 0.2741
+       },
+       "placebo_spearman": {
+        "hi": 0.2712,
+        "lo": 0.2222,
+        "value": 0.2465
+       },
+       "rmse": 0.3447,
+       "spearman": {
+        "hi": 0.2001,
+        "lo": 0.1481,
+        "value": 0.175
+       },
+       "top_decile_lift": 1.8497
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0065,
+        "lo": -0.0119,
+        "value": -0.0093
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0016,
+        "lo": -0.0066,
+        "value": -0.0041
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.2793,
+        "lo": 0.2683,
+        "value": 0.2737
+       },
+       "placebo_spearman": {
+        "hi": 0.2822,
+        "lo": 0.2317,
+        "value": 0.2574
+       },
+       "rmse": 0.3438,
+       "spearman": {
+        "hi": 0.2056,
+        "lo": 0.1528,
+        "value": 0.1804
+       },
+       "top_decile_lift": 1.837
+      }
+     ],
+     "n_episodes": 5261,
+     "n_rows": 12442,
+     "period": "2024-01-02..2024-12-23",
+     "role": "checkpoint: read to choose nothing",
+     "title": "2024, GKG news (checkpoint)"
+    },
+    {
+     "id": "test",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0063,
+        "lo": 0.0022,
+        "value": 0.0042
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.2994,
+        "lo": 0.2868,
+        "value": 0.2933
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.3691,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 0.9886
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0022,
+        "lo": -0.0063,
+        "value": -0.0042
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.2955,
+        "lo": 0.2823,
+        "value": 0.289
+       },
+       "placebo_spearman": {
+        "hi": 0.2478,
+        "lo": 0.1946,
+        "value": 0.222
+       },
+       "rmse": 0.3653,
+       "spearman": {
+        "hi": 0.1428,
+        "lo": 0.0848,
+        "value": 0.1151
+       },
+       "top_decile_lift": 1.3397
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0036,
+        "lo": -0.0071,
+        "value": -0.0054
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0003,
+        "lo": -0.0027,
+        "value": -0.0011
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.2944,
+        "lo": 0.2815,
+        "value": 0.2879
+       },
+       "placebo_spearman": {
+        "hi": 0.2986,
+        "lo": 0.2457,
+        "value": 0.2731
+       },
+       "rmse": 0.3639,
+       "spearman": {
+        "hi": 0.1771,
+        "lo": 0.1196,
+        "value": 0.1483
+       },
+       "top_decile_lift": 1.3169
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0031,
+        "lo": -0.0068,
+        "value": -0.005
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0007,
+        "lo": -0.0022,
+        "value": -0.0007
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.2948,
+        "lo": 0.2821,
+        "value": 0.2883
+       },
+       "placebo_spearman": {
+        "hi": 0.2977,
+        "lo": 0.2457,
+        "value": 0.2727
+       },
+       "rmse": 0.3642,
+       "spearman": {
+        "hi": 0.1741,
+        "lo": 0.1168,
+        "value": 0.1458
+       },
+       "top_decile_lift": 1.373
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0001,
+        "lo": -0.006,
+        "value": -0.003
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0037,
+        "lo": -0.0011,
+        "value": 0.0012
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.2968,
+        "lo": 0.2838,
+        "value": 0.2902
+       },
+       "placebo_spearman": {
+        "hi": 0.211,
+        "lo": 0.1578,
+        "value": 0.1845
+       },
+       "rmse": 0.3623,
+       "spearman": {
+        "hi": 0.1483,
+        "lo": 0.0902,
+        "value": 0.1195
+       },
+       "top_decile_lift": 1.6723
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0041,
+        "lo": -0.0102,
+        "value": -0.0072
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0001,
+        "lo": -0.0058,
+        "value": -0.0029
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.2928,
+        "lo": 0.2798,
+        "value": 0.2861
+       },
+       "placebo_spearman": {
+        "hi": 0.2516,
+        "lo": 0.1981,
+        "value": 0.2253
+       },
+       "rmse": 0.3576,
+       "spearman": {
+        "hi": 0.1868,
+        "lo": 0.1287,
+        "value": 0.1582
+       },
+       "top_decile_lift": 1.8008
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0058,
+        "lo": -0.0114,
+        "value": -0.0086
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0017,
+        "lo": -0.0069,
+        "value": -0.0044
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.2912,
+        "lo": 0.2786,
+        "value": 0.2846
+       },
+       "placebo_spearman": {
+        "hi": 0.2724,
+        "lo": 0.2194,
+        "value": 0.2464
+       },
+       "rmse": 0.3554,
+       "spearman": {
+        "hi": 0.1993,
+        "lo": 0.1401,
+        "value": 0.171
+       },
+       "top_decile_lift": 1.8061
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.001,
+        "lo": -0.0068,
+        "value": -0.0038
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0029,
+        "lo": -0.002,
+        "value": 0.0004
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.2959,
+        "lo": 0.2831,
+        "value": 0.2895
+       },
+       "placebo_spearman": {
+        "hi": 0.207,
+        "lo": 0.1532,
+        "value": 0.1815
+       },
+       "rmse": 0.3614,
+       "spearman": {
+        "hi": 0.1518,
+        "lo": 0.0938,
+        "value": 0.1233
+       },
+       "top_decile_lift": 1.7182
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0047,
+        "lo": -0.0105,
+        "value": -0.0077
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0007,
+        "lo": -0.0063,
+        "value": -0.0034
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2922,
+        "lo": 0.2794,
+        "value": 0.2856
+       },
+       "placebo_spearman": {
+        "hi": 0.2509,
+        "lo": 0.1978,
+        "value": 0.2248
+       },
+       "rmse": 0.3572,
+       "spearman": {
+        "hi": 0.1881,
+        "lo": 0.1294,
+        "value": 0.1601
+       },
+       "top_decile_lift": 1.8135
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0061,
+        "lo": -0.0116,
+        "value": -0.0089
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0021,
+        "lo": -0.0073,
+        "value": -0.0046
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.291,
+        "lo": 0.2782,
+        "value": 0.2844
+       },
+       "placebo_spearman": {
+        "hi": 0.278,
+        "lo": 0.2266,
+        "value": 0.2525
+       },
+       "rmse": 0.3551,
+       "spearman": {
+        "hi": 0.2021,
+        "lo": 0.1432,
+        "value": 0.1737
+       },
+       "top_decile_lift": 1.8066
+      }
+     ],
+     "n_episodes": 4636,
+     "n_rows": 10422,
+     "period": "2025-01-02..2025-12-31",
+     "role": "held-out test, scored once",
+     "title": "2025, GKG news (read once)"
+    },
+    {
+     "id": "val+test",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0061,
+        "lo": 0.0033,
+        "value": 0.0047
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.2921,
+        "lo": 0.2835,
+        "value": 0.2878
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.3636,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 1.0163
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0033,
+        "lo": -0.0061,
+        "value": -0.0047
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.2873,
+        "lo": 0.2786,
+        "value": 0.2831
+       },
+       "placebo_spearman": {
+        "hi": 0.2571,
+        "lo": 0.2207,
+        "value": 0.2393
+       },
+       "rmse": 0.3606,
+       "spearman": {
+        "hi": 0.1533,
+        "lo": 0.1134,
+        "value": 0.1337
+       },
+       "top_decile_lift": 1.2816
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0037,
+        "lo": -0.0061,
+        "value": -0.0049
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0008,
+        "lo": -0.0012,
+        "value": -0.0002
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.287,
+        "lo": 0.2784,
+        "value": 0.2829
+       },
+       "placebo_spearman": {
+        "hi": 0.2927,
+        "lo": 0.2557,
+        "value": 0.2746
+       },
+       "rmse": 0.3589,
+       "spearman": {
+        "hi": 0.1639,
+        "lo": 0.125,
+        "value": 0.1453
+       },
+       "top_decile_lift": 1.2943
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0036,
+        "lo": -0.0063,
+        "value": -0.0049
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0008,
+        "lo": -0.0012,
+        "value": -0.0002
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.287,
+        "lo": 0.2784,
+        "value": 0.2829
+       },
+       "placebo_spearman": {
+        "hi": 0.291,
+        "lo": 0.2537,
+        "value": 0.2731
+       },
+       "rmse": 0.3591,
+       "spearman": {
+        "hi": 0.1659,
+        "lo": 0.1264,
+        "value": 0.1466
+       },
+       "top_decile_lift": 1.3405
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0031,
+        "lo": -0.0073,
+        "value": -0.0051
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0012,
+        "lo": -0.0021,
+        "value": -0.0004
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.2868,
+        "lo": 0.2782,
+        "value": 0.2827
+       },
+       "placebo_spearman": {
+        "hi": 0.2231,
+        "lo": 0.1854,
+        "value": 0.205
+       },
+       "rmse": 0.3551,
+       "spearman": {
+        "hi": 0.1632,
+        "lo": 0.1239,
+        "value": 0.1439
+       },
+       "top_decile_lift": 1.7465
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0057,
+        "lo": -0.0099,
+        "value": -0.0079
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0013,
+        "lo": -0.0051,
+        "value": -0.0032
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.2839,
+        "lo": 0.2757,
+        "value": 0.2799
+       },
+       "placebo_spearman": {
+        "hi": 0.2531,
+        "lo": 0.2161,
+        "value": 0.2352
+       },
+       "rmse": 0.3509,
+       "spearman": {
+        "hi": 0.1865,
+        "lo": 0.1473,
+        "value": 0.1667
+       },
+       "top_decile_lift": 1.8207
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0069,
+        "lo": -0.0109,
+        "value": -0.0089
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0024,
+        "lo": -0.0059,
+        "value": -0.0042
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.2829,
+        "lo": 0.2747,
+        "value": 0.2789
+       },
+       "placebo_spearman": {
+        "hi": 0.2688,
+        "lo": 0.2317,
+        "value": 0.2508
+       },
+       "rmse": 0.3493,
+       "spearman": {
+        "hi": 0.1949,
+        "lo": 0.1548,
+        "value": 0.1746
+       },
+       "top_decile_lift": 1.8131
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0036,
+        "lo": -0.0079,
+        "value": -0.0057
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0007,
+        "lo": -0.0026,
+        "value": -0.001
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.2862,
+        "lo": 0.2776,
+        "value": 0.2821
+       },
+       "placebo_spearman": {
+        "hi": 0.2186,
+        "lo": 0.1806,
+        "value": 0.2007
+       },
+       "rmse": 0.3543,
+       "spearman": {
+        "hi": 0.1638,
+        "lo": 0.1256,
+        "value": 0.144
+       },
+       "top_decile_lift": 1.7251
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0062,
+        "lo": -0.0103,
+        "value": -0.0083
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0017,
+        "lo": -0.0055,
+        "value": -0.0036
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2835,
+        "lo": 0.2753,
+        "value": 0.2795
+       },
+       "placebo_spearman": {
+        "hi": 0.2542,
+        "lo": 0.2169,
+        "value": 0.2361
+       },
+       "rmse": 0.3506,
+       "spearman": {
+        "hi": 0.1874,
+        "lo": 0.1485,
+        "value": 0.1675
+       },
+       "top_decile_lift": 1.8391
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0071,
+        "lo": -0.011,
+        "value": -0.0091
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0025,
+        "lo": -0.0062,
+        "value": -0.0044
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.2827,
+        "lo": 0.2746,
+        "value": 0.2787
+       },
+       "placebo_spearman": {
+        "hi": 0.2731,
+        "lo": 0.2357,
+        "value": 0.2548
+       },
+       "rmse": 0.3491,
+       "spearman": {
+        "hi": 0.1961,
+        "lo": 0.1572,
+        "value": 0.1767
+       },
+       "top_decile_lift": 1.8272
+      }
+     ],
+     "n_episodes": 9897,
+     "n_rows": 22864,
+     "period": "2024-01-02..2025-12-31",
+     "role": "pooled for the acceptance checks",
+     "title": "2024-2025 pooled"
+    },
+    {
+     "id": "live",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0154,
+        "lo": 0.0068,
+        "value": 0.0111
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.2682,
+        "lo": 0.2458,
+        "value": 0.2569
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.3119,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 0.8163
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0068,
+        "lo": -0.0154,
+        "value": -0.0111
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.2578,
+        "lo": 0.2342,
+        "value": 0.2458
+       },
+       "placebo_spearman": {
+        "hi": 0.1792,
+        "lo": 0.06,
+        "value": 0.1198
+       },
+       "rmse": 0.3053,
+       "spearman": {
+        "hi": 0.1293,
+        "lo": 0.0045,
+        "value": 0.0666
+       },
+       "top_decile_lift": 1.1513
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0029,
+        "lo": -0.0102,
+        "value": -0.0064
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0078,
+        "lo": 0.0015,
+        "value": 0.0046
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.2616,
+        "lo": 0.2394,
+        "value": 0.2505
+       },
+       "placebo_spearman": {
+        "hi": 0.2656,
+        "lo": 0.1483,
+        "value": 0.2067
+       },
+       "rmse": 0.3069,
+       "spearman": {
+        "hi": 0.1423,
+        "lo": 0.0251,
+        "value": 0.0844
+       },
+       "top_decile_lift": 1.1216
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0034,
+        "lo": -0.0114,
+        "value": -0.0073
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0068,
+        "lo": 0.0007,
+        "value": 0.0037
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.2608,
+        "lo": 0.2387,
+        "value": 0.2496
+       },
+       "placebo_spearman": {
+        "hi": 0.2463,
+        "lo": 0.1336,
+        "value": 0.1896
+       },
+       "rmse": 0.3065,
+       "spearman": {
+        "hi": 0.1338,
+        "lo": 0.0167,
+        "value": 0.0754
+       },
+       "top_decile_lift": 1.187
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0078,
+        "lo": -0.0177,
+        "value": -0.0127
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.001,
+        "lo": -0.0043,
+        "value": -0.0017
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.256,
+        "lo": 0.2325,
+        "value": 0.2442
+       },
+       "placebo_spearman": {
+        "hi": 0.199,
+        "lo": 0.0792,
+        "value": 0.1393
+       },
+       "rmse": 0.3032,
+       "spearman": {
+        "hi": 0.1133,
+        "lo": -0.0138,
+        "value": 0.0486
+       },
+       "top_decile_lift": 1.3113
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0084,
+        "lo": -0.0176,
+        "value": -0.0129
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0018,
+        "lo": -0.0056,
+        "value": -0.0018
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.2554,
+        "lo": 0.2329,
+        "value": 0.244
+       },
+       "placebo_spearman": {
+        "hi": 0.2599,
+        "lo": 0.1484,
+        "value": 0.2045
+       },
+       "rmse": 0.2998,
+       "spearman": {
+        "hi": 0.1429,
+        "lo": 0.0232,
+        "value": 0.082
+       },
+       "top_decile_lift": 1.4582
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0094,
+        "lo": -0.0177,
+        "value": -0.0135
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.001,
+        "lo": -0.0059,
+        "value": -0.0024
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.2547,
+        "lo": 0.2321,
+        "value": 0.2434
+       },
+       "placebo_spearman": {
+        "hi": 0.2501,
+        "lo": 0.1359,
+        "value": 0.1935
+       },
+       "rmse": 0.2993,
+       "spearman": {
+        "hi": 0.1387,
+        "lo": 0.0186,
+        "value": 0.0781
+       },
+       "top_decile_lift": 1.5561
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0074,
+        "lo": -0.0173,
+        "value": -0.0123
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0014,
+        "lo": -0.004,
+        "value": -0.0013
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.2564,
+        "lo": 0.2331,
+        "value": 0.2446
+       },
+       "placebo_spearman": {
+        "hi": 0.1959,
+        "lo": 0.0732,
+        "value": 0.1348
+       },
+       "rmse": 0.3028,
+       "spearman": {
+        "hi": 0.1363,
+        "lo": 0.0116,
+        "value": 0.0728
+       },
+       "top_decile_lift": 1.3102
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0089,
+        "lo": -0.0179,
+        "value": -0.0134
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0013,
+        "lo": -0.006,
+        "value": -0.0023
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2547,
+        "lo": 0.2324,
+        "value": 0.2435
+       },
+       "placebo_spearman": {
+        "hi": 0.2668,
+        "lo": 0.156,
+        "value": 0.213
+       },
+       "rmse": 0.2991,
+       "spearman": {
+        "hi": 0.1606,
+        "lo": 0.0406,
+        "value": 0.1001
+       },
+       "top_decile_lift": 1.5204
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.009,
+        "lo": -0.0173,
+        "value": -0.0131
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0013,
+        "lo": -0.0056,
+        "value": -0.0021
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.2551,
+        "lo": 0.2325,
+        "value": 0.2438
+       },
+       "placebo_spearman": {
+        "hi": 0.2632,
+        "lo": 0.1484,
+        "value": 0.2064
+       },
+       "rmse": 0.2995,
+       "spearman": {
+        "hi": 0.1499,
+        "lo": 0.0326,
+        "value": 0.0909
+       },
+       "top_decile_lift": 1.5408
+      }
+     ],
+     "n_episodes": 963,
+     "n_rows": 16630,
+     "period": "2026-02-17..2026-09-30",
+     "role": "live-like news, noisy clocks",
+     "title": "2026 news, all timestamps (read once)"
+    },
+    {
+     "id": "live_reliable",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0185,
+        "lo": 0.008,
+        "value": 0.0134
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.2639,
+        "lo": 0.2386,
+        "value": 0.2522
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.3064,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 0.807
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.008,
+        "lo": -0.0185,
+        "value": -0.0134
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.2518,
+        "lo": 0.2255,
+        "value": 0.2388
+       },
+       "placebo_spearman": {
+        "hi": 0.1783,
+        "lo": 0.0403,
+        "value": 0.104
+       },
+       "rmse": 0.2995,
+       "spearman": {
+        "hi": 0.122,
+        "lo": -0.0142,
+        "value": 0.0514
+       },
+       "top_decile_lift": 1.0599
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0019,
+        "lo": -0.0108,
+        "value": -0.0063
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0105,
+        "lo": 0.0035,
+        "value": 0.0071
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.2585,
+        "lo": 0.2329,
+        "value": 0.2459
+       },
+       "placebo_spearman": {
+        "hi": 0.2701,
+        "lo": 0.1404,
+        "value": 0.2016
+       },
+       "rmse": 0.302,
+       "spearman": {
+        "hi": 0.1449,
+        "lo": -0.0007,
+        "value": 0.0702
+       },
+       "top_decile_lift": 1.1015
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0025,
+        "lo": -0.0124,
+        "value": -0.0073
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0095,
+        "lo": 0.0025,
+        "value": 0.006
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.2574,
+        "lo": 0.2319,
+        "value": 0.2448
+       },
+       "placebo_spearman": {
+        "hi": 0.2352,
+        "lo": 0.1083,
+        "value": 0.1695
+       },
+       "rmse": 0.3015,
+       "spearman": {
+        "hi": 0.1343,
+        "lo": -0.01,
+        "value": 0.0588
+       },
+       "top_decile_lift": 1.201
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0085,
+        "lo": -0.0213,
+        "value": -0.015
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0016,
+        "lo": -0.0048,
+        "value": -0.0016
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.2501,
+        "lo": 0.2245,
+        "value": 0.2372
+       },
+       "placebo_spearman": {
+        "hi": 0.1926,
+        "lo": 0.0508,
+        "value": 0.1197
+       },
+       "rmse": 0.2986,
+       "spearman": {
+        "hi": 0.0897,
+        "lo": -0.0471,
+        "value": 0.0196
+       },
+       "top_decile_lift": 1.306
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0075,
+        "lo": -0.0184,
+        "value": -0.013
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0048,
+        "lo": -0.0038,
+        "value": 0.0004
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.251,
+        "lo": 0.2267,
+        "value": 0.2392
+       },
+       "placebo_spearman": {
+        "hi": 0.2623,
+        "lo": 0.1312,
+        "value": 0.1943
+       },
+       "rmse": 0.2945,
+       "spearman": {
+        "hi": 0.1507,
+        "lo": 0.0021,
+        "value": 0.0761
+       },
+       "top_decile_lift": 1.4807
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0084,
+        "lo": -0.0181,
+        "value": -0.0132
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0041,
+        "lo": -0.0036,
+        "value": 0.0002
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.2506,
+        "lo": 0.2261,
+        "value": 0.2389
+       },
+       "placebo_spearman": {
+        "hi": 0.25,
+        "lo": 0.1116,
+        "value": 0.1784
+       },
+       "rmse": 0.2944,
+       "spearman": {
+        "hi": 0.137,
+        "lo": -0.007,
+        "value": 0.0638
+       },
+       "top_decile_lift": 1.6259
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0073,
+        "lo": -0.0197,
+        "value": -0.0135
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0034,
+        "lo": -0.0034,
+        "value": -0.0001
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.2516,
+        "lo": 0.2256,
+        "value": 0.2386
+       },
+       "placebo_spearman": {
+        "hi": 0.178,
+        "lo": 0.0422,
+        "value": 0.1081
+       },
+       "rmse": 0.2991,
+       "spearman": {
+        "hi": 0.0994,
+        "lo": -0.0367,
+        "value": 0.0322
+       },
+       "top_decile_lift": 1.3012
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0078,
+        "lo": -0.019,
+        "value": -0.0133
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0043,
+        "lo": -0.0041,
+        "value": 0.0001
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2507,
+        "lo": 0.2259,
+        "value": 0.2388
+       },
+       "placebo_spearman": {
+        "hi": 0.2683,
+        "lo": 0.132,
+        "value": 0.1969
+       },
+       "rmse": 0.2942,
+       "spearman": {
+        "hi": 0.1564,
+        "lo": 0.0126,
+        "value": 0.0838
+       },
+       "top_decile_lift": 1.483
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.008,
+        "lo": -0.0179,
+        "value": -0.0128
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0044,
+        "lo": -0.0035,
+        "value": 0.0006
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.2509,
+        "lo": 0.2263,
+        "value": 0.2393
+       },
+       "placebo_spearman": {
+        "hi": 0.2563,
+        "lo": 0.1184,
+        "value": 0.1848
+       },
+       "rmse": 0.2946,
+       "spearman": {
+        "hi": 0.15,
+        "lo": 0.005,
+        "value": 0.0753
+       },
+       "top_decile_lift": 1.5905
+      }
+     ],
+     "n_episodes": 743,
+     "n_rows": 6214,
+     "period": "2026-02-17..2026-09-30",
+     "role": "the news acceptance check",
+     "title": "2026 news, publisher timestamps outside trading hours"
+    }
+   ],
+   "features": [
+    "f_sigma_60",
+    "f_beta_market",
+    "f_beta_sector",
+    "f_ret_1d",
+    "f_ret_5d",
+    "f_ret_20d",
+    "f_mkt_ret_5d",
+    "f_sector_ret_5d",
+    "f_volume_ratio",
+    "f_resid_vol_5d_ratio",
+    "f_resid_vol_20d_ratio",
+    "f_vix_level",
+    "f_vix_chg_5d",
+    "link_confidence",
+    "novelty",
+    "dow",
+    "local_hour",
+    "is_news",
+    "t_pre_open",
+    "t_in_session",
+    "t_date_only",
+    "t_first_seen",
+    "earn_days_to_expected",
+    "earn_window",
+    "earn_days_since_last",
+    "f8k_hours_since_last",
+    "f8k_count_24h",
+    "f8k_earnings_24h",
+    "f8k_deal_24h",
+    "f8k_distress_24h",
+    "f8k_financing_24h",
+    "f8k_leadership_24h",
+    "fomc_s0",
+    "fomc_s1",
+    "ev_p_geopolitical",
+    "ev_p_macroeconomic",
+    "ev_p_credit_funding",
+    "ev_p_ma_corporate_action",
+    "ev_p_regulatory_legal",
+    "ev_p_product_operations",
+    "ev_p_earnings_financial_performance",
+    "ev_p_market_valuation",
+    "ev_p_none",
+    "sent_pos",
+    "sent_neg",
+    "sent_abs"
+   ],
+   "horizon": [
+    {
+     "spearman": {
+      "hi": 0.187,
+      "lo": 0.1503,
+      "value": 0.1688
+     },
+     "window_sessions": 1
+    },
+    {
+     "spearman": {
+      "hi": 0.1859,
+      "lo": 0.1483,
+      "value": 0.1675
+     },
+     "window_sessions": 2
+    },
+    {
+     "spearman": {
+      "hi": 0.1948,
+      "lo": 0.1568,
+      "value": 0.1759
+     },
+     "window_sessions": 3
+    }
+   ],
+   "ladder": [
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": null,
+      "lo": null,
+      "value": 0.0
+     },
+     "family": "constant",
+     "id": "R0-constant",
+     "n_features": 0,
+     "oof_mae": {
+      "hi": 0.3,
+      "lo": 0.2916,
+      "value": 0.2958
+     },
+     "oof_spearman": {
+      "hi": -0.006,
+      "lo": -0.0427,
+      "value": -0.0248
+     },
+     "params": {},
+     "rung": null,
+     "servable": false,
+     "verdict": "baseline: the training mean"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": -0.0021,
+      "lo": -0.0056,
+      "value": -0.0038
+     },
+     "family": "ridge",
+     "id": "R2-ridge",
+     "n_features": 22,
+     "oof_mae": {
+      "hi": 0.296,
+      "lo": 0.2878,
+      "value": 0.292
+     },
+     "oof_spearman": {
+      "hi": 0.1751,
+      "lo": 0.139,
+      "value": 0.1562
+     },
+     "params": {
+      "alpha": 100.0
+     },
+     "rung": "R2",
+     "servable": true,
+     "verdict": "adopted: beats R0-constant out of fold, interval entirely below zero"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0004,
+      "lo": -0.0026,
+      "value": -0.0011
+     },
+     "family": "hgb_additive",
+     "id": "R2-additive",
+     "n_features": 22,
+     "oof_mae": {
+      "hi": 0.295,
+      "lo": 0.2866,
+      "value": 0.2909
+     },
+     "oof_spearman": {
+      "hi": 0.1938,
+      "lo": 0.1584,
+      "value": 0.1751
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R2",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-ridge"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0,
+      "lo": -0.0028,
+      "value": -0.0014
+     },
+     "family": "hgb_full",
+     "id": "R2-full",
+     "n_features": 22,
+     "oof_mae": {
+      "hi": 0.2946,
+      "lo": 0.2863,
+      "value": 0.2906
+     },
+     "oof_spearman": {
+      "hi": 0.2008,
+      "lo": 0.1663,
+      "value": 0.1831
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R2",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-ridge"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": -0.0032,
+      "lo": -0.0067,
+      "value": -0.005
+     },
+     "family": "ridge",
+     "id": "R2s-ridge",
+     "n_features": 34,
+     "oof_mae": {
+      "hi": 0.2911,
+      "lo": 0.2828,
+      "value": 0.287
+     },
+     "oof_spearman": {
+      "hi": 0.2063,
+      "lo": 0.1699,
+      "value": 0.1873
+     },
+     "params": {
+      "alpha": 100.0
+     },
+     "rung": "R2s",
+     "servable": true,
+     "verdict": "adopted: beats R2-ridge out of fold, interval entirely below zero"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": -0.0012,
+      "lo": -0.0044,
+      "value": -0.0027
+     },
+     "family": "hgb_additive",
+     "id": "R2s-additive",
+     "n_features": 34,
+     "oof_mae": {
+      "hi": 0.2881,
+      "lo": 0.2802,
+      "value": 0.2842
+     },
+     "oof_spearman": {
+      "hi": 0.2269,
+      "lo": 0.1902,
+      "value": 0.2084
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 250,
+      "min_samples_leaf": 60
+     },
+     "rung": "R2s",
+     "servable": true,
+     "verdict": "adopted: beats R2s-ridge out of fold, interval entirely below zero"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0005,
+      "lo": -0.001,
+      "value": -0.0002
+     },
+     "family": "hgb_full",
+     "id": "R2s-full",
+     "n_features": 34,
+     "oof_mae": {
+      "hi": 0.2879,
+      "lo": 0.28,
+      "value": 0.284
+     },
+     "oof_spearman": {
+      "hi": 0.2297,
+      "lo": 0.1937,
+      "value": 0.2115
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 3,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R2s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2s-additive"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0035,
+      "lo": 0.0003,
+      "value": 0.0019
+     },
+     "family": "ridge",
+     "id": "R3s-ridge",
+     "n_features": 46,
+     "oof_mae": {
+      "hi": 0.2902,
+      "lo": 0.282,
+      "value": 0.2861
+     },
+     "oof_spearman": {
+      "hi": 0.2096,
+      "lo": 0.1733,
+      "value": 0.1909
+     },
+     "params": {
+      "alpha": 100.0
+     },
+     "rung": "R3s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2s-additive"
+    },
+    {
+     "chosen": true,
+     "delta_mae_vs_previous_choice": {
+      "hi": -0.0003,
+      "lo": -0.0009,
+      "value": -0.0006
+     },
+     "family": "hgb_additive",
+     "id": "R3s-additive",
+     "n_features": 46,
+     "oof_mae": {
+      "hi": 0.2875,
+      "lo": 0.2796,
+      "value": 0.2836
+     },
+     "oof_spearman": {
+      "hi": 0.23,
+      "lo": 0.1931,
+      "value": 0.2112
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 250,
+      "min_samples_leaf": 60
+     },
+     "rung": "R3s",
+     "servable": true,
+     "verdict": "adopted: beats R2s-additive out of fold, interval entirely below zero"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0007,
+      "lo": -0.0009,
+      "value": -0.0001
+     },
+     "family": "hgb_full",
+     "id": "R3s-full",
+     "n_features": 46,
+     "oof_mae": {
+      "hi": 0.2875,
+      "lo": 0.2795,
+      "value": 0.2836
+     },
+     "oof_spearman": {
+      "hi": 0.2321,
+      "lo": 0.196,
+      "value": 0.2137
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 3,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R3s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R3s-additive"
+    }
+   ],
+   "leakage_findings": [
+    "[INFO] feature_availability: all features are registered event-time features",
+    "[INFO] group_straddle: no episode spans two splits (25238 groups)",
+    "[INFO] time_order: splits are time ordered with the embargo respected: train 2015-01-02..2023-12-21, val 2024-01-02..2024-12-23, test 2025-01-02..2025-12-31, live 2026-02-17..2026-09-30",
+    "[INFO] rolling_folds: 14 rolling-origin folds: every fold trains >= 5 sessions before its test period; no episode straddles",
+    "[INFO] fit_invariance: refit with val/test/live labels scrambled gives bit-identical predictions"
+   ],
+   "lifecycle": "CALIBRATED",
+   "limitations": [
+    "Held-out evidence is two calendar years of GDELT news titles (2024 val, 2025 test) plus 2026 news, a deterministic six-slots-a-day sample of GDELT (about 6% of the flow), titles only. Far larger than impact-v1's 2022 hold-out, but still one regime; it says nothing about a crisis year it never saw.",
+    "Most of what the model predicts is the volatility regime: it predicts the window BEFORE the event better than the window after it (check C7). The event-specific part is the structured calendar (mainly: an earnings release is expected, or an earnings 8-K was just filed), worth about two percent of the error; the text-model outputs add nothing measurable once the calendar is known.",
+    "The target is a coincident market-response proxy: coverage is partly a reaction to a move, so this is not a clean forecast.",
+    "34 current large caps: severity is calibrated for them and does not transfer to small or distressed issuers (survivorship).",
+    "The calendar is read from SEC EDGAR acceptance times and the Federal Reserve's published meeting dates: scheduled-meeting dates are announced ahead, but they were read from a 2026 snapshot. An earnings date is inferred from the issuer's own earlier filings, not from an announced date.",
+    "Consensus earnings estimates are not free data, so the realised earnings surprise is never an input; only whether and when earnings are expected.",
+    "Checks C9-C11 are computed at the episode level by the evidence study; the other checks are computed here at the level the model serves. A scope that fails any check is experimental."
+   ],
+   "scope": "ISSUER",
+   "selected_id": "R3s-additive",
+   "served": true,
+   "strata": [
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2548,
+     "mae_model": 0.2514,
+     "n_episodes": 97,
+     "spearman": {
+      "hi": 0.3222,
+      "lo": -0.0644,
+      "value": 0.1405
+     },
+     "value": "CREDIT_FUNDING"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.4135,
+     "mae_model": 0.3603,
+     "n_episodes": 287,
+     "spearman": {
+      "hi": 0.5019,
+      "lo": 0.3019,
+      "value": 0.4071
+     },
+     "value": "EARNINGS_FINANCIAL_PERFORMANCE"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.3206,
+     "mae_model": 0.3048,
+     "n_episodes": 230,
+     "spearman": {
+      "hi": 0.3783,
+      "lo": 0.1163,
+      "value": 0.253
+     },
+     "value": "GEOPOLITICAL"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.3204,
+     "mae_model": 0.2872,
+     "n_episodes": 157,
+     "spearman": {
+      "hi": 0.5108,
+      "lo": 0.1956,
+      "value": 0.3618
+     },
+     "value": "MACROECONOMIC"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2922,
+     "mae_model": 0.2852,
+     "n_episodes": 3847,
+     "spearman": {
+      "hi": 0.2055,
+      "lo": 0.1421,
+      "value": 0.174
+     },
+     "value": "MARKET_VALUATION"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2816,
+     "mae_model": 0.2748,
+     "n_episodes": 2205,
+     "spearman": {
+      "hi": 0.2064,
+      "lo": 0.1222,
+      "value": 0.1642
+     },
+     "value": "MA_CORPORATE_ACTION"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2876,
+     "mae_model": 0.2784,
+     "n_episodes": 6079,
+     "spearman": {
+      "hi": 0.1905,
+      "lo": 0.1423,
+      "value": 0.1666
+     },
+     "value": "PRODUCT_OPERATIONS"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2868,
+     "mae_model": 0.2742,
+     "n_episodes": 1574,
+     "spearman": {
+      "hi": 0.2392,
+      "lo": 0.1432,
+      "value": 0.1955
+     },
+     "value": "REGULATORY_LEGAL"
+    },
+    {
+     "dimension": "event status",
+     "mae_constant": 0.2896,
+     "mae_model": 0.2815,
+     "n_episodes": 4714,
+     "spearman": {
+      "hi": 0.1824,
+      "lo": 0.1237,
+      "value": 0.1523
+     },
+     "value": "CLASSIFIED"
+    },
+    {
+     "dimension": "event status",
+     "mae_constant": 0.2887,
+     "mae_model": 0.2788,
+     "n_episodes": 6220,
+     "spearman": {
+      "hi": 0.211,
+      "lo": 0.1659,
+      "value": 0.1873
+     },
+     "value": "NO_EVENT"
+    },
+    {
+     "dimension": "event status",
+     "mae_constant": 0.2897,
+     "mae_model": 0.2788,
+     "n_episodes": 4171,
+     "spearman": {
+      "hi": 0.2394,
+      "lo": 0.1775,
+      "value": 0.2083
+     },
+     "value": "UNCERTAIN"
+    },
+    {
+     "dimension": "timestamp quality",
+     "mae_constant": 0.2876,
+     "mae_model": 0.2795,
+     "n_episodes": 7747,
+     "spearman": {
+      "hi": 0.1939,
+      "lo": 0.1478,
+      "value": 0.1711
+     },
+     "value": "FIRST_SEEN"
+    },
+    {
+     "dimension": "timestamp quality",
+     "mae_constant": 0.2896,
+     "mae_model": 0.2789,
+     "n_episodes": 2853,
+     "spearman": {
+      "hi": 0.2212,
+      "lo": 0.1452,
+      "value": 0.1855
+     },
+     "value": "IN_SESSION"
+    },
+    {
+     "dimension": "timestamp quality",
+     "mae_constant": 0.2884,
+     "mae_model": 0.2814,
+     "n_episodes": 2443,
+     "spearman": {
+      "hi": 0.1989,
+      "lo": 0.1215,
+      "value": 0.159
+     },
+     "value": "OFF_HOURS"
+    },
+    {
+     "dimension": "timestamp quality",
+     "mae_constant": 0.2938,
+     "mae_model": 0.2821,
+     "n_episodes": 2217,
+     "spearman": {
+      "hi": 0.2318,
+      "lo": 0.1515,
+      "value": 0.1943
+     },
+     "value": "PRE_OPEN"
+    },
+    {
+     "dimension": "source",
+     "mae_constant": 0.2878,
+     "mae_model": 0.2795,
+     "n_episodes": 9897,
+     "spearman": {
+      "hi": 0.1871,
+      "lo": 0.1485,
+      "value": 0.1675
+     },
+     "value": "gdelt-gkg"
+    },
+    {
+     "dimension": "magnitude (by outcome)",
+     "mae_constant": 0.2193,
+     "mae_model": 0.2159,
+     "n_episodes": 7102,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": null
+     },
+     "value": "realised score 1-2"
+    },
+    {
+     "dimension": "magnitude (by outcome)",
+     "mae_constant": 0.3373,
+     "mae_model": 0.341,
+     "n_episodes": 2114,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": null
+     },
+     "value": "realised score 3-4"
+    },
+    {
+     "dimension": "magnitude (by outcome)",
+     "mae_constant": 0.695,
+     "mae_model": 0.6474,
+     "n_episodes": 435,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": null
+     },
+     "value": "realised score 5-6"
+    },
+    {
+     "dimension": "magnitude (by outcome)",
+     "mae_constant": 1.1213,
+     "mae_model": 0.9365,
+     "n_episodes": 246,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": null
+     },
+     "value": "realised score 7-10"
+    },
+    {
+     "dimension": "issuer (macro average)",
+     "mae_constant": null,
+     "mae_model": null,
+     "n_episodes": 34,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": 0.1595
+     },
+     "value": "mean of 34 issuers"
+    }
+   ],
+   "summary": "CALIBRATED: R3s-additive selected out of fold. Held-out rank skill +0.17 (95% interval +0.15 to +0.19). Acceptance: passed C1, C2, C3, C4, C6, C8, C9, C10, C11; failed C5, C7; not evaluable none.",
+   "target": "log1p(|z|): two-session abnormal return over its trailing sigma",
+   "training": {
+    "config_sha256": "59f2af5b33da50ff4fb331851d9c2d4b851a33b6684d34df94abf42fdb333b8f",
+    "episodes": {
+     "live": 963,
+     "test": 4636,
+     "train": 14378,
+     "val": 5261
+    },
+    "excluded": {},
+    "folds": "14 rolling-origin folds of 6 months from 2017-01-01, embargo 5 sessions",
+    "rows": {
+     "live": 16630,
+     "test": 10422,
+     "train": 96933,
+     "val": 12442
+    },
+    "seed": 20261010,
+    "table_sha256": "140c5266d3508630b0af943e22f3561dbbeb3598ef6c22e102ef5fcc30104b14",
+    "train_period": "2015-01-02..2023-12-21"
+   }
+  },
+  {
+   "acceptance": {
+    "checks": [
+     {
+      "detail": "Spearman of prediction vs realised |z|; pass if the 95% interval's lower bound > 0.0",
+      "id": "C1",
+      "label": "Rank skill on held-out episodes (val+test)",
+      "passed": true,
+      "value": "+0.351 [+0.266, +0.434]"
+     },
+     {
+      "detail": "paired difference in log-severity MAE; pass if the 95% interval's upper bound < 0",
+      "id": "C2",
+      "label": "Error vs the constant baseline (val+test)",
+      "passed": true,
+      "value": "-0.023 [-0.033, -0.014]"
+     },
+     {
+      "detail": "point difference in log-severity MAE <= 0.002 on each of val and test (R2-ridge)",
+      "id": "C3",
+      "label": "Not worse than the market-state linear model",
+      "passed": true,
+      "value": "val -0.010 [-0.019, -0.001]; test -0.006 [-0.015, +0.003]"
+     },
+     {
+      "detail": "Spearman of bucket order vs bucket median |z| >= 0.8 (needs >= 4 buckets of >= 10 episodes)",
+      "id": "C4",
+      "label": "Score buckets ordered by realised severity (val+test)",
+      "passed": null,
+      "value": "n/a"
+     },
+     {
+      "detail": "covered share within 0.1 of nominal",
+      "id": "C5",
+      "label": "Realised-score interval coverage (val+test)",
+      "passed": false,
+      "value": "0.95 (nominal 0.80)"
+     },
+     {
+      "detail": "feature registry, group straddle, time order + embargo, rolling folds, fit invariance",
+      "id": "C6",
+      "label": "Leakage suite clean",
+      "passed": true,
+      "value": "4 checks"
+     },
+     {
+      "detail": "skill that also predicts the window before the event is market state, not the event",
+      "id": "C7",
+      "label": "More skill on the real window than on the pre-event placebo (val+test)",
+      "passed": true,
+      "value": "+0.047 (real +0.351, placebo +0.304)"
+     },
+     {
+      "detail": "the served documents are news with first-seen or publisher clocks, unlike the 2022 tweets",
+      "id": "C8",
+      "label": "Rank skill on 2026 news with publisher timestamps",
+      "passed": null,
+      "value": "n/a (35 episodes, need 100)"
+     },
+     {
+      "detail": "from the episode-level evidence study (docs/evidence/impact_study.json; its selected model R2-additive, this artifact's R2-additive): Spearman after removing the issuer x volatility-bucket regime from prediction and outcome; pass if the lower bound > 0",
+      "id": "C9",
+      "label": "Regime-neutral rank skill (test)",
+      "passed": true,
+      "value": "+0.288 [+0.160, +0.406] (n=249)"
+     },
+     {
+      "detail": "from the episode-level evidence study (docs/evidence/impact_study.json; its selected model R2-additive, this artifact's R2-additive): paired log-severity MAE difference; pass if the upper bound is below 0 on test and on live",
+      "id": "C10",
+      "label": "Block increment over market state (R3s-additive vs R2-full)",
+      "passed": false,
+      "value": "test -0.0023 [-0.0073, +0.0023]; live +0.0127 [+0.0051, +0.0202]"
+     },
+     {
+      "detail": "from the episode-level evidence study (docs/evidence/impact_study.json; its selected model R2-additive, this artifact's R2-additive): share of years (>= 100 episodes) where the block's point difference is below zero; pass if >= 0.75",
+      "id": "C11",
+      "label": "The block helps in most calendar years",
+      "passed": false,
+      "value": "4/6 years (0.67)"
+     }
+    ],
+    "met": false,
+    "rule": "Pre-registered in configs/impact_model.yaml before the first held-out run. PRODUCTION needs every check to pass: C1 rank skill above zero (val+test, 95% interval); C2 lower log-severity error than the constant (paired interval below zero); C3 not worse than the market-state-only linear model on val and on test; C4 predicted-score buckets ordered by realised severity; C5 the served realised-score interval covers close to its nominal share; C6 the leakage suite is clean; C7 more skill on the real window than on the pre-event placebo window; C8 skill on news (2026, publisher timestamps). A check that cannot be evaluated is not a pass."
+   },
+   "algorithm": "additive gradient boosting (one feature per interaction group) on log1p(|z|); params {'l2_regularization': 10.0, 'learning_rate': 0.05, 'max_depth': 2, 'max_iter': 100, 'min_samples_leaf': 60}",
+   "attribution": {
+    "exact": true,
+    "kind": "additive",
+    "max_abs_error": 1.11e-15,
+    "units": "ln(1 + |z|): baseline + contributions = prediction"
+   },
+   "calibration": {
+    "base_rate_extreme": 0.0162,
+    "bins_heldout": [
+     {
+      "n_episodes": 139,
+      "p_extreme": {
+       "hi": 0.0396,
+       "lo": 0.0013,
+       "value": 0.0072
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 3,
+      "score_high": 1,
+      "score_low": 1,
+      "severity_q10": 0.062,
+      "severity_q50": 0.36,
+      "severity_q90": 1.091
+     },
+     {
+      "n_episodes": 175,
+      "p_extreme": {
+       "hi": 0.0407,
+       "lo": 0.0031,
+       "value": 0.0114
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 3,
+      "score_high": 2,
+      "score_low": 2,
+      "severity_q10": 0.102,
+      "severity_q50": 0.525,
+      "severity_q90": 1.347
+     },
+     {
+      "n_episodes": 182,
+      "p_extreme": {
+       "hi": 0.0913,
+       "lo": 0.0262,
+       "value": 0.0495
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 5,
+      "score_high": 10,
+      "score_low": 3,
+      "severity_q10": 0.126,
+      "severity_q50": 0.918,
+      "severity_q90": 2.196
+     }
+    ],
+    "bins_reference": [
+     {
+      "n_episodes": 300,
+      "p_extreme": {
+       "hi": 0.0126,
+       "lo": 0.0,
+       "value": 0.0
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 3,
+      "score_high": 1,
+      "score_low": 1,
+      "severity_q10": 0.102,
+      "severity_q50": 0.487,
+      "severity_q90": 1.255
+     },
+     {
+      "n_episodes": 212,
+      "p_extreme": {
+       "hi": 0.0262,
+       "lo": 0.0008,
+       "value": 0.0047
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 4,
+      "score_high": 2,
+      "score_low": 2,
+      "severity_q10": 0.115,
+      "severity_q50": 0.667,
+      "severity_q90": 1.693
+     },
+     {
+      "n_episodes": 228,
+      "p_extreme": {
+       "hi": 0.0843,
+       "lo": 0.0271,
+       "value": 0.0482
+      },
+      "realised_score_q10": 1,
+      "realised_score_q90": 5,
+      "score_high": 10,
+      "score_low": 3,
+      "severity_q10": 0.191,
+      "severity_q50": 0.939,
+      "severity_q90": 2.209
+     }
+    ],
+    "extreme_brier": 0.02327,
+    "extreme_brier_base_rate": 0.02367,
+    "extreme_score": 7,
+    "heldout_coverage": {
+     "hi": 0.964,
+     "lo": 0.924,
+     "value": 0.948
+    },
+    "method": "rank-calibrated: prediction -> percentile of the out-of-fold training predictions -> |z| at the same percentile of the realised severity distribution -> the target's own fixed cut points; interval = what comparable out-of-fold events realised",
+    "monotonicity_spearman": null,
+    "nominal_coverage": 0.8,
+    "reference_episodes": 740,
+    "reference_period": "2019-07-01..2023-12-21"
+   },
+   "direction": null,
+   "evaluations": [
+    {
+     "id": "oof",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0078,
+        "lo": -0.0186,
+        "value": -0.0044
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.2969,
+        "lo": 0.2666,
+        "value": 0.2818
+       },
+       "placebo_spearman": {
+        "hi": 0.0614,
+        "lo": -0.0815,
+        "value": -0.0118
+       },
+       "rmse": 0.3502,
+       "spearman": {
+        "hi": 0.0815,
+        "lo": -0.0682,
+        "value": 0.0072
+       },
+       "top_decile_lift": 0.8874
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0186,
+        "lo": -0.0078,
+        "value": 0.0044
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.3022,
+        "lo": 0.2701,
+        "value": 0.2862
+       },
+       "placebo_spearman": {
+        "hi": 0.3941,
+        "lo": 0.2575,
+        "value": 0.3301
+       },
+       "rmse": 0.3632,
+       "spearman": {
+        "hi": 0.3951,
+        "lo": 0.2675,
+        "value": 0.3323
+       },
+       "top_decile_lift": 1.5188
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0097,
+        "lo": -0.0265,
+        "value": -0.0181
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0124,
+        "lo": -0.0348,
+        "value": -0.0225
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.2777,
+        "lo": 0.2498,
+        "value": 0.2637
+       },
+       "placebo_spearman": {
+        "hi": 0.4167,
+        "lo": 0.2832,
+        "value": 0.3528
+       },
+       "rmse": 0.3291,
+       "spearman": {
+        "hi": 0.3882,
+        "lo": 0.261,
+        "value": 0.3269
+       },
+       "top_decile_lift": 1.5537
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0095,
+        "lo": -0.028,
+        "value": -0.0186
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0125,
+        "lo": -0.0357,
+        "value": -0.023
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.278,
+        "lo": 0.2501,
+        "value": 0.2632
+       },
+       "placebo_spearman": {
+        "hi": 0.4234,
+        "lo": 0.2872,
+        "value": 0.3588
+       },
+       "rmse": 0.33,
+       "spearman": {
+        "hi": 0.3875,
+        "lo": 0.2593,
+        "value": 0.3251
+       },
+       "top_decile_lift": 1.5079
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0184,
+        "lo": -0.008,
+        "value": 0.0042
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0008,
+        "lo": -0.0014,
+        "value": -0.0002
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.3022,
+        "lo": 0.2698,
+        "value": 0.286
+       },
+       "placebo_spearman": {
+        "hi": 0.3919,
+        "lo": 0.2506,
+        "value": 0.3266
+       },
+       "rmse": 0.3632,
+       "spearman": {
+        "hi": 0.3981,
+        "lo": 0.2732,
+        "value": 0.3377
+       },
+       "top_decile_lift": 1.5368
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0097,
+        "lo": -0.0265,
+        "value": -0.0181
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0124,
+        "lo": -0.0348,
+        "value": -0.0225
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.2777,
+        "lo": 0.2498,
+        "value": 0.2637
+       },
+       "placebo_spearman": {
+        "hi": 0.4167,
+        "lo": 0.2832,
+        "value": 0.3528
+       },
+       "rmse": 0.3291,
+       "spearman": {
+        "hi": 0.3882,
+        "lo": 0.261,
+        "value": 0.3269
+       },
+       "top_decile_lift": 1.5537
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0095,
+        "lo": -0.028,
+        "value": -0.0186
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0125,
+        "lo": -0.0357,
+        "value": -0.023
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.278,
+        "lo": 0.2501,
+        "value": 0.2632
+       },
+       "placebo_spearman": {
+        "hi": 0.4234,
+        "lo": 0.2872,
+        "value": 0.3588
+       },
+       "rmse": 0.33,
+       "spearman": {
+        "hi": 0.3875,
+        "lo": 0.2593,
+        "value": 0.3251
+       },
+       "top_decile_lift": 1.5079
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0176,
+        "lo": -0.0084,
+        "value": 0.0036
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.001,
+        "lo": -0.0027,
+        "value": -0.0008
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.302,
+        "lo": 0.2696,
+        "value": 0.2854
+       },
+       "placebo_spearman": {
+        "hi": 0.4073,
+        "lo": 0.2671,
+        "value": 0.343
+       },
+       "rmse": 0.3618,
+       "spearman": {
+        "hi": 0.403,
+        "lo": 0.2803,
+        "value": 0.3433
+       },
+       "top_decile_lift": 1.5419
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0097,
+        "lo": -0.0284,
+        "value": -0.0189
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0128,
+        "lo": -0.0362,
+        "value": -0.0233
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2779,
+        "lo": 0.249,
+        "value": 0.2629
+       },
+       "placebo_spearman": {
+        "hi": 0.4261,
+        "lo": 0.2935,
+        "value": 0.3643
+       },
+       "rmse": 0.3287,
+       "spearman": {
+        "hi": 0.392,
+        "lo": 0.2664,
+        "value": 0.331
+       },
+       "top_decile_lift": 1.4225
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0088,
+        "lo": -0.0276,
+        "value": -0.0182
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0122,
+        "lo": -0.0351,
+        "value": -0.0226
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.2783,
+        "lo": 0.2502,
+        "value": 0.2636
+       },
+       "placebo_spearman": {
+        "hi": 0.433,
+        "lo": 0.2987,
+        "value": 0.3684
+       },
+       "rmse": 0.3302,
+       "spearman": {
+        "hi": 0.3886,
+        "lo": 0.2578,
+        "value": 0.3236
+       },
+       "top_decile_lift": 1.5645
+      }
+     ],
+     "n_episodes": 740,
+     "n_rows": 3291,
+     "period": "2019-07-01..2023-12-21",
+     "role": "selection and calibration reference",
+     "title": "Rolling-origin out-of-fold, training period"
+    },
+    {
+     "id": "val",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0171,
+        "lo": -0.007,
+        "value": 0.0055
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.3197,
+        "lo": 0.2664,
+        "value": 0.2921
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.3628,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 0.9949
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.007,
+        "lo": -0.0171,
+        "value": -0.0055
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.3151,
+        "lo": 0.2619,
+        "value": 0.2866
+       },
+       "placebo_spearman": {
+        "hi": 0.3771,
+        "lo": 0.1403,
+        "value": 0.2657
+       },
+       "rmse": 0.3556,
+       "spearman": {
+        "hi": 0.4329,
+        "lo": 0.2055,
+        "value": 0.3177
+       },
+       "top_decile_lift": 1.6846
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0031,
+        "lo": -0.0266,
+        "value": -0.015
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.001,
+        "lo": -0.0188,
+        "value": -0.0096
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.3054,
+        "lo": 0.2512,
+        "value": 0.2771
+       },
+       "placebo_spearman": {
+        "hi": 0.3227,
+        "lo": 0.0849,
+        "value": 0.2049
+       },
+       "rmse": 0.3496,
+       "spearman": {
+        "hi": 0.3914,
+        "lo": 0.1536,
+        "value": 0.2747
+       },
+       "top_decile_lift": 1.2561
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0028,
+        "lo": -0.0255,
+        "value": -0.0144
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0016,
+        "lo": -0.0168,
+        "value": -0.009
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.3057,
+        "lo": 0.2526,
+        "value": 0.2777
+       },
+       "placebo_spearman": {
+        "hi": 0.3248,
+        "lo": 0.0799,
+        "value": 0.2055
+       },
+       "rmse": 0.3477,
+       "spearman": {
+        "hi": 0.4194,
+        "lo": 0.1861,
+        "value": 0.3049
+       },
+       "top_decile_lift": 1.8733
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0071,
+        "lo": -0.018,
+        "value": -0.0058
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0021,
+        "lo": -0.003,
+        "value": -0.0003
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.3151,
+        "lo": 0.2614,
+        "value": 0.2863
+       },
+       "placebo_spearman": {
+        "hi": 0.3585,
+        "lo": 0.1246,
+        "value": 0.247
+       },
+       "rmse": 0.3556,
+       "spearman": {
+        "hi": 0.4403,
+        "lo": 0.2215,
+        "value": 0.3283
+       },
+       "top_decile_lift": 1.5467
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0031,
+        "lo": -0.0266,
+        "value": -0.015
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.001,
+        "lo": -0.0188,
+        "value": -0.0096
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.3054,
+        "lo": 0.2512,
+        "value": 0.2771
+       },
+       "placebo_spearman": {
+        "hi": 0.3227,
+        "lo": 0.0849,
+        "value": 0.2049
+       },
+       "rmse": 0.3496,
+       "spearman": {
+        "hi": 0.3914,
+        "lo": 0.1536,
+        "value": 0.2747
+       },
+       "top_decile_lift": 1.2561
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0031,
+        "lo": -0.026,
+        "value": -0.015
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0022,
+        "lo": -0.0171,
+        "value": -0.0096
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.3048,
+        "lo": 0.2519,
+        "value": 0.2771
+       },
+       "placebo_spearman": {
+        "hi": 0.3209,
+        "lo": 0.0771,
+        "value": 0.2015
+       },
+       "rmse": 0.3474,
+       "spearman": {
+        "hi": 0.43,
+        "lo": 0.1977,
+        "value": 0.3151
+       },
+       "top_decile_lift": 1.8768
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0052,
+        "lo": -0.019,
+        "value": -0.0073
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.001,
+        "lo": -0.0047,
+        "value": -0.0019
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.3133,
+        "lo": 0.2606,
+        "value": 0.2848
+       },
+       "placebo_spearman": {
+        "hi": 0.3529,
+        "lo": 0.1132,
+        "value": 0.2419
+       },
+       "rmse": 0.3542,
+       "spearman": {
+        "hi": 0.4505,
+        "lo": 0.2283,
+        "value": 0.3382
+       },
+       "top_decile_lift": 1.5226
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0043,
+        "lo": -0.0293,
+        "value": -0.0172
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.003,
+        "lo": -0.0206,
+        "value": -0.0118
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.3039,
+        "lo": 0.2498,
+        "value": 0.2749
+       },
+       "placebo_spearman": {
+        "hi": 0.296,
+        "lo": 0.048,
+        "value": 0.1741
+       },
+       "rmse": 0.3463,
+       "spearman": {
+        "hi": 0.4201,
+        "lo": 0.1841,
+        "value": 0.3066
+       },
+       "top_decile_lift": 1.6743
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0036,
+        "lo": -0.0258,
+        "value": -0.015
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0025,
+        "lo": -0.0169,
+        "value": -0.0095
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.305,
+        "lo": 0.2523,
+        "value": 0.2771
+       },
+       "placebo_spearman": {
+        "hi": 0.3341,
+        "lo": 0.0886,
+        "value": 0.2149
+       },
+       "rmse": 0.3474,
+       "spearman": {
+        "hi": 0.4341,
+        "lo": 0.2038,
+        "value": 0.3225
+       },
+       "top_decile_lift": 1.5568
+      }
+     ],
+     "n_episodes": 247,
+     "n_rows": 1077,
+     "period": "2024-01-02..2024-12-23",
+     "role": "checkpoint: read to choose nothing",
+     "title": "2024, GKG news (checkpoint)"
+    },
+    {
+     "id": "test",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0413,
+        "lo": 0.0076,
+        "value": 0.025
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.3083,
+        "lo": 0.2572,
+        "value": 0.2826
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.3492,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 1.0443
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0076,
+        "lo": -0.0413,
+        "value": -0.025
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.2819,
+        "lo": 0.2352,
+        "value": 0.2576
+       },
+       "placebo_spearman": {
+        "hi": 0.5361,
+        "lo": 0.319,
+        "value": 0.436
+       },
+       "rmse": 0.3175,
+       "spearman": {
+        "hi": 0.5236,
+        "lo": 0.3069,
+        "value": 0.4211
+       },
+       "top_decile_lift": 1.7854
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0164,
+        "lo": -0.0445,
+        "value": -0.0307
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0031,
+        "lo": -0.0148,
+        "value": -0.0057
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.2763,
+        "lo": 0.2287,
+        "value": 0.2519
+       },
+       "placebo_spearman": {
+        "hi": 0.4945,
+        "lo": 0.2701,
+        "value": 0.3882
+       },
+       "rmse": 0.3175,
+       "spearman": {
+        "hi": 0.5208,
+        "lo": 0.3007,
+        "value": 0.4169
+       },
+       "top_decile_lift": 1.7201
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0143,
+        "lo": -0.0441,
+        "value": -0.0293
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0037,
+        "lo": -0.0123,
+        "value": -0.0043
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.2776,
+        "lo": 0.2296,
+        "value": 0.2533
+       },
+       "placebo_spearman": {
+        "hi": 0.4952,
+        "lo": 0.2634,
+        "value": 0.3807
+       },
+       "rmse": 0.3185,
+       "spearman": {
+        "hi": 0.5264,
+        "lo": 0.2972,
+        "value": 0.4169
+       },
+       "top_decile_lift": 1.6381
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0059,
+        "lo": -0.0404,
+        "value": -0.0236
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.004,
+        "lo": -0.001,
+        "value": 0.0014
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.2838,
+        "lo": 0.2372,
+        "value": 0.259
+       },
+       "placebo_spearman": {
+        "hi": 0.5259,
+        "lo": 0.3057,
+        "value": 0.424
+       },
+       "rmse": 0.319,
+       "spearman": {
+        "hi": 0.5099,
+        "lo": 0.2904,
+        "value": 0.4099
+       },
+       "top_decile_lift": 1.7578
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0164,
+        "lo": -0.0445,
+        "value": -0.0307
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0031,
+        "lo": -0.0148,
+        "value": -0.0057
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.2763,
+        "lo": 0.2287,
+        "value": 0.2519
+       },
+       "placebo_spearman": {
+        "hi": 0.4945,
+        "lo": 0.2701,
+        "value": 0.3882
+       },
+       "rmse": 0.3175,
+       "spearman": {
+        "hi": 0.5208,
+        "lo": 0.3007,
+        "value": 0.4169
+       },
+       "top_decile_lift": 1.7201
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0137,
+        "lo": -0.0434,
+        "value": -0.0286
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0045,
+        "lo": -0.0118,
+        "value": -0.0036
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.2786,
+        "lo": 0.2306,
+        "value": 0.254
+       },
+       "placebo_spearman": {
+        "hi": 0.4945,
+        "lo": 0.2634,
+        "value": 0.3828
+       },
+       "rmse": 0.3195,
+       "spearman": {
+        "hi": 0.5177,
+        "lo": 0.2921,
+        "value": 0.4113
+       },
+       "top_decile_lift": 1.8134
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0073,
+        "lo": -0.0415,
+        "value": -0.0248
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0033,
+        "lo": -0.0027,
+        "value": 0.0002
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.2823,
+        "lo": 0.2356,
+        "value": 0.2577
+       },
+       "placebo_spearman": {
+        "hi": 0.5216,
+        "lo": 0.3023,
+        "value": 0.4225
+       },
+       "rmse": 0.3183,
+       "spearman": {
+        "hi": 0.5141,
+        "lo": 0.2962,
+        "value": 0.4132
+       },
+       "top_decile_lift": 1.7578
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0146,
+        "lo": -0.0467,
+        "value": -0.0311
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0036,
+        "lo": -0.0146,
+        "value": -0.0061
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2766,
+        "lo": 0.2277,
+        "value": 0.2514
+       },
+       "placebo_spearman": {
+        "hi": 0.4873,
+        "lo": 0.255,
+        "value": 0.3727
+       },
+       "rmse": 0.3177,
+       "spearman": {
+        "hi": 0.5216,
+        "lo": 0.2998,
+        "value": 0.4157
+       },
+       "top_decile_lift": 1.6992
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0134,
+        "lo": -0.0432,
+        "value": -0.0285
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0048,
+        "lo": -0.0118,
+        "value": -0.0035
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.2787,
+        "lo": 0.231,
+        "value": 0.2541
+       },
+       "placebo_spearman": {
+        "hi": 0.4991,
+        "lo": 0.2727,
+        "value": 0.3898
+       },
+       "rmse": 0.3199,
+       "spearman": {
+        "hi": 0.5156,
+        "lo": 0.2862,
+        "value": 0.4076
+       },
+       "top_decile_lift": 1.8134
+      }
+     ],
+     "n_episodes": 249,
+     "n_rows": 1079,
+     "period": "2025-01-02..2025-12-31",
+     "role": "held-out test, scored once",
+     "title": "2025, GKG news (read once)"
+    },
+    {
+     "id": "val+test",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0261,
+        "lo": 0.0059,
+        "value": 0.0153
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.3054,
+        "lo": 0.2699,
+        "value": 0.2873
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.356,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 1.0156
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0059,
+        "lo": -0.0261,
+        "value": -0.0153
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.289,
+        "lo": 0.2556,
+        "value": 0.272
+       },
+       "placebo_spearman": {
+        "hi": 0.4403,
+        "lo": 0.2837,
+        "value": 0.3625
+       },
+       "rmse": 0.337,
+       "spearman": {
+        "hi": 0.4523,
+        "lo": 0.2928,
+        "value": 0.3736
+       },
+       "top_decile_lift": 1.6544
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0136,
+        "lo": -0.033,
+        "value": -0.0229
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0014,
+        "lo": -0.0136,
+        "value": -0.0076
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.2825,
+        "lo": 0.2479,
+        "value": 0.2644
+       },
+       "placebo_spearman": {
+        "hi": 0.3832,
+        "lo": 0.2206,
+        "value": 0.304
+       },
+       "rmse": 0.3338,
+       "spearman": {
+        "hi": 0.4344,
+        "lo": 0.2655,
+        "value": 0.3511
+       },
+       "top_decile_lift": 1.6209
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.013,
+        "lo": -0.0316,
+        "value": -0.0219
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0014,
+        "lo": -0.0119,
+        "value": -0.0066
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.283,
+        "lo": 0.249,
+        "value": 0.2654
+       },
+       "placebo_spearman": {
+        "hi": 0.3839,
+        "lo": 0.2169,
+        "value": 0.3
+       },
+       "rmse": 0.3334,
+       "spearman": {
+        "hi": 0.4482,
+        "lo": 0.283,
+        "value": 0.3651
+       },
+       "top_decile_lift": 1.6537
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0048,
+        "lo": -0.0254,
+        "value": -0.0147
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0024,
+        "lo": -0.001,
+        "value": 0.0006
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.2894,
+        "lo": 0.256,
+        "value": 0.2726
+       },
+       "placebo_spearman": {
+        "hi": 0.4267,
+        "lo": 0.2628,
+        "value": 0.3456
+       },
+       "rmse": 0.3377,
+       "spearman": {
+        "hi": 0.4517,
+        "lo": 0.2935,
+        "value": 0.3717
+       },
+       "top_decile_lift": 1.4652
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0136,
+        "lo": -0.033,
+        "value": -0.0229
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0014,
+        "lo": -0.0136,
+        "value": -0.0076
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.2825,
+        "lo": 0.2479,
+        "value": 0.2644
+       },
+       "placebo_spearman": {
+        "hi": 0.3832,
+        "lo": 0.2206,
+        "value": 0.304
+       },
+       "rmse": 0.3338,
+       "spearman": {
+        "hi": 0.4344,
+        "lo": 0.2655,
+        "value": 0.3511
+       },
+       "top_decile_lift": 1.6209
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0127,
+        "lo": -0.0316,
+        "value": -0.0218
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.001,
+        "lo": -0.0119,
+        "value": -0.0066
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.2832,
+        "lo": 0.249,
+        "value": 0.2655
+       },
+       "placebo_spearman": {
+        "hi": 0.384,
+        "lo": 0.2167,
+        "value": 0.2985
+       },
+       "rmse": 0.3337,
+       "spearman": {
+        "hi": 0.4483,
+        "lo": 0.2845,
+        "value": 0.3663
+       },
+       "top_decile_lift": 1.6357
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0065,
+        "lo": -0.0266,
+        "value": -0.0161
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0012,
+        "lo": -0.0028,
+        "value": -0.0008
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.2881,
+        "lo": 0.2546,
+        "value": 0.2712
+       },
+       "placebo_spearman": {
+        "hi": 0.4238,
+        "lo": 0.256,
+        "value": 0.3418
+       },
+       "rmse": 0.3366,
+       "spearman": {
+        "hi": 0.4559,
+        "lo": 0.2991,
+        "value": 0.3771
+       },
+       "top_decile_lift": 1.5845
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0138,
+        "lo": -0.0354,
+        "value": -0.0242
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.0025,
+        "lo": -0.0151,
+        "value": -0.0089
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.2813,
+        "lo": 0.2461,
+        "value": 0.2631
+       },
+       "placebo_spearman": {
+        "hi": 0.3637,
+        "lo": 0.1979,
+        "value": 0.283
+       },
+       "rmse": 0.3322,
+       "spearman": {
+        "hi": 0.4491,
+        "lo": 0.2826,
+        "value": 0.3641
+       },
+       "top_decile_lift": 1.6549
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": -0.0129,
+        "lo": -0.0314,
+        "value": -0.0218
+       },
+       "delta_mae_vs_market_state": {
+        "hi": -0.001,
+        "lo": -0.0117,
+        "value": -0.0065
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.2835,
+        "lo": 0.2489,
+        "value": 0.2655
+       },
+       "placebo_spearman": {
+        "hi": 0.3913,
+        "lo": 0.2236,
+        "value": 0.3084
+       },
+       "rmse": 0.3339,
+       "spearman": {
+        "hi": 0.4475,
+        "lo": 0.2862,
+        "value": 0.3663
+       },
+       "top_decile_lift": 1.6011
+      }
+     ],
+     "n_episodes": 496,
+     "n_rows": 2156,
+     "period": "2024-01-02..2025-12-31",
+     "role": "pooled for the acceptance checks",
+     "title": "2024-2025 pooled"
+    },
+    {
+     "id": "live",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0183,
+        "lo": -0.0234,
+        "value": -0.0032
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.2883,
+        "lo": 0.2028,
+        "value": 0.248
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.2833,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 1.4498
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0234,
+        "lo": -0.0183,
+        "value": 0.0032
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.2953,
+        "lo": 0.203,
+        "value": 0.2512
+       },
+       "placebo_spearman": {
+        "hi": 0.5052,
+        "lo": -0.1876,
+        "value": 0.1601
+       },
+       "rmse": 0.2918,
+       "spearman": {
+        "hi": 0.3306,
+        "lo": -0.3766,
+        "value": 0.0013
+       },
+       "top_decile_lift": 1.2502
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0385,
+        "lo": -0.0141,
+        "value": 0.0106
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0305,
+        "lo": -0.0156,
+        "value": 0.0074
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.3051,
+        "lo": 0.2052,
+        "value": 0.2586
+       },
+       "placebo_spearman": {
+        "hi": 0.5468,
+        "lo": -0.1029,
+        "value": 0.2437
+       },
+       "rmse": 0.3049,
+       "spearman": {
+        "hi": 0.3038,
+        "lo": -0.3548,
+        "value": -0.0165
+       },
+       "top_decile_lift": 0.855
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0342,
+        "lo": -0.0134,
+        "value": 0.009
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0249,
+        "lo": -0.0131,
+        "value": 0.0058
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.3031,
+        "lo": 0.2053,
+        "value": 0.257
+       },
+       "placebo_spearman": {
+        "hi": 0.5823,
+        "lo": -0.0514,
+        "value": 0.2834
+       },
+       "rmse": 0.3005,
+       "spearman": {
+        "hi": 0.3666,
+        "lo": -0.3084,
+        "value": 0.0427
+       },
+       "top_decile_lift": 0.9424
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0275,
+        "lo": -0.0156,
+        "value": 0.006
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0097,
+        "lo": -0.0014,
+        "value": 0.0028
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.2972,
+        "lo": 0.2076,
+        "value": 0.254
+       },
+       "placebo_spearman": {
+        "hi": 0.5148,
+        "lo": -0.191,
+        "value": 0.1673
+       },
+       "rmse": 0.2931,
+       "spearman": {
+        "hi": 0.3024,
+        "lo": -0.3891,
+        "value": -0.0136
+       },
+       "top_decile_lift": 1.0493
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0385,
+        "lo": -0.0141,
+        "value": 0.0106
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0305,
+        "lo": -0.0156,
+        "value": 0.0074
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.3051,
+        "lo": 0.2052,
+        "value": 0.2586
+       },
+       "placebo_spearman": {
+        "hi": 0.5468,
+        "lo": -0.1029,
+        "value": 0.2437
+       },
+       "rmse": 0.3049,
+       "spearman": {
+        "hi": 0.3038,
+        "lo": -0.3548,
+        "value": -0.0165
+       },
+       "top_decile_lift": 0.855
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0351,
+        "lo": -0.0131,
+        "value": 0.0096
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0265,
+        "lo": -0.0134,
+        "value": 0.0064
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.3022,
+        "lo": 0.2077,
+        "value": 0.2576
+       },
+       "placebo_spearman": {
+        "hi": 0.5699,
+        "lo": -0.0862,
+        "value": 0.2659
+       },
+       "rmse": 0.3,
+       "spearman": {
+        "hi": 0.3461,
+        "lo": -0.3225,
+        "value": 0.0255
+       },
+       "top_decile_lift": 0.855
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0246,
+        "lo": -0.0158,
+        "value": 0.0047
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0084,
+        "lo": -0.0043,
+        "value": 0.0015
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.295,
+        "lo": 0.206,
+        "value": 0.2527
+       },
+       "placebo_spearman": {
+        "hi": 0.533,
+        "lo": -0.1487,
+        "value": 0.1884
+       },
+       "rmse": 0.2911,
+       "spearman": {
+        "hi": 0.3041,
+        "lo": -0.3762,
+        "value": -0.0147
+       },
+       "top_decile_lift": 1.0493
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0446,
+        "lo": -0.0169,
+        "value": 0.0119
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0336,
+        "lo": -0.016,
+        "value": 0.0087
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.3105,
+        "lo": 0.2045,
+        "value": 0.2599
+       },
+       "placebo_spearman": {
+        "hi": 0.556,
+        "lo": -0.126,
+        "value": 0.2342
+       },
+       "rmse": 0.3084,
+       "spearman": {
+        "hi": 0.3147,
+        "lo": -0.3408,
+        "value": -0.0059
+       },
+       "top_decile_lift": 0.855
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.035,
+        "lo": -0.0122,
+        "value": 0.0097
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.028,
+        "lo": -0.0145,
+        "value": 0.0065
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.3018,
+        "lo": 0.2087,
+        "value": 0.2577
+       },
+       "placebo_spearman": {
+        "hi": 0.5692,
+        "lo": -0.0755,
+        "value": 0.2682
+       },
+       "rmse": 0.2999,
+       "spearman": {
+        "hi": 0.3695,
+        "lo": -0.3122,
+        "value": 0.0432
+       },
+       "top_decile_lift": 0.9424
+      }
+     ],
+     "n_episodes": 36,
+     "n_rows": 1385,
+     "period": "2026-06-05..2026-09-30",
+     "role": "live-like news, noisy clocks",
+     "title": "2026 news, all timestamps (read once)"
+    },
+    {
+     "id": "live_reliable",
+     "models": [
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.012,
+        "lo": -0.0262,
+        "value": -0.0083
+       },
+       "id": "R0-constant",
+       "mae": {
+        "hi": 0.2916,
+        "lo": 0.2,
+        "value": 0.2444
+       },
+       "placebo_spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "rmse": 0.2802,
+       "spearman": {
+        "hi": null,
+        "lo": null,
+        "value": null
+       },
+       "top_decile_lift": 1.6983
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0262,
+        "lo": -0.012,
+        "value": 0.0083
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0,
+        "lo": 0.0,
+        "value": 0.0
+       },
+       "id": "R2-ridge",
+       "mae": {
+        "hi": 0.3028,
+        "lo": 0.2024,
+        "value": 0.2526
+       },
+       "placebo_spearman": {
+        "hi": 0.4572,
+        "lo": -0.2512,
+        "value": 0.0989
+       },
+       "rmse": 0.294,
+       "spearman": {
+        "hi": 0.2636,
+        "lo": -0.4068,
+        "value": -0.0854
+       },
+       "top_decile_lift": 0.6863
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0393,
+        "lo": -0.0151,
+        "value": 0.0122
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0252,
+        "lo": -0.0179,
+        "value": 0.004
+       },
+       "id": "R2-additive",
+       "mae": {
+        "hi": 0.316,
+        "lo": 0.2013,
+        "value": 0.2566
+       },
+       "placebo_spearman": {
+        "hi": 0.5526,
+        "lo": -0.1565,
+        "value": 0.2329
+       },
+       "rmse": 0.3042,
+       "spearman": {
+        "hi": 0.3278,
+        "lo": -0.3773,
+        "value": -0.0493
+       },
+       "top_decile_lift": 0.88
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0365,
+        "lo": -0.0136,
+        "value": 0.0118
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0217,
+        "lo": -0.0159,
+        "value": 0.0035
+       },
+       "id": "R2-full",
+       "mae": {
+        "hi": 0.3122,
+        "lo": 0.2018,
+        "value": 0.2561
+       },
+       "placebo_spearman": {
+        "hi": 0.5613,
+        "lo": -0.118,
+        "value": 0.2667
+       },
+       "rmse": 0.3008,
+       "spearman": {
+        "hi": 0.3934,
+        "lo": -0.3513,
+        "value": 0.0062
+       },
+       "top_decile_lift": 0.9699
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0299,
+        "lo": -0.009,
+        "value": 0.0109
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0098,
+        "lo": -0.0019,
+        "value": 0.0026
+       },
+       "id": "R2s-ridge",
+       "mae": {
+        "hi": 0.3048,
+        "lo": 0.2048,
+        "value": 0.2552
+       },
+       "placebo_spearman": {
+        "hi": 0.4755,
+        "lo": -0.2398,
+        "value": 0.1084
+       },
+       "rmse": 0.295,
+       "spearman": {
+        "hi": 0.2553,
+        "lo": -0.4105,
+        "value": -0.0896
+       },
+       "top_decile_lift": 0.4795
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0393,
+        "lo": -0.0151,
+        "value": 0.0122
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0252,
+        "lo": -0.0179,
+        "value": 0.004
+       },
+       "id": "R2s-additive",
+       "mae": {
+        "hi": 0.316,
+        "lo": 0.2013,
+        "value": 0.2566
+       },
+       "placebo_spearman": {
+        "hi": 0.5526,
+        "lo": -0.1565,
+        "value": 0.2329
+       },
+       "rmse": 0.3042,
+       "spearman": {
+        "hi": 0.3278,
+        "lo": -0.3773,
+        "value": -0.0493
+       },
+       "top_decile_lift": 0.88
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0376,
+        "lo": -0.0117,
+        "value": 0.0125
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0241,
+        "lo": -0.0163,
+        "value": 0.0043
+       },
+       "id": "R2s-full",
+       "mae": {
+        "hi": 0.3115,
+        "lo": 0.2048,
+        "value": 0.2569
+       },
+       "placebo_spearman": {
+        "hi": 0.5543,
+        "lo": -0.122,
+        "value": 0.2507
+       },
+       "rmse": 0.3005,
+       "spearman": {
+        "hi": 0.3709,
+        "lo": -0.3695,
+        "value": -0.0098
+       },
+       "top_decile_lift": 0.9699
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.026,
+        "lo": -0.0091,
+        "value": 0.0089
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0083,
+        "lo": -0.0057,
+        "value": 0.0006
+       },
+       "id": "R3s-ridge",
+       "mae": {
+        "hi": 0.3023,
+        "lo": 0.2036,
+        "value": 0.2532
+       },
+       "placebo_spearman": {
+        "hi": 0.5067,
+        "lo": -0.2137,
+        "value": 0.142
+       },
+       "rmse": 0.2921,
+       "spearman": {
+        "hi": 0.2827,
+        "lo": -0.3938,
+        "value": -0.0641
+       },
+       "top_decile_lift": 0.9699
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.048,
+        "lo": -0.0176,
+        "value": 0.0149
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0322,
+        "lo": -0.0185,
+        "value": 0.0067
+       },
+       "id": "R3s-additive",
+       "mae": {
+        "hi": 0.3164,
+        "lo": 0.2014,
+        "value": 0.2593
+       },
+       "placebo_spearman": {
+        "hi": 0.5337,
+        "lo": -0.1717,
+        "value": 0.2098
+       },
+       "rmse": 0.3092,
+       "spearman": {
+        "hi": 0.3383,
+        "lo": -0.3709,
+        "value": -0.0266
+       },
+       "top_decile_lift": 0.88
+      },
+      {
+       "delta_mae_vs_constant": {
+        "hi": 0.0375,
+        "lo": -0.0121,
+        "value": 0.0123
+       },
+       "delta_mae_vs_market_state": {
+        "hi": 0.0244,
+        "lo": -0.0173,
+        "value": 0.0041
+       },
+       "id": "R3s-full",
+       "mae": {
+        "hi": 0.3108,
+        "lo": 0.2047,
+        "value": 0.2567
+       },
+       "placebo_spearman": {
+        "hi": 0.5506,
+        "lo": -0.124,
+        "value": 0.2529
+       },
+       "rmse": 0.2998,
+       "spearman": {
+        "hi": 0.4026,
+        "lo": -0.3387,
+        "value": 0.0126
+       },
+       "top_decile_lift": 0.9699
+      }
+     ],
+     "n_episodes": 35,
+     "n_rows": 520,
+     "period": "2026-06-05..2026-09-30",
+     "role": "the news acceptance check",
+     "title": "2026 news, publisher timestamps outside trading hours"
+    }
+   ],
+   "features": [
+    "m_sigma_60",
+    "m_ret_1d",
+    "m_ret_5d",
+    "m_ret_20d",
+    "m_dev_vol_5d_ratio",
+    "m_dev_vol_20d_ratio",
+    "m_vix_level",
+    "m_vix_chg_5d",
+    "m_vix_rel_60",
+    "m_rate_level",
+    "m_rate_chg_5d",
+    "novelty",
+    "dow",
+    "local_hour",
+    "is_news",
+    "t_pre_open",
+    "t_in_session",
+    "t_date_only",
+    "t_first_seen"
+   ],
+   "horizon": [
+    {
+     "spearman": {
+      "hi": 0.4464,
+      "lo": 0.2931,
+      "value": 0.3739
+     },
+     "window_sessions": 1
+    },
+    {
+     "spearman": {
+      "hi": 0.43,
+      "lo": 0.2738,
+      "value": 0.3511
+     },
+     "window_sessions": 2
+    },
+    {
+     "spearman": {
+      "hi": 0.4437,
+      "lo": 0.2931,
+      "value": 0.3712
+     },
+     "window_sessions": 3
+    }
+   ],
+   "ladder": [
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": null,
+      "lo": null,
+      "value": 0.0
+     },
+     "family": "constant",
+     "id": "R0-constant",
+     "n_features": 0,
+     "oof_mae": {
+      "hi": 0.2969,
+      "lo": 0.2666,
+      "value": 0.2818
+     },
+     "oof_spearman": {
+      "hi": 0.0815,
+      "lo": -0.0682,
+      "value": 0.0072
+     },
+     "params": {},
+     "rung": null,
+     "servable": false,
+     "verdict": "baseline: the training mean"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0186,
+      "lo": -0.0078,
+      "value": 0.0044
+     },
+     "family": "ridge",
+     "id": "R2-ridge",
+     "n_features": 19,
+     "oof_mae": {
+      "hi": 0.3022,
+      "lo": 0.2701,
+      "value": 0.2862
+     },
+     "oof_spearman": {
+      "hi": 0.3951,
+      "lo": 0.2675,
+      "value": 0.3323
+     },
+     "params": {
+      "alpha": 100.0
+     },
+     "rung": "R2",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R0-constant"
+    },
+    {
+     "chosen": true,
+     "delta_mae_vs_previous_choice": {
+      "hi": -0.0097,
+      "lo": -0.0265,
+      "value": -0.0181
+     },
+     "family": "hgb_additive",
+     "id": "R2-additive",
+     "n_features": 19,
+     "oof_mae": {
+      "hi": 0.2777,
+      "lo": 0.2498,
+      "value": 0.2637
+     },
+     "oof_spearman": {
+      "hi": 0.3882,
+      "lo": 0.261,
+      "value": 0.3269
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R2",
+     "servable": true,
+     "verdict": "adopted: beats R0-constant out of fold, interval entirely below zero"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.003,
+      "lo": -0.0038,
+      "value": -0.0005
+     },
+     "family": "hgb_full",
+     "id": "R2-full",
+     "n_features": 19,
+     "oof_mae": {
+      "hi": 0.278,
+      "lo": 0.2501,
+      "value": 0.2632
+     },
+     "oof_spearman": {
+      "hi": 0.3875,
+      "lo": 0.2593,
+      "value": 0.3251
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R2",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-additive"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0348,
+      "lo": 0.0122,
+      "value": 0.0223
+     },
+     "family": "ridge",
+     "id": "R2s-ridge",
+     "n_features": 21,
+     "oof_mae": {
+      "hi": 0.3022,
+      "lo": 0.2698,
+      "value": 0.286
+     },
+     "oof_spearman": {
+      "hi": 0.3981,
+      "lo": 0.2732,
+      "value": 0.3377
+     },
+     "params": {
+      "alpha": 100.0
+     },
+     "rung": "R2s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-additive"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0,
+      "lo": 0.0,
+      "value": 0.0
+     },
+     "family": "hgb_additive",
+     "id": "R2s-additive",
+     "n_features": 21,
+     "oof_mae": {
+      "hi": 0.2777,
+      "lo": 0.2498,
+      "value": 0.2637
+     },
+     "oof_spearman": {
+      "hi": 0.3882,
+      "lo": 0.261,
+      "value": 0.3269
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R2s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-additive"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.003,
+      "lo": -0.0038,
+      "value": -0.0005
+     },
+     "family": "hgb_full",
+     "id": "R2s-full",
+     "n_features": 21,
+     "oof_mae": {
+      "hi": 0.278,
+      "lo": 0.2501,
+      "value": 0.2632
+     },
+     "oof_spearman": {
+      "hi": 0.3875,
+      "lo": 0.2593,
+      "value": 0.3251
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R2s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-additive"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0339,
+      "lo": 0.0121,
+      "value": 0.0218
+     },
+     "family": "ridge",
+     "id": "R3s-ridge",
+     "n_features": 33,
+     "oof_mae": {
+      "hi": 0.302,
+      "lo": 0.2696,
+      "value": 0.2854
+     },
+     "oof_spearman": {
+      "hi": 0.403,
+      "lo": 0.2803,
+      "value": 0.3433
+     },
+     "params": {
+      "alpha": 100.0
+     },
+     "rung": "R3s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-additive"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0015,
+      "lo": -0.0034,
+      "value": -0.0008
+     },
+     "family": "hgb_additive",
+     "id": "R3s-additive",
+     "n_features": 33,
+     "oof_mae": {
+      "hi": 0.2779,
+      "lo": 0.249,
+      "value": 0.2629
+     },
+     "oof_spearman": {
+      "hi": 0.392,
+      "lo": 0.2664,
+      "value": 0.331
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 250,
+      "min_samples_leaf": 60
+     },
+     "rung": "R3s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-additive"
+    },
+    {
+     "chosen": false,
+     "delta_mae_vs_previous_choice": {
+      "hi": 0.0033,
+      "lo": -0.0035,
+      "value": -0.0001
+     },
+     "family": "hgb_full",
+     "id": "R3s-full",
+     "n_features": 33,
+     "oof_mae": {
+      "hi": 0.2783,
+      "lo": 0.2502,
+      "value": 0.2636
+     },
+     "oof_spearman": {
+      "hi": 0.3886,
+      "lo": 0.2578,
+      "value": 0.3236
+     },
+     "params": {
+      "l2_regularization": 10.0,
+      "learning_rate": 0.05,
+      "max_depth": 2,
+      "max_iter": 100,
+      "min_samples_leaf": 60
+     },
+     "rung": "R3s",
+     "servable": true,
+     "verdict": "not adopted: no significant out-of-fold gain over R2-additive"
+    }
+   ],
+   "leakage_findings": [
+    "[INFO] feature_availability: all features are registered event-time features",
+    "[INFO] group_straddle: no episode spans two splits (2109 groups)",
+    "[INFO] time_order: splits are time ordered with the embargo respected: train 2015-01-05..2023-12-21, val 2024-01-02..2024-12-23, test 2025-01-02..2025-12-31, live 2026-06-05..2026-09-30",
+    "[INFO] rolling_folds: 8 rolling-origin folds: every fold trains >= 5 sessions before its test period; no episode straddles",
+    "[INFO] fit_invariance: refit with val/test/live labels scrambled gives bit-identical predictions"
+   ],
+   "lifecycle": "CALIBRATED",
+   "limitations": [
+    "Held-out evidence is two calendar years of GDELT news titles (2024 val, 2025 test) plus 2026 news, a deterministic six-slots-a-day sample of GDELT (about 6% of the flow), titles only. Far larger than impact-v1's 2022 hold-out, but still one regime; it says nothing about a crisis year it never saw.",
+    "Most of what the model predicts is the volatility regime: it predicts the window BEFORE the event better than the window after it (check C7). The event-specific part is the structured calendar (mainly: an earnings release is expected, or an earnings 8-K was just filed), worth about two percent of the error; the text-model outputs add nothing measurable once the calendar is known.",
+    "The target is a coincident market-response proxy: coverage is partly a reaction to a move, so this is not a clean forecast.",
+    "34 current large caps: severity is calibrated for them and does not transfer to small or distressed issuers (survivorship).",
+    "The calendar is read from SEC EDGAR acceptance times and the Federal Reserve's published meeting dates: scheduled-meeting dates are announced ahead, but they were read from a 2026 snapshot. An earnings date is inferred from the issuer's own earlier filings, not from an announced date.",
+    "Consensus earnings estimates are not free data, so the realised earnings surprise is never an input; only whether and when earnings are expected.",
+    "Checks C9-C11 are computed at the episode level by the evidence study; the other checks are computed here at the level the model serves. A scope that fails any check is experimental."
+   ],
+   "scope": "MARKET",
+   "selected_id": "R2-additive",
+   "served": true,
+   "strata": [
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2591,
+     "mae_model": 0.2569,
+     "n_episodes": 28,
+     "spearman": {
+      "hi": 0.3638,
+      "lo": -0.4944,
+      "value": -0.0928
+     },
+     "value": "CREDIT_FUNDING"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.3083,
+     "mae_model": 0.2962,
+     "n_episodes": 49,
+     "spearman": {
+      "hi": 0.5221,
+      "lo": -0.0017,
+      "value": 0.2815
+     },
+     "value": "EARNINGS_FINANCIAL_PERFORMANCE"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2693,
+     "mae_model": 0.2309,
+     "n_episodes": 102,
+     "spearman": {
+      "hi": 0.6349,
+      "lo": 0.2893,
+      "value": 0.4664
+     },
+     "value": "GEOPOLITICAL"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2572,
+     "mae_model": 0.2423,
+     "n_episodes": 91,
+     "spearman": {
+      "hi": 0.5068,
+      "lo": 0.1087,
+      "value": 0.314
+     },
+     "value": "MACROECONOMIC"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2935,
+     "mae_model": 0.2725,
+     "n_episodes": 233,
+     "spearman": {
+      "hi": 0.4619,
+      "lo": 0.2329,
+      "value": 0.3557
+     },
+     "value": "MARKET_VALUATION"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2897,
+     "mae_model": 0.2563,
+     "n_episodes": 116,
+     "spearman": {
+      "hi": 0.5527,
+      "lo": 0.2268,
+      "value": 0.3991
+     },
+     "value": "MA_CORPORATE_ACTION"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2829,
+     "mae_model": 0.2595,
+     "n_episodes": 450,
+     "spearman": {
+      "hi": 0.428,
+      "lo": 0.2591,
+      "value": 0.3493
+     },
+     "value": "PRODUCT_OPERATIONS"
+    },
+    {
+     "dimension": "event type",
+     "mae_constant": 0.2826,
+     "mae_model": 0.2628,
+     "n_episodes": 187,
+     "spearman": {
+      "hi": 0.4696,
+      "lo": 0.2004,
+      "value": 0.3346
+     },
+     "value": "REGULATORY_LEGAL"
+    },
+    {
+     "dimension": "event status",
+     "mae_constant": 0.285,
+     "mae_model": 0.261,
+     "n_episodes": 274,
+     "spearman": {
+      "hi": 0.4577,
+      "lo": 0.2404,
+      "value": 0.3558
+     },
+     "value": "CLASSIFIED"
+    },
+    {
+     "dimension": "event status",
+     "mae_constant": 0.2825,
+     "mae_model": 0.258,
+     "n_episodes": 442,
+     "spearman": {
+      "hi": 0.4355,
+      "lo": 0.2649,
+      "value": 0.3496
+     },
+     "value": "NO_EVENT"
+    },
+    {
+     "dimension": "event status",
+     "mae_constant": 0.2787,
+     "mae_model": 0.2569,
+     "n_episodes": 344,
+     "spearman": {
+      "hi": 0.4476,
+      "lo": 0.2595,
+      "value": 0.3584
+     },
+     "value": "UNCERTAIN"
+    },
+    {
+     "dimension": "timestamp quality",
+     "mae_constant": 0.2839,
+     "mae_model": 0.2634,
+     "n_episodes": 434,
+     "spearman": {
+      "hi": 0.4272,
+      "lo": 0.2496,
+      "value": 0.3402
+     },
+     "value": "FIRST_SEEN"
+    },
+    {
+     "dimension": "timestamp quality",
+     "mae_constant": 0.2881,
+     "mae_model": 0.2709,
+     "n_episodes": 255,
+     "spearman": {
+      "hi": 0.4459,
+      "lo": 0.2246,
+      "value": 0.3378
+     },
+     "value": "IN_SESSION"
+    },
+    {
+     "dimension": "timestamp quality",
+     "mae_constant": 0.2809,
+     "mae_model": 0.2583,
+     "n_episodes": 251,
+     "spearman": {
+      "hi": 0.4301,
+      "lo": 0.1783,
+      "value": 0.3098
+     },
+     "value": "OFF_HOURS"
+    },
+    {
+     "dimension": "timestamp quality",
+     "mae_constant": 0.2775,
+     "mae_model": 0.253,
+     "n_episodes": 214,
+     "spearman": {
+      "hi": 0.4781,
+      "lo": 0.2384,
+      "value": 0.3601
+     },
+     "value": "PRE_OPEN"
+    },
+    {
+     "dimension": "source",
+     "mae_constant": 0.2873,
+     "mae_model": 0.2644,
+     "n_episodes": 496,
+     "spearman": {
+      "hi": 0.4322,
+      "lo": 0.2638,
+      "value": 0.3511
+     },
+     "value": "gdelt-gkg"
+    },
+    {
+     "dimension": "magnitude (by outcome)",
+     "mae_constant": 0.2244,
+     "mae_model": 0.2215,
+     "n_episodes": 356,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": null
+     },
+     "value": "realised score 1-2"
+    },
+    {
+     "dimension": "magnitude (by outcome)",
+     "mae_constant": 0.3373,
+     "mae_model": 0.2773,
+     "n_episodes": 110,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": null
+     },
+     "value": "realised score 3-4"
+    },
+    {
+     "dimension": "magnitude (by outcome)",
+     "mae_constant": 0.6971,
+     "mae_model": 0.585,
+     "n_episodes": 18,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": null
+     },
+     "value": "realised score 5-6"
+    },
+    {
+     "dimension": "magnitude (by outcome)",
+     "mae_constant": 1.079,
+     "mae_model": 0.9386,
+     "n_episodes": 12,
+     "spearman": {
+      "hi": null,
+      "lo": null,
+      "value": null
+     },
+     "value": "realised score 7-10"
+    }
+   ],
+   "summary": "CALIBRATED: R2-additive selected out of fold. Held-out rank skill +0.35 (95% interval +0.27 to +0.43). Acceptance: passed C1, C2, C3, C6, C7, C9; failed C5, C10, C11; not evaluable C4, C8.",
+   "target": "log1p(|z|): two-session S&P 500 excess return over its trailing sigma",
+   "training": {
+    "config_sha256": "59f2af5b33da50ff4fb331851d9c2d4b851a33b6684d34df94abf42fdb333b8f",
+    "episodes": {
+     "live": 36,
+     "test": 249,
+     "train": 1577,
+     "val": 247
+    },
+    "excluded": {},
+    "folds": "8 rolling-origin folds of 6 months from 2017-01-01, embargo 5 sessions",
+    "rows": {
+     "live": 1385,
+     "test": 1079,
+     "train": 5453,
+     "val": 1077
+    },
+    "seed": 20261010,
+    "table_sha256": "140c5266d3508630b0af943e22f3561dbbeb3598ef6c22e102ef5fcc30104b14",
+    "train_period": "2015-01-05..2023-12-21"
+   }
+  }
+ ],
+ "selection_rule": "rolling-origin out-of-fold log-severity MAE over the pre-registered nested chain (R0, market state, + calendar, + text-model outputs); a more complex rung is adopted only if its paired improvement interval is entirely below zero",
+ "version": "impact-v2",
+ "vs_previous": [
+  {
+   "delta_mae": {
+    "hi": -0.0018,
+    "lo": -0.0052,
+    "value": -0.0036
+   },
+   "n_episodes": 9897,
+   "previous_id": "impact-v1",
+   "scope": "ISSUER",
+   "set_id": "val+test",
+   "spearman_new": {
+    "hi": 0.1874,
+    "lo": 0.1485,
+    "value": 0.1675
+   },
+   "spearman_previous": {
+    "hi": 0.1604,
+    "lo": 0.1215,
+    "value": 0.1411
+   }
+  },
+  {
+   "delta_mae": {
+    "hi": -0.0016,
+    "lo": -0.008,
+    "value": -0.0047
+   },
+   "n_episodes": 963,
+   "previous_id": "impact-v1",
+   "scope": "ISSUER",
+   "set_id": "live",
+   "spearman_new": {
+    "hi": 0.1606,
+    "lo": 0.0406,
+    "value": 0.1001
+   },
+   "spearman_previous": {
+    "hi": 0.1471,
+    "lo": 0.022,
+    "value": 0.0835
+   }
+  },
+  {
+   "delta_mae": {
+    "hi": 0.007,
+    "lo": 0.0013,
+    "value": 0.0042
+   },
+   "n_episodes": 496,
+   "previous_id": "impact-v1",
+   "scope": "MARKET",
+   "set_id": "val+test",
+   "spearman_new": {
+    "hi": 0.4344,
+    "lo": 0.2655,
+    "value": 0.3511
+   },
+   "spearman_previous": {
+    "hi": 0.4372,
+    "lo": 0.2772,
+    "value": 0.3578
+   }
+  },
+  {
+   "delta_mae": {
+    "hi": 0.0105,
+    "lo": -0.013,
+    "value": -0.001
+   },
+   "n_episodes": 36,
+   "previous_id": "impact-v1",
+   "scope": "MARKET",
+   "set_id": "live",
+   "spearman_new": {
+    "hi": 0.3038,
+    "lo": -0.3548,
+    "value": -0.0165
+   },
+   "spearman_previous": {
+    "hi": 0.3629,
+    "lo": -0.3031,
+    "value": 0.0403
+   }
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+{"pair_id": 0, "polarity": 1, "text": "Apple posts crushing earnings, beating estimates by a wide margin", "trigger": "crushing"}
+{"pair_id": 0, "polarity": -1, "text": "Ford is buried under a crushing debt load after weak sales", "trigger": "crushing"}
+{"pair_id": 1, "polarity": 1, "text": "Nvidia beat revenue forecasts and raised its outlook", "trigger": "beat"}
+{"pair_id": 1, "polarity": -1, "text": "Intel missed revenue forecasts and cut its outlook", "trigger": "beat"}
+{"pair_id": 2, "polarity": 1, "text": "Tesla shares surge after record quarterly deliveries", "trigger": "surge"}
+{"pair_id": 2, "polarity": -1, "text": "Boeing shares plunge after a fresh safety grounding", "trigger": "surge"}
+{"pair_id": 3, "polarity": 1, "text": "Amazon cut costs and lifted margins to a record", "trigger": "cut"}
+{"pair_id": 3, "polarity": -1, "text": "Nike cut its guidance as demand weakens sharply", "trigger": "cut"}
+{"pair_id": 4, "polarity": 1, "text": "Microsoft raises its dividend and expands the buyback", "trigger": "raise"}
+{"pair_id": 4, "polarity": -1, "text": "Pfizer raises concerns over a failed late-stage trial", "trigger": "raise"}
+{"pair_id": 5, "polarity": 1, "text": "JPMorgan reports record profit on strong trading", "trigger": "record"}
+{"pair_id": 5, "polarity": -1, "text": "Wells Fargo reports a record fine over account practices", "trigger": "record"}
+{"pair_id": 6, "polarity": 1, "text": "Oil falls and lowers fuel costs, a tailwind for airlines and Target", "trigger": "fall"}
+{"pair_id": 6, "polarity": -1, "text": "Walmart stock falls after a sharp profit warning", "trigger": "fall"}
+{"pair_id": 7, "polarity": 1, "text": "The probe cleared Johnson & Johnson of wrongdoing, shares jump", "trigger": "probe"}
+{"pair_id": 7, "polarity": -1, "text": "A new probe into Meta's ad business sends shares lower", "trigger": "probe"}
+{"pair_id": 8, "polarity": 1, "text": "UnitedHealth wins dismissal and avoids a costly settlement", "trigger": "settlement"}
+{"pair_id": 8, "polarity": -1, "text": "Citigroup agrees to a billion dollar settlement with regulators", "trigger": "settlement"}
+{"pair_id": 9, "polarity": 1, "text": "Analysts upgrade Eli Lilly to buy on strong obesity drug demand", "trigger": "downgrade"}
+{"pair_id": 9, "polarity": -1, "text": "Analysts downgrade Chevron to sell on weak refining margins", "trigger": "downgrade"}
+{"pair_id": 10, "polarity": 1, "text": "Goldman Sachs profits from volatile markets as trading revenue jumps", "trigger": "volatile"}
+{"pair_id": 10, "polarity": -1, "text": "Volatile markets hammer Morgan Stanley's investment banking revenue", "trigger": "volatile"}
+{"pair_id": 11, "polarity": 1, "text": "Lockheed Martin wins a multi-year defense deal worth billions", "trigger": "deal"}
+{"pair_id": 11, "polarity": -1, "text": "Talks collapse and the Caterpillar deal falls through", "trigger": "deal"}
+{"pair_id": 12, "polarity": 1, "text": "Alphabet announces layoffs as investors fear a slowing ad market", "trigger": "layoffs"}
+{"pair_id": 12, "polarity": -1, "text": "Alphabet adds jobs as AI demand lifts cloud growth", "trigger": "layoffs"}
+{"pair_id": 13, "polarity": 1, "text": "Short sellers get burned as Tesla rallies hard", "trigger": "short"}
+{"pair_id": 13, "polarity": -1, "text": "Short seller report accuses Oracle of inflating revenue", "trigger": "short"}
+{"pair_id": 14, "polarity": 1, "text": "McDonald's results beat on strong same-store sales", "trigger": "miss"}
+{"pair_id": 14, "polarity": -1, "text": "McDonald's results miss on weak same-store sales", "trigger": "miss"}
+{"pair_id": 15, "polarity": 1, "text": "Bank of America issues a clean audit warning-free report, shares steady", "trigger": "warning"}
+{"pair_id": 15, "polarity": -1, "text": "Target issues a profit warning and shares tumble", "trigger": "warning"}
+{"pair_id": 16, "polarity": 1, "text": "The FDA approval of Pfizer's new vaccine lifts shares", "trigger": "approval"}
+{"pair_id": 16, "polarity": -1, "text": "The FDA rejection of Pfizer's new drug sends shares down", "trigger": "approval"}
+{"pair_id": 17, "polarity": 1, "text": "Ford shares rise as the recall costs come in below expectations", "trigger": "recall"}
+{"pair_id": 17, "polarity": -1, "text": "Ford shares drop as the recall widens to millions of vehicles", "trigger": "recall"}
+{"pair_id": 18, "polarity": 1, "text": "Lower rates boost Bank of America's mortgage lending outlook", "trigger": "rate"}
+{"pair_id": 18, "polarity": -1, "text": "Higher funding costs squeeze Wells Fargo's net interest margin", "trigger": "rate"}
+{"pair_id": 19, "polarity": 1, "text": "Coca-Cola keeps its AA rating and no default risk is seen", "trigger": "default"}
+{"pair_id": 19, "polarity": -1, "text": "Credit rating cut to junk raises default fears for the company", "trigger": "default"}
+{"pair_id": 20, "polarity": 1, "text": "GE Aerospace orders exceed expectations and backlog hits a record", "trigger": "exceeds"}
+{"pair_id": 20, "polarity": -1, "text": "Delivery shortfalls leave GE Aerospace behind its plan", "trigger": "exceeds"}
+{"pair_id": 21, "polarity": 1, "text": "Visa thwarts a cyber attack with no customer impact", "trigger": "cyber"}
+{"pair_id": 21, "polarity": -1, "text": "Hackers breach UnitedHealth systems and expose millions of records", "trigger": "cyber"}
+{"pair_id": 22, "polarity": 1, "text": "Strike ends and Boeing resumes full production", "trigger": "strike"}
+{"pair_id": 22, "polarity": -1, "text": "Strike widens and halts Boeing production lines", "trigger": "strike"}
+{"pair_id": 23, "polarity": 1, "text": "Court dismisses the lawsuit against Meta, removing a key overhang", "trigger": "lawsuit"}
+{"pair_id": 23, "polarity": -1, "text": "New antitrust lawsuit against Amazon threatens its core business", "trigger": "lawsuit"}
+{"pair_id": 24, "polarity": 1, "text": "Walmart lifts full-year guidance after a strong holiday quarter", "trigger": "guidance"}
+{"pair_id": 24, "polarity": -1, "text": "Walmart lowers full-year guidance after a weak holiday quarter", "trigger": "guidance"}
+{"pair_id": 25, "polarity": 1, "text": "Microsoft restores services quickly and outage costs are minor", "trigger": "outage"}
+{"pair_id": 25, "polarity": -1, "text": "Global outage cripples Microsoft cloud and customers demand refunds", "trigger": "outage"}
+{"pair_id": 26, "polarity": 1, "text": "Exemption from tariffs is a relief for Apple's iPhone supply chain", "trigger": "tariffs"}
+{"pair_id": 26, "polarity": -1, "text": "New tariffs hit Apple's iPhone margins hard", "trigger": "tariffs"}
+{"pair_id": 27, "polarity": 1, "text": "Merger approved by regulators, clearing the way for Chevron", "trigger": "merger"}
+{"pair_id": 27, "polarity": -1, "text": "Regulators block the merger, a blow to Chevron's growth plan", "trigger": "merger"}
+{"pair_id": 28, "polarity": 1, "text": "Exxon Mobil increases its dividend for the year", "trigger": "dividend"}
+{"pair_id": 28, "polarity": -1, "text": "Exxon Mobil suspends its dividend to preserve cash", "trigger": "dividend"}
+{"pair_id": 29, "polarity": 1, "text": "Shell reverses an earlier impairment as oil prices recover", "trigger": "impairment"}
+{"pair_id": 29, "polarity": -1, "text": "Shell books a multibillion impairment as projects are written off", "trigger": "impairment"}

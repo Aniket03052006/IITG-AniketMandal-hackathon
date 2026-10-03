@@ -1,0 +1,91 @@
+# Impact model (the third real stage). Everything that decides what the model is, how it is chosen and what it must prove lives
+# here, not in code; values are validated at startup. The ACCEPTANCE block is pre-registered: it was written before the first
+# held-out run and is never edited after seeing results (git history shows it). Changing anything training-relevant changes the
+# artifact: bump `version`.
+version: "impact-v1"
+model_dir: models/impact/impact-v1     # model.joblib + model_card.json (committed): the v1 reference
+# The artifact the product serves (Stage 4): impact-v2, trained on the extended history with the event calendar. Everything else here (training tables,
+# folds, ladder, acceptance) still describes v1; v2's own pre-registration is configs/evidence_v2.yaml. A missing v2 artifact falls back, labelled, to v1.
+served_model_dir: models/impact/impact-v2
+# false: a missing artifact makes the server start with the labelled heuristic (impact lifecycle NOT_AVAILABLE).
+# A present but modified / version-mismatched artifact always stops start-up, whatever this says.
+require: false
+table: data/modeling/impact_table.jsonl            # rebuildable: `make impact-table` (needs data/raw + data/processed/history)
+manifest_file: data/modeling/impact_dataset.json   # hashes, counts, exclusions of the table above
+seed: 20261010
+feature_schema: "impact-features-v1"   # pipeline/impact_features.py; the artifact records it and the loader checks it
+rates_symbol: "^TNX"                   # 10-year yield, a market-scope feature
+min_link_confidence: 0.8               # serving eligibility; must equal configs/modeling.yaml impact.min_link_confidence
+
+# ---- what is fitted. Target is log1p(|z|) of configs/modeling.yaml (two-session abnormal return in trailing-sigma units).
+fit:
+  issuer_weight_cap: 0.15              # no issuer carries more than this share of the (episode-weighted) training mass
+  hgb:                                 # additive gradient boosting: one feature per interaction group => exact attributions
+    max_depth: [2, 3]
+    max_iter: [100, 250]
+    learning_rate: [0.05]
+    min_samples_leaf: [100]
+    l2_regularization: [1.0, 10.0]
+  ridge_alpha: [1.0, 10.0, 100.0]
+  tfidf:                               # rung R4: ridge on market state + n-grams of the report's text
+    ngram_range: [1, 2]
+    min_df: 5
+    max_features: 20000
+
+# ---- chronological evaluation. Rolling-origin folds over the TRAIN period: a fold's model sees only sessions at least
+# `embargo_sessions` before the fold starts (the target window is two sessions long). Used for selection and for the out-of-fold
+# predictions that define the score calibration. val is a checkpoint, test is read once, live (news, 2026) once.
+folds:
+  first_fold_start: "2017-01-01"
+  step_months: 3
+  embargo_sessions: 5
+  min_train_episodes: 800
+
+# Rungs are tried in this order; a more complex candidate replaces the current choice only if its paired out-of-fold
+# improvement in log-severity MAE has a bootstrap 95% interval entirely below zero (otherwise the simpler model stays).
+ladder:
+  - {id: R0-constant,  family: constant}
+  - {id: R1-metadata,  family: metadata}
+  - {id: R2-ridge,     family: ridge, rung: R2}
+  - {id: R2-additive,  family: hgb_additive, rung: R2}
+  - {id: R2-full,      family: hgb_full, rung: R2}
+  - {id: R3-ridge,     family: ridge, rung: R3}
+  - {id: R3-additive,  family: hgb_additive, rung: R3}
+  - {id: R3-full,      family: hgb_full, rung: R3}
+  - {id: R4-text,      family: ridge_tfidf, rung: R3}
+
+# ---- score calibration (no hand-set thresholds): the model's prediction is ranked against the out-of-fold prediction
+# distribution of the training period and read off the realised severity distribution at the same percentile (modeling.yaml cut points).
+calibration:
+  percentile_points: 201
+  min_bin_episodes: 120                # score buckets thinner than this are merged upwards in the reliability table
+  extreme_score: 7                     # "extreme" = realised score >= this (a >= 3-sigma idiosyncratic move)
+  interval: [0.1, 0.9]                 # empirical realised-severity interval reported per score bucket
+  severity_cap: 14.0                   # |z| at which the continuous score reaches 10
+
+evaluation:
+  bootstrap_resamples: 1000
+  bootstrap_seed: 7
+  min_stratum_episodes: 15
+  per_issuer_min_episodes: 15
+
+# ---- scope feasibility + PRE-REGISTERED acceptance. A scope that fails a gate stays at BASELINE (the heuristic keeps serving it,
+# labelled). A scope that passes every check is PRODUCTION; one that trains and calibrates but misses a check is "experimental".
+scopes:
+  ISSUER:
+    min_heldout_episodes: 100          # val + test episodes needed to evaluate at all
+    live_min_episodes: 100             # live (news, reliable-timestamp) episodes needed for the news check
+  MARKET:
+    min_heldout_episodes: 100
+    live_min_episodes: 100
+
+acceptance:
+  # C1/C2 are on val + test pooled; C3 on val and on test separately; C8 on the live news set, reliable timestamps only
+  c1_spearman_ci_lower_above: 0.0
+  c2_mae_improvement_vs_constant_ci_upper_below: 0.0
+  c3_not_worse_than_market_state_baseline_by: 0.002   # log-severity MAE, each of val and test
+  c4_bucket_monotonicity_spearman_min: 0.8
+  c5_interval_coverage_tolerance: 0.10
+  c6_leakage_suite_clean: true
+  c7_real_minus_placebo_spearman_above: 0.0
+  c8_live_spearman_ci_lower_above: 0.0

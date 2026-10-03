@@ -1,0 +1,6 @@
+# OPTIONAL. Only needed to encode text that is not in the replay pack's pinned embeddings (a new document), to rebuild the representation study
+# (`make bakeoff-embed`, `make bakeoff-embed-replay`) or to benchmark the encoders. The default `make run` replay profile needs none of it:
+# the hybrid event model reads hash-pinned float16 vectors from data/replay/embeddings/. Install into a separate environment (.venv-emb), not the product's.
+-r requirements.in
+torch
+transformers

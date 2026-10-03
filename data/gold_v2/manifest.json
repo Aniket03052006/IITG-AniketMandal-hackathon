@@ -1,0 +1,2742 @@
+{
+ "annotator": "ai:claude",
+ "items": {
+  "V0001": {
+   "origin_id": "sig_dd62ecf15e",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2025-04-28T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0002": {
+   "origin_id": "sig_b9912b68d0",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-02-08T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0003": {
+   "origin_id": "sig_8a9d57521f",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-02-16T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0004": {
+   "origin_id": "sig_d9342ccd37",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-07-25T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0005": {
+   "origin_id": "sig_d83481c245",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-04-10T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0006": {
+   "origin_id": "sig_b236b9b2ea",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-08-05T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0007": {
+   "origin_id": "sig_333b04c4a8",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-05-05T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0008": {
+   "origin_id": "sig_5dc8179bc0",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-12-11T18:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0009": {
+   "origin_id": "sig_f6629293c7",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-05-20T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0010": {
+   "origin_id": "sig_dcaceab2f2",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-01-15T20:11:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0011": {
+   "origin_id": "sig_5f855dd95f",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-04-16T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0012": {
+   "origin_id": "sig_c53c02fbdf",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-03-20T10:30:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0013": {
+   "origin_id": "sig_83ad17d4b6",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2024-07-31T06:52:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0014": {
+   "origin_id": "sig_b95ab61c25",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-10-03T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0015": {
+   "origin_id": "sig_5b2ca2ae03",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-11-16T00:55:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0016": {
+   "origin_id": "sig_e60f1b83db",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-01-11T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0017": {
+   "origin_id": "sig_9d31895714",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-09-04T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0018": {
+   "origin_id": "sig_2d2aa72799",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-02-29T06:30:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0019": {
+   "origin_id": "sig_eee861de2b",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-03-14T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0020": {
+   "origin_id": "sig_2302133f65",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2025-10-14T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0021": {
+   "origin_id": "sig_3edd4298ed",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2024-10-15T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0022": {
+   "origin_id": "sig_f633196a80",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-12-29T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0023": {
+   "origin_id": "sig_f114c551e8",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-09-25T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0024": {
+   "origin_id": "sig_c08bd76031",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-03-13T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0025": {
+   "origin_id": "sig_def1b17cbe",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-01-30T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0026": {
+   "origin_id": "sig_96207d0db3",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-02-01T22:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0027": {
+   "origin_id": "sig_e4749187df",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-05-02T14:19:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0028": {
+   "origin_id": "sig_f76b9f5ffa",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2025-11-27T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0029": {
+   "origin_id": "sig_4df5c9133f",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-06-14T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0030": {
+   "origin_id": "sig_c01ca4c592",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-04-17T08:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0031": {
+   "origin_id": "sig_99c34f0229",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-04-30T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0032": {
+   "origin_id": "sig_1b2b85def6",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2023-08-11T18:52:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0033": {
+   "origin_id": "sig_9cd7b97585",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-07-15T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0034": {
+   "origin_id": "sig_76456699d0",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-08-13T04:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0035": {
+   "origin_id": "sig_71dfe5677d",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-06-02T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0036": {
+   "origin_id": "sig_e74dc81499",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-02-13T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0037": {
+   "origin_id": "sig_34b807d8ad",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-10-17T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0038": {
+   "origin_id": "sig_9c2304436b",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-06-09T06:12:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0039": {
+   "origin_id": "sig_214a13f3b6",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-03-15T15:18:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0040": {
+   "origin_id": "sig_71f82c6388",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-06-13T15:42:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0041": {
+   "origin_id": "sig_8554cd1f55",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-03-27T22:12:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0042": {
+   "origin_id": "sig_aad1559220",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-06-30T18:23:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0043": {
+   "origin_id": "sig_df91eb5313",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-04-17T15:12:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0044": {
+   "origin_id": "sig_03f7c8de5e",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-11-01T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0045": {
+   "origin_id": "sig_cfc29d235c",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-04-25T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0046": {
+   "origin_id": "sig_b3255b7ee1",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-02-01T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0047": {
+   "origin_id": "sig_1fafe0ee80",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-06-14T23:31:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0048": {
+   "origin_id": "sig_33773072be",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-06-04T09:46:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0049": {
+   "origin_id": "sig_f78802a43d",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-04-21T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0050": {
+   "origin_id": "sig_e54ddfe5bc",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-10-04T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0051": {
+   "origin_id": "sig_fdce07855e",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-10-13T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0052": {
+   "origin_id": "sig_271aeac741",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-06-03T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0053": {
+   "origin_id": "sig_d77ced3f0d",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-01-03T22:57:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0054": {
+   "origin_id": "sig_ae95a8752d",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-04-17T10:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0055": {
+   "origin_id": "sig_2e994e057f",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-01-15T20:01:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0056": {
+   "origin_id": "sig_fda691e37d",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-08-01T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0057": {
+   "origin_id": "sig_4c222c5d8c",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-04-11T11:25:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0058": {
+   "origin_id": "sig_d31775a65e",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-06-01T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0059": {
+   "origin_id": "sig_144064012c",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2025-01-24T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0060": {
+   "origin_id": "sig_8e82a55e85",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-04-18T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0061": {
+   "origin_id": "sig_1bfb985ab7",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-09-01T17:58:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0062": {
+   "origin_id": "sig_31d07686c9",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2024-02-01T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0063": {
+   "origin_id": "sig_7cf2ebc8dc",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-08-03T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0064": {
+   "origin_id": "sig_163d8f3b80",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-01-17T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0065": {
+   "origin_id": "sig_06ab237f35",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-01-18T16:58:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0066": {
+   "origin_id": "sig_149ebcc75d",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2023-01-30T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0067": {
+   "origin_id": "sig_4f8d611c00",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-01-21T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0068": {
+   "origin_id": "sig_313dc986e6",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-09-29T18:10:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0069": {
+   "origin_id": "sig_9edb16065f",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-10-04T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0070": {
+   "origin_id": "sig_a451bc0a44",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-06-19T07:26:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0071": {
+   "origin_id": "sig_7a896bbda9",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2025-06-01T18:35:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0072": {
+   "origin_id": "sig_586c192165",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-10-17T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0073": {
+   "origin_id": "sig_d53c5e1b90",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-01-13T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0074": {
+   "origin_id": "sig_e25a587ee0",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-04-19T21:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0075": {
+   "origin_id": "sig_914dbf51c5",
+   "placeholder_event": "REGULATORY_LEGAL",
+   "published_at": "2023-08-02T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0076": {
+   "origin_id": "sig_83190959f8",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-05-25T19:34:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0077": {
+   "origin_id": "sig_6f6e95b38b",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-11-04T07:05:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0078": {
+   "origin_id": "sig_fed7c6dcaf",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-05-19T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0079": {
+   "origin_id": "sig_b4eaceedfd",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-11-17T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0080": {
+   "origin_id": "sig_ea907b52f6",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-04-26T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0081": {
+   "origin_id": "sig_ea7151b555",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-07-02T18:18:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0082": {
+   "origin_id": "sig_1375b4b863",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-02-12T21:06:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0083": {
+   "origin_id": "sig_4e97bca2dd",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-08-26T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0084": {
+   "origin_id": "sig_f2f4350c15",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2025-10-14T06:15:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0085": {
+   "origin_id": "sig_b4e4319db4",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-09-20T17:54:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0086": {
+   "origin_id": "sig_9609347c1b",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-12-27T04:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0087": {
+   "origin_id": "sig_7acf637dd4",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-06-13T02:52:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0088": {
+   "origin_id": "sig_c2519a7ec1",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-08-19T04:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0089": {
+   "origin_id": "sig_1b3cb1eeea",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2025-02-27T19:02:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0090": {
+   "origin_id": "sig_11cd591618",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-07-24T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0091": {
+   "origin_id": "sig_1dfbade046",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-09-23T23:05:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0092": {
+   "origin_id": "sig_61a8da18d9",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-03-17T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0093": {
+   "origin_id": "sig_ea33981961",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-01-23T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0094": {
+   "origin_id": "sig_6252a4906e",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-03-25T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0095": {
+   "origin_id": "sig_c3ced18741",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-02-12T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0096": {
+   "origin_id": "sig_a4518bed31",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-10-21T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0097": {
+   "origin_id": "sig_8a56a51437",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-10-30T18:24:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0098": {
+   "origin_id": "sig_9e672465ae",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-03-25T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0099": {
+   "origin_id": "sig_7876d0a623",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-05-01T21:37:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0100": {
+   "origin_id": "sig_64a50959f4",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2025-02-12T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0101": {
+   "origin_id": "sig_4709ff80c6",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-07-08T06:36:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0102": {
+   "origin_id": "sig_e3a2a3b335",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-05-01T04:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0103": {
+   "origin_id": "sig_9bafb9803e",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-10-09T14:48:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0104": {
+   "origin_id": "sig_c23e6d71fd",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-09-18T19:24:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0105": {
+   "origin_id": "sig_9533dcf7b8",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-10-05T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0106": {
+   "origin_id": "sig_17a11892eb",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-11-23T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0107": {
+   "origin_id": "sig_97f5d1d700",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-03-11T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0108": {
+   "origin_id": "sig_d81347637c",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-10-21T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0109": {
+   "origin_id": "sig_fdee98c45a",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-11-07T08:36:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0110": {
+   "origin_id": "sig_b0cfb32a3f",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2024-10-03T09:20:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0111": {
+   "origin_id": "sig_27552b7d2f",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-10-01T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0112": {
+   "origin_id": "sig_f192b96358",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-07-23T08:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0113": {
+   "origin_id": "sig_0d753d5548",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-01-02T20:17:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0114": {
+   "origin_id": "sig_81822d6b33",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-05-19T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0115": {
+   "origin_id": "sig_f27e0c0877",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-12-08T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0116": {
+   "origin_id": "sig_66d3aeef37",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-11-30T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0117": {
+   "origin_id": "sig_eb71dcd637",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-09-12T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0118": {
+   "origin_id": "sig_f05600679d",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-12-12T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0119": {
+   "origin_id": "sig_5bb82436cb",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-10-03T14:35:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0120": {
+   "origin_id": "sig_0aa45c751e",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-08-27T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0121": {
+   "origin_id": "sig_b9baa22200",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2025-03-29T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0122": {
+   "origin_id": "sig_3e8fa26bb2",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-02-11T14:22:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0123": {
+   "origin_id": "sig_251947c84c",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-11-01T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0124": {
+   "origin_id": "sig_67b3e3fb40",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-05-31T17:40:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0125": {
+   "origin_id": "sig_478b6c6a9c",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-02-02T10:21:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0126": {
+   "origin_id": "sig_71fae3fb38",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-08-29T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0127": {
+   "origin_id": "sig_2e39ebfc98",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-03-24T15:31:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0128": {
+   "origin_id": "sig_ced4277165",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-10-20T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0129": {
+   "origin_id": "sig_74b3a3cd5b",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-09-18T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0130": {
+   "origin_id": "sig_764942adc3",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-03-10T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0131": {
+   "origin_id": "sig_a4a6705058",
+   "placeholder_event": "REGULATORY_LEGAL",
+   "published_at": "2025-11-15T08:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0132": {
+   "origin_id": "sig_87f4eded37",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-10-02T18:06:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0133": {
+   "origin_id": "sig_814d2f6a14",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-04-04T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0134": {
+   "origin_id": "sig_d9d0df7b77",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-07-28T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0135": {
+   "origin_id": "sig_d083e4db2f",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2024-04-22T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0136": {
+   "origin_id": "sig_190aa8329e",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-03-12T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0137": {
+   "origin_id": "sig_b7ce0ca03c",
+   "placeholder_event": "REGULATORY_LEGAL",
+   "published_at": "2023-05-04T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0138": {
+   "origin_id": "sig_aa2d1d55e6",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-05-22T10:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0139": {
+   "origin_id": "sig_1b350dd483",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-02-21T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0140": {
+   "origin_id": "sig_d2700bb3c6",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2025-12-03T19:48:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0141": {
+   "origin_id": "sig_214c46c271",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-03-24T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0142": {
+   "origin_id": "sig_08de6aeb0c",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-09-05T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0143": {
+   "origin_id": "sig_40fe7a2531",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-05-02T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0144": {
+   "origin_id": "sig_9d71eeaeff",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-01-04T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0145": {
+   "origin_id": "sig_4c25756cf8",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2025-04-17T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0146": {
+   "origin_id": "sig_8dc294ecab",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-12-06T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0147": {
+   "origin_id": "sig_f8f1e00cdc",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-02-08T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0148": {
+   "origin_id": "sig_90e85680ec",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-11-23T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0149": {
+   "origin_id": "sig_4e036544dc",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-07-25T00:39:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0150": {
+   "origin_id": "sig_9a025c5b56",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-04-21T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0151": {
+   "origin_id": "sig_c18d9fc6b3",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2025-07-30T04:39:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0152": {
+   "origin_id": "sig_1b63018581",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-01-31T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0153": {
+   "origin_id": "sig_dff4d60906",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-01-14T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0154": {
+   "origin_id": "sig_9dc8c11538",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-12-11T19:30:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0155": {
+   "origin_id": "sig_6273a523a4",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-09-02T04:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0156": {
+   "origin_id": "sig_90220b0206",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-02-10T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0157": {
+   "origin_id": "sig_a0067414be",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-07-25T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0158": {
+   "origin_id": "sig_94e21d827a",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-07-29T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0159": {
+   "origin_id": "sig_9064fea978",
+   "placeholder_event": "REGULATORY_LEGAL",
+   "published_at": "2025-09-04T01:50:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0160": {
+   "origin_id": "sig_d1a14ef440",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2025-01-10T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0161": {
+   "origin_id": "sig_26d24c4aa3",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-01-07T19:15:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0162": {
+   "origin_id": "sig_0e7d54f9e3",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-07-05T11:11:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0163": {
+   "origin_id": "sig_2e8d19ab85",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-10-25T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0164": {
+   "origin_id": "sig_e3038cc877",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-10-30T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0165": {
+   "origin_id": "sig_721921b6eb",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-04-24T06:47:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0166": {
+   "origin_id": "sig_f62e0c34ce",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-06-27T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0167": {
+   "origin_id": "sig_463d7c7361",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-09-30T10:18:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0168": {
+   "origin_id": "sig_d6c0f5bc57",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-04-25T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0169": {
+   "origin_id": "sig_91df3c9062",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-02-03T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0170": {
+   "origin_id": "sig_9799ecf13d",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-07-28T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0171": {
+   "origin_id": "sig_c3c9afa198",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-06-26T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0172": {
+   "origin_id": "sig_83971ff0d3",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-05-01T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0173": {
+   "origin_id": "sig_bac43a021a",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-02-08T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0174": {
+   "origin_id": "sig_0211b1b1b6",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-12-23T04:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0175": {
+   "origin_id": "sig_b0de420d1b",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-04-20T15:31:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0176": {
+   "origin_id": "sig_8dddf87ebd",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-12-26T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0177": {
+   "origin_id": "sig_f4659425c8",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2023-10-05T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0178": {
+   "origin_id": "sig_4ab111ca71",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-05-03T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0179": {
+   "origin_id": "sig_fd9c2d893b",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-04-30T11:22:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0180": {
+   "origin_id": "sig_ec2d3f4526",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-10-22T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0181": {
+   "origin_id": "sig_201c211659",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-05-01T06:37:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0182": {
+   "origin_id": "sig_ace0576048",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-04-11T03:15:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0183": {
+   "origin_id": "sig_f296faef4c",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-12-06T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0184": {
+   "origin_id": "sig_717c13cecd",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-03-06T11:27:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0185": {
+   "origin_id": "sig_d48a73cd50",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-11-20T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0186": {
+   "origin_id": "sig_bd718a322b",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-08-07T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0187": {
+   "origin_id": "sig_402c4dfb61",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-07-16T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0188": {
+   "origin_id": "sig_91e4858a2c",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-10-15T06:37:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0189": {
+   "origin_id": "sig_937fae36a3",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-02-07T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0190": {
+   "origin_id": "sig_f1448e82a2",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-11-11T10:07:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0191": {
+   "origin_id": "sig_a6bb07beb3",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-10-05T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0192": {
+   "origin_id": "sig_cba661927b",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-05-24T14:15:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0193": {
+   "origin_id": "sig_1eda6c304d",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-09-26T13:13:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0194": {
+   "origin_id": "sig_3cc5171926",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-01-17T15:14:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0195": {
+   "origin_id": "sig_a21a2d27ea",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2023-06-06T06:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0196": {
+   "origin_id": "sig_359cce181e",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-08-28T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0197": {
+   "origin_id": "sig_72f275d40f",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-07-29T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0198": {
+   "origin_id": "sig_2d50069d67",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-03-22T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0199": {
+   "origin_id": "sig_0e8ab3b212",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-10-07T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0200": {
+   "origin_id": "sig_e15dc3cbc8",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-11-15T14:20:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0201": {
+   "origin_id": "sig_31e4de8f64",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-03-21T03:17:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0202": {
+   "origin_id": "sig_207ece194a",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-09-28T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0203": {
+   "origin_id": "sig_27922b72fa",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2024-09-30T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0204": {
+   "origin_id": "sig_844dee9f53",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-09-08T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0205": {
+   "origin_id": "sig_0455aced48",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-07-02T08:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0206": {
+   "origin_id": "sig_61bc9ce5ff",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-03-05T21:31:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0207": {
+   "origin_id": "sig_f2aa7f4e78",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-01-14T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0208": {
+   "origin_id": "sig_319b3f6312",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-01-15T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0209": {
+   "origin_id": "sig_193378a84d",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2023-11-17T23:25:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0210": {
+   "origin_id": "sig_b73ee4b368",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-05-20T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0211": {
+   "origin_id": "sig_57b64edf2b",
+   "placeholder_event": "REGULATORY_LEGAL",
+   "published_at": "2023-09-28T11:33:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0212": {
+   "origin_id": "sig_9443d9ddbe",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-01-13T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0213": {
+   "origin_id": "sig_a2246b4e87",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-03-18T04:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0214": {
+   "origin_id": "sig_ca86eec990",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-06-29T12:45:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0215": {
+   "origin_id": "sig_dc6f364941",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-04-27T11:45:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0216": {
+   "origin_id": "sig_ffb72af9e1",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-04-18T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0217": {
+   "origin_id": "sig_238011ab12",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-10-26T23:15:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0218": {
+   "origin_id": "sig_3ba5ebd2a1",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-07-19T04:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0219": {
+   "origin_id": "sig_be24c0c837",
+   "placeholder_event": "REGULATORY_LEGAL",
+   "published_at": "2024-11-14T20:13:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0220": {
+   "origin_id": "sig_a09537455e",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-09-19T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0221": {
+   "origin_id": "sig_6d5f890b07",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-04-07T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0222": {
+   "origin_id": "sig_14da88e4a2",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-09-10T08:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0223": {
+   "origin_id": "sig_ddf152010d",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-10-15T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0224": {
+   "origin_id": "sig_63a9957025",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-01-23T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0225": {
+   "origin_id": "sig_0922ab058b",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-03-08T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0226": {
+   "origin_id": "sig_a2d7548586",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-03-28T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0227": {
+   "origin_id": "sig_5f0cd01c9a",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-11-21T06:28:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0228": {
+   "origin_id": "sig_7022a53044",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-04-17T09:37:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0229": {
+   "origin_id": "sig_5c04ef3af6",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2023-10-16T20:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0230": {
+   "origin_id": "sig_942fe8752b",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-04-20T11:02:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0231": {
+   "origin_id": "sig_5105aa29bc",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-04-03T10:21:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0232": {
+   "origin_id": "sig_c122862cba",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2023-11-09T04:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0233": {
+   "origin_id": "sig_b761c51ece",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-04-27T04:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0234": {
+   "origin_id": "sig_2121fbf7fe",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2024-04-25T19:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0235": {
+   "origin_id": "sig_7fe60cbfad",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-01-26T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0236": {
+   "origin_id": "sig_ea15edf020",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-03-08T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0237": {
+   "origin_id": "sig_52495d1d9d",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-03-27T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0238": {
+   "origin_id": "sig_b0544999e4",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-06-20T15:38:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0239": {
+   "origin_id": "sig_bf3ae3f5ec",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2024-07-21T13:56:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0240": {
+   "origin_id": "sig_dc3d00bd28",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-12-31T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0241": {
+   "origin_id": "sig_8d2cf4b27e",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2025-12-17T22:50:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0242": {
+   "origin_id": "sig_7f09a90a7a",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-10-23T01:17:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0243": {
+   "origin_id": "sig_59e7822753",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-02-25T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0244": {
+   "origin_id": "sig_87dfcb3643",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-04-16T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0245": {
+   "origin_id": "sig_f126dd1a83",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2025-07-29T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0246": {
+   "origin_id": "sig_f20850f543",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-02-27T11:15:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0247": {
+   "origin_id": "sig_5e1bf09677",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-05-02T09:40:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0248": {
+   "origin_id": "sig_a27ab46552",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-04-12T04:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0249": {
+   "origin_id": "sig_82473aa684",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-09-23T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0250": {
+   "origin_id": "sig_0c64f7a26c",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-04-18T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0251": {
+   "origin_id": "sig_e3754252ec",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-09-03T11:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0252": {
+   "origin_id": "sig_f06e658eb8",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-03-24T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0253": {
+   "origin_id": "sig_bc11c2feee",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-06-05T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0254": {
+   "origin_id": "sig_459f88862c",
+   "placeholder_event": "MACROECONOMIC",
+   "published_at": "2023-01-29T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0255": {
+   "origin_id": "sig_c50873d1fa",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-03-19T10:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0256": {
+   "origin_id": "sig_cc204d9d07",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2025-05-05T03:17:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0257": {
+   "origin_id": "sig_9961816c8d",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-08-01T17:43:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0258": {
+   "origin_id": "sig_a178ba0b76",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-06-22T15:44:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0259": {
+   "origin_id": "sig_049c26916e",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-04-21T08:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0260": {
+   "origin_id": "sig_d3f5479d6e",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-02-01T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0261": {
+   "origin_id": "sig_8c6ba1e11e",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2024-12-10T23:15:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0262": {
+   "origin_id": "sig_bcf5bb9fbb",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-01-09T12:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0263": {
+   "origin_id": "sig_010d58d389",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-04-23T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0264": {
+   "origin_id": "sig_e7ed02955c",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-02-06T03:14:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0265": {
+   "origin_id": "sig_4f357b786b",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-07-17T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0266": {
+   "origin_id": "sig_44ab48273a",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-05-15T10:50:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0267": {
+   "origin_id": "sig_28401c2f11",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-09-11T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0268": {
+   "origin_id": "sig_b981a15dc4",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-09-29T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0269": {
+   "origin_id": "sig_c640a41a96",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-02-03T04:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0270": {
+   "origin_id": "sig_e8b071e6f3",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-10-17T19:11:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0271": {
+   "origin_id": "sig_3b55dc4ad4",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-04-04T23:01:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0272": {
+   "origin_id": "sig_68ee8928fe",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-11-17T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0273": {
+   "origin_id": "sig_9254b3497f",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-08-21T16:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0274": {
+   "origin_id": "sig_5051d33beb",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-08-13T19:18:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0275": {
+   "origin_id": "sig_eb0deaa523",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-07-19T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0276": {
+   "origin_id": "sig_9a813b385f",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-05-30T04:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0277": {
+   "origin_id": "sig_c738bfaa86",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-12-21T08:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0278": {
+   "origin_id": "sig_0289880c6d",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-01-13T22:41:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0279": {
+   "origin_id": "sig_29e7203fb9",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-07-08T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0280": {
+   "origin_id": "sig_39f972ff98",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-05-06T15:35:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0281": {
+   "origin_id": "sig_9e36b9e8a6",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2024-02-29T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0282": {
+   "origin_id": "sig_b91ac77cbc",
+   "placeholder_event": "GEOPOLITICAL",
+   "published_at": "2025-01-21T09:54:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:GEOPOLITICAL",
+   "weight": 1.0
+  },
+  "V0283": {
+   "origin_id": "sig_e6b27ed9a7",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-05-18T08:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0284": {
+   "origin_id": "sig_35d3a40072",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-05-28T03:01:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0285": {
+   "origin_id": "sig_bfd0be60fe",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-03-22T21:22:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0286": {
+   "origin_id": "sig_985988a2fa",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-11-05T12:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0287": {
+   "origin_id": "sig_7a747c9322",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-10-24T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0288": {
+   "origin_id": "sig_2bd22b5efd",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2024-05-07T00:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0289": {
+   "origin_id": "sig_21e1a39838",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2023-11-28T20:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0290": {
+   "origin_id": "sig_76919a55f0",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-09-11T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0291": {
+   "origin_id": "sig_56e17a5e43",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2024-11-01T11:20:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "filing",
+   "weight": 1.0
+  },
+  "V0292": {
+   "origin_id": "sig_d468ae2c01",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2023-07-10T08:54:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0293": {
+   "origin_id": "sig_24606cc727",
+   "placeholder_event": "CREDIT_FUNDING",
+   "published_at": "2024-05-01T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:CREDIT_FUNDING",
+   "weight": 1.0
+  },
+  "V0294": {
+   "origin_id": "sig_8778d64bef",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2023-06-15T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0295": {
+   "origin_id": "sig_75971b4877",
+   "placeholder_event": "PRODUCT_OPERATIONS",
+   "published_at": "2025-10-22T10:56:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0296": {
+   "origin_id": "sig_b280ee8172",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-01-29T08:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0297": {
+   "origin_id": "sig_ef3c86ed17",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2024-05-24T13:34:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  },
+  "V0298": {
+   "origin_id": "sig_7355aad3bb",
+   "placeholder_event": "MARKET_VALUATION",
+   "published_at": "2025-07-25T02:00:00+00:00",
+   "role": "population",
+   "source": "gdelt-gkg",
+   "stratum": "rand",
+   "weight": 290.26
+  },
+  "V0299": {
+   "origin_id": "sig_525b2c9fa9",
+   "placeholder_event": "EARNINGS_FINANCIAL_PERFORMANCE",
+   "published_at": "2025-11-19T00:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:EARNINGS_FINANCIAL_PERFORMANCE",
+   "weight": 1.0
+  },
+  "V0300": {
+   "origin_id": "sig_b37baa6c35",
+   "placeholder_event": "MA_CORPORATE_ACTION",
+   "published_at": "2025-01-08T16:00:00+00:00",
+   "role": "targeted",
+   "source": "gdelt-gkg",
+   "stratum": "kw:MA_CORPORATE_ACTION",
+   "weight": 1.0
+  }
+ },
+ "note": "Annotators must not open this file: it holds the strata and weak labels the sheets hide.",
+ "period": "2023-01-01..2025-12-31",
+ "rows": 300,
+ "schema": 1,
+ "seed": 20261102,
+ "strata": {
+  "filing": {
+   "population_size": 937,
+   "role": "targeted",
+   "sampled": 30
+  },
+  "kw:CREDIT_FUNDING": {
+   "population_size": 365,
+   "role": "targeted",
+   "sampled": 30
+  },
+  "kw:EARNINGS_FINANCIAL_PERFORMANCE": {
+   "population_size": 2003,
+   "role": "targeted",
+   "sampled": 30
+  },
+  "kw:GEOPOLITICAL": {
+   "population_size": 503,
+   "role": "targeted",
+   "sampled": 30
+  },
+  "kw:MA_CORPORATE_ACTION": {
+   "population_size": 2178,
+   "role": "targeted",
+   "sampled": 30
+  },
+  "rand": {
+   "population_size": 43539,
+   "role": "population",
+   "sampled": 150
+  }
+ }
+}

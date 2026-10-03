@@ -1,0 +1,23 @@
+# Self-curated finance lexicons for the keyword/affect channel of the representation study. Written for this project (not copied from any
+# published dictionary, so it carries no licence restriction and can ship). Each list is matched on whole words / phrases after the pipeline's
+# own text folding (lower-case, accents folded). Deliberately small and conservative: a lexicon is a *signal channel*, not a classifier; it is
+# kept only if the pre-registered rule (configs/evidence_v2.yaml) says it earns its place.
+version: "1"
+categories:
+  uncertainty: [uncertain, uncertainty, unclear, unpredictable, volatile, volatility, turmoil, risk, risks, risky, unknown, speculation,
+                speculative, could, might, may, possibly, potentially, fears, fear, worries, worry, concern, concerns, doubt, doubts,
+                instability, unrest, turbulence, whipsaw]
+  litigation: [lawsuit, lawsuits, sued, sues, suing, litigation, settlement, settle, probe, investigation, investigations, subpoena,
+               indictment, indicted, antitrust, fine, fined, penalty, penalties, violation, violations, fraud, allegations, alleged,
+               regulator, regulators, sec, doj, ftc, court, ruling, appeal, class action, recall, recalls]
+  distress: [bankruptcy, bankrupt, default, defaults, defaulted, downgrade, downgraded, downgrades, insolvency, insolvent, restructuring,
+             layoffs, layoff, job cuts, cuts jobs, write-down, writedown, writeoff, write-off, impairment, shortfall, plunge, plunges,
+             plunged, crash, crashes, collapse, collapses, collapsed, slump, slumps, tumble, tumbles, tumbled, tank, tanks, tanked,
+             plummet, plummets, sinks, sank, losses, loss, warning, warns, warned, miss, misses, missed, halt, halted, suspends]
+  upside: [beat, beats, beating, surge, surges, surged, soar, soars, soared, rally, rallies, rallied, record, upgrade, upgraded,
+           upgrades, raises, raised, boost, boosts, boosted, jump, jumps, jumped, rebound, rebounds, rebounded, outperform, strong,
+           stronger, growth, profit, profits, expands, approval, approved, wins, win, crushing earnings, crushes estimates]
+  urgency: [breaking, urgent, urgently, just in, alert, emergency, sudden, suddenly, unexpected, unexpectedly, shock, shocks, shocked,
+            surprise, surprises, surprising, abrupt, abruptly, immediately, overnight, flash, historic, unprecedented]
+  hedging: [reportedly, according to, sources say, sources said, people familiar, rumor, rumors, rumour, rumours, said to, expected to,
+            plans to, considering, exploring, in talks, talks to, may be, set to]

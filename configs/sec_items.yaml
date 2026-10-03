@@ -1,0 +1,46 @@
+# SEC Form 8-K item codes: official titles and a crosswalk to EventShock's event classes. Source of the titles: Form 8-K General Instructions
+# and Items (sec.gov, public domain). The crosswalk is a judgement, so every mapped item carries a trust `tier` like topic_mapping.yaml:
+#   strong : the item is essentially one event type (an 8-K's item is chosen by the filer to match the legal trigger)
+#   medium : mostly the mapped type with a visible minority of other types
+#   (unmapped items carry category: null: administrative or catch-all, never used as a label)
+# Used (1) as a deterministic, non-AI check of the event model (the strong tier only), (2) to name filing-anchored events in the evidence
+# pages, (3) to derive `item flags` features that are PUBLISHED AT EVENT TIME (known once the filing is accepted, never before).
+version: "1"
+source: "SEC Form 8-K items; EDGAR submissions index (acceptanceDateTime, items)"
+items:
+  "1.01": {title: "Entry into a Material Definitive Agreement", category: MA_CORPORATE_ACTION, tier: medium}
+  "1.02": {title: "Termination of a Material Definitive Agreement", category: MA_CORPORATE_ACTION, tier: medium}
+  "1.03": {title: "Bankruptcy or Receivership", category: CREDIT_FUNDING, tier: strong}
+  "1.04": {title: "Mine Safety - Reporting of Shutdowns and Patterns of Violations", category: null}
+  "1.05": {title: "Material Cybersecurity Incidents", category: PRODUCT_OPERATIONS, tier: medium}
+  "2.01": {title: "Completion of Acquisition or Disposition of Assets", category: MA_CORPORATE_ACTION, tier: strong}
+  "2.02": {title: "Results of Operations and Financial Condition", category: EARNINGS_FINANCIAL_PERFORMANCE, tier: strong}
+  "2.03": {title: "Creation of a Direct Financial Obligation or an Obligation under an Off-Balance Sheet Arrangement", category: CREDIT_FUNDING, tier: strong}
+  "2.04": {title: "Triggering Events That Accelerate or Increase a Direct Financial Obligation", category: CREDIT_FUNDING, tier: strong}
+  "2.05": {title: "Costs Associated with Exit or Disposal Activities", category: PRODUCT_OPERATIONS, tier: medium}
+  "2.06": {title: "Material Impairments", category: EARNINGS_FINANCIAL_PERFORMANCE, tier: medium}
+  "3.01": {title: "Notice of Delisting or Failure to Satisfy a Continued Listing Rule or Standard", category: REGULATORY_LEGAL, tier: medium}
+  "3.02": {title: "Unregistered Sales of Equity Securities", category: CREDIT_FUNDING, tier: medium}
+  "3.03": {title: "Material Modification to Rights of Security Holders", category: null}
+  "4.01": {title: "Changes in Registrant's Certifying Accountant", category: null}
+  "4.02": {title: "Non-Reliance on Previously Issued Financial Statements or a Related Audit Report", category: REGULATORY_LEGAL, tier: medium}
+  "5.01": {title: "Changes in Control of Registrant", category: MA_CORPORATE_ACTION, tier: medium}
+  "5.02": {title: "Departure of Directors or Certain Officers; Election of Directors; Appointment of Certain Officers", category: PRODUCT_OPERATIONS, tier: medium}
+  "5.03": {title: "Amendments to Articles of Incorporation or Bylaws; Change in Fiscal Year", category: null}
+  "5.04": {title: "Temporary Suspension of Trading Under Registrant's Employee Benefit Plans", category: null}
+  "5.05": {title: "Amendments to the Registrant's Code of Ethics, or Waiver of a Provision of the Code of Ethics", category: null}
+  "5.06": {title: "Change in Shell Company Status", category: null}
+  "5.07": {title: "Submission of Matters to a Vote of Security Holders", category: null}
+  "5.08": {title: "Shareholder Director Nominations", category: null}
+  "7.01": {title: "Regulation FD Disclosure", category: null}
+  "8.01": {title: "Other Events", category: null}
+  "9.01": {title: "Financial Statements and Exhibits", category: null}
+# Items that are boilerplate attachments of another item (9.01 exhibits accompany almost every filing) never count as an event on their own.
+exhibit_only_items: ["9.01"]
+# Event-flag features (published at event time) use these groups; the names are the registry feature names.
+groups:
+  earnings: ["2.02"]
+  deal: ["1.01", "1.02", "2.01", "5.01"]
+  distress: ["1.03", "2.04", "3.01", "4.02", "2.06"]
+  financing: ["2.03", "3.02"]
+  leadership: ["5.02"]

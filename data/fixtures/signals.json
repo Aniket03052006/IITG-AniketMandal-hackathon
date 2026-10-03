@@ -56,30 +56,45 @@
           {
             "feature": "event_type = CREDIT_FUNDING",
             "contribution": 0.22,
-            "note": "Funding events historically move prices most"
+            "note": "Funding events historically move prices most",
+            "value": null
           },
           {
             "feature": "sentiment = -0.72",
             "contribution": 0.14,
-            "note": "Strongly negative tone"
+            "note": "Strongly negative tone",
+            "value": null
           },
           {
             "feature": "source_corroboration (5 sources)",
             "contribution": 0.12,
-            "note": "Independent outlets confirm"
+            "note": "Independent outlets confirm",
+            "value": null
           },
           {
             "feature": "novelty = 0.86",
             "contribution": 0.09,
-            "note": "First report of the shortfall"
+            "note": "First report of the shortfall",
+            "value": null
           },
           {
             "feature": "sector = Financials",
             "contribution": 0.06,
-            "note": "Sector sensitive to funding news"
+            "note": "Sector sensitive to funding news",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 5,
@@ -190,25 +205,39 @@
           {
             "feature": "event_type = REGULATORY_LEGAL",
             "contribution": 0.2,
-            "note": "Capital rules reprice lenders"
+            "note": "Capital rules reprice lenders",
+            "value": null
           },
           {
             "feature": "sentiment = -0.38",
             "contribution": 0.07,
-            "note": "Moderately negative tone"
+            "note": "Moderately negative tone",
+            "value": null
           },
           {
             "feature": "sector = Financials",
             "contribution": 0.09,
-            "note": "Rule applies to the whole sector"
+            "note": "Rule applies to the whole sector",
+            "value": null
           },
           {
             "feature": "source_corroboration (3 sources)",
             "contribution": 0.08,
-            "note": "Reported by several outlets"
+            "note": "Reported by several outlets",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 3,
@@ -303,25 +332,39 @@
           {
             "feature": "event_type = GEOPOLITICAL",
             "contribution": 0.19,
-            "note": "Supply-route shocks move energy names"
+            "note": "Supply-route shocks move energy names",
+            "value": null
           },
           {
             "feature": "sector = Energy",
             "contribution": 0.1,
-            "note": "High sensitivity to supply news"
+            "note": "High sensitivity to supply news",
+            "value": null
           },
           {
             "feature": "novelty = 0.78",
             "contribution": 0.07,
-            "note": "New development"
+            "note": "New development",
+            "value": null
           },
           {
             "feature": "source_corroboration (4 sources)",
             "contribution": 0.09,
-            "note": "Widely reported"
+            "note": "Widely reported",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 4,
@@ -424,25 +467,39 @@
           {
             "feature": "event_type = MACROECONOMIC",
             "contribution": 0.18,
-            "note": "Policy shifts reprice every asset class"
+            "note": "Policy shifts reprice every asset class",
+            "value": null
           },
           {
             "feature": "sentiment = -0.41",
             "contribution": 0.08,
-            "note": "Hawkish tone"
+            "note": "Hawkish tone",
+            "value": null
           },
           {
             "feature": "source_corroboration (6 sources)",
             "contribution": 0.12,
-            "note": "Broad coverage"
+            "note": "Broad coverage",
+            "value": null
           },
           {
             "feature": "entity = UNKNOWN",
             "contribution": -0.03,
-            "note": "No single issuer; market-wide event"
+            "note": "No single issuer; market-wide event",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 6,
@@ -545,25 +602,39 @@
           {
             "feature": "event_type = PRODUCT_OPERATIONS",
             "contribution": 0.15,
-            "note": "Plant incidents move chip names"
+            "note": "Plant incidents move chip names",
+            "value": null
           },
           {
             "feature": "sentiment = -0.60",
             "contribution": 0.1,
-            "note": "Alarmed tone"
+            "note": "Alarmed tone",
+            "value": null
           },
           {
             "feature": "source_corroboration (1 source)",
             "contribution": -0.1,
-            "note": "Single unverified social post"
+            "note": "Single unverified social post",
+            "value": null
           },
           {
             "feature": "novelty = 0.90",
             "contribution": 0.08,
-            "note": "First mention"
+            "note": "First mention",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 1,
@@ -643,20 +714,33 @@
           {
             "feature": "event_type = PRODUCT_OPERATIONS",
             "contribution": 0.08,
-            "note": "Plant incidents move chip names"
+            "note": "Plant incidents move chip names",
+            "value": null
           },
           {
             "feature": "company statement",
             "contribution": -0.12,
-            "note": "Issuer says output unaffected"
+            "note": "Issuer says output unaffected",
+            "value": null
           },
           {
             "feature": "source_corroboration (2 sources)",
             "contribution": 0.03,
-            "note": "Issuer statement carried by wires"
+            "note": "Issuer statement carried by wires",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 2,
@@ -745,20 +829,33 @@
           {
             "feature": "event_type = MA_CORPORATE_ACTION",
             "contribution": 0.14,
-            "note": "Large deals reprice the acquirer"
+            "note": "Large deals reprice the acquirer",
+            "value": null
           },
           {
             "feature": "deal size vs market cap",
             "contribution": 0.1,
-            "note": "Material relative to acquirer"
+            "note": "Material relative to acquirer",
+            "value": null
           },
           {
             "feature": "sentiment = -0.05",
             "contribution": 0.01,
-            "note": "Neutral tone"
+            "note": "Neutral tone",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 3,
@@ -853,25 +950,39 @@
           {
             "feature": "event_type = PRODUCT_OPERATIONS",
             "contribution": 0.15,
-            "note": "Trial failures can reset valuations"
+            "note": "Trial failures can reset valuations",
+            "value": null
           },
           {
             "feature": "sentiment = -0.82",
             "contribution": 0.16,
-            "note": "Very negative tone"
+            "note": "Very negative tone",
+            "value": null
           },
           {
             "feature": "pipeline concentration",
             "contribution": 0.11,
-            "note": "One asset drives most value"
+            "note": "One asset drives most value",
+            "value": null
           },
           {
             "feature": "sector = Healthcare",
             "contribution": 0.04,
-            "note": "Binary outcomes common"
+            "note": "Binary outcomes common",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 4,
@@ -974,25 +1085,39 @@
           {
             "feature": "event_type = EARNINGS_FINANCIAL_PERFORMANCE",
             "contribution": 0.17,
-            "note": "Guidance cuts are priced fast"
+            "note": "Guidance cuts are priced fast",
+            "value": null
           },
           {
             "feature": "sentiment = -0.70",
             "contribution": 0.13,
-            "note": "Negative tone"
+            "note": "Negative tone",
+            "value": null
           },
           {
             "feature": "sector = Consumer",
             "contribution": 0.05,
-            "note": "Consumer names react to demand signals"
+            "note": "Consumer names react to demand signals",
+            "value": null
           },
           {
             "feature": "inventory flag",
             "contribution": 0.04,
-            "note": "Extra margin pressure"
+            "note": "Extra margin pressure",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 3,
@@ -1087,20 +1212,33 @@
           {
             "feature": "event_type = MARKET_VALUATION",
             "contribution": 0.1,
-            "note": "Flow-driven moves can mean-revert"
+            "note": "Flow-driven moves can mean-revert",
+            "value": null
           },
           {
             "feature": "source type = SOCIAL",
             "contribution": -0.05,
-            "note": "Social-only signal"
+            "note": "Social-only signal",
+            "value": null
           },
           {
             "feature": "coverage_velocity = 2.1",
             "contribution": 0.06,
-            "note": "Fast attention build"
+            "note": "Fast attention build",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 1,
@@ -1178,20 +1316,33 @@
           {
             "feature": "event_type = CREDIT_FUNDING",
             "contribution": 0.08,
-            "note": "Funding events matter"
+            "note": "Funding events matter",
+            "value": null
           },
           {
             "feature": "sentiment = +0.62",
             "contribution": -0.04,
-            "note": "Positive tone lowers downside"
+            "note": "Positive tone lowers downside",
+            "value": null
           },
           {
             "feature": "novelty = 0.5",
             "contribution": 0.03,
-            "note": "Expected refinancing"
+            "note": "Expected refinancing",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 2,
@@ -1278,15 +1429,27 @@
           {
             "feature": "event_type = PRODUCT_OPERATIONS",
             "contribution": 0.05,
-            "note": "Launches rarely move credit"
+            "note": "Launches rarely move credit",
+            "value": null
           },
           {
             "feature": "sentiment = +0.70",
             "contribution": -0.03,
-            "note": "Positive tone"
+            "note": "Positive tone",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 2,
@@ -1373,20 +1536,33 @@
           {
             "feature": "entity = UNKNOWN",
             "contribution": -0.1,
-            "note": "No resolvable issuer"
+            "note": "No resolvable issuer",
+            "value": null
           },
           {
             "feature": "source type = SOCIAL",
             "contribution": -0.06,
-            "note": "Anonymous, unverifiable"
+            "note": "Anonymous, unverifiable",
+            "value": null
           },
           {
             "feature": "sentiment = -0.55",
             "contribution": 0.07,
-            "note": "Alarmist tone"
+            "note": "Alarmist tone",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 1,
@@ -1543,20 +1719,33 @@
           {
             "feature": "event_type = CREDIT_FUNDING",
             "contribution": 0.15,
-            "note": "Outlook changes shift spreads"
+            "note": "Outlook changes shift spreads",
+            "value": null
           },
           {
             "feature": "sentiment = -0.50",
             "contribution": 0.09,
-            "note": "Negative tone"
+            "note": "Negative tone",
+            "value": null
           },
           {
             "feature": "sector = Financials",
             "contribution": 0.05,
-            "note": "Sector sensitive to credit news"
+            "note": "Sector sensitive to credit news",
+            "value": null
           }
         ],
-        "quantisation": "ceil(raw * 10), min 1"
+        "quantisation": "ceil(raw * 10), min 1",
+        "scope": null,
+        "predicted_severity": null,
+        "comparable_events": null,
+        "score_low": null,
+        "score_high": null,
+        "realised_severity_low": null,
+        "realised_severity_median": null,
+        "realised_severity_high": null,
+        "p_extreme": null,
+        "driver_basis": null
       },
       "evidence": {
         "source_count": 2,

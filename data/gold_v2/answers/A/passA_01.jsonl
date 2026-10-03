@@ -1,0 +1,150 @@
+{"label_id": "V0001", "event_class": "NONE", "secondary_class": "", "notes": "generic price remark"}
+{"label_id": "V0002", "event_class": "NONE", "secondary_class": "", "notes": "trivia"}
+{"label_id": "V0003", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0004", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": "ambiguous: Moody's sovereign rating reaction on Israel, not about MS"}
+{"label_id": "V0005", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0006", "event_class": "NONE", "secondary_class": "", "notes": "third-party promotion"}
+{"label_id": "V0007", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "minor product launch"}
+{"label_id": "V0008", "event_class": "NONE", "secondary_class": "", "notes": "opinion piece"}
+{"label_id": "V0009", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0010", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "MARKET_VALUATION", "notes": ""}
+{"label_id": "V0011", "event_class": "NONE", "secondary_class": "", "notes": "local crime"}
+{"label_id": "V0012", "event_class": "NONE", "secondary_class": "", "notes": "question/opinion"}
+{"label_id": "V0013", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0014", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0015", "event_class": "NONE", "secondary_class": "", "notes": "ambiguous: CEO commentary on theft, no new fact"}
+{"label_id": "V0016", "event_class": "NONE", "secondary_class": "", "notes": "routine insider sale"}
+{"label_id": "V0017", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0018", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0019", "event_class": "NONE", "secondary_class": "", "notes": "market report promotion"}
+{"label_id": "V0020", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "V0021", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0022", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0023", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "ambiguous: FAA approval for SkyUp, Boeing peripheral"}
+{"label_id": "V0024", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0025", "event_class": "NONE", "secondary_class": "", "notes": "ambiguous: earnings preview, no results yet"}
+{"label_id": "V0026", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0027", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0028", "event_class": "NONE", "secondary_class": "", "notes": "how-to"}
+{"label_id": "V0029", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "ambiguous: wellness collection launch, promotional"}
+{"label_id": "V0030", "event_class": "NONE", "secondary_class": "", "notes": "minor supplier partnership"}
+{"label_id": "V0031", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0032", "event_class": "REGULATORY_LEGAL", "secondary_class": "PRODUCT_OPERATIONS", "notes": ""}
+{"label_id": "V0033", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "V0034", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": "ambiguous: political criticism over tariff claims"}
+{"label_id": "V0035", "event_class": "NONE", "secondary_class": "", "notes": "conference participation, other company"}
+{"label_id": "V0036", "event_class": "NONE", "secondary_class": "", "notes": "opinion"}
+{"label_id": "V0037", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0038", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "ambiguous: dividend payment notice without results"}
+{"label_id": "V0039", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "GEOPOLITICAL", "notes": "ambiguous: ETF product launch amid tariff turmoil"}
+{"label_id": "V0040", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0041", "event_class": "NONE", "secondary_class": "", "notes": "listicle"}
+{"label_id": "V0042", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0043", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0044", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0045", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0046", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0047", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0048", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": "ambiguous: Northern & Shell is not Shell plc"}
+{"label_id": "V0049", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0050", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "V0051", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "V0052", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": "ambiguous: third-party fund tied to Nvidia chips"}
+{"label_id": "V0053", "event_class": "NONE", "secondary_class": "", "notes": "celebrity gossip"}
+{"label_id": "V0054", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0055", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0056", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "PRODUCT_OPERATIONS", "notes": ""}
+{"label_id": "V0057", "event_class": "NONE", "secondary_class": "", "notes": "poll"}
+{"label_id": "V0058", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "Target is the retailer; rating change"}
+{"label_id": "V0059", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0060", "event_class": "NONE", "secondary_class": "", "notes": "trivia"}
+{"label_id": "V0061", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0062", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0063", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0064", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0065", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "restructuring/layoffs"}
+{"label_id": "V0066", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0067", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0068", "event_class": "NONE", "secondary_class": "", "notes": "retail promotion"}
+{"label_id": "V0069", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "sales/delivery numbers"}
+{"label_id": "V0070", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": "ambiguous: other EV maker bankrupt, Tesla peripheral"}
+{"label_id": "V0071", "event_class": "MACROECONOMIC", "secondary_class": "", "notes": ""}
+{"label_id": "V0072", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "V0073", "event_class": "NONE", "secondary_class": "", "notes": "ambiguous: CRE commentary, no discrete event"}
+{"label_id": "V0074", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0075", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0076", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "post-acquisition restructuring"}
+{"label_id": "V0077", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0078", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0079", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "GEOPOLITICAL", "notes": "ambiguous: prospective aircraft order amid state talks"}
+{"label_id": "V0080", "event_class": "NONE", "secondary_class": "", "notes": "conference notice, other company"}
+{"label_id": "V0081", "event_class": "NONE", "secondary_class": "", "notes": "local crime"}
+{"label_id": "V0082", "event_class": "GEOPOLITICAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0083", "event_class": "NONE", "secondary_class": "", "notes": "stock-pick opinion"}
+{"label_id": "V0084", "event_class": "NONE", "secondary_class": "", "notes": "ambiguous: opinion on CHIPS Act rollout, no new fact"}
+{"label_id": "V0085", "event_class": "NONE", "secondary_class": "", "notes": "gossip"}
+{"label_id": "V0086", "event_class": "REGULATORY_LEGAL", "secondary_class": "PRODUCT_OPERATIONS", "notes": ""}
+{"label_id": "V0087", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "air crash, price reaction"}
+{"label_id": "V0088", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0089", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0090", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0091", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": "possible divestiture/restructuring"}
+{"label_id": "V0092", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0093", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0094", "event_class": "NONE", "secondary_class": "", "notes": "unrelated legal commentary"}
+{"label_id": "V0095", "event_class": "NONE", "secondary_class": "", "notes": "small philanthropy-type funding"}
+{"label_id": "V0096", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "minor feature change"}
+{"label_id": "V0097", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "ambiguous: market wrap, cause not stated"}
+{"label_id": "V0098", "event_class": "NONE", "secondary_class": "", "notes": "routine insider sale"}
+{"label_id": "V0099", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0100", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "minor product change"}
+{"label_id": "V0101", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "profit warning"}
+{"label_id": "V0102", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "product change"}
+{"label_id": "V0103", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "rating on KLA, not MS"}
+{"label_id": "V0104", "event_class": "NONE", "secondary_class": "", "notes": "local crime"}
+{"label_id": "V0105", "event_class": "NONE", "secondary_class": "", "notes": "streaming schedule question"}
+{"label_id": "V0106", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0107", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0108", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0109", "event_class": "NONE", "secondary_class": "", "notes": "newsletter gossip"}
+{"label_id": "V0110", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0111", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": ""}
+{"label_id": "V0112", "event_class": "NONE", "secondary_class": "", "notes": "celebrity controversy"}
+{"label_id": "V0113", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "declining deliveries"}
+{"label_id": "V0114", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0115", "event_class": "NONE", "secondary_class": "", "notes": "question/opinion"}
+{"label_id": "V0116", "event_class": "NONE", "secondary_class": "", "notes": "consumer feature"}
+{"label_id": "V0117", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "analyst view on MSFT"}
+{"label_id": "V0118", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0119", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "ambiguous: CEO market view"}
+{"label_id": "V0120", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "contract award"}
+{"label_id": "V0121", "event_class": "NONE", "secondary_class": "", "notes": "ambiguous: routine fund dividend notice"}
+{"label_id": "V0122", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0123", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0124", "event_class": "CREDIT_FUNDING", "secondary_class": "", "notes": ""}
+{"label_id": "V0125", "event_class": "NONE", "secondary_class": "", "notes": "CEO prediction/opinion"}
+{"label_id": "V0126", "event_class": "NONE", "secondary_class": "", "notes": "stock-pick listicle"}
+{"label_id": "V0127", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "options flow"}
+{"label_id": "V0128", "event_class": "NONE", "secondary_class": "", "notes": "ambiguous: earnings preview, no results"}
+{"label_id": "V0129", "event_class": "MARKET_VALUATION", "secondary_class": "", "notes": "ratings on IHG/Whitbread"}
+{"label_id": "V0130", "event_class": "NONE", "secondary_class": "", "notes": "conference notice, other company"}
+{"label_id": "V0131", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0132", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": "sales numbers"}
+{"label_id": "V0133", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": "fund results, not JPM"}
+{"label_id": "V0134", "event_class": "NONE", "secondary_class": "", "notes": "gossip"}
+{"label_id": "V0135", "event_class": "GEOPOLITICAL", "secondary_class": "REGULATORY_LEGAL", "notes": ""}
+{"label_id": "V0136", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0137", "event_class": "REGULATORY_LEGAL", "secondary_class": "", "notes": ""}
+{"label_id": "V0138", "event_class": "NONE", "secondary_class": "", "notes": "13F-style investment commentary"}
+{"label_id": "V0139", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0140", "event_class": "MARKET_VALUATION", "secondary_class": "CREDIT_FUNDING", "notes": "ambiguous: bank view on AI-capex debt"}
+{"label_id": "V0141", "event_class": "NONE", "secondary_class": "", "notes": "question"}
+{"label_id": "V0142", "event_class": "NONE", "secondary_class": "", "notes": "stock-pick listicle"}
+{"label_id": "V0143", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "", "notes": ""}
+{"label_id": "V0144", "event_class": "NONE", "secondary_class": "", "notes": "minor funding to non-profit"}
+{"label_id": "V0145", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}
+{"label_id": "V0146", "event_class": "MA_CORPORATE_ACTION", "secondary_class": "", "notes": ""}
+{"label_id": "V0147", "event_class": "NONE", "secondary_class": "", "notes": "chart page"}
+{"label_id": "V0148", "event_class": "EARNINGS_FINANCIAL_PERFORMANCE", "secondary_class": "MARKET_VALUATION", "notes": ""}
+{"label_id": "V0149", "event_class": "PRODUCT_OPERATIONS", "secondary_class": "", "notes": ""}
+{"label_id": "V0150", "event_class": "NONE", "secondary_class": "", "notes": "13F holdings filler"}

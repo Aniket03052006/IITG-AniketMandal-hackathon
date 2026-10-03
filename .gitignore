@@ -35,3 +35,10 @@ data/modeling/*
 
 # Blind annotation batches are regenerable from the manifest (`make event-pools` is refused once labels exist); answers and labels are committed
 data/event_labels/batches/
+# Added by code-review-graph
+.code-review-graph/
+.venv-emb/
+
+# Stage 4: derived 2023-2025 history snapshot and the blind annotation inputs (regenerable)
+data/history_v2/
+data/gold_v2/batches/

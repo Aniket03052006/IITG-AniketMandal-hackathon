@@ -365,5 +365,13 @@
     "stock market selloff",
     "credit rating downgrade",
     "tariffs trade war"
-  ]
+  ],
+  "market_context": {
+    "file": "market/context.json",
+    "sha256": "60fc089f1f1a8f4d07207de4986a1f5cb93631e1da884f8b5e303062ee0af6cf"
+  },
+  "embeddings": {
+    "file": "embeddings/event-e5-large.npz",
+    "sha256": "7a1faaa081404d19869ac341bda23c91202f60dcf6aa75f25b6aceacdf39f899"
+  }
 }

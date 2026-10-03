@@ -1,0 +1,124 @@
+{
+ "agreed_rows": 280,
+ "by_stratum": {
+  "filing": {
+   "agreement": 0.9667,
+   "kappa": 0.9538,
+   "n": 30
+  },
+  "kw:CREDIT_FUNDING": {
+   "agreement": 0.9667,
+   "kappa": 0.9559,
+   "n": 30
+  },
+  "kw:EARNINGS_FINANCIAL_PERFORMANCE": {
+   "agreement": 0.9667,
+   "kappa": 0.9471,
+   "n": 30
+  },
+  "kw:GEOPOLITICAL": {
+   "agreement": 0.8333,
+   "kappa": 0.7458,
+   "n": 30
+  },
+  "kw:MA_CORPORATE_ACTION": {
+   "agreement": 1.0,
+   "kappa": 1.0,
+   "n": 30
+  },
+  "rand": {
+   "agreement": 0.92,
+   "kappa": 0.8769,
+   "n": 150
+  }
+ },
+ "label_counts": {
+  "agreed": {
+   "CREDIT_FUNDING": 11,
+   "EARNINGS_FINANCIAL_PERFORMANCE": 32,
+   "GEOPOLITICAL": 18,
+   "MACROECONOMIC": 6,
+   "MARKET_VALUATION": 18,
+   "MA_CORPORATE_ACTION": 9,
+   "NONE": 131,
+   "PRODUCT_OPERATIONS": 39,
+   "REGULATORY_LEGAL": 16
+  },
+  "pass_a": {
+   "CREDIT_FUNDING": 11,
+   "EARNINGS_FINANCIAL_PERFORMANCE": 33,
+   "GEOPOLITICAL": 21,
+   "MACROECONOMIC": 6,
+   "MARKET_VALUATION": 18,
+   "MA_CORPORATE_ACTION": 11,
+   "NONE": 134,
+   "PRODUCT_OPERATIONS": 47,
+   "REGULATORY_LEGAL": 19
+  },
+  "pass_b": {
+   "CREDIT_FUNDING": 11,
+   "EARNINGS_FINANCIAL_PERFORMANCE": 32,
+   "GEOPOLITICAL": 21,
+   "MACROECONOMIC": 6,
+   "MARKET_VALUATION": 22,
+   "MA_CORPORATE_ACTION": 9,
+   "NONE": 140,
+   "PRODUCT_OPERATIONS": 42,
+   "REGULATORY_LEGAL": 17
+  }
+ },
+ "note": "two independent blind passes by the same AI annotator family with different prompts and orderings: agreement bounds label noise and discovers ambiguity, it is NOT human inter-annotator kappa. Disagreements are queued for human adjudication.",
+ "overall": {
+  "agreement": 0.9333,
+  "kappa": 0.9102,
+  "n": 300
+ },
+ "per_class": {
+  "CREDIT_FUNDING": {
+   "both_say": 11,
+   "rows_either_pass_says": 11,
+   "share_agreed": 1.0
+  },
+  "EARNINGS_FINANCIAL_PERFORMANCE": {
+   "both_say": 32,
+   "rows_either_pass_says": 33,
+   "share_agreed": 0.97
+  },
+  "GEOPOLITICAL": {
+   "both_say": 18,
+   "rows_either_pass_says": 24,
+   "share_agreed": 0.75
+  },
+  "MACROECONOMIC": {
+   "both_say": 6,
+   "rows_either_pass_says": 6,
+   "share_agreed": 1.0
+  },
+  "MARKET_VALUATION": {
+   "both_say": 18,
+   "rows_either_pass_says": 22,
+   "share_agreed": 0.818
+  },
+  "MA_CORPORATE_ACTION": {
+   "both_say": 9,
+   "rows_either_pass_says": 11,
+   "share_agreed": 0.818
+  },
+  "NONE": {
+   "both_say": 131,
+   "rows_either_pass_says": 143,
+   "share_agreed": 0.916
+  },
+  "PRODUCT_OPERATIONS": {
+   "both_say": 39,
+   "rows_either_pass_says": 50,
+   "share_agreed": 0.78
+  },
+  "REGULATORY_LEGAL": {
+   "both_say": 16,
+   "rows_either_pass_says": 20,
+   "share_agreed": 0.8
+  }
+ },
+ "rows": 300
+}

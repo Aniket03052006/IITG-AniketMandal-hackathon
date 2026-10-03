@@ -1,0 +1,617 @@
+{
+ "source": "federalreserve.gov FOMC calendars",
+ "meetings": [
+  {
+   "start": "2014-01-28",
+   "decision_date": "2014-01-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2014-03-18",
+   "decision_date": "2014-03-19",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2014-04-29",
+   "decision_date": "2014-04-30",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2014-06-17",
+   "decision_date": "2014-06-18",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2014-07-29",
+   "decision_date": "2014-07-30",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2014-09-16",
+   "decision_date": "2014-09-17",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2014-10-28",
+   "decision_date": "2014-10-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2014-12-16",
+   "decision_date": "2014-12-17",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2015-01-27",
+   "decision_date": "2015-01-28",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2015-03-17",
+   "decision_date": "2015-03-18",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2015-04-28",
+   "decision_date": "2015-04-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2015-06-16",
+   "decision_date": "2015-06-17",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2015-07-28",
+   "decision_date": "2015-07-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2015-09-16",
+   "decision_date": "2015-09-17",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2015-10-27",
+   "decision_date": "2015-10-28",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2015-12-15",
+   "decision_date": "2015-12-16",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2016-01-26",
+   "decision_date": "2016-01-27",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2016-03-15",
+   "decision_date": "2016-03-16",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2016-04-26",
+   "decision_date": "2016-04-27",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2016-06-14",
+   "decision_date": "2016-06-15",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2016-07-26",
+   "decision_date": "2016-07-27",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2016-09-20",
+   "decision_date": "2016-09-21",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2016-11-01",
+   "decision_date": "2016-11-02",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2016-12-13",
+   "decision_date": "2016-12-14",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2017-03-14",
+   "decision_date": "2017-03-15",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2017-05-02",
+   "decision_date": "2017-05-03",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2017-06-13",
+   "decision_date": "2017-06-14",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2017-07-25",
+   "decision_date": "2017-07-26",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2017-09-19",
+   "decision_date": "2017-09-20",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2017-12-12",
+   "decision_date": "2017-12-13",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2018-01-30",
+   "decision_date": "2018-01-31",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2018-03-20",
+   "decision_date": "2018-03-21",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2018-05-01",
+   "decision_date": "2018-05-02",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2018-06-12",
+   "decision_date": "2018-06-13",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2018-09-25",
+   "decision_date": "2018-09-26",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2018-11-07",
+   "decision_date": "2018-11-08",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2018-12-18",
+   "decision_date": "2018-12-19",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2019-01-29",
+   "decision_date": "2019-01-30",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2019-03-19",
+   "decision_date": "2019-03-20",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2019-04-30",
+   "decision_date": "2019-05-01",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2019-06-18",
+   "decision_date": "2019-06-19",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2019-07-30",
+   "decision_date": "2019-07-31",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2019-09-17",
+   "decision_date": "2019-09-18",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2019-10-29",
+   "decision_date": "2019-10-30",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2019-12-10",
+   "decision_date": "2019-12-11",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2020-01-28",
+   "decision_date": "2020-01-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2020-03-02",
+   "decision_date": "2020-03-02",
+   "scheduled": false,
+   "projections": false
+  },
+  {
+   "start": "2020-03-15",
+   "decision_date": "2020-03-15",
+   "scheduled": false,
+   "projections": false
+  },
+  {
+   "start": "2020-04-28",
+   "decision_date": "2020-04-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2020-06-09",
+   "decision_date": "2020-06-10",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2020-07-28",
+   "decision_date": "2020-07-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2020-09-15",
+   "decision_date": "2020-09-16",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2020-11-04",
+   "decision_date": "2020-11-05",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2020-12-15",
+   "decision_date": "2020-12-16",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2021-01-26",
+   "decision_date": "2021-01-27",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2021-03-16",
+   "decision_date": "2021-03-17",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2021-04-27",
+   "decision_date": "2021-04-28",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2021-06-15",
+   "decision_date": "2021-06-16",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2021-07-27",
+   "decision_date": "2021-07-28",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2021-09-21",
+   "decision_date": "2021-09-22",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2021-11-02",
+   "decision_date": "2021-11-03",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2021-12-14",
+   "decision_date": "2021-12-15",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2022-01-25",
+   "decision_date": "2022-01-26",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2022-03-15",
+   "decision_date": "2022-03-16",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2022-05-03",
+   "decision_date": "2022-05-04",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2022-06-14",
+   "decision_date": "2022-06-15",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2022-07-26",
+   "decision_date": "2022-07-27",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2022-09-20",
+   "decision_date": "2022-09-21",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2022-11-01",
+   "decision_date": "2022-11-02",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2022-12-13",
+   "decision_date": "2022-12-14",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2023-01-31",
+   "decision_date": "2023-02-01",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2023-03-21",
+   "decision_date": "2023-03-22",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2023-05-02",
+   "decision_date": "2023-05-03",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2023-06-13",
+   "decision_date": "2023-06-14",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2023-07-25",
+   "decision_date": "2023-07-26",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2023-09-19",
+   "decision_date": "2023-09-20",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2023-10-31",
+   "decision_date": "2023-11-01",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2023-12-12",
+   "decision_date": "2023-12-13",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2024-01-30",
+   "decision_date": "2024-01-31",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2024-03-19",
+   "decision_date": "2024-03-20",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2024-04-30",
+   "decision_date": "2024-05-01",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2024-06-11",
+   "decision_date": "2024-06-12",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2024-07-30",
+   "decision_date": "2024-07-31",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2024-09-17",
+   "decision_date": "2024-09-18",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2024-11-06",
+   "decision_date": "2024-11-07",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2024-12-17",
+   "decision_date": "2024-12-18",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2025-01-28",
+   "decision_date": "2025-01-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2025-03-18",
+   "decision_date": "2025-03-19",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2025-05-06",
+   "decision_date": "2025-05-07",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2025-06-17",
+   "decision_date": "2025-06-18",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2025-07-29",
+   "decision_date": "2025-07-30",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2025-09-16",
+   "decision_date": "2025-09-17",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2025-10-28",
+   "decision_date": "2025-10-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2025-12-09",
+   "decision_date": "2025-12-10",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2026-01-27",
+   "decision_date": "2026-01-28",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2026-03-17",
+   "decision_date": "2026-03-18",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2026-04-28",
+   "decision_date": "2026-04-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2026-06-16",
+   "decision_date": "2026-06-17",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2026-07-28",
+   "decision_date": "2026-07-29",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2026-09-15",
+   "decision_date": "2026-09-16",
+   "scheduled": true,
+   "projections": true
+  },
+  {
+   "start": "2026-10-27",
+   "decision_date": "2026-10-28",
+   "scheduled": true,
+   "projections": false
+  },
+  {
+   "start": "2026-12-08",
+   "decision_date": "2026-12-09",
+   "scheduled": true,
+   "projections": true
+  }
+ ]
+}

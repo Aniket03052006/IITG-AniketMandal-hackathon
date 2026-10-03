@@ -1,7 +1,10 @@
 # Event classification model (the second real NLP stage). Everything that decides what the model is lives here, not in code;
 # values are validated at startup, a typo fails loudly. Changing training-relevant values changes the artifact: bump `version`.
 version: "tfidf-lr-event-v1"
-model_dir: models/event/tfidf-lr-event-v1   # model.joblib + model_card.json (committed; the API refuses to start without them)
+model_dir: models/event/tfidf-lr-event-v1   # model.joblib + model_card.json (committed; the API refuses to start without them): the TF-IDF REFERENCE model
+# The model the product SERVES for the event stage. Stage 4 adopted the keyword+semantic hybrid by the pre-registered rule in configs/evidence_v2.yaml (docs/EVIDENCE_V2.md).
+# model_dir above stays the reference: training tables, the impact dataset and impact-v1 (trained on its probabilities) keep using it, for train/serve parity.
+served_model_dir: models/event/hybrid-event-v2
 table: data/modeling/event_train.jsonl      # annotated rows + TFN silver, split (python -m eventshock.modeling event-table)
 labels_file: data/event_labels/event_labels.csv   # the annotator's labels (blind sheets filled in; committed)
 manifest_file: data/event_labels/manifest.json    # strata, weights and split of every labelled row

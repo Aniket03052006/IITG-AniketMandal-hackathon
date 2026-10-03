@@ -1,0 +1,118 @@
+# Stage 4 evidence study: PRE-REGISTRATION. Written before any 2023-2025 episode, calendar feature, gold-v2 label or v2 held-out number
+# existed. It fixes the protocols, the adoption rules and the acceptance checks; it is never edited after seeing a result (the git
+# history is the proof, and every artifact records this file's sha256). Changing anything here is a new `version`, disclosed in the docs.
+version: "evidence-v2"
+seed: 20261101
+
+# ------------------------------------------------------------------------------------------------ data
+data:
+  # GDELT GKG sample for 2023-2025: six fixed 15-minute files per UTC day (about 6% of the flow). Titles only, like the 2026 GKG.
+  gkg_slots: ["0000", "0400", "0800", "1200", "1600", "2000"]
+  gkg_start: "20230101000000"
+  gkg_end: "20251231235959"
+  # structured calendar (data/events/): SEC filings (exact acceptance time, 8-K items) and FOMC decision dates
+  calendar_dir: data/events
+  sec_items: configs/sec_items.yaml
+
+# ------------------------------------------------------------------------------------------------ protocols
+# Both are chronological with a 5-session embargo; neither is ever fitted on or tuned against its val/test/live sets.
+protocols:
+  P1_legacy:      # reproduces impact-v1 (same boundaries as configs/modeling.yaml): the regression gate, never the product decision
+    embargo_sessions: 5
+    train_end: "2022-03-31"
+    val: ["2022-04-01", "2022-06-30"]
+    test: ["2022-07-01", "2022-09-30"]
+    live_start: "2026-01-01"
+  P2_extended:    # the product decision: train through 2023, val 2024, test 2025 (scored once), live 2026 news (scored once)
+    embargo_sessions: 5
+    train_end: "2023-12-31"
+    val: ["2024-01-01", "2024-12-31"]
+    test: ["2025-01-01", "2025-12-31"]
+    live_start: "2026-01-01"
+  # the P1 reproduction must land within this of impact-v1's recorded held-out Spearman (val+test, issuer scope: +0.119)
+  p1_regression_tolerance_spearman: 0.03
+
+# ------------------------------------------------------------------------------------------------ feature availability
+# Each calendar feature has exactly one availability class; only (a) and (b) may reach a model, (c) is registered POST_EVENT and refused.
+#   a  KNOWN BEFORE the event (scheduled/announced ahead, or a pure function of strictly earlier filings)
+#   b  PUBLISHED AT EVENT TIME (an accepted filing or a published report strictly before the document's own timestamp)
+#   c  KNOWN ONLY AFTER (never a feature; at most a diagnostic label)
+structured_features:
+  earnings_lookback_years: 2        # expected earnings date is inferred from the issuer's own 8-K item 2.02 history before the document
+  earnings_window_sessions: 1       # "earnings window" = expected date within +-this many sessions
+  recent_filing_hours: 24
+
+# ------------------------------------------------------------------------------------------------ representation bake-off (event model)
+representation:
+  baseline: tfidf-lr-event-v1
+  # adopt a candidate only if ALL hold; otherwise the shipped model stays and the reason is recorded
+  adopt_if:
+    pooled_served_macro_f1_delta_ci_lower_above: 0.0     # pooled held-out (gold v1 history + gold v2 + replay check), paired cluster bootstrap
+    log_loss_not_worse_by_more_than: 0.0
+    ece_not_worse_by_more_than: 0.02
+    abstention_precision_not_worse_by_more_than: 0.0     # at equal coverage
+    deterministic_double_run: true
+    decontaminated_served_macro_f1_delta_ci_lower_above: 0.0
+  hybrids: [H1_early_fusion, H2_late_fusion, H3_plus_lexicon_affect]   # the complete list: no grid search over fusion designs
+  # ---- ADDED after a dry run of the bake-off on gold v1 + the replay check (run before gold v2 existed, to debug the code; it showed a large hybrid
+  # gain). Both additions only make adoption HARDER or cheaper, and the dry run is disclosed in docs/EVIDENCE_V2.md and the journey.
+  # (1) decontamination: dense encoders can exploit semantic near-duplicates (the same story, reworded) that the token-overlap disjointness check
+  #     cannot see. Evaluation rows whose nearest TRAINING text has e5-large cosine >= max_cosine are removed, for baseline and candidates alike,
+  #     and the served macro-F1 improvement must ALSO have a positive lower bound on the decontaminated pooled set.
+  decontaminate: {model: "intfloat/multilingual-e5-large", max_cosine: 0.90}
+  # (2) cost: hybrids are built on the dense encoder with the best dev log-loss AND on the best one under the cost cap (controlled benchmark,
+  #     ms per text on CPU). Among candidates that pass every check, adopt the cheapest whose pooled served macro-F1 is within `tie_margin` of the best.
+  cost_cap_ms_per_text: 100
+  tie_margin_served_macro_f1: 0.02
+  affect_models: ["yiyanghkust/finbert-tone", "ProsusAI/finbert", "j-hartmann/emotion-english-distilroberta-base"]
+  dense_models: ["intfloat/multilingual-e5-small", "intfloat/multilingual-e5-base", "intfloat/multilingual-e5-large",
+                 "BAAI/bge-base-en-v1.5", "thenlper/gte-base"]
+  max_tokens: 128
+  bootstrap_resamples: 1000
+  bootstrap_seed: 11
+
+# ------------------------------------------------------------------------------------------------ impact: ladder additions and checks
+impact:
+  # new rungs, nested on R2 (market state + timing): R2s adds the calendar block, R3 adds the text-model outputs (as in v1),
+  # R3h adds the hybrid/affect block (only if the representation rule adopts one; otherwise reported as a diagnostic)
+  rungs: [R2, R2s, R3, R3s, R3h]
+  adoption: paired_oof_mae_interval_below_zero      # same rule as impact-v1
+  # Unit of analysis is the EPISODE (ticker, reaction session): rows of an episode share one outcome, so features are averaged within it
+  # (v1 fitted rows weighted 1/size and then averaged predictions; this is the same estimand with ten times fewer rows). The learners are
+  # unchanged (ridge, additive boosting, full boosting); only the hyper-parameter grid is narrower and the folds are half-yearly, to keep the
+  # study re-runnable in about an hour.
+  fit:
+    hgb: {max_depth: [2, 3], max_iter: [100, 250], learning_rate: [0.05], min_samples_leaf: [60], l2_regularization: [10.0]}
+    ridge_alpha: [1.0, 10.0, 100.0]
+    issuer_weight_cap: 0.15
+  folds: {first_fold_start: "2017-01-01", step_months: 6, embargo_sessions: 5, min_train_episodes: 800}
+  # nested chain tried in order (adopted only on a paired out-of-fold interval below zero); R3 is a side branch used to split the increment
+  chain: [R0, R2-ridge, R2-additive, R2-full, R2s-ridge, R2s-additive, R2s-full, R3s-ridge, R3s-additive, R3s-full]
+  side_branch: [R3-ridge, R3-full]
+  # the regime-vs-event battery
+  battery:
+    vol_buckets: 5                  # buckets of trailing residual volatility used to neutralise the regime
+    min_episodes_per_cell: 15
+    control:                        # event-vs-control contrast on filing events
+      exclusion_sessions: 3         # a control session has no non-exhibit 8-K within +-this many sessions
+      match_on: [issuer, vol_bucket]
+      max_distance_sessions: 60
+    permutation_repeats: 200
+    permutation_within: [issuer, month]
+    min_year_episodes: 100
+  # acceptance: C1-C8 as in configs/impact_model.yaml (unchanged thresholds), plus
+  acceptance_added:
+    c9_regime_neutral_spearman_ci_lower_above: 0.0          # on P2 test; the target is |z| residualised on vol bucket and issuer-month
+    c10_block_increment_mae_ci_upper_below: 0.0             # event/structured block over market state, paired, on P2 test AND live
+    c11_positive_year_share_at_least: 0.75                  # share of calendar years (>= min_year_episodes) where the block's effect is in the helpful direction
+  bootstrap_resamples: 1000
+  bootstrap_seed: 7
+
+# ------------------------------------------------------------------------------------------------ gold v2
+gold_v2:
+  rows: 300
+  seed: 20261102
+  near_duplicate_threshold: 0.8
+  quota: {EARNINGS_FINANCIAL_PERFORMANCE: 30, CREDIT_FUNDING: 30, GEOPOLITICAL: 30, MA_CORPORATE_ACTION: 30}   # keyword-hit search aid, never a label
+  annotator_passes: 2
+  # a row enters the "agreed" subset only when both independent blind passes give the same event class
