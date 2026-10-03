@@ -1,0 +1,86 @@
+{
+ "files": {
+  "configs/app.yaml": "22d29f3f371af11a2e7592532ccc1bc64900a9c921fd09d7ecc8561a15e87387",
+  "configs/event_model.yaml": "613c6d8e8ff2aabe867d04e513346e8391766505ee0744991154ced6c1be3899",
+  "configs/event_taxonomy.yaml": "ae98decec1d5b437076a5a6e46d47adf67983150ddc4c5a2db8de94ea8a558de",
+  "configs/evidence_v2.yaml": "59f2af5b33da50ff4fb331851d9c2d4b851a33b6684d34df94abf42fdb333b8f",
+  "configs/external_datasets.yaml": "e730399f38074cae4524b96acbd77493268a9faad22c18bd7ddde2cae9ff9f39",
+  "configs/impact_model.yaml": "1cde9e0924a0d732870fdf118927c3f48d7ad6483768be9b517eca5bfdc7b108",
+  "configs/lexicons.yaml": "32c0f7068c0aaab3ebe3a39ba07f2cb882181ae1dfca2866a94468b1cd95a94a",
+  "configs/mcc_sector_map.yaml": "3f4ee593017f04ed305c2ae78d12ca5b5f2391bbf620c3391b468d0faa34404d",
+  "configs/modeling.yaml": "2233327ede2f6be38f7198bfe282212b2a441012788fe65d4062928d90e51aa4",
+  "configs/pipeline.yaml": "d221f90cd12f7e0db96ebfac65c1ca33e7af81b6c0cb8425a72dc98dd2a77d48",
+  "configs/placeholder_enrichment.yaml": "ed6e8a6490521e7f446e944e7a01add79fc2d0392dafdb4f78cee9ac418ad8f2",
+  "configs/scenarios.yaml": "288b3eca4648515893b079fdc29194fabac075ae462462514c1289cef3db75a9",
+  "configs/sec_items.yaml": "d07a9c3b0ef4a29575955517824b65f4ca4a597b4350b94dc4adfd250b5e6670",
+  "configs/sentiment_model.yaml": "98c80a155547190f3614766ded7e79a90bb21ddbdf5d3ae53cbca41c1a02618b",
+  "configs/topic_mapping.yaml": "93619ddc7997ab36e0143cf4826a2616b969f213475a0f71a2648ca7aadb37c7",
+  "data/events/fomc.json": "25e46f93f6597d61992c464c667e4f2f7e3f05a42ebbf629992b6e0786b5576f",
+  "data/events/manifest.json": "b7a74cf656b0e56f328d2405dc37ede5195ce56a4c4c462221e8682893d81b35",
+  "data/events/sec_filings.jsonl": "8a9e225e978e1946894f6c5c0578f5860e3c789ec363bc02dd47f6c03ca4bbb5",
+  "data/gold/adjudication.csv": "cba163a0d9f680908c0de577f9b3197259383e72db0cb7712e61367a81734a1f",
+  "data/gold/consistency_sheet.csv": "87a6998ab5442de1d6e36d42f7846871190b1f354e865c81a3b0b5af89a12cb8",
+  "data/gold/gold_manifest.json": "89ccad6052c5cb1a76b7ab7a49b93ef9f62e00c757e4e6d39b1c0bad1fba4e75",
+  "data/gold/gold_sample.csv": "e05d1318a772457075eeaea6bfd7172767092ad9a67619fcf39afe8ff414a32f",
+  "data/gold/gold_scores.json": "252b49b310899279e92f34fa29a997074f3156c3990319f64e63b1a47df32857",
+  "data/gold_v2/adjudication_v2.csv": "d948217def8586f6598c8fc1c5eb30d01e64d471d0150c0471b45bc81ab6427f",
+  "data/gold_v2/agreement.json": "69d8d0819563c4e25b176f8a0136890333d9b8e41636a93de6bd5408206a8187",
+  "data/gold_v2/answers/A/passA_01.jsonl": "92906409740f2ed3ad5f386e9a243177863c3249335c0cf9b193398ee63afc08",
+  "data/gold_v2/answers/A/passA_02.jsonl": "468137766d594a0b65ca88ae4cb1a12be50110f531bc36e075798114ea0c55af",
+  "data/gold_v2/answers/B/passB_01.jsonl": "e95e132aa7dc9fc15fe42e60765aac69bad8302d1f8622835ca13ea4cfb0cf5d",
+  "data/gold_v2/answers/B/passB_02.jsonl": "bab940f247028fee41d2f69d8fdd885a5df2450792b822726fa38b03e1eb6413",
+  "data/gold_v2/gold_v2.csv": "8f283e48e4bba5192f65d86dc01411d4dad7fb8632a62a34488eae9fb4c58a22",
+  "data/gold_v2/manifest.json": "195c190f430bc4bca2c0fc04df7c2f49f6311db13ddb82367ab458d316641c9b",
+  "data/gold_v2/prompts/passA.md": "2bff0121082558d55effb70824b02556469bdb62faa615ccc55e26ad240c5cd6",
+  "data/gold_v2/prompts/passB.md": "4cf860d6ec426c4c79de1e03f72224cf36d27e77bc6aff816185ba4ae20be089",
+  "data/gold_v2/sheet.csv": "a5d009e2a6a9406f1e8720cdf60033017445cad7d47b5b10a45d14a39b2ef9a8",
+  "data/replay/embeddings/event-e5-large.npz": "7a1faaa081404d19869ac341bda23c91202f60dcf6aa75f25b6aceacdf39f899",
+  "data/replay/entities.json": "76023c9a240ceeff5ad36cc4eeb96820ba3d4671cb1e7ca9ea5e270ebd387732",
+  "data/replay/gdelt/articles.jsonl": "7df64f2f6894f1972e03e84f497eab16f87bca54428e0804991d3402ea3db693",
+  "data/replay/gdelt/gkg_articles.jsonl": "5dd19f7c47e5ca356ab2093255ce89d4ea7d816efb9950d6df9b636c36b01801",
+  "data/replay/manifest.json": "46728e88cb734bc4a0db9196468317c03d6b113fd9bb519bfa09be232d99c230",
+  "data/replay/market/context.json": "60fc089f1f1a8f4d07207de4986a1f5cb93631e1da884f8b5e303062ee0af6cf",
+  "data/replay/portfolio.json": "76d12e48acfde127e9e4b15dda5dd4c13a4d4b6ccbf59b50dfde69dc2a584266",
+  "data/replay/sector_mix.json": "c2d87c3a02b35b2078ec5baf8925c7a40c2828605ca802fd9feaa0454aacce77",
+  "data/replay/social/tfn_sample.jsonl": "97edae69c1e7fa1585124177084420b04674f70d19f8d943a3afaf97af6d821c",
+  "docs/evidence/embedding_experiment.json": "e0aecc440e6139277399ca267bdf294e3ed7d9e71322890174e07cd3aa559c00",
+  "docs/evidence/event_first_run_two_threshold_card.json": "4782eefb21ca3f8dbeb80f7eead609bb824d280071e3b6196ccf21cd0685c6d6",
+  "docs/evidence/impact_study.json": "62fc9ef0eaaf009c7bb3d622dfa73521be4b55c87e63f89391c36392b320a419",
+  "docs/evidence/representation_bakeoff.json": "8e9ff7b55d130b24d2978eb634f97e7b066970a1503febc0b6e7bc58cdf70ba9",
+  "models/event/hybrid-event-v2/model.joblib": "3ca178645d241605a27811af339d582b2334282b6586b07f8d19f713240f0a71",
+  "models/event/hybrid-event-v2/model_card.json": "6b70dac165e7aafa783cfba2bd94605d3af3c61c22a4abe9b51cdbfcaf331b60",
+  "models/event/tfidf-lr-event-v1/model.joblib": "4033198d020fdf13f6956e685617a08d8bbc12bc53c648f1f4e59d9730b55c83",
+  "models/event/tfidf-lr-event-v1/model_card.json": "fd774ecaa9f739fc7850d51304f173ba7d0bd0c0f70137a075c256da58c109f4",
+  "models/impact/impact-v1/model.joblib": "ac15419989bcc33965dff3314b16ee1ae22adaef971115e94f581e782e32bf86",
+  "models/impact/impact-v1/model_card.json": "c03d26f7ed31deec6f040529e427ac6e14cd63dee4bb5243b88b06d3a04a61a2",
+  "models/impact/impact-v2/model.joblib": "31545b4913b36d3a5f9a85a21b9f0e48fa730eb36e085f9ad9f669819b2bcc86",
+  "models/impact/impact-v2/model_card.json": "b8dbcc03dcfcb6871356c1ae48872407ed3793c76d387e48e2a6dd2aeafb60e8",
+  "models/sentiment/tfidf-lr-v1/model.joblib": "41048a3895100bd48d5b312fee03cfe6f1f8121138a25b94f29e59ed50935470",
+  "models/sentiment/tfidf-lr-v1/model_card.json": "1293944c860c1648802e7718ec14b30d0a024fbe114768215af97e95344e9858"
+ },
+ "frozen_on": "2026-10-03",
+ "models": {
+  "models/event/hybrid-event-v2": {
+   "artifact_sha256": "3ca178645d241605a27811af339d582b2334282b6586b07f8d19f713240f0a71",
+   "id": "hybrid-event-v2"
+  },
+  "models/event/tfidf-lr-event-v1": {
+   "artifact_sha256": "4033198d020fdf13f6956e685617a08d8bbc12bc53c648f1f4e59d9730b55c83",
+   "id": "tfidf-lr-event-v1"
+  },
+  "models/impact/impact-v1": {
+   "artifact_sha256": "ac15419989bcc33965dff3314b16ee1ae22adaef971115e94f581e782e32bf86",
+   "id": "impact-v1"
+  },
+  "models/impact/impact-v2": {
+   "artifact_sha256": "31545b4913b36d3a5f9a85a21b9f0e48fa730eb36e085f9ad9f669819b2bcc86",
+   "id": "impact-v2"
+  },
+  "models/sentiment/tfidf-lr-v1": {
+   "artifact_sha256": "41048a3895100bd48d5b312fee03cfe6f1f8121138a25b94f29e59ed50935470",
+   "id": "tfidf-lr-v1"
+  }
+ },
+ "replay_snapshot": "replay-2026-09-30-v1",
+ "schema": 1
+}

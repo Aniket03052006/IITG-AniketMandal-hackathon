@@ -5,6 +5,12 @@ market event" or "I am not sure". Sentiment (see [SENTIMENT_MODEL.md](SENTIMENT_
 placeholder heuristic** and the stress engine is untouched. Every number below is in `models/event/tfidf-lr-event-v1/model_card.json`
 (served at `GET /api/models/event`, shown on the Pipeline page) and is reproduced by `make train-event`.
 
+> **Stage 4 update (2026-10-03): the served event model is now `hybrid-event-v2`** (TF-IDF features concatenated with 2 x frozen multilingual-e5-large sentence vectors, one logistic regression, the same temperature and the same fixed 0.5 commit rule; `models/event/hybrid-event-v2/`).
+> It beat this model on every held-out set by a pre-registered paired bootstrap (pooled served macro-F1 0.434 -> 0.653; +0.219 [+0.175, +0.270], +0.215 on the decontaminated set) and is **experimental**: the sets that decided the choice are not independent evidence of a validated model, so its card carries an explicit failing check until human-adjudicated rows exist.
+> The comparison, the contamination audit, the cost rule and the rejected alternatives are in [EVIDENCE_V2.md](EVIDENCE_V2.md) section 5. This document describes the TF-IDF reference (still the fallback and the source of the probabilities impact reads); its sections below are unchanged.
+
+> **Final state (2026-10-03):** the lifecycle verdicts, evidence and frozen hashes for all stages are in [FINAL_MODEL_REPORT.md](FINAL_MODEL_REPORT.md); nothing here has been promoted.
+
 ## 1. Bottom line
 
 | Question | Answer |
@@ -178,3 +184,8 @@ Files: `configs/event_model.yaml` · `src/eventshock/pipeline/{event_model,event
 4. **Prior correction** for the over-sampled rare classes, and per-source calibration (tweets vs headlines).
 5. **Impact** is still a placeholder; it is the next stage and should use the event model's calibrated probabilities as input (and the market-response target in `MODELING_READINESS.md`).
 6. A second label per document for multi-event headlines.
+
+
+## Update (Stage 3c): the embedding experiment
+
+The frozen-encoder experiment this document listed as next was run (see [IMPACT_MODEL.md](IMPACT_MODEL.md) section 11 and `docs/evidence/embedding_experiment.json`). On the same train/dev rows, `multilingual-e5-base` + logistic regression reaches dev log-loss **0.719 vs 0.872** for the shipped TF-IDF model, and a higher gold served macro-F1 point estimate (0.44 vs 0.39), but the paired 95% interval of the difference on the 280 weighted gold history rows is −0.09 to +0.19: **not adopted** under the rule fixed beforehand. FinBERT and e5-small were no better than TF-IDF on gold. The production model is unchanged.

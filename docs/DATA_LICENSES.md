@@ -39,7 +39,24 @@ download (research access is by application). The Kaggle card-transaction datase
 | `models/event/tfidf-lr-event-v1/` | a TF-IDF + logistic-regression model trained on that table (weights derive from CC0 / MIT texts and our labels). The gold set was used for evaluation only | **Yes** (2.7 MB: artifact + model card) |
 | `docs/evidence/event_first_run_two_threshold_card.json` | the event model card of the first full run, kept so a design change made after it stays auditable | **Yes** |
 | `data/modeling/*` (the rest: `impact_events.jsonl`, `event_silver.jsonl`, `phrasebank_eval.jsonl`, `audit.json`, `probe*.json`) | the raw datasets above, re-split, deduplicated and joined to prices | **No** (git-ignored; rebuild with `make audit`). `phrasebank_eval.jsonl` is CC BY-NC-SA and must never be committed or trained on |
+| `data/replay/market/context.json` | per-issuer and market statistics derived from the Yahoo prices (trailing volatility, betas, 1/5/20-session returns, volume ratio, VIX and yield context) for the replay window's sessions: **no prices, no volumes, no OHLCV**; `make market-context` | **Yes** (derived statistics only; the raw prices stay git-ignored). If a rights holder objects, the impact model falls back to the labelled placeholder rule |
+| `data/modeling/impact_table.jsonl`, `impact_dataset.json` | the impact training table (features, outcomes, text) and its manifest; `make impact-table` | **No** (git-ignored, ~140 MB; the manifest pins it by sha256) |
+| `models/impact/impact-v1/` | the fitted impact model (a 0.1 MB scikit-learn artifact) and its card | Yes |
 | Yahoo prices | refetched from 2014-01-01 (`make fetch-prices`) so H1 2015 has a 250-session history | No |
+
+## Stage 4 evidence sources (structured events, 2023-2025 news, representation study)
+
+| Source | What we take | Licence / terms | Committed? |
+|---|---|---|---|
+| **SEC EDGAR submissions index** (`data.sec.gov/submissions/`, `www.sec.gov/files/company_tickers.json`) | per filing of the 34 issuers (and predecessor registrants of GOOGL and XOM): form, exact acceptance time (UTC), 8-K item codes, accession, primary document name | US government work, public domain. SEC fair-access policy: declared contact in the User-Agent (`EVENTSHOCK_SEC_CONTACT`, kept in the git-ignored `.env`, never committed), at most 10 requests per second (we send about 4) | **Derived table only** (`data/events/sec_filings.jsonl`, 9,772 rows, 2 MB). Raw index pages: `data/raw/edgar/`, git-ignored |
+| **FOMC calendars** (`federalreserve.gov/monetarypolicy/fomccalendars.htm`, `fomchistorical<year>.htm`) | decision dates (scheduled flag; cancelled meetings and notation votes dropped) | US government work, public domain | Derived (`data/events/fomc.json`). Raw pages git-ignored |
+| **GDELT GKG 2.1, 2023-2025 sample** | six fixed 15-minute files per UTC day, filtered on the fly to the entity master (same filter and fields as the 2026 slice): title, URL, domain, publisher timestamp where valid, machine tone, organisations | GDELT terms: free reuse with citation | **No** (raw filter output and the curated `data/history_v2/` are git-ignored; `make fetch-gkg-2023 history-v2` rebuilds them). No publisher text is stored |
+| **Gold v2** (`data/gold_v2/`) | about 300 titles from that sample, two independent blind AI passes, agreement report, human adjudication queue | titles are GDELT metadata (as above); labels are ours (`ai:claude`) | **Yes** (small) |
+| **Finance polarity probe** (`data/probes/`) | 60 sentences written for this project | ours (MIT with the repository) | Yes |
+| **Finance lexicon** (`configs/lexicons.yaml`) | word lists written for this project, not copied from any dictionary | ours | Yes. The Loughran-McDonald dictionary is academic-licence and is deliberately **not** used or redistributed |
+| **Frozen encoders** (`intfloat/multilingual-e5-*`, `BAAI/bge-base-en-v1.5`, `thenlper/gte-base`, `yiyanghkust/finbert-tone`, `ProsusAI/finbert`, `j-hartmann/emotion-english-distilroberta-base`) | frozen weights used only to embed text; no fine-tuning, no redistribution | each model's own licence on Hugging Face (MIT / Apache-2.0 for these); downloaded anonymously into the user's cache | Weights: no. Embedding cache `data/modeling/embeddings/`: git-ignored. They run only in the optional `.venv-emb`; the product never imports them |
+
+Not obtained, and said so: consensus earnings estimates (so no realised earnings surprise), BLS jobs and CPI release calendars, and any GDELT coverage outside the six sampled slots.
 
 ## What goes where
 
@@ -52,6 +69,9 @@ download (research access is by application). The Kaggle card-transaction datase
 | `data/modeling/` | modeling tables and audit output (`make audit`); only `sentiment.jsonl` and `event_train.jsonl` (the training tables) are tracked | partly |
 | `models/sentiment/`, `models/event/` | the trained artifacts and their model cards (`make train-sentiment`, `make train-event`) | yes |
 | `data/event_labels/` | the annotator's event labels, blind-pool manifest and answer files (`make event-pools`, `make event-merge`) | yes |
+| `data/events/` | SEC filing acceptance times and 8-K item codes, FOMC decisions, manifest with hashes and known gaps (`make fetch-edgar fetch-fomc events-calendar`) | yes |
+| `data/gold_v2/`, `data/probes/` | the 2023-2025 doubly annotated evaluation set; the polarity probe | yes |
+| `data/history_v2/`, `data/processed/history_v2/` | history v1 plus the 2023-2025 GKG sample, and its pipeline output | no |
 | `data/gold/` | the gold set: blind sheet, manifest, adjudication, consistency | yes |
 | `data/fixtures/` | Stage-1 fictional demo data (`EVENTSHOCK_PROFILE=demo`) | yes |
 

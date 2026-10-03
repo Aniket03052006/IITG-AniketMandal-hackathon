@@ -66,7 +66,7 @@ extension points: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | Tests | pytest (backend), Vitest + Testing Library (frontend) | Contracts, formulas, golden replay, UI states |
 | Ingestion (Stage 2) | stdlib only: adapters → validate → entity resolution → dedup → enrichment | Deterministic replay from hash-pinned snapshots |
 | Sentiment (Stage 3) | **TF-IDF + logistic regression + temperature scaling** (scikit-learn), trained on Twitter Financial News, committed artifact with model card | Small, CPU-only, byte-reproducible; evaluation and failure modes in [docs/SENTIMENT_MODEL.md](docs/SENTIMENT_MODEL.md) |
-| Planned (later stages) | Calibrated impact model (XGBoost + SHAP), EDGAR/NewsAPI adapters, DuckDB/SQLite | Behind the extension points in `ports.py` |
+| Planned (later stages) | EDGAR/NewsAPI adapters, earnings-calendar features for impact, DuckDB/SQLite | Behind the extension points in `ports.py` |
 
 ## 3. Dataset Used
 
@@ -122,6 +122,7 @@ Useful commands:
 | `make dev` | API with reload on :8000 + Vite on :5173 (open http://localhost:5173) |
 | `make test` | backend pytest + frontend Vitest |
 | `make lint` | ruff + TypeScript typecheck |
+| `make freeze-check` `make smoke` | verify the frozen model/config/data hashes (`docs/freeze_manifest.json`); start the real server and check API, served model ids and artifact hashes, evidence, stress and UI (~2 min) |
 | `make fixtures` | regenerate the deterministic Stage-1 demo data |
 | `make ingest` | run the ingestion pipeline over `data/replay`, export signals / quarantine / report to `data/processed` |
 | `make fetch-prices` | daily prices for all issuers + S&P 500 / VIX / 10y yield from Yahoo (no key) into `data/raw/prices` |
@@ -132,6 +133,11 @@ Useful commands:
 | `make replay-pack` | freeze `data/raw` into the committed, hash-pinned `data/replay` |
 | `EVENTSHOCK_PROFILE=demo make run` | serve the Stage-1 fictional fixtures instead of the real replay pack |
 | `make types` | regenerate the frontend API types from the FastAPI schema |
+| `make market-context` | freeze event-time market features (derived statistics, no prices) of the replay window into `data/replay/market/context.json` (needs `data/raw/prices`) |
+| `make fetch-edgar` `make fetch-fomc` `make events-calendar` | SEC 8-K filings (needs `EVENTSHOCK_SEC_CONTACT` in `.env`) and FOMC dates into the committed `data/events/` |
+| `make impact-table-v2` `make impact-study` `make train-impact-v2` | Stage 4: extended-history table, the pre-registered incremental-value study (`docs/evidence/impact_study.json`), and the served impact-v2 artifact (about 1 h, deterministic) |
+| `make bakeoff` `make train-event-hybrid` | Stage 4: representation comparison (`docs/evidence/representation_bakeoff.json`; embeddings need the optional `requirements-embed.txt`) and the hybrid event model |
+| `make impact-table` `make train-impact` | rebuild the impact modeling table, then select / calibrate / evaluate the impact model into `models/impact/` (about 45 min; needs the local data) |
 
 Without the UI build, `python src/main.py` still serves the API; interactive docs are at `/api/docs`.
 
@@ -166,16 +172,17 @@ consequence in one place, and can inspect every number behind it.
 | Validation / quarantine, entity resolution, de-duplication, corroboration counts, provenance | **Real** (deterministic rules) |
 | Stress engine, scenario scaling, attribution, run ids | **Real, deterministic** |
 | Sentiment | **Trained model** (`tfidf-lr-v1`): macro-F1 0.78 on held-out Twitter Financial News, 0.47 on Financial PhraseBank, 0.44 on our own AI-labelled sources (95% CIs and baselines in the model card); labelled `MODEL` in the UI, with per-signal confidence and an *in-sample* flag |
-| Event type | **Trained model** (`tfidf-lr-event-v1`) trained on 2.3k AI-annotated in-domain labels. It can say *not a market event* or *uncertain*; it separates events from non-events with F1 0.70 on our own AI-labelled sources (the old keyword rules: 0.49), but names the exact type far less reliably (macro-F1 0.53 vs 0.33), never asserts `M&A / Corporate Action`, and **missed its pre-registered acceptance bar on the gold set** (0.33 [0.26, 0.38] vs 0.33); the full card, per-class reliability and error analysis are in [docs/EVENT_MODEL.md](docs/EVENT_MODEL.md) |
-| Impact | **Placeholder heuristic** (`placeholder-v0`), labelled in the UI; reads the models' category and tone; none for non-events |
-| Impact "drivers" bars | Placeholder heuristic terms, labelled *not a trained model* |
+| Event type | **Experimental trained model** (`hybrid-event-v2`: TF-IDF keywords plus a frozen e5-large sentence vector, one 9-way classifier, calibrated) trained on 2.3k AI-annotated in-domain labels. It can say *not a market event* or *uncertain*. Served macro-F1 (an "uncertain" counts as wrong) is 0.54 [0.42, 0.66] on gold v1, 0.60 [0.51, 0.67] on gold v2 and 0.78 [0.65, 0.83] on the replay check, against 0.33, 0.38 and 0.25 for the keyword rules on the same sets. It passes the three inherited acceptance checks but **fails the fourth, an evaluation set that took no part in adopting it**: all gold labels are AI-annotated, human adjudication was not done, so it is *experimental*. The impact stage keeps reading the TF-IDF reference model it was trained on (`tfidf-lr-event-v1`); see [docs/FINAL_MODEL_REPORT.md](docs/FINAL_MODEL_REPORT.md), [docs/EVENT_MODEL.md](docs/EVENT_MODEL.md) |
+| Impact | **Experimental trained model** (`impact-v2`, [docs/EVIDENCE_V2.md](docs/EVIDENCE_V2.md), [docs/IMPACT_MODEL.md](docs/IMPACT_MODEL.md)): predicts the size of the market's reaction from market state and an event calendar (earnings timing, filings, FOMC) known at event time; calibrated 1-10 score with an empirical range. Measured on 9,897 held-out 2024-25 issuer episodes: the calendar adds real skill, the text-model outputs add none, and most of the skill is still volatility regime (placebo check fails), so it is labelled *experimental*. Signals it cannot score keep the labelled placeholder rule; none for non-events |
+| Impact "drivers" bars | The model's own attributions (labelled exact or sensitivity); placeholder-rule terms are labelled *not a trained model* |
 | Portfolio | **Synthetic** positions on real issuers |
 | Scenario magnitudes | Illustrative configuration |
-| Calibrated impact model, contradiction detection, domain-adapted sentiment, human-adjudicated labels | Not built yet |
+| Final model table, lifecycle decisions, frozen-state hashes | [docs/FINAL_MODEL_REPORT.md](docs/FINAL_MODEL_REPORT.md), `make freeze-check` |
+| Contradiction detection, domain-adapted sentiment, human-adjudicated labels | Not built yet |
 
 ## Limitations
 
-Impact is a placeholder rule, not a model; sentiment is a trained model but weak outside its training domain (see [docs/SENTIMENT_MODEL.md](docs/SENTIMENT_MODEL.md)); event type is a trained model whose labels come from an AI annotator (no human labels exist) and which is unreliable on several classes (see [docs/EVENT_MODEL.md](docs/EVENT_MODEL.md)); the entity resolver is a 34-issuer dictionary; GDELT supplies headlines only (no article text); tweets carry no real timestamps; contradiction detection is not built; in-memory state only (the pipeline reruns at startup); no FX/commodity factors or option gamma; single-currency
+Impact is an experimental model (calendar-aware, but most skill is volatility regime and nothing is validated: see [docs/EVIDENCE_V2.md](docs/EVIDENCE_V2.md) and the in-app Model-evidence page); the 2023-25 news is a 6%-of-flow, titles-only sample and the earnings calendar is inferred from past filings; sentiment is a trained model but weak outside its training domain (see [docs/SENTIMENT_MODEL.md](docs/SENTIMENT_MODEL.md)); event type is a trained model whose labels come from an AI annotator (no human labels exist) and which is unreliable on several classes (see [docs/EVENT_MODEL.md](docs/EVENT_MODEL.md)); the entity resolver is a 34-issuer dictionary; GDELT supplies headlines only (no article text); tweets carry no real timestamps; contradiction detection is not built; in-memory state only (the pipeline reruns at startup); no FX/commodity factors or option gamma; single-currency
 synthetic book; no authentication. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the roadmap and
 [docs/PROJECT_JOURNEY.md](docs/PROJECT_JOURNEY.md) for what was built, what broke, and how it was fixed.
 

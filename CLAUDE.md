@@ -74,10 +74,19 @@ Be honest — failed approaches and dead ends belong there; it feeds the deck's 
 - Commit only when the user asks. Small, incremental commits, imperative messages.
 - `1.Submission Guidelines_External.docx.md` is git-ignored on purpose; leave it that way.
 
-## Current repo state (Stage 3b: sentiment + event models, 2026-10-02)
+## Current repo state (Stage 4 frozen: submission hardening, 2026-10-03)
 - Git: branch `main`, incremental commits already exist; commit only when asked.
-- **Sentiment is now a trained model** (`tfidf-lr-v1`: TF-IDF + logistic regression + temperature scaling; `src/eventshock/pipeline/sentiment_model.py`, artifact + card in `models/sentiment/tfidf-lr-v1/`, config `configs/sentiment_model.yaml`, `make train-sentiment`). Signals carry `data_origin = REAL_SOURCE_MIXED_NLP`, `stage_origins` sentiment=`MODEL`, and `provenance.sentiment` (artifact sha256, confidence, `seen_in_training`). Read `docs/SENTIMENT_MODEL.md` (results, domain gap, failure policy) before changing it. The server refuses to start without the verified artifact; there is no lexicon fall-back. Gold labels and PhraseBank are evaluation-only.
-- **Event type is now a trained model too** (`tfidf-lr-event-v1`: 9-way TF-IDF + logistic regression, 8 classes + `NONE`, temperature-calibrated, one fixed 0.5 commit threshold; `pipeline/event_model.py`, `models/event/tfidf-lr-event-v1/`, `configs/event_model.yaml`, `make train-event`). It can return `EventStatus` `CLASSIFIED | NO_EVENT | UNCERTAIN`; non-events and uncertain events get **no impact** (`PARTIAL`), so the stress engine never fires on them. Impact is **still the placeholder heuristic**. Labels are AI-annotated (`data/event_labels/`, `ai:claude`), not human; the pre-registered acceptance bar is **not met** on the gold set. `MA_CORPORATE_ACTION` is never asserted. Read `docs/EVENT_MODEL.md` (data, protocol, results, the one policy change made after seeing held-out numbers, limits) before changing it. The server refuses to start without both verified artifacts. Gold and the replay check set are evaluation-only; never train or select on them. Commands: `make event-pools event-merge event-table train-event`.
+- **Sentiment is a trained model** (`tfidf-lr-v1`; `pipeline/sentiment_model.py`, `models/sentiment/`, `make train-sentiment`; read `docs/SENTIMENT_MODEL.md` before changing it).
+- **Event type is a trained model** (`tfidf-lr-event-v1`, 9-way with abstention; `pipeline/event_model.py`, `models/event/`, `make train-event`; read `docs/EVENT_MODEL.md`). Labels are AI-annotated; its pre-registered bar is **not met** on gold. Gold and the replay check set are evaluation-only.
+- **Impact is now a trained model, labelled *experimental*** (`impact-v1`; read `docs/IMPACT_MODEL.md` before touching it). Two scopes in one artifact: `ISSUER` (abnormal return of one resolved company) and `MARKET` (S&P 500's own move, for documents naming no company), each with its own lifecycle
+  `NOT_AVAILABLE → DATASET → BASELINE → TRAINED → CALIBRATED → PRODUCTION` derived from a **pre-registered acceptance bar** in `configs/impact_model.yaml` (never edit it after seeing results; the git history is the proof). Both scopes are `CALIBRATED` (UI: "experimental model"): market-state skill is real, event-specific skill is not measurable (placebo skill ≥ real skill).
+  Code: `pipeline/impact_model.py` (serving), `impact_card.py`, `impact_features.py` (the one feature schema), `market_context.py` (anchoring + frozen market pack); `modeling/impact_dataset.py`, `impact_train.py`, `impact_stats.py`, `market_pack.py`; `ImpactModelEnricher` in `pipeline/enrich.py` runs impact as a **post-pass after novelty**.
+  Signals the model cannot score (several issuers, weak link, replay-assigned clock, no market data) keep the labelled placeholder rule, with the reason in `provenance.impact_note`; impact origin is **per signal** (`stage_origins.impact`), and the UI never shows an unvalidated number as authoritative. Missing artifact → labelled heuristic (`require: false`); modified artifact → `ConfigError`.
+  Commands: `make market-context impact-table train-impact` (the last takes ~45 min; `--dev-only OUT` skips test/live). Training must stay chronological: rolling-origin folds, 5-session embargo, test and live scored once; features must be registered `AT_EVENT_TIME` in `modeling/leakage.py` (`unique_domains`, `source_count`, `ticker`, … are banned).
+  The serving market context (`data/replay/market/context.json`, derived statistics only, hash-pinned in the replay manifest) must be rebuilt (`make market-context`) whenever prices or the feature schema change.
+- **FROZEN (2026-10-03): no more model experimentation unless a correctness bug is found.** Final model table, lifecycle decisions and per-model can/cannot-use: `docs/FINAL_MODEL_REPORT.md` (numbers are test-checked against the cards). All three trained stages are *experimental*; the event model's independent-evaluation check fails until a set outside its adoption is scored (human adjudication of `data/gold_v2/adjudication_v2.csv` and `data/gold/adjudication.csv` was **skipped by decision**; protocol in `docs/EVIDENCE_V2.md` §10). `make freeze-check` verifies `docs/freeze_manifest.json` (models, configs, gold, calendar, replay, evidence); after any deliberate change run `make freeze-write` and journal it. `make smoke` starts the real server and checks API/model ids/hashes/evidence/stress/UI. `tests/e2e/test_replay_served.py` pins the served configuration (impact-v2 + hybrid event + TF-IDF parity model).
+- **Stage 4 (evidence foundation; read `docs/EVIDENCE_V2.md` first).** Pre-registration: `configs/evidence_v2.yaml` (never edit after seeing results; post-dry-run additions are marked in it and disclosed). New data: `data/events/` (SEC 8-K filings with exact acceptance times + FOMC dates; committed, derived), 2023-25 GKG (six fixed 15-min files/day; raw is git-ignored), `data/gold_v2/` (doubly annotated, evaluation-only), `data/probes/`.
+  **Served event model is the hybrid `hybrid-event-v2`** (TF-IDF ‖ e5-large vectors; replay vectors hash-pinned in `data/replay/embeddings/`, no torch at run time; live encoder optional via `requirements-embed.txt`; `served_model_dir` vs reference `model_dir` in `configs/event_model.yaml`). **Served impact model is `impact-v2`** (`configs/impact_model.yaml: served_model_dir`; v1 is the reference/fallback), experimental: it reads an `EventCalendar` (feature availability classes a/b allowed, c = known only after = refused `POST_EVENT`; `pipeline/event_context.py`, `calendar_future_invariance` check), and the impact stage keeps reading the TF-IDF event probabilities (train/serve parity). Finding to keep visible: the calendar adds real skill, text-model outputs add none, the rest is volatility regime; **nothing is validated; never label it so.** `GET /api/evidence` + the Model-evidence page are built only from committed cards and `docs/evidence/*.json`.
 - Stage 1: FastAPI + Pydantic backend (`src/eventshock/`), deterministic stress engine, React/Vite/TS/Tailwind UI (`web/`),
   configs, fixtures, tests, docs. Stage-1 fictional fixtures remain as the `demo` profile (`EVENTSHOCK_PROFILE=demo`).
 - Stage 2 (default `replay` profile; its sentiment stage has since been replaced by the model above): real documents (GDELT DOC 2.0 metadata + Twitter Financial News sample) from a
@@ -119,8 +128,58 @@ make ingest     # run the ingestion pipeline over data/replay, export to data/pr
 make fetch-gdelt fetch-tfn   # download source data into data/raw (network); then `make replay-pack` freezes it
 make train-sentiment  # train + select + calibrate + evaluate the sentiment model -> models/sentiment/ (~2 min)
 make train-event      # train + calibrate + evaluate the event model -> models/event/ (~2 min; --dev-only OUT iterates without scoring held-out sets)
+make market-context  # freeze event-time market features (derived stats, no prices) for the replay window -> data/replay/market/context.json
+make impact-table    # build data/modeling/impact_table.jsonl + manifest (both scopes, text features, exclusions by reason)
+make train-impact    # select/calibrate/evaluate the impact model -> models/impact/ (~45 min; deterministic; --dev-only OUT skips test/live)
+make fetch-edgar fetch-fomc events-calendar   # Stage 4: SEC filings (needs EVENTSHOCK_SEC_CONTACT in .env) + FOMC dates -> data/events/ (committed, derived)
+make fetch-gkg-2023   # Stage 4: GDELT GKG 2023-25, six fixed 15-min files per UTC day (~3 h, resumable, zips discarded) -> data/raw/gdelt_gkg/filtered_2023_25.jsonl
+make history-v2 ingest-history-v2 impact-table-v2 filing-events   # Stage 4: history v2 -> pipeline -> v2 impact table (protocol splits, calendar features) + Track F filing events
+make bakeoff-texts bakeoff-embed bakeoff      # Stage 4: representation comparison (embed needs the optional .venv-emb) -> docs/evidence/representation_bakeoff.json
+make train-event-hybrid train-impact-v2   # Stage 4: serve-ready artifacts (hybrid event model ~min; impact-v2 ~1 h, needs impact-table-v2 + impact-study)
+make impact-study     # Stage 4: incremental-value study + regime-vs-event battery -> docs/evidence/impact_study.json (long; reads configs/evidence_v2.yaml, the pre-registration)
+make freeze-check  # verify docs/freeze_manifest.json (final model/config/data state); `make freeze-write` only after a deliberate, journaled change
+make smoke      # real server (replay profile): API, served model ids/hashes, evidence, stress, UI (~2 min)
 make types      # re-export OpenAPI and regenerate web/src/api/schema.d.ts after changing API models
 make logo       # rebuild SVG logos (web/public/*.svg) with outlined wordmark
 ```
 Dependency pins: edit `requirements.in` / `requirements-dev.in`, then
 `uv pip compile requirements.in --python-version 3.14 --only-binary :all: -o requirements.txt` (same for dev).
+
+<!-- code-review-graph MCP tools -->
+## MCP Tools: code-review-graph
+
+**IMPORTANT: This project has a knowledge graph. ALWAYS use the
+code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
+the codebase.** The graph is faster, cheaper (fewer tokens), and gives
+you structural context (callers, dependents, test coverage) that file
+scanning cannot.
+
+### When to use graph tools FIRST
+
+- **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
+- **Understanding impact**: `get_impact_radius` instead of manually tracing imports
+- **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
+- **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
+- **Architecture questions**: `get_architecture_overview` + `list_communities`
+
+Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
+
+### Key Tools
+
+| Tool | Use when |
+| ------ | ---------- |
+| `detect_changes` | Reviewing code changes — gives risk-scored analysis |
+| `get_review_context` | Need source snippets for review — token-efficient |
+| `get_impact_radius` | Understanding blast radius of a change |
+| `get_affected_flows` | Finding which execution paths are impacted |
+| `query_graph` | Tracing callers, callees, imports, tests, dependencies |
+| `semantic_search_nodes` | Finding functions/classes by name or keyword |
+| `get_architecture_overview` | Understanding high-level codebase structure |
+| `refactor_tool` | Planning renames, finding dead code |
+
+### Workflow
+
+1. The graph auto-updates on file changes (via hooks).
+2. Use `detect_changes` for code review.
+3. Use `get_affected_flows` to understand impact.
+4. Use `query_graph` pattern="tests_for" to check coverage.

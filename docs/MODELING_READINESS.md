@@ -1,5 +1,7 @@
 # Modeling readiness report (Stage 3 prep, 2026-10-02)
 
+> **Update (Stage 3c):** the impact model is now built and evaluated on the protocol of section 7: see [IMPACT_MODEL.md](IMPACT_MODEL.md). Result: market-state skill is real, event-specific skill is not measurable, so it ships as *experimental*. Section 7's ladder was followed with two changes noted there (an out-of-fold paired-bootstrap adoption rule, and a MARKET scope for documents without a listed issuer).
+>
 > **Update:** the sentiment model has since been trained and shipped ([SENTIMENT_MODEL.md](SENTIMENT_MODEL.md)), and so has the event model ([EVENT_MODEL.md](EVENT_MODEL.md)): it was built on a new in-domain label set rather than the TFN crosswalk, for the reasons in section 2 below; it replaced the two-stage plan of section 7. Event and impact are still as described here; sections 1 to 8 below are the original audit and are not rewritten (the sentiment baselines they quote are reproduced by the new evaluation).
 
 Scope: is the data ready to train the sentiment, event and impact models, what is not, and what we changed. No product model was
