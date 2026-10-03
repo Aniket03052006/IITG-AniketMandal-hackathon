@@ -46,4 +46,4 @@ export function servedKinds(meta: Meta | undefined): ImpactKind[] {
   return [...new Set(imp.served_scopes.map((s) => lifecycleKind(imp.scopes[s])))];
 }
 
-export const sigma = (x: number): string => `${x.toFixed(2)}σ`;
+export { sigma } from "./format";

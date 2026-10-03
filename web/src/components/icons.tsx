@@ -169,3 +169,81 @@ export const EvidenceIcon = (p: P) => (
     <path d="M3 5l-1.6 4a1.8 1.8 0 0 0 3.2 0L3 5zM13 5l-1.6 4a1.8 1.8 0 0 0 3.2 0L13 5z" />
   </Icon>
 );
+
+/* ---- theme, disclosure, provenance-of-number kinds ---- */
+export const Sun = (p: P) => (
+  <Icon {...p}>
+    <circle cx="8" cy="8" r="2.8" />
+    <path d="M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M12.6 3.4l-1.3 1.3M4.7 11.3l-1.3 1.3" />
+  </Icon>
+);
+export const Moon = (p: P) => (
+  <Icon {...p}>
+    <path d="M13.2 9.6A5.6 5.6 0 0 1 6.4 2.8a5.6 5.6 0 1 0 6.8 6.8Z" />
+  </Icon>
+);
+export const Close = (p: P) => (
+  <Icon {...p}>
+    <path d="m3.5 3.5 9 9M12.5 3.5l-9 9" />
+  </Icon>
+);
+export const Question = (p: P) => (
+  <Icon {...p}>
+    <circle cx="8" cy="8" r="6" />
+    <path d="M6.2 6.4a1.9 1.9 0 1 1 2.6 1.8c-.5.3-.8.7-.8 1.3M8 11.6v.1" />
+  </Icon>
+);
+export const Inputs = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 4.5h8M12.5 4.5H14M2 8h3M7.5 8H14M2 11.5h9M13.5 11.5H14" />
+    <circle cx="11.2" cy="4.5" r="1.3" />
+    <circle cx="6.2" cy="8" r="1.3" />
+    <circle cx="12.3" cy="11.5" r="1.3" />
+  </Icon>
+);
+export const Sigma = (p: P) => (
+  <Icon {...p}>
+    <path d="M12.5 3H4l4.2 5L4 13h8.5" />
+  </Icon>
+);
+export const Wrench = (p: P) => (
+  <Icon {...p}>
+    <path d="M10.2 2.4a3.2 3.2 0 0 0-3.6 4.2L2.5 10.7a1.4 1.4 0 0 0 2 2l4.1-4.1a3.2 3.2 0 0 0 4.2-3.6L10.5 7.3 8.7 5.500l1.5-3.100Z" />
+  </Icon>
+);
+export const Model = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 11.5 5 5l3 4 2-3 4 5.500" />
+    <circle cx="5" cy="5" r="1" />
+    <circle cx="8" cy="9" r="1" />
+    <circle cx="10" cy="6" r="1" />
+  </Icon>
+);
+export const History = (p: P) => (
+  <Icon {...p}>
+    <path d="M2.5 8a5.500 5.500 0 1 0 1.700-4M2.500 2.500v3h3M8 5v3.200l2 1.300" />
+  </Icon>
+);
+export const Scenario = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 12.500 6 7l2.500 2.500L14 3.500M10.500 3.500H14V7" strokeDasharray="2 2" />
+  </Icon>
+);
+export const Realised = (p: P) => (
+  <Icon {...p}>
+    <path d="M3 8.500 6.500 12 13 4" />
+    <rect x="1.5" y="1.5" width="13" height="13" rx="2" />
+  </Icon>
+);
+export const Lock = (p: P) => (
+  <Icon {...p}>
+    <rect x="3" y="7" width="10" height="7" rx="1.500" />
+    <path d="M5.500 7V5a2.500 2.500 0 0 1 5 0v2" />
+  </Icon>
+);
+export const ShieldGlyph = (p: P) => (
+  <Icon {...p}>
+    <path d="M8 1.800 13.200 3.800v4c0 3-2.100 5-5.200 6.400C4.900 12.800 2.800 10.800 2.800 7.800v-4L8 1.800Z" />
+    <path d="m5.800 8 1.600 1.600 2.800-3" />
+  </Icon>
+);

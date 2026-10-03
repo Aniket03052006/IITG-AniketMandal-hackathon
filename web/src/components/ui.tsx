@@ -20,6 +20,8 @@ export function ImpactMeter({
   range,
   kind,
   showKind = false,
+  hideNumber = false,
+  wide = false,
 }: {
   score: number | null;
   size?: "sm" | "lg";
@@ -27,6 +29,10 @@ export function ImpactMeter({
   range?: [number, number] | null;
   kind?: ImpactKind;
   showKind?: boolean;
+  /** The score is drawn large elsewhere (the verdict); the ladder keeps its accessible name. */
+  hideNumber?: boolean;
+  /** A full-width ladder (fills its container) instead of the fixed 10rem one. */
+  wide?: boolean;
 }) {
   if (score === null) {
     return (
@@ -41,16 +47,19 @@ export function ImpactMeter({
   const kindText = kind ? KIND_LABEL[kind].toLowerCase() : null;
   const aria = `Impact ${score} of 10${hasRange ? `, comparable events realised ${range![0]} to ${range![1]}` : ""}${kindText ? `, ${kindText}` : ""}, ${band.label}`;
   return (
-    <span className="inline-flex items-center gap-2.5" role="img" aria-label={aria}>
-      <span className={clsx("num font-semibold leading-none", band.text, size === "lg" ? "text-4xl" : "text-lg w-6 text-right")}>
-        {score}
-      </span>
-      <span className="flex flex-col gap-1">
+    <span className={clsx("inline-flex items-center gap-2.5", wide && "flex w-full")} role="img" aria-label={aria}>
+      {!hideNumber && (
+        <span className={clsx("num font-semibold leading-none", band.text, size === "lg" ? "text-4xl" : "text-lg w-6 text-right")}>
+          {score}
+        </span>
+      )}
+      <span className={clsx("flex flex-col gap-1", wide && "w-full")}>
         <span
           data-kind={kind}
           className={clsx(
             "ladder",
-            size === "lg" ? "h-3 w-40" : "h-2 w-[4.5rem]",
+            size === "lg" ? "h-3" : "h-2",
+            wide ? "w-full" : size === "lg" ? "w-40" : "w-[4.5rem]",
             kind === "experimental" && "outline outline-1 outline-offset-2 outline-dashed outline-muted",
             kind === "placeholder" && "outline outline-1 outline-offset-2 outline-dotted outline-muted",
           )}
@@ -60,7 +69,7 @@ export function ImpactMeter({
           ))}
         </span>
         {hasRange && (
-          <span className={clsx("relative block h-1", size === "lg" ? "w-40" : "w-[4.5rem]")} aria-hidden="true">
+          <span className={clsx("relative block h-1", wide ? "w-full" : size === "lg" ? "w-40" : "w-[4.5rem]")} aria-hidden="true">
             <span
               className="absolute inset-y-0 rounded-[1px] bg-ink-2"
               style={{ left: `${((range![0] - 1) / 10) * 100}%`, width: `${((range![1] - range![0] + 1) / 10) * 100}%` }}

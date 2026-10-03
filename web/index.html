@@ -3,8 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#070b11" />
+    <meta name="color-scheme" content="light" />
+    <script>
+      /* Set the theme before first paint (no flash). Light is the default; ?theme= and the stored choice override. */
+      (function () {
+        var t = "light";
+        try {
+          var q = new URLSearchParams(location.search).get("theme");
+          var s = localStorage.getItem("eventshock-theme");
+          t = q === "dark" || q === "light" ? q : s === "dark" ? "dark" : "light";
+        } catch (e) {}
+        document.documentElement.dataset.theme = t;
+        document.documentElement.style.colorScheme = t;
+      })();
+    </script>
     <meta name="description" content="EventShock turns financial news into auditable risk signals and stress-tests a portfolio against them." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>EventShock — Event risk intelligence</title>

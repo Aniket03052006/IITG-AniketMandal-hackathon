@@ -1,3 +1,4 @@
+export const sigma = (x: number): string => `${x.toFixed(2)}σ`;
 const MINUS = "−";
 
 /** Compact currency: $558.8M, $12.4K. Negative values use a true minus sign. */
