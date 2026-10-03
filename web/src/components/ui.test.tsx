@@ -18,6 +18,25 @@ describe("ImpactMeter", () => {
   });
 });
 
+describe("ImpactMeter lifecycle and uncertainty", () => {
+  it("states the range and what produced the number in words, not only in outline style", () => {
+    render(<ImpactMeter score={6} range={[4, 8]} kind="experimental" showKind />);
+    expect(screen.getByRole("img", { name: "Impact 6 of 10, comparable events realised 4 to 8, experimental model, Moderate" })).toBeInTheDocument();
+    expect(screen.getByText("experimental model")).toBeInTheDocument();
+  });
+  it("marks the three kinds differently and leaves an unmarked meter plain", () => {
+    const cls = (["placeholder", "experimental", "validated"] as const).map((k) => render(<ImpactMeter score={3} kind={k} />).container.querySelector(".ladder")?.className ?? "");
+    expect(cls[0]).toMatch(/dotted/);
+    expect(cls[1]).toMatch(/dashed/);
+    expect(cls[2]).not.toMatch(/dashed|dotted/);
+    expect(render(<ImpactMeter score={3} />).container.querySelector(".ladder")!.className).not.toMatch(/dashed|dotted/);
+  });
+  it("draws no bracket when the range is the score itself", () => {
+    render(<ImpactMeter score={5} range={[5, 5]} />);
+    expect(screen.getByRole("img", { name: "Impact 5 of 10, Moderate" })).toBeInTheDocument();
+  });
+});
+
 describe("SentimentBar", () => {
   it("labels negative sentiment with a true minus and words", () => {
     render(<SentimentBar score={-0.72} />);

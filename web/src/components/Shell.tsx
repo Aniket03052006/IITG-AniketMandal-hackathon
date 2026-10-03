@@ -4,7 +4,7 @@ import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useMeta } from "../api/hooks";
 import { dateTime } from "../lib/format";
 import { profileLabel, profileNote } from "../lib/provenance";
-import { Database, EventIcon, FeedIcon, StressIcon } from "./icons";
+import { Database, EventIcon, EvidenceIcon, FeedIcon, StressIcon } from "./icons";
 import { Logo } from "./Logo";
 import { StatusTag } from "./ui";
 
@@ -35,7 +35,13 @@ export function Shell() {
   const { pathname } = useLocation();
   const { data: meta } = useMeta();
   const eventActive = pathname.startsWith("/events/");
-  const nav = meta?.replay ? [...NAV, { to: "/pipeline", label: "Data Pipeline", icon: Database, end: false, match: (p: string) => p.startsWith("/pipeline") }] : NAV;
+  const nav = meta?.replay
+    ? [
+        ...NAV,
+        { to: "/pipeline", label: "Data Pipeline", icon: Database, end: false, match: (p: string) => p.startsWith("/pipeline") },
+        { to: "/evidence", label: "Model Evidence", icon: EvidenceIcon, end: false, match: (p: string) => p.startsWith("/evidence") },
+      ]
+    : NAV;
 
   useEffect(() => {
     window.scrollTo(0, 0);

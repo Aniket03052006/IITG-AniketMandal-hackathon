@@ -4,6 +4,31 @@
  */
 
 export interface paths {
+    "/api/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Evidence
+         * @description How far the numbers can be trusted.
+         *
+         *     Stage status, data foundation, feature availability, the incremental-value study and the
+         *     representation comparison. Read-only: built once at start-up from the loaded model cards and
+         *     the committed evidence files. A section whose evidence file does not exist says so and names
+         *     the command that produces it; nothing is computed or invented per request.
+         */
+        get: operations["evidence_api_evidence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -50,6 +75,26 @@ export interface paths {
          * @description The event model card: training data, abstention, per-class reliability, scores and failure modes.
          */
         get: operations["event_model_api_models_event_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/models/impact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Impact Model
+         * @description The impact model card: per-scope lifecycle, baselines vs model, calibration, acceptance, limits.
+         */
+        get: operations["impact_model_api_models_impact_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -258,30 +303,20 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** Acceptance */
-        Acceptance: {
-            /** Checks */
-            checks: components["schemas"]["AcceptanceCheck"][];
-            /** Met */
-            met: boolean;
-            /**
-             * Rule
-             * @description the bar, fixed before the gold set was scored
-             */
-            rule: string;
-        };
-        /** AcceptanceCheck */
-        AcceptanceCheck: {
-            /** Baseline */
-            baseline: number | null;
-            /** Detail */
-            detail: string;
-            /** Model */
-            model: number | null;
-            /** Name */
-            name: string;
-            /** Passed */
-            passed: boolean;
+        /** AblationRow */
+        AblationRow: {
+            /** Block */
+            block: string;
+            /** Mae Added */
+            mae_added: number;
+            /** Mae Added Hi */
+            mae_added_hi: number | null;
+            /** Mae Added Lo */
+            mae_added_lo: number | null;
+            /** Method */
+            method: string;
+            /** Spearman Lost */
+            spearman_lost: number;
         };
         /**
          * AppliedShock
@@ -310,6 +345,26 @@ export interface components {
          * @enum {string}
          */
         AssetClass: "EQUITY" | "BOND" | "LOAN" | "DERIVATIVE";
+        /** Attribution */
+        Attribution: {
+            /**
+             * Exact
+             * @description contributions plus the baseline add up to the prediction exactly
+             */
+            exact: boolean;
+            /**
+             * Kind
+             * @description additive | linear | sensitivity
+             */
+            kind: string;
+            /**
+             * Max Abs Error
+             * @description largest |sum - prediction| over held-out rows (log-severity units)
+             */
+            max_abs_error: number | null;
+            /** Units */
+            units: string;
+        };
         /** BaselineScores */
         BaselineScores: {
             /** Accuracy */
@@ -321,6 +376,79 @@ export interface components {
             detection_f1: number | null;
             /** Macro F1 */
             macro_f1: number;
+        };
+        /** BatteryRow */
+        BatteryRow: {
+            /** Model */
+            model: string;
+            neutral_skill: components["schemas"]["Estimate"];
+            /** Placebo Gap */
+            placebo_gap: number | null;
+            /** Role */
+            role: string;
+            /** Set */
+            set: string;
+            /** Within Issuer Skill */
+            within_issuer_skill: number | null;
+        };
+        /** CalibrationBin */
+        CalibrationBin: {
+            /** N Episodes */
+            n_episodes: number;
+            p_extreme: components["schemas"]["Estimate"];
+            /** Realised Score Q10 */
+            realised_score_q10: number;
+            /** Realised Score Q90 */
+            realised_score_q90: number;
+            /** Score High */
+            score_high: number;
+            /** Score Low */
+            score_low: number;
+            /** Severity Q10 */
+            severity_q10: number;
+            /** Severity Q50 */
+            severity_q50: number;
+            /** Severity Q90 */
+            severity_q90: number;
+        };
+        /** CalibrationCard */
+        CalibrationCard: {
+            /**
+             * Base Rate Extreme
+             * @description share of reference episodes that realised score >= extreme_score
+             */
+            base_rate_extreme: number;
+            /**
+             * Bins Heldout
+             * @description val+test, same bin edges: the independent check
+             */
+            bins_heldout: components["schemas"]["CalibrationBin"][];
+            /**
+             * Bins Reference
+             * @description out-of-fold training period: the table the server reads
+             */
+            bins_reference: components["schemas"]["CalibrationBin"][];
+            /** Extreme Brier */
+            extreme_brier: number | null;
+            /** Extreme Brier Base Rate */
+            extreme_brier_base_rate: number | null;
+            /** Extreme Score */
+            extreme_score: number;
+            /** @description share of held-out episodes whose realised score fell in the served [low, high] */
+            heldout_coverage: components["schemas"]["Estimate"];
+            /** Method */
+            method: string;
+            /**
+             * Monotonicity Spearman
+             * @description bucket order vs realised mean |z| on val+test
+             */
+            monotonicity_spearman: number | null;
+            /** Nominal Coverage */
+            nominal_coverage: number;
+            /** Reference Episodes */
+            reference_episodes: number;
+            /** Reference Period */
+            reference_period: string;
         };
         /** CalibrationInfo */
         CalibrationInfo: {
@@ -353,6 +481,44 @@ export interface components {
             valid_log_loss: number;
             /** Valid Macro F1 */
             valid_macro_f1: number;
+        };
+        /** CandidateRow */
+        CandidateRow: {
+            /** Adopt */
+            adopt: boolean;
+            /**
+             * Checks Failed
+             * @default []
+             */
+            checks_failed: string[];
+            /**
+             * Checks Passed
+             * @default []
+             */
+            checks_passed: string[];
+            /** Detail */
+            detail: string;
+            /** Family */
+            family: string;
+            /** Id */
+            id: string;
+            pooled_delta_f1: components["schemas"]["Estimate"];
+        };
+        /** CheckRow */
+        CheckRow: {
+            /**
+             * Detail
+             * @default
+             */
+            detail: string;
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Passed */
+            passed: boolean | null;
+            /** Value */
+            value: string;
         };
         /** ClassMetrics */
         ClassMetrics: {
@@ -416,6 +582,16 @@ export interface components {
             /** Share None First Pass */
             share_none_first_pass: number | null;
         };
+        /** ContrastRow */
+        ContrastRow: {
+            /** Auc */
+            auc: number | null;
+            /** Label */
+            label: string;
+            lift: components["schemas"]["Estimate"];
+            /** Pairs */
+            pairs: number;
+        };
         /** Contribution */
         Contribution: {
             /** Baseline Value */
@@ -466,6 +642,77 @@ export interface components {
             /** Url */
             url: string | null;
         };
+        /** CostRow */
+        CostRow: {
+            /**
+             * Controlled
+             * @default false
+             */
+            controlled: boolean;
+            /** Deterministic */
+            deterministic: boolean | null;
+            /** Kind */
+            kind: string;
+            /** Model */
+            model: string;
+            /** Ms Per Text Batch1 */
+            ms_per_text_batch1: number | null;
+            /** Ms Per Text Batch32 */
+            ms_per_text_batch32: number | null;
+            /** Parameters M */
+            parameters_m: number | null;
+            /** Peak Rss Mb */
+            peak_rss_mb: number | null;
+        };
+        /** DataFoundation */
+        DataFoundation: {
+            /** Available */
+            available: boolean;
+            /** Calendar Filings */
+            calendar_filings: number | null;
+            /** Calendar Fomc */
+            calendar_fomc: number | null;
+            /**
+             * Command
+             * @default
+             */
+            command: string;
+            /**
+             * Episodes By Year
+             * @default []
+             */
+            episodes_by_year: components["schemas"]["YearCount"][];
+            /** Exclusions */
+            exclusions: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+            /**
+             * Gold
+             * @default []
+             */
+            gold: components["schemas"]["GoldSummary"][];
+            /**
+             * Held Out
+             * @description protocol -> scope/split -> episodes
+             */
+            held_out: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+            /**
+             * Known Gaps
+             * @default []
+             */
+            known_gaps: string[];
+            /**
+             * Sources
+             * @default []
+             */
+            sources: components["schemas"]["SourceRow"][];
+        };
         /**
          * DataOrigin
          * @description Whether a signal was computed by a model or comes from a pinned demo fixture.
@@ -503,6 +750,15 @@ export interface components {
          * @enum {string}
          */
         DedupRelation: "EXACT_DUPLICATE" | "SYNDICATED" | "NEAR_DUPLICATE" | "SAME_EVENT";
+        /** DirectionCheck */
+        DirectionCheck: {
+            /** @description share of confident, non-neutral sentiment calls whose sign matched the realised abnormal return */
+            hit_rate: components["schemas"]["Estimate"];
+            /** N */
+            n: number;
+            /** Note */
+            note: string;
+        };
         /**
          * EntityAudit
          * @description Why the entity is what it is — including what was considered and refused.
@@ -563,6 +819,18 @@ export interface components {
             sector: string | null;
             /** Ticker */
             ticker: string | null;
+        };
+        /**
+         * Estimate
+         * @description A point estimate with a 95% cluster-bootstrap interval (episodes are resampled, never rows).
+         */
+        Estimate: {
+            /** Hi */
+            hi: number | null;
+            /** Lo */
+            lo: number | null;
+            /** Value */
+            value: number | null;
         };
         /** EvalMetrics */
         EvalMetrics: {
@@ -887,7 +1155,7 @@ export interface components {
                 [key: string]: number;
             };
             abstention: components["schemas"]["EventAbstention"];
-            acceptance: components["schemas"]["Acceptance"];
+            acceptance: components["schemas"]["eventshock__pipeline__event_card__Acceptance"];
             /** Algorithm */
             algorithm: string;
             /** Artifact Bytes */
@@ -1003,6 +1271,25 @@ export interface components {
             /** Unique Domain Count */
             unique_domain_count: number;
         };
+        /** EvidenceBundle */
+        EvidenceBundle: {
+            data: components["schemas"]["DataFoundation"];
+            /** Features */
+            features: components["schemas"]["FeatureRow"][];
+            /** Generated From */
+            generated_from: components["schemas"]["SourceFile"][];
+            /** Limitations */
+            limitations: string[];
+            representation: components["schemas"]["RepresentationView"];
+            /**
+             * Schema Version
+             * @default 1
+             */
+            schema_version: number;
+            /** Stages */
+            stages: components["schemas"]["StageStatus"][];
+            study: components["schemas"]["StudyView"];
+        };
         /** ExposureRow */
         ExposureRow: {
             /** Asset Count */
@@ -1015,6 +1302,27 @@ export interface components {
             market_value: number;
             /** Share */
             share: number;
+        };
+        /** FeatureRow */
+        FeatureRow: {
+            /** Allowed */
+            allowed: boolean;
+            /**
+             * Availability
+             * @description a known before the event | b published at event time | c only after (refused) | shortcut | circular
+             */
+            availability: string;
+            /** Group */
+            group: string;
+            /** Name */
+            name: string;
+            /**
+             * Used By
+             * @description rungs that include it
+             */
+            used_by: string[];
+            /** Why */
+            why: string;
         };
         /**
          * FetchQuery
@@ -1037,18 +1345,72 @@ export interface components {
              */
             status: string;
         };
+        /** GoldSummary */
+        GoldSummary: {
+            /** Agreed Rows */
+            agreed_rows: number | null;
+            /** Agreement */
+            agreement: number | null;
+            /**
+             * Human Reviewed
+             * @default 0
+             */
+            human_reviewed: number;
+            /** Kappa */
+            kappa: number | null;
+            /** Labelled By */
+            labelled_by: string;
+            /** Name */
+            name: string;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Rows */
+            rows: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HorizonCheck */
+        HorizonCheck: {
+            spearman: components["schemas"]["Estimate"];
+            /** Window Sessions */
+            window_sessions: number;
+        };
         /**
          * ImpactAssessment
          * @description Market-response *proxy* on a 1-10 scale (never a probability of loss).
+         *
+         *     From the placeholder heuristic only ``score``/``raw``/``drivers`` are filled. From the trained model the
+         *     rest is filled too: the continuous prediction, what comparable past events realised, and attributions.
          */
         ImpactAssessment: {
+            /**
+             * Comparable Events
+             * @description out-of-fold historical ticker-sessions in this score bucket
+             */
+            comparable_events: number | null;
+            /**
+             * Driver Basis
+             * @description units of the driver contributions, and how they add up to the prediction
+             */
+            driver_basis: string | null;
             /** Drivers */
             drivers: components["schemas"]["ImpactDriver"][];
+            /**
+             * P Extreme
+             * @description share that realised an extreme move (score >= 7)
+             */
+            p_extreme: number | null;
+            /**
+             * Predicted Severity
+             * @description predicted |z|: the two-session abnormal move, in sigma units
+             */
+            predicted_severity: number | null;
             /**
              * Quantisation
              * @default ceil(raw * 10), min 1
@@ -1059,8 +1421,88 @@ export interface components {
              * @description continuous, pre-quantisation output
              */
             raw: number;
+            /**
+             * Realised Severity High
+             * @description their 90th percentile |z|
+             */
+            realised_severity_high: number | null;
+            /**
+             * Realised Severity Low
+             * @description their 10th percentile |z|
+             */
+            realised_severity_low: number | null;
+            /** Realised Severity Median */
+            realised_severity_median: number | null;
+            /**
+             * Scope
+             * @description ISSUER | MARKET; null for the heuristic
+             */
+            scope: string | null;
             /** Score */
             score: number;
+            /**
+             * Score High
+             * @description 90th pct of the score realised
+             */
+            score_high: number | null;
+            /**
+             * Score Low
+             * @description 10th pct of the score realised
+             */
+            score_low: number | null;
+        };
+        /**
+         * ImpactAudit
+         * @description Which trained impact model scored this signal, on what inputs, and how far to trust this score.
+         */
+        ImpactAudit: {
+            /**
+             * Artifact Sha256
+             * @description sha256 of the scoring artifact
+             */
+            artifact_sha256: string;
+            /** Calibrated */
+            calibrated: boolean;
+            /** Feature Schema */
+            feature_schema: string;
+            /**
+             * Inputs
+             * @description the numeric features the model saw
+             */
+            inputs: {
+                [key: string]: number;
+            };
+            lifecycle: components["schemas"]["ImpactLifecycle"];
+            /**
+             * Market Context As Of
+             * @description last session of the frozen market context used
+             */
+            market_context_as_of: string;
+            /**
+             * Missing Inputs
+             * @description features absent at event time (the model handles them natively)
+             */
+            missing_inputs: string[];
+            /** Model Id */
+            model_id: string;
+            /** Model Version */
+            model_version: string;
+            scope: components["schemas"]["ImpactScope"];
+            /**
+             * Session
+             * @description the session the reaction is measured from: an ISO date, or NEXT
+             */
+            session: string;
+            /**
+             * Timing
+             * @description OFF_HOURS | PRE_OPEN | IN_SESSION | DATE_ONLY | FIRST_SEEN
+             */
+            timing: string;
+            /**
+             * Timing Reliable
+             * @description false for a first-seen crawl time, a date-only stamp, or an in-session report: part of the move may precede the report, so the score is less trustworthy
+             */
+            timing_reliable: boolean;
         };
         /**
          * ImpactDriver
@@ -1076,6 +1518,107 @@ export interface components {
              * @default
              */
             note: string;
+            /**
+             * Value
+             * @description the feature's value, if it has one
+             */
+            value: number | null;
+        };
+        /**
+         * ImpactLifecycle
+         * @description How far the impact stage has got. The UI maps it to three words: a heuristic is *placeholder*,
+         *     TRAINED and CALIBRATED are *experimental*, only PRODUCTION (all checks passed) is *validated*.
+         * @enum {string}
+         */
+        ImpactLifecycle: "NOT_AVAILABLE" | "DATASET" | "BASELINE" | "TRAINED" | "CALIBRATED" | "PRODUCTION";
+        /** ImpactModelCard */
+        ImpactModelCard: {
+            /** Artifact Bytes */
+            artifact_bytes: number;
+            /** Artifact File */
+            artifact_file: string;
+            /** Artifact Sha256 */
+            artifact_sha256: string;
+            /**
+             * Dataset
+             * @description hashes and counts of the table the model was fitted from
+             */
+            dataset: {
+                [key: string]: string | number | {
+                    [key: string]: number;
+                } | {
+                    [key: string]: string;
+                };
+            };
+            /** Feature Schema */
+            feature_schema: string;
+            /** Id */
+            id: string;
+            /** Libraries */
+            libraries: {
+                [key: string]: string;
+            };
+            /** Output Definition */
+            output_definition: string;
+            /** Scopes */
+            scopes: components["schemas"]["ScopeCard"][];
+            /** Selection Rule */
+            selection_rule: string;
+            /** Version */
+            version: string;
+            /**
+             * Vs Previous
+             * @description paired comparison with the model this one would replace
+             */
+            vs_previous: components["schemas"]["PreviousComparison"][];
+        };
+        /**
+         * ImpactScope
+         * @enum {string}
+         */
+        ImpactScope: "ISSUER" | "MARKET";
+        /**
+         * ImpactStatus
+         * @description What the impact stage is in this running app, derived from the loaded card (never hard-coded copy).
+         */
+        ImpactStatus: {
+            /**
+             * Mode
+             * @description MODEL (a trained model scores what it can) | PLACEHOLDER (heuristic only)
+             */
+            mode: string;
+            /** Model Id */
+            model_id: string | null;
+            /**
+             * Reason
+             * @description why the app is on the heuristic, when it is
+             */
+            reason: string | null;
+            /**
+             * Scopes
+             * @description scope -> lifecycle of the model for it
+             */
+            scopes: {
+                [key: string]: string;
+            };
+            /** Served Scopes */
+            served_scopes: string[];
+        };
+        /** Increment */
+        Increment: {
+            /** Block */
+            block: string;
+            /** @description paired log-severity MAE difference; negative = the block helps */
+            delta_mae: components["schemas"]["Estimate"];
+            /** Family */
+            family: string;
+            /**
+             * Verdict
+             * @description helps | no measurable effect | hurts
+             */
+            verdict: string;
+            /** Where */
+            where: string;
         };
         /**
          * LabelScores
@@ -1086,6 +1629,31 @@ export interface components {
             accuracy: number;
             /** Macro F1 */
             macro_f1: number;
+        };
+        /** LadderEntry */
+        LadderEntry: {
+            /** Chosen */
+            chosen: boolean;
+            /** @description out-of-fold paired difference to the current choice when it was tried */
+            delta_mae_vs_previous_choice: components["schemas"]["Estimate"];
+            /** Family */
+            family: string;
+            /** Id */
+            id: string;
+            /** N Features */
+            n_features: number;
+            oof_mae: components["schemas"]["Estimate"];
+            oof_spearman: components["schemas"]["Estimate"];
+            /** Params */
+            params: {
+                [key: string]: string | number;
+            };
+            /** Rung */
+            rung: string | null;
+            /** Servable */
+            servable: boolean;
+            /** Verdict */
+            verdict: string;
         };
         /** Meta */
         Meta: {
@@ -1104,6 +1672,8 @@ export interface components {
             data_origin: string;
             /** Engine Version */
             engine_version: string;
+            /** @description null for the demo-fixture profile */
+            impact: components["schemas"]["ImpactStatus"] | null;
             mode: components["schemas"]["RunMode"];
             /** Notices */
             notices: string[];
@@ -1120,6 +1690,30 @@ export interface components {
             trigger_threshold: number;
             /** Version */
             version: string;
+        };
+        /**
+         * ModelScore
+         * @description One ladder step scored on one evaluation set. Errors are on log1p(|z|); lower is better.
+         */
+        ModelScore: {
+            /** @description paired difference (negative = better than the constant) */
+            delta_mae_vs_constant: components["schemas"]["Estimate"];
+            /** @description paired difference against the market-state-only linear model (negative = better) */
+            delta_mae_vs_market_state: components["schemas"]["Estimate"];
+            /** Id */
+            id: string;
+            mae: components["schemas"]["Estimate"];
+            /** @description same prediction against the window BEFORE the event: skill here is market state, not the event */
+            placebo_spearman: components["schemas"]["Estimate"];
+            /** Rmse */
+            rmse: number | null;
+            /** @description episode-level rank correlation of the prediction with the realised |z| */
+            spearman: components["schemas"]["Estimate"];
+            /**
+             * Top Decile Lift
+             * @description mean realised |z| of the top 10% of predictions / overall mean
+             */
+            top_decile_lift: number | null;
         };
         /** ModelVersions */
         ModelVersions: {
@@ -1352,6 +1946,85 @@ export interface components {
             /** Value */
             value: number;
         };
+        /**
+         * PreviousComparison
+         * @description The new model against the one it would replace, on the same held-out episodes (paired; negative = the new model has the lower error).
+         */
+        PreviousComparison: {
+            delta_mae: components["schemas"]["Estimate"];
+            /** N Episodes */
+            n_episodes: number;
+            /** Previous Id */
+            previous_id: string;
+            /** Scope */
+            scope: string;
+            /** Set Id */
+            set_id: string;
+            spearman_new: components["schemas"]["Estimate"];
+            spearman_previous: components["schemas"]["Estimate"];
+        };
+        /** ProbeRow */
+        ProbeRow: {
+            /** Channel */
+            channel: string;
+            /** Hi */
+            hi: number;
+            /** Lo */
+            lo: number;
+            /** Pairs */
+            pairs: number;
+            /** Share Correct */
+            share_correct: number;
+        };
+        /** ProtocolRun */
+        ProtocolRun: {
+            /**
+             * Ablation
+             * @default []
+             */
+            ablation: components["schemas"]["AblationRow"][];
+            /**
+             * Battery
+             * @default []
+             */
+            battery: components["schemas"]["BatteryRow"][];
+            /** Best Block */
+            best_block: string | null;
+            /** Best State */
+            best_state: string | null;
+            /**
+             * Checks
+             * @default []
+             */
+            checks: components["schemas"]["CheckRow"][];
+            /**
+             * Episodes
+             * @default {}
+             */
+            episodes: {
+                [key: string]: number;
+            };
+            /**
+             * Increments
+             * @default []
+             */
+            increments: components["schemas"]["Increment"][];
+            /** Protocol */
+            protocol: string;
+            /** Scope */
+            scope: string;
+            /** Selected */
+            selected: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Verdict
+             * @default
+             */
+            verdict: string;
+            /** Years Helpful */
+            years_helpful: string | null;
+        };
         /** QuarantinedRecord */
         QuarantinedRecord: {
             /** Code */
@@ -1461,6 +2134,50 @@ export interface components {
              */
             window_start: string;
         };
+        /** RepresentationView */
+        RepresentationView: {
+            /** Available */
+            available: boolean;
+            /**
+             * Baseline
+             * @default
+             */
+            baseline: string;
+            /** Baseline Pooled F1 */
+            baseline_pooled_f1: number | null;
+            /**
+             * Candidates
+             * @default []
+             */
+            candidates: components["schemas"]["CandidateRow"][];
+            /**
+             * Command
+             * @default
+             */
+            command: string;
+            /**
+             * Cost
+             * @default []
+             */
+            cost: components["schemas"]["CostRow"][];
+            /**
+             * Decision
+             * @default
+             */
+            decision: string;
+            /**
+             * Probe
+             * @default []
+             */
+            probe: components["schemas"]["ProbeRow"][];
+            /**
+             * Sets
+             * @default {}
+             */
+            sets: {
+                [key: string]: number;
+            };
+        };
         /**
          * RiskFactor
          * @description Scenario risk factors. Units are fixed per factor (see ``FACTOR_UNITS``).
@@ -1546,6 +2263,44 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** ScopeCard */
+        ScopeCard: {
+            acceptance: components["schemas"]["eventshock__pipeline__impact_card__Acceptance"];
+            /** Algorithm */
+            algorithm: string;
+            attribution: components["schemas"]["Attribution"] | null;
+            calibration: components["schemas"]["CalibrationCard"] | null;
+            direction: components["schemas"]["DirectionCheck"] | null;
+            /** Evaluations */
+            evaluations: components["schemas"]["SetResult"][];
+            /** Features */
+            features: string[];
+            /** Horizon */
+            horizon: components["schemas"]["HorizonCheck"][];
+            /** Ladder */
+            ladder: components["schemas"]["LadderEntry"][];
+            /** Leakage Findings */
+            leakage_findings: string[];
+            lifecycle: components["schemas"]["ImpactLifecycle"];
+            /** Limitations */
+            limitations: string[];
+            /** Scope */
+            scope: string;
+            /** Selected Id */
+            selected_id: string | null;
+            /**
+             * Served
+             * @description the artifact contains a model for this scope that the server uses
+             */
+            served: boolean;
+            /** Strata */
+            strata: components["schemas"]["Stratum"][];
+            /** Summary */
+            summary: string;
+            /** Target */
+            target: string;
+            training: components["schemas"]["eventshock__pipeline__impact_card__TrainingInfo"];
+        };
         /**
          * SentimentAudit
          * @description Which trained model scored this signal's sentiment, and how far to trust this particular score.
@@ -1609,7 +2364,7 @@ export interface components {
             score_definition: string;
             /** Selection Rule */
             selection_rule: string;
-            training: components["schemas"]["TrainingInfo"];
+            training: components["schemas"]["eventshock__pipeline__sentiment_card__TrainingInfo"];
             /** Version */
             version: string;
         };
@@ -1662,6 +2417,26 @@ export interface components {
             status_mix: {
                 [key: string]: number;
             };
+        };
+        /** SetResult */
+        SetResult: {
+            /**
+             * Id
+             * @description oof | val | test | val+test | live | live_reliable
+             */
+            id: string;
+            /** Models */
+            models: components["schemas"]["ModelScore"][];
+            /** N Episodes */
+            n_episodes: number;
+            /** N Rows */
+            n_rows: number;
+            /** Period */
+            period: string;
+            /** Role */
+            role: string;
+            /** Title */
+            title: string;
         };
         /** SeverityScaling */
         SeverityScaling: {
@@ -1721,6 +2496,13 @@ export interface components {
             entity_audit: components["schemas"]["EntityAudit"];
             /** @description present when the event stage is a trained model */
             event: components["schemas"]["EventAudit"] | null;
+            /** @description present when this signal's impact comes from the trained impact model */
+            impact: components["schemas"]["ImpactAudit"] | null;
+            /**
+             * Impact Note
+             * @description why the trained model did not score this (the labelled heuristic did)
+             */
+            impact_note: string | null;
             /** Pipeline Version */
             pipeline_version: string;
             /**
@@ -1765,8 +2547,22 @@ export interface components {
             headline: string;
             /** Id */
             id: string;
+            /**
+             * Impact Lifecycle
+             * @description lifecycle of the impact model, if used
+             */
+            impact_lifecycle: string | null;
+            /**
+             * Impact Origin
+             * @description MODEL | PLACEHOLDER: what produced impact_score
+             */
+            impact_origin: string | null;
             /** Impact Score */
             impact_score: number | null;
+            /** Impact Score High */
+            impact_score_high: number | null;
+            /** Impact Score Low */
+            impact_score_low: number | null;
             /**
              * Published At
              * Format: date-time
@@ -1784,6 +2580,13 @@ export interface components {
             status: components["schemas"]["SignalStatus"];
             /** Ticker */
             ticker: string | null;
+        };
+        /** SourceFile */
+        SourceFile: {
+            /** File */
+            file: string;
+            /** Sha256 */
+            sha256: string | null;
         };
         /** SourceReport */
         SourceReport: {
@@ -1809,11 +2612,83 @@ export interface components {
             signals: number;
             source_type: components["schemas"]["SourceType"];
         };
+        /** SourceRow */
+        SourceRow: {
+            /**
+             * Kind
+             * @description news | social | filing | calendar | prices | labels
+             */
+            kind: string;
+            /** Name */
+            name: string;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Period */
+            period: string;
+            /** Records */
+            records: number | null;
+            /** Timestamps */
+            timestamps: string;
+        };
         /**
          * SourceType
          * @enum {string}
          */
         SourceType: "NEWS" | "SOCIAL";
+        /**
+         * StageStatus
+         * @description What one pipeline stage is, in the product's three words: placeholder rule, experimental model, validated model.
+         */
+        StageStatus: {
+            /** Artifact Sha256 */
+            artifact_sha256: string | null;
+            /**
+             * Failed
+             * @default []
+             */
+            failed: string[];
+            /**
+             * Kind
+             * @description placeholder | experimental | validated
+             */
+            kind: string;
+            /** Model Id */
+            model_id: string | null;
+            /**
+             * Not Evaluable
+             * @default []
+             */
+            not_evaluable: string[];
+            /**
+             * Passed
+             * @default []
+             */
+            passed: string[];
+            /**
+             * Stage
+             * @description sentiment | event | impact
+             */
+            stage: string;
+            /** Summary */
+            summary: string;
+        };
+        /** Stratum */
+        Stratum: {
+            /** Dimension */
+            dimension: string;
+            /** Mae Constant */
+            mae_constant: number | null;
+            /** Mae Model */
+            mae_model: number | null;
+            /** N Episodes */
+            n_episodes: number;
+            spearman: components["schemas"]["Estimate"];
+            /** Value */
+            value: string;
+        };
         /** StressAudit */
         StressAudit: {
             /**
@@ -1831,6 +2706,16 @@ export interface components {
             engine_version: string;
             /** Forced */
             forced: boolean;
+            /**
+             * Impact Lifecycle
+             * @description lifecycle of the trained impact model for this signal (null: heuristic)
+             */
+            impact_lifecycle: string | null;
+            /**
+             * Impact Origin
+             * @description MODEL | PLACEHOLDER: what produced the impact this run used
+             */
+            impact_origin: string | null;
             /** Impact Overridden */
             impact_overridden: boolean;
             mode: components["schemas"]["RunMode"];
@@ -1900,6 +2785,39 @@ export interface components {
             /** Stressed Value */
             stressed_value: number;
         };
+        /** StudyView */
+        StudyView: {
+            /** Available */
+            available: boolean;
+            /**
+             * Command
+             * @default
+             */
+            command: string;
+            /**
+             * P1 Regression
+             * @default
+             */
+            p1_regression: string;
+            preregistration: components["schemas"]["SourceFile"] | null;
+            /**
+             * Runs
+             * @default []
+             */
+            runs: components["schemas"]["ProtocolRun"][];
+            /**
+             * @default {
+             *       "available": false,
+             *       "by_item": [],
+             *       "earnings_by_year": [],
+             *       "item_code_increment": [],
+             *       "non_earnings_by_year": [],
+             *       "note": "",
+             *       "pairs": 0
+             *     }
+             */
+            track_f: components["schemas"]["TrackF"];
+        };
         /** TaxonomyItem */
         TaxonomyItem: {
             /** Default Scenario */
@@ -1916,30 +2834,41 @@ export interface components {
          * @enum {string}
          */
         TimestampOrigin: "SOURCE" | "SOURCE_DATE_ONLY" | "GDELT_FIRST_SEEN" | "SYNTHETIC_REPLAY_CLOCK";
-        /** TrainingInfo */
-        TrainingInfo: {
-            /** Config Digest */
-            config_digest: string;
-            /** Dataset */
-            dataset: string;
-            /** Label Distribution */
-            label_distribution: {
-                [key: string]: number;
-            };
-            /** Licence */
-            licence: string;
-            /** Rows */
-            rows: {
-                [key: string]: number;
-            };
-            /** Seed */
-            seed: number;
-            /** Split Note */
-            split_note: string;
-            /** Table */
-            table: string;
-            /** Table Sha256 */
-            table_sha256: string;
+        /** TrackF */
+        TrackF: {
+            /** Available */
+            available: boolean;
+            /**
+             * By Item
+             * @default []
+             */
+            by_item: components["schemas"]["ContrastRow"][];
+            /**
+             * Earnings By Year
+             * @default []
+             */
+            earnings_by_year: components["schemas"]["ContrastRow"][];
+            headline: components["schemas"]["ContrastRow"] | null;
+            /**
+             * Item Code Increment
+             * @default []
+             */
+            item_code_increment: components["schemas"]["Increment"][];
+            /**
+             * Non Earnings By Year
+             * @default []
+             */
+            non_earnings_by_year: components["schemas"]["ContrastRow"][];
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /**
+             * Pairs
+             * @default 0
+             */
+            pairs: number;
         };
         /** UncoveredExposure */
         UncoveredExposure: {
@@ -1965,6 +2894,129 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /** YearCount */
+        YearCount: {
+            /**
+             * Filing Events
+             * @default 0
+             */
+            filing_events: number;
+            /**
+             * Issuer
+             * @default 0
+             */
+            issuer: number;
+            /**
+             * Market
+             * @default 0
+             */
+            market: number;
+            /** Year */
+            year: string;
+        };
+        /** Acceptance */
+        eventshock__pipeline__event_card__Acceptance: {
+            /** Checks */
+            checks: components["schemas"]["eventshock__pipeline__event_card__AcceptanceCheck"][];
+            /** Met */
+            met: boolean;
+            /**
+             * Rule
+             * @description the bar, fixed before the gold set was scored
+             */
+            rule: string;
+        };
+        /** AcceptanceCheck */
+        eventshock__pipeline__event_card__AcceptanceCheck: {
+            /** Baseline */
+            baseline: number | null;
+            /** Detail */
+            detail: string;
+            /** Model */
+            model: number | null;
+            /** Name */
+            name: string;
+            /** Passed */
+            passed: boolean;
+        };
+        /** Acceptance */
+        eventshock__pipeline__impact_card__Acceptance: {
+            /** Checks */
+            checks: components["schemas"]["eventshock__pipeline__impact_card__AcceptanceCheck"][];
+            /** Met */
+            met: boolean;
+            /**
+             * Rule
+             * @description the bar, fixed in configs/impact_model.yaml before the first held-out run
+             */
+            rule: string;
+        };
+        /** AcceptanceCheck */
+        eventshock__pipeline__impact_card__AcceptanceCheck: {
+            /** Detail */
+            detail: string;
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /**
+             * Passed
+             * @description null = could not be evaluated (too little data): never counts as a pass
+             */
+            passed: boolean | null;
+            /** Value */
+            value: string;
+        };
+        /** TrainingInfo */
+        eventshock__pipeline__impact_card__TrainingInfo: {
+            /** Config Sha256 */
+            config_sha256: string;
+            /** Episodes */
+            episodes: {
+                [key: string]: number;
+            };
+            /** Excluded */
+            excluded: {
+                [key: string]: number;
+            };
+            /** Folds */
+            folds: string;
+            /** Rows */
+            rows: {
+                [key: string]: number;
+            };
+            /** Seed */
+            seed: number;
+            /** Table Sha256 */
+            table_sha256: string;
+            /** Train Period */
+            train_period: string;
+        };
+        /** TrainingInfo */
+        eventshock__pipeline__sentiment_card__TrainingInfo: {
+            /** Config Digest */
+            config_digest: string;
+            /** Dataset */
+            dataset: string;
+            /** Label Distribution */
+            label_distribution: {
+                [key: string]: number;
+            };
+            /** Licence */
+            licence: string;
+            /** Rows */
+            rows: {
+                [key: string]: number;
+            };
+            /** Seed */
+            seed: number;
+            /** Split Note */
+            split_note: string;
+            /** Table */
+            table: string;
+            /** Table Sha256 */
+            table_sha256: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -1974,6 +3026,26 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    evidence_api_evidence_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceBundle"];
+                };
+            };
+        };
+    };
     health_api_health_get: {
         parameters: {
             query?: never;
@@ -2032,6 +3104,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EventModelCard"];
+                };
+            };
+        };
+    };
+    impact_model_api_models_impact_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImpactModelCard"];
                 };
             };
         };

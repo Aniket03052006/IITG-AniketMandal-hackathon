@@ -25,3 +25,9 @@ export const useEventModel = (enabled: boolean) =>
 
 export const useSentimentModel = (enabled: boolean) =>
   useQuery({ queryKey: ["sentiment-model"], queryFn: api.sentimentModel, staleTime: Infinity, enabled });
+
+export const useImpactModel = (enabled: boolean) =>
+  useQuery({ queryKey: ["impact-model"], queryFn: api.impactModel, staleTime: Infinity, enabled });
+
+export const useEvidence = (enabled: boolean) =>
+  useQuery({ queryKey: ["evidence"], queryFn: api.evidence, staleTime: Infinity, enabled });

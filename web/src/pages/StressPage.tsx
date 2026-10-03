@@ -5,6 +5,7 @@ import { useMeta, usePortfolioExposure, usePortfolioSummary, useScenarios, useSi
 import type { ExposureRow, StressResult } from "../api/types";
 import { ArrowRight, Play, Spinner } from "../components/icons";
 import { AuditPanel, Breakdown, PositionsTable, ResultHero, ShocksTable, TopPositions } from "../components/stress";
+import { impactKind, summaryKind } from "../lib/impact";
 import { Card, CategoryTag, EmptyState, ErrorState, ImpactMeter, InlineNote, Loading, Notice, PageHeader, Stat, StatusTag } from "../components/ui";
 import { ASSET_CLASS_LABEL, money, pct } from "../lib/format";
 import { categoryLabeler } from "../lib/taxonomy";
@@ -177,7 +178,13 @@ export function StressPage() {
               </Link>
             </div>
             <div className="flex flex-col gap-3">
-              <ImpactMeter score={s.impact?.score ?? null} showLabel />
+              <ImpactMeter
+                score={s.impact?.score ?? null}
+                showLabel
+                showKind={!!s.impact && s.data_origin !== "DEMO_FIXTURE"}
+                kind={s.impact && s.data_origin !== "DEMO_FIXTURE" ? impactKind(s) : undefined}
+                range={s.impact?.score_low != null && s.impact.score_high != null ? [s.impact.score_low, s.impact.score_high] : null}
+              />
               {!partial && (
                 <label className="flex items-center gap-2 text-sm text-ink-2">
                   <input type="checkbox" className="accent-[var(--color-accent)]" checked={whatIf} onChange={(e) => setWhatIf(e.target.checked)} />
@@ -229,7 +236,7 @@ export function StressPage() {
                         className="group flex w-full items-start gap-4 py-3 text-left transition-colors hover:bg-paper-3"
                         onClick={() => setParams({ signal: x.id, run: "1" }, { replace: true })}
                       >
-                        <span className="pl-2"><ImpactMeter score={x.impact_score} /></span>
+                        <span className="pl-2"><ImpactMeter score={x.impact_score} kind={x.data_origin === "DEMO_FIXTURE" ? undefined : summaryKind(x)} showKind={x.data_origin !== "DEMO_FIXTURE"} /></span>
                         <span className="min-w-0 flex-1">
                           <span className="block font-medium leading-snug group-hover:text-accent-strong">{x.headline}</span>
                           <span className="mt-0.5 block text-xs text-muted">{x.entity_name ?? "Market-wide, no single issuer"} · {label(x.category)}</span>

@@ -7,6 +7,8 @@ import type {
   ScenarioList,
   SentimentModelCard,
   EventModelCard,
+  ImpactModelCard,
+  EvidenceBundle,
   SignalPage,
   StressRequest,
   StressResult,
@@ -68,6 +70,8 @@ export const api = {
   pipelineReport: () => request<PipelineReport>("/pipeline/report"),
   sentimentModel: () => request<SentimentModelCard>("/models/sentiment"),
   eventModel: () => request<EventModelCard>("/models/event"),
+  impactModel: () => request<ImpactModelCard>("/models/impact"),
+  evidence: () => request<EvidenceBundle>("/evidence"),
   portfolioSummary: () => request<PortfolioSummary>("/portfolio/summary"),
   portfolioExposure: () => request<PortfolioExposure>("/portfolio/exposure"),
   stressTest: (body: StressRequest) =>

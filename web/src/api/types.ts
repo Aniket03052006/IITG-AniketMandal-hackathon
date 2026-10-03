@@ -16,6 +16,17 @@ export type EventStatus = S["EventStatus"];
 export type EventModelCard = S["EventModelCard"];
 export type EventEvalSet = S["EventEvalSet"];
 export type ClassReliability = S["ClassReliability"];
+export type ImpactModelCard = S["ImpactModelCard"];
+export type ImpactAudit = S["ImpactAudit"];
+export type ImpactStatus = S["ImpactStatus"];
+export type ImpactLifecycle = S["ImpactLifecycle"];
+export type ImpactScope = S["ImpactScope"];
+export type ImpactAssessment = S["ImpactAssessment"];
+export type ImpactScopeCard = S["ScopeCard"];
+export type ImpactSetResult = S["SetResult"];
+export type ImpactModelScore = S["ModelScore"];
+export type ImpactEstimate = S["Estimate"];
+export type ImpactCalibrationBin = S["CalibrationBin"];
 export type Scenario = S["Scenario"];
 export type ScenarioList = S["ScenarioList"];
 export type ShockSpec = S["ShockSpec"];
@@ -44,3 +55,11 @@ export const EVENT_CATEGORIES: EventCategory[] = [
   "EARNINGS_FINANCIAL_PERFORMANCE",
   "MARKET_VALUATION",
 ];
+
+export type EvidenceBundle = S["EvidenceBundle"];
+export type StageStatus = S["StageStatus"];
+export type EvidenceFeature = S["FeatureRow"];
+export type EvidenceIncrement = S["Increment"];
+export type EvidenceProtocolRun = S["ProtocolRun"];
+export type EvidenceContrast = S["ContrastRow"];
+export type EvidenceCandidate = S["CandidateRow"];

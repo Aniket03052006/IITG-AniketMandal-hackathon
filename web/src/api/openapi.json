@@ -1,38 +1,18 @@
 {
   "components": {
     "schemas": {
-      "Acceptance": {
+      "AblationRow": {
         "additionalProperties": false,
         "properties": {
-          "checks": {
-            "items": {
-              "$ref": "#/components/schemas/AcceptanceCheck"
-            },
-            "title": "Checks",
-            "type": "array"
-          },
-          "met": {
-            "title": "Met",
-            "type": "boolean"
-          },
-          "rule": {
-            "description": "the bar, fixed before the gold set was scored",
-            "title": "Rule",
+          "block": {
+            "title": "Block",
             "type": "string"
-          }
-        },
-        "required": [
-          "rule",
-          "met",
-          "checks"
-        ],
-        "title": "Acceptance",
-        "type": "object"
-      },
-      "AcceptanceCheck": {
-        "additionalProperties": false,
-        "properties": {
-          "baseline": {
+          },
+          "mae_added": {
+            "title": "Mae Added",
+            "type": "number"
+          },
+          "mae_added_hi": {
             "anyOf": [
               {
                 "type": "number"
@@ -41,13 +21,9 @@
                 "type": "null"
               }
             ],
-            "title": "Baseline"
+            "title": "Mae Added Hi"
           },
-          "detail": {
-            "title": "Detail",
-            "type": "string"
-          },
-          "model": {
+          "mae_added_lo": {
             "anyOf": [
               {
                 "type": "number"
@@ -56,25 +32,26 @@
                 "type": "null"
               }
             ],
-            "title": "Model"
+            "title": "Mae Added Lo"
           },
-          "name": {
-            "title": "Name",
+          "method": {
+            "title": "Method",
             "type": "string"
           },
-          "passed": {
-            "title": "Passed",
-            "type": "boolean"
+          "spearman_lost": {
+            "title": "Spearman Lost",
+            "type": "number"
           }
         },
         "required": [
-          "name",
-          "model",
-          "baseline",
-          "detail",
-          "passed"
+          "block",
+          "method",
+          "spearman_lost",
+          "mae_added",
+          "mae_added_lo",
+          "mae_added_hi"
         ],
-        "title": "AcceptanceCheck",
+        "title": "AblationRow",
         "type": "object"
       },
       "AppliedShock": {
@@ -126,6 +103,45 @@
         "title": "AssetClass",
         "type": "string"
       },
+      "Attribution": {
+        "additionalProperties": false,
+        "properties": {
+          "exact": {
+            "description": "contributions plus the baseline add up to the prediction exactly",
+            "title": "Exact",
+            "type": "boolean"
+          },
+          "kind": {
+            "description": "additive | linear | sensitivity",
+            "title": "Kind",
+            "type": "string"
+          },
+          "max_abs_error": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "largest |sum - prediction| over held-out rows (log-severity units)",
+            "title": "Max Abs Error"
+          },
+          "units": {
+            "title": "Units",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "exact",
+          "max_abs_error",
+          "units"
+        ],
+        "title": "Attribution",
+        "type": "object"
+      },
       "BaselineScores": {
         "additionalProperties": false,
         "properties": {
@@ -156,6 +172,211 @@
           "detection_f1"
         ],
         "title": "BaselineScores",
+        "type": "object"
+      },
+      "BatteryRow": {
+        "additionalProperties": false,
+        "properties": {
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "neutral_skill": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "placebo_gap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Placebo Gap"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "set": {
+            "title": "Set",
+            "type": "string"
+          },
+          "within_issuer_skill": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Within Issuer Skill"
+          }
+        },
+        "required": [
+          "model",
+          "role",
+          "set",
+          "neutral_skill",
+          "within_issuer_skill",
+          "placebo_gap"
+        ],
+        "title": "BatteryRow",
+        "type": "object"
+      },
+      "CalibrationBin": {
+        "additionalProperties": false,
+        "properties": {
+          "n_episodes": {
+            "title": "N Episodes",
+            "type": "integer"
+          },
+          "p_extreme": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "realised_score_q10": {
+            "title": "Realised Score Q10",
+            "type": "integer"
+          },
+          "realised_score_q90": {
+            "title": "Realised Score Q90",
+            "type": "integer"
+          },
+          "score_high": {
+            "title": "Score High",
+            "type": "integer"
+          },
+          "score_low": {
+            "title": "Score Low",
+            "type": "integer"
+          },
+          "severity_q10": {
+            "title": "Severity Q10",
+            "type": "number"
+          },
+          "severity_q50": {
+            "title": "Severity Q50",
+            "type": "number"
+          },
+          "severity_q90": {
+            "title": "Severity Q90",
+            "type": "number"
+          }
+        },
+        "required": [
+          "score_low",
+          "score_high",
+          "n_episodes",
+          "severity_q10",
+          "severity_q50",
+          "severity_q90",
+          "realised_score_q10",
+          "realised_score_q90",
+          "p_extreme"
+        ],
+        "title": "CalibrationBin",
+        "type": "object"
+      },
+      "CalibrationCard": {
+        "additionalProperties": false,
+        "properties": {
+          "base_rate_extreme": {
+            "description": "share of reference episodes that realised score >= extreme_score",
+            "title": "Base Rate Extreme",
+            "type": "number"
+          },
+          "bins_heldout": {
+            "description": "val+test, same bin edges: the independent check",
+            "items": {
+              "$ref": "#/components/schemas/CalibrationBin"
+            },
+            "title": "Bins Heldout",
+            "type": "array"
+          },
+          "bins_reference": {
+            "description": "out-of-fold training period: the table the server reads",
+            "items": {
+              "$ref": "#/components/schemas/CalibrationBin"
+            },
+            "title": "Bins Reference",
+            "type": "array"
+          },
+          "extreme_brier": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extreme Brier"
+          },
+          "extreme_brier_base_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extreme Brier Base Rate"
+          },
+          "extreme_score": {
+            "title": "Extreme Score",
+            "type": "integer"
+          },
+          "heldout_coverage": {
+            "$ref": "#/components/schemas/Estimate",
+            "description": "share of held-out episodes whose realised score fell in the served [low, high]"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "monotonicity_spearman": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "bucket order vs realised mean |z| on val+test",
+            "title": "Monotonicity Spearman"
+          },
+          "nominal_coverage": {
+            "title": "Nominal Coverage",
+            "type": "number"
+          },
+          "reference_episodes": {
+            "title": "Reference Episodes",
+            "type": "integer"
+          },
+          "reference_period": {
+            "title": "Reference Period",
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "reference_episodes",
+          "reference_period",
+          "extreme_score",
+          "base_rate_extreme",
+          "bins_reference",
+          "bins_heldout",
+          "nominal_coverage",
+          "heldout_coverage",
+          "monotonicity_spearman",
+          "extreme_brier",
+          "extreme_brier_base_rate"
+        ],
+        "title": "CalibrationCard",
         "type": "object"
       },
       "CalibrationInfo": {
@@ -249,6 +470,99 @@
           "selected"
         ],
         "title": "Candidate",
+        "type": "object"
+      },
+      "CandidateRow": {
+        "additionalProperties": false,
+        "properties": {
+          "adopt": {
+            "title": "Adopt",
+            "type": "boolean"
+          },
+          "checks_failed": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Checks Failed",
+            "type": "array"
+          },
+          "checks_passed": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Checks Passed",
+            "type": "array"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "pooled_delta_f1": {
+            "$ref": "#/components/schemas/Estimate"
+          }
+        },
+        "required": [
+          "id",
+          "family",
+          "detail",
+          "pooled_delta_f1",
+          "checks_passed",
+          "checks_failed",
+          "adopt"
+        ],
+        "title": "CandidateRow",
+        "type": "object"
+      },
+      "CheckRow": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "passed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passed"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "value",
+          "passed",
+          "detail"
+        ],
+        "title": "CheckRow",
         "type": "object"
       },
       "ClassMetrics": {
@@ -427,6 +741,41 @@
         "title": "ConsistencyInfo",
         "type": "object"
       },
+      "ContrastRow": {
+        "additionalProperties": false,
+        "properties": {
+          "auc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "lift": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "pairs": {
+            "title": "Pairs",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "label",
+          "pairs",
+          "lift",
+          "auc"
+        ],
+        "title": "ContrastRow",
+        "type": "object"
+      },
       "Contribution": {
         "properties": {
           "baseline_value": {
@@ -563,6 +912,194 @@
         "title": "CorroboratingSource",
         "type": "object"
       },
+      "CostRow": {
+        "additionalProperties": false,
+        "properties": {
+          "controlled": {
+            "default": false,
+            "title": "Controlled",
+            "type": "boolean"
+          },
+          "deterministic": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deterministic"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "ms_per_text_batch1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ms Per Text Batch1"
+          },
+          "ms_per_text_batch32": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ms Per Text Batch32"
+          },
+          "parameters_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parameters M"
+          },
+          "peak_rss_mb": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peak Rss Mb"
+          }
+        },
+        "required": [
+          "model",
+          "kind",
+          "parameters_m",
+          "ms_per_text_batch1",
+          "ms_per_text_batch32",
+          "peak_rss_mb",
+          "controlled",
+          "deterministic"
+        ],
+        "title": "CostRow",
+        "type": "object"
+      },
+      "DataFoundation": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "calendar_filings": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calendar Filings"
+          },
+          "calendar_fomc": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calendar Fomc"
+          },
+          "command": {
+            "default": "",
+            "title": "Command",
+            "type": "string"
+          },
+          "episodes_by_year": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/YearCount"
+            },
+            "title": "Episodes By Year",
+            "type": "array"
+          },
+          "exclusions": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "title": "Exclusions",
+            "type": "object"
+          },
+          "gold": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/GoldSummary"
+            },
+            "title": "Gold",
+            "type": "array"
+          },
+          "held_out": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "description": "protocol -> scope/split -> episodes",
+            "title": "Held Out",
+            "type": "object"
+          },
+          "known_gaps": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Known Gaps",
+            "type": "array"
+          },
+          "sources": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SourceRow"
+            },
+            "title": "Sources",
+            "type": "array"
+          }
+        },
+        "required": [
+          "available",
+          "sources",
+          "episodes_by_year",
+          "held_out",
+          "calendar_filings",
+          "calendar_fomc",
+          "gold",
+          "exclusions",
+          "known_gaps",
+          "command"
+        ],
+        "title": "DataFoundation",
+        "type": "object"
+      },
       "DataOrigin": {
         "description": "Whether a signal was computed by a model or comes from a pinned demo fixture.",
         "enum": [
@@ -658,6 +1195,30 @@
         ],
         "title": "DedupRelation",
         "type": "string"
+      },
+      "DirectionCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "hit_rate": {
+            "$ref": "#/components/schemas/Estimate",
+            "description": "share of confident, non-neutral sentiment calls whose sign matched the realised abnormal return"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "n",
+          "hit_rate",
+          "note"
+        ],
+        "title": "DirectionCheck",
+        "type": "object"
       },
       "EntityAudit": {
         "description": "Why the entity is what it is \u2014 including what was considered and refused.",
@@ -820,6 +1381,52 @@
           "link_confidence"
         ],
         "title": "EntityMention",
+        "type": "object"
+      },
+      "Estimate": {
+        "additionalProperties": false,
+        "description": "A point estimate with a 95% cluster-bootstrap interval (episodes are resampled, never rows).",
+        "properties": {
+          "hi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hi"
+          },
+          "lo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lo"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "value",
+          "lo",
+          "hi"
+        ],
+        "title": "Estimate",
         "type": "object"
       },
       "EvalMetrics": {
@@ -1621,7 +2228,7 @@
             "$ref": "#/components/schemas/EventAbstention"
           },
           "acceptance": {
-            "$ref": "#/components/schemas/Acceptance"
+            "$ref": "#/components/schemas/eventshock__pipeline__event_card__Acceptance"
           },
           "algorithm": {
             "title": "Algorithm",
@@ -1897,6 +2504,65 @@
         "title": "Evidence",
         "type": "object"
       },
+      "EvidenceBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DataFoundation"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/FeatureRow"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "generated_from": {
+            "items": {
+              "$ref": "#/components/schemas/SourceFile"
+            },
+            "title": "Generated From",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "representation": {
+            "$ref": "#/components/schemas/RepresentationView"
+          },
+          "schema_version": {
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/StageStatus"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "study": {
+            "$ref": "#/components/schemas/StudyView"
+          }
+        },
+        "required": [
+          "schema_version",
+          "generated_from",
+          "stages",
+          "data",
+          "features",
+          "study",
+          "representation",
+          "limitations"
+        ],
+        "title": "EvidenceBundle",
+        "type": "object"
+      },
       "ExposureRow": {
         "properties": {
           "asset_count": {
@@ -1928,6 +2594,50 @@
           "asset_count"
         ],
         "title": "ExposureRow",
+        "type": "object"
+      },
+      "FeatureRow": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "availability": {
+            "description": "a known before the event | b published at event time | c only after (refused) | shortcut | circular",
+            "title": "Availability",
+            "type": "string"
+          },
+          "group": {
+            "title": "Group",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "used_by": {
+            "description": "rungs that include it",
+            "items": {
+              "type": "string"
+            },
+            "title": "Used By",
+            "type": "array"
+          },
+          "why": {
+            "title": "Why",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "group",
+          "availability",
+          "allowed",
+          "used_by",
+          "why"
+        ],
+        "title": "FeatureRow",
         "type": "object"
       },
       "FetchQuery": {
@@ -1970,6 +2680,78 @@
         "title": "FetchQuery",
         "type": "object"
       },
+      "GoldSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "agreed_rows": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreed Rows"
+          },
+          "agreement": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement"
+          },
+          "human_reviewed": {
+            "default": 0,
+            "title": "Human Reviewed",
+            "type": "integer"
+          },
+          "kappa": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kappa"
+          },
+          "labelled_by": {
+            "title": "Labelled By",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          },
+          "rows": {
+            "title": "Rows",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "rows",
+          "labelled_by",
+          "agreement",
+          "kappa",
+          "agreed_rows",
+          "human_reviewed",
+          "note"
+        ],
+        "title": "GoldSummary",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1983,15 +2765,85 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
-      "ImpactAssessment": {
-        "description": "Market-response *proxy* on a 1-10 scale (never a probability of loss).",
+      "HorizonCheck": {
+        "additionalProperties": false,
         "properties": {
+          "spearman": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "window_sessions": {
+            "title": "Window Sessions",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "window_sessions",
+          "spearman"
+        ],
+        "title": "HorizonCheck",
+        "type": "object"
+      },
+      "ImpactAssessment": {
+        "description": "Market-response *proxy* on a 1-10 scale (never a probability of loss).\n\nFrom the placeholder heuristic only ``score``/``raw``/``drivers`` are filled. From the trained model the\nrest is filled too: the continuous prediction, what comparable past events realised, and attributions.",
+        "properties": {
+          "comparable_events": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "out-of-fold historical ticker-sessions in this score bucket",
+            "title": "Comparable Events"
+          },
+          "driver_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "units of the driver contributions, and how they add up to the prediction",
+            "title": "Driver Basis"
+          },
           "drivers": {
             "items": {
               "$ref": "#/components/schemas/ImpactDriver"
             },
             "title": "Drivers",
             "type": "array"
+          },
+          "p_extreme": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "share that realised an extreme move (score >= 7)",
+            "title": "P Extreme"
+          },
+          "predicted_severity": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "predicted |z|: the two-session abnormal move, in sigma units",
+            "title": "Predicted Severity"
           },
           "quantisation": {
             "default": "ceil(raw * 10), min 1",
@@ -2005,20 +2857,195 @@
             "title": "Raw",
             "type": "number"
           },
+          "realised_severity_high": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "their 90th percentile |z|",
+            "title": "Realised Severity High"
+          },
+          "realised_severity_low": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "their 10th percentile |z|",
+            "title": "Realised Severity Low"
+          },
+          "realised_severity_median": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Realised Severity Median"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISSUER | MARKET; null for the heuristic",
+            "title": "Scope"
+          },
           "score": {
             "maximum": 10.0,
             "minimum": 1.0,
             "title": "Score",
             "type": "integer"
+          },
+          "score_high": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "90th pct of the score realised",
+            "title": "Score High"
+          },
+          "score_low": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "10th pct of the score realised",
+            "title": "Score Low"
           }
         },
         "required": [
           "score",
           "raw",
           "drivers",
-          "quantisation"
+          "quantisation",
+          "scope",
+          "predicted_severity",
+          "comparable_events",
+          "score_low",
+          "score_high",
+          "realised_severity_low",
+          "realised_severity_median",
+          "realised_severity_high",
+          "p_extreme",
+          "driver_basis"
         ],
         "title": "ImpactAssessment",
+        "type": "object"
+      },
+      "ImpactAudit": {
+        "description": "Which trained impact model scored this signal, on what inputs, and how far to trust this score.",
+        "properties": {
+          "artifact_sha256": {
+            "description": "sha256 of the scoring artifact",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Artifact Sha256",
+            "type": "string"
+          },
+          "calibrated": {
+            "title": "Calibrated",
+            "type": "boolean"
+          },
+          "feature_schema": {
+            "title": "Feature Schema",
+            "type": "string"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "the numeric features the model saw",
+            "title": "Inputs",
+            "type": "object"
+          },
+          "lifecycle": {
+            "$ref": "#/components/schemas/ImpactLifecycle"
+          },
+          "market_context_as_of": {
+            "description": "last session of the frozen market context used",
+            "title": "Market Context As Of",
+            "type": "string"
+          },
+          "missing_inputs": {
+            "description": "features absent at event time (the model handles them natively)",
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Inputs",
+            "type": "array"
+          },
+          "model_id": {
+            "title": "Model Id",
+            "type": "string"
+          },
+          "model_version": {
+            "title": "Model Version",
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ImpactScope"
+          },
+          "session": {
+            "description": "the session the reaction is measured from: an ISO date, or NEXT",
+            "title": "Session",
+            "type": "string"
+          },
+          "timing": {
+            "description": "OFF_HOURS | PRE_OPEN | IN_SESSION | DATE_ONLY | FIRST_SEEN",
+            "title": "Timing",
+            "type": "string"
+          },
+          "timing_reliable": {
+            "description": "false for a first-seen crawl time, a date-only stamp, or an in-session report: part of the move may precede the report, so the score is less trustworthy",
+            "title": "Timing Reliable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "model_id",
+          "model_version",
+          "artifact_sha256",
+          "lifecycle",
+          "scope",
+          "feature_schema",
+          "calibrated",
+          "session",
+          "timing",
+          "timing_reliable",
+          "market_context_as_of",
+          "inputs",
+          "missing_inputs"
+        ],
+        "title": "ImpactAudit",
         "type": "object"
       },
       "ImpactDriver": {
@@ -2036,14 +3063,244 @@
             "default": "",
             "title": "Note",
             "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the feature's value, if it has one",
+            "title": "Value"
           }
         },
         "required": [
           "feature",
           "contribution",
-          "note"
+          "note",
+          "value"
         ],
         "title": "ImpactDriver",
+        "type": "object"
+      },
+      "ImpactLifecycle": {
+        "description": "How far the impact stage has got. The UI maps it to three words: a heuristic is *placeholder*,\nTRAINED and CALIBRATED are *experimental*, only PRODUCTION (all checks passed) is *validated*.",
+        "enum": [
+          "NOT_AVAILABLE",
+          "DATASET",
+          "BASELINE",
+          "TRAINED",
+          "CALIBRATED",
+          "PRODUCTION"
+        ],
+        "title": "ImpactLifecycle",
+        "type": "string"
+      },
+      "ImpactModelCard": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_bytes": {
+            "title": "Artifact Bytes",
+            "type": "integer"
+          },
+          "artifact_file": {
+            "title": "Artifact File",
+            "type": "string"
+          },
+          "artifact_sha256": {
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Artifact Sha256",
+            "type": "string"
+          },
+          "dataset": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "type": "object"
+                },
+                {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            "description": "hashes and counts of the table the model was fitted from",
+            "title": "Dataset",
+            "type": "object"
+          },
+          "feature_schema": {
+            "title": "Feature Schema",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "libraries": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Libraries",
+            "type": "object"
+          },
+          "output_definition": {
+            "title": "Output Definition",
+            "type": "string"
+          },
+          "scopes": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeCard"
+            },
+            "title": "Scopes",
+            "type": "array"
+          },
+          "selection_rule": {
+            "title": "Selection Rule",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "vs_previous": {
+            "description": "paired comparison with the model this one would replace",
+            "items": {
+              "$ref": "#/components/schemas/PreviousComparison"
+            },
+            "title": "Vs Previous",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "feature_schema",
+          "output_definition",
+          "artifact_file",
+          "artifact_sha256",
+          "artifact_bytes",
+          "libraries",
+          "dataset",
+          "selection_rule",
+          "scopes",
+          "vs_previous"
+        ],
+        "title": "ImpactModelCard",
+        "type": "object"
+      },
+      "ImpactScope": {
+        "enum": [
+          "ISSUER",
+          "MARKET"
+        ],
+        "title": "ImpactScope",
+        "type": "string"
+      },
+      "ImpactStatus": {
+        "description": "What the impact stage is in this running app, derived from the loaded card (never hard-coded copy).",
+        "properties": {
+          "mode": {
+            "description": "MODEL (a trained model scores what it can) | PLACEHOLDER (heuristic only)",
+            "title": "Mode",
+            "type": "string"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Id"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "why the app is on the heuristic, when it is",
+            "title": "Reason"
+          },
+          "scopes": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "scope -> lifecycle of the model for it",
+            "title": "Scopes",
+            "type": "object"
+          },
+          "served_scopes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Served Scopes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "mode",
+          "model_id",
+          "scopes",
+          "served_scopes",
+          "reason"
+        ],
+        "title": "ImpactStatus",
+        "type": "object"
+      },
+      "Increment": {
+        "additionalProperties": false,
+        "properties": {
+          "block": {
+            "title": "Block",
+            "type": "string"
+          },
+          "delta_mae": {
+            "$ref": "#/components/schemas/Estimate",
+            "description": "paired log-severity MAE difference; negative = the block helps"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "verdict": {
+            "description": "helps | no measurable effect | hurts",
+            "title": "Verdict",
+            "type": "string"
+          },
+          "where": {
+            "title": "Where",
+            "type": "string"
+          }
+        },
+        "required": [
+          "block",
+          "family",
+          "where",
+          "delta_mae",
+          "verdict"
+        ],
+        "title": "Increment",
         "type": "object"
       },
       "LabelScores": {
@@ -2064,6 +3321,88 @@
           "macro_f1"
         ],
         "title": "LabelScores",
+        "type": "object"
+      },
+      "LadderEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "chosen": {
+            "title": "Chosen",
+            "type": "boolean"
+          },
+          "delta_mae_vs_previous_choice": {
+            "$ref": "#/components/schemas/Estimate",
+            "description": "out-of-fold paired difference to the current choice when it was tried"
+          },
+          "family": {
+            "title": "Family",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "n_features": {
+            "title": "N Features",
+            "type": "integer"
+          },
+          "oof_mae": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "oof_spearman": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "params": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "title": "Params",
+            "type": "object"
+          },
+          "rung": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rung"
+          },
+          "servable": {
+            "title": "Servable",
+            "type": "boolean"
+          },
+          "verdict": {
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "family",
+          "rung",
+          "servable",
+          "params",
+          "n_features",
+          "oof_mae",
+          "oof_spearman",
+          "delta_mae_vs_previous_choice",
+          "chosen",
+          "verdict"
+        ],
+        "title": "LadderEntry",
         "type": "object"
       },
       "Meta": {
@@ -2092,6 +3431,17 @@
           "engine_version": {
             "title": "Engine Version",
             "type": "string"
+          },
+          "impact": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpactStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null for the demo-fixture profile"
           },
           "mode": {
             "$ref": "#/components/schemas/RunMode"
@@ -2156,9 +3506,74 @@
           "scenario_set_version",
           "engine_version",
           "taxonomy",
-          "notices"
+          "notices",
+          "impact"
         ],
         "title": "Meta",
+        "type": "object"
+      },
+      "ModelScore": {
+        "additionalProperties": false,
+        "description": "One ladder step scored on one evaluation set. Errors are on log1p(|z|); lower is better.",
+        "properties": {
+          "delta_mae_vs_constant": {
+            "$ref": "#/components/schemas/Estimate",
+            "description": "paired difference (negative = better than the constant)"
+          },
+          "delta_mae_vs_market_state": {
+            "$ref": "#/components/schemas/Estimate",
+            "description": "paired difference against the market-state-only linear model (negative = better)"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "mae": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "placebo_spearman": {
+            "$ref": "#/components/schemas/Estimate",
+            "description": "same prediction against the window BEFORE the event: skill here is market state, not the event"
+          },
+          "rmse": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rmse"
+          },
+          "spearman": {
+            "$ref": "#/components/schemas/Estimate",
+            "description": "episode-level rank correlation of the prediction with the realised |z|"
+          },
+          "top_decile_lift": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "mean realised |z| of the top 10% of predictions / overall mean",
+            "title": "Top Decile Lift"
+          }
+        },
+        "required": [
+          "id",
+          "mae",
+          "rmse",
+          "spearman",
+          "top_decile_lift",
+          "placebo_spearman",
+          "delta_mae_vs_constant",
+          "delta_mae_vs_market_state"
+        ],
+        "title": "ModelScore",
         "type": "object"
       },
       "ModelVersions": {
@@ -2703,6 +4118,205 @@
         "title": "PositionShock",
         "type": "object"
       },
+      "PreviousComparison": {
+        "additionalProperties": false,
+        "description": "The new model against the one it would replace, on the same held-out episodes (paired; negative = the new model has the lower error).",
+        "properties": {
+          "delta_mae": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "n_episodes": {
+            "title": "N Episodes",
+            "type": "integer"
+          },
+          "previous_id": {
+            "title": "Previous Id",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "set_id": {
+            "title": "Set Id",
+            "type": "string"
+          },
+          "spearman_new": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "spearman_previous": {
+            "$ref": "#/components/schemas/Estimate"
+          }
+        },
+        "required": [
+          "scope",
+          "previous_id",
+          "set_id",
+          "n_episodes",
+          "delta_mae",
+          "spearman_new",
+          "spearman_previous"
+        ],
+        "title": "PreviousComparison",
+        "type": "object"
+      },
+      "ProbeRow": {
+        "additionalProperties": false,
+        "properties": {
+          "channel": {
+            "title": "Channel",
+            "type": "string"
+          },
+          "hi": {
+            "title": "Hi",
+            "type": "number"
+          },
+          "lo": {
+            "title": "Lo",
+            "type": "number"
+          },
+          "pairs": {
+            "title": "Pairs",
+            "type": "integer"
+          },
+          "share_correct": {
+            "title": "Share Correct",
+            "type": "number"
+          }
+        },
+        "required": [
+          "channel",
+          "pairs",
+          "share_correct",
+          "lo",
+          "hi"
+        ],
+        "title": "ProbeRow",
+        "type": "object"
+      },
+      "ProtocolRun": {
+        "additionalProperties": false,
+        "properties": {
+          "ablation": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AblationRow"
+            },
+            "title": "Ablation",
+            "type": "array"
+          },
+          "battery": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/BatteryRow"
+            },
+            "title": "Battery",
+            "type": "array"
+          },
+          "best_block": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best Block"
+          },
+          "best_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Best State"
+          },
+          "checks": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CheckRow"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "episodes": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "default": {},
+            "title": "Episodes",
+            "type": "object"
+          },
+          "increments": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Increment"
+            },
+            "title": "Increments",
+            "type": "array"
+          },
+          "protocol": {
+            "title": "Protocol",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "selected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "verdict": {
+            "default": "",
+            "title": "Verdict",
+            "type": "string"
+          },
+          "years_helpful": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Years Helpful"
+          }
+        },
+        "required": [
+          "protocol",
+          "scope",
+          "status",
+          "episodes",
+          "selected",
+          "best_state",
+          "best_block",
+          "checks",
+          "increments",
+          "years_helpful",
+          "battery",
+          "ablation",
+          "verdict"
+        ],
+        "title": "ProtocolRun",
+        "type": "object"
+      },
       "QuarantinedRecord": {
         "properties": {
           "code": {
@@ -2935,6 +4549,86 @@
         "title": "ReplayInfo",
         "type": "object"
       },
+      "RepresentationView": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "baseline": {
+            "default": "",
+            "title": "Baseline",
+            "type": "string"
+          },
+          "baseline_pooled_f1": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Pooled F1"
+          },
+          "candidates": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CandidateRow"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "command": {
+            "default": "",
+            "title": "Command",
+            "type": "string"
+          },
+          "cost": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CostRow"
+            },
+            "title": "Cost",
+            "type": "array"
+          },
+          "decision": {
+            "default": "",
+            "title": "Decision",
+            "type": "string"
+          },
+          "probe": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProbeRow"
+            },
+            "title": "Probe",
+            "type": "array"
+          },
+          "sets": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "default": {},
+            "title": "Sets",
+            "type": "object"
+          }
+        },
+        "required": [
+          "available",
+          "decision",
+          "baseline",
+          "sets",
+          "baseline_pooled_f1",
+          "candidates",
+          "cost",
+          "probe",
+          "command"
+        ],
+        "title": "RepresentationView",
+        "type": "object"
+      },
       "RiskFactor": {
         "description": "Scenario risk factors. Units are fixed per factor (see ``FACTOR_UNITS``).",
         "enum": [
@@ -3164,6 +4858,154 @@
         "title": "ScenarioRef",
         "type": "object"
       },
+      "ScopeCard": {
+        "additionalProperties": false,
+        "properties": {
+          "acceptance": {
+            "$ref": "#/components/schemas/eventshock__pipeline__impact_card__Acceptance"
+          },
+          "algorithm": {
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "attribution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Attribution"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "calibration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CalibrationCard"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DirectionCheck"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evaluations": {
+            "items": {
+              "$ref": "#/components/schemas/SetResult"
+            },
+            "title": "Evaluations",
+            "type": "array"
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "horizon": {
+            "items": {
+              "$ref": "#/components/schemas/HorizonCheck"
+            },
+            "title": "Horizon",
+            "type": "array"
+          },
+          "ladder": {
+            "items": {
+              "$ref": "#/components/schemas/LadderEntry"
+            },
+            "title": "Ladder",
+            "type": "array"
+          },
+          "leakage_findings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Leakage Findings",
+            "type": "array"
+          },
+          "lifecycle": {
+            "$ref": "#/components/schemas/ImpactLifecycle"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "selected_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Id"
+          },
+          "served": {
+            "description": "the artifact contains a model for this scope that the server uses",
+            "title": "Served",
+            "type": "boolean"
+          },
+          "strata": {
+            "items": {
+              "$ref": "#/components/schemas/Stratum"
+            },
+            "title": "Strata",
+            "type": "array"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "training": {
+            "$ref": "#/components/schemas/eventshock__pipeline__impact_card__TrainingInfo"
+          }
+        },
+        "required": [
+          "scope",
+          "lifecycle",
+          "served",
+          "summary",
+          "target",
+          "selected_id",
+          "algorithm",
+          "features",
+          "training",
+          "ladder",
+          "evaluations",
+          "calibration",
+          "strata",
+          "attribution",
+          "horizon",
+          "direction",
+          "leakage_findings",
+          "acceptance",
+          "limitations"
+        ],
+        "title": "ScopeCard",
+        "type": "object"
+      },
       "SentimentAudit": {
         "description": "Which trained model scored this signal's sentiment, and how far to trust this particular score.",
         "properties": {
@@ -3294,7 +5136,7 @@
             "type": "string"
           },
           "training": {
-            "$ref": "#/components/schemas/TrainingInfo"
+            "$ref": "#/components/schemas/eventshock__pipeline__sentiment_card__TrainingInfo"
           },
           "version": {
             "title": "Version",
@@ -3417,6 +5259,54 @@
           "detection"
         ],
         "title": "ServedDecision",
+        "type": "object"
+      },
+      "SetResult": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "description": "oof | val | test | val+test | live | live_reliable",
+            "title": "Id",
+            "type": "string"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelScore"
+            },
+            "title": "Models",
+            "type": "array"
+          },
+          "n_episodes": {
+            "title": "N Episodes",
+            "type": "integer"
+          },
+          "n_rows": {
+            "title": "N Rows",
+            "type": "integer"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "role",
+          "n_episodes",
+          "n_rows",
+          "period",
+          "models"
+        ],
+        "title": "SetResult",
         "type": "object"
       },
       "SeverityScaling": {
@@ -3549,6 +5439,29 @@
             ],
             "description": "present when the event stage is a trained model"
           },
+          "impact": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpactAudit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "present when this signal's impact comes from the trained impact model"
+          },
+          "impact_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "why the trained model did not score this (the labelled heuristic did)",
+            "title": "Impact Note"
+          },
           "pipeline_version": {
             "title": "Pipeline Version",
             "type": "string"
@@ -3596,7 +5509,9 @@
           "dedup",
           "stage_origins",
           "sentiment",
-          "event"
+          "event",
+          "impact",
+          "impact_note"
         ],
         "title": "SignalProvenance",
         "type": "object"
@@ -3647,6 +5562,30 @@
             "title": "Id",
             "type": "string"
           },
+          "impact_lifecycle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "lifecycle of the impact model, if used",
+            "title": "Impact Lifecycle"
+          },
+          "impact_origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "MODEL | PLACEHOLDER: what produced impact_score",
+            "title": "Impact Origin"
+          },
           "impact_score": {
             "anyOf": [
               {
@@ -3657,6 +5596,28 @@
               }
             ],
             "title": "Impact Score"
+          },
+          "impact_score_high": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Score High"
+          },
+          "impact_score_low": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Score Low"
           },
           "published_at": {
             "format": "date-time",
@@ -3718,11 +5679,41 @@
           "event_status",
           "sentiment_score",
           "impact_score",
+          "impact_origin",
+          "impact_lifecycle",
+          "impact_score_low",
+          "impact_score_high",
           "status",
           "source_count",
           "data_origin"
         ],
         "title": "SignalSummary",
+        "type": "object"
+      },
+      "SourceFile": {
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "title": "File",
+            "type": "string"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
+          }
+        },
+        "required": [
+          "file",
+          "sha256"
+        ],
+        "title": "SourceFile",
         "type": "object"
       },
       "SourceReport": {
@@ -3787,6 +5778,54 @@
         "title": "SourceReport",
         "type": "object"
       },
+      "SourceRow": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "description": "news | social | filing | calendar | prices | labels",
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "records": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Records"
+          },
+          "timestamps": {
+            "title": "Timestamps",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "period",
+          "records",
+          "timestamps",
+          "note"
+        ],
+        "title": "SourceRow",
+        "type": "object"
+      },
       "SourceType": {
         "enum": [
           "NEWS",
@@ -3794,6 +5833,136 @@
         ],
         "title": "SourceType",
         "type": "string"
+      },
+      "StageStatus": {
+        "additionalProperties": false,
+        "description": "What one pipeline stage is, in the product's three words: placeholder rule, experimental model, validated model.",
+        "properties": {
+          "artifact_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Sha256"
+          },
+          "failed": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Failed",
+            "type": "array"
+          },
+          "kind": {
+            "description": "placeholder | experimental | validated",
+            "title": "Kind",
+            "type": "string"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Id"
+          },
+          "not_evaluable": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Not Evaluable",
+            "type": "array"
+          },
+          "passed": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Passed",
+            "type": "array"
+          },
+          "stage": {
+            "description": "sentiment | event | impact",
+            "title": "Stage",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage",
+          "model_id",
+          "kind",
+          "summary",
+          "passed",
+          "failed",
+          "not_evaluable",
+          "artifact_sha256"
+        ],
+        "title": "StageStatus",
+        "type": "object"
+      },
+      "Stratum": {
+        "additionalProperties": false,
+        "properties": {
+          "dimension": {
+            "title": "Dimension",
+            "type": "string"
+          },
+          "mae_constant": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mae Constant"
+          },
+          "mae_model": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mae Model"
+          },
+          "n_episodes": {
+            "title": "N Episodes",
+            "type": "integer"
+          },
+          "spearman": {
+            "$ref": "#/components/schemas/Estimate"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dimension",
+          "value",
+          "n_episodes",
+          "spearman",
+          "mae_model",
+          "mae_constant"
+        ],
+        "title": "Stratum",
+        "type": "object"
       },
       "StressAudit": {
         "properties": {
@@ -3817,6 +5986,30 @@
           "forced": {
             "title": "Forced",
             "type": "boolean"
+          },
+          "impact_lifecycle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "lifecycle of the trained impact model for this signal (null: heuristic)",
+            "title": "Impact Lifecycle"
+          },
+          "impact_origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "MODEL | PLACEHOLDER: what produced the impact this run used",
+            "title": "Impact Origin"
           },
           "impact_overridden": {
             "title": "Impact Overridden",
@@ -3859,6 +6052,8 @@
           "threshold",
           "forced",
           "impact_overridden",
+          "impact_origin",
+          "impact_lifecycle",
           "calculated_at",
           "calculation"
         ],
@@ -4057,6 +6252,65 @@
         "title": "StressSummary",
         "type": "object"
       },
+      "StudyView": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "command": {
+            "default": "",
+            "title": "Command",
+            "type": "string"
+          },
+          "p1_regression": {
+            "default": "",
+            "title": "P1 Regression",
+            "type": "string"
+          },
+          "preregistration": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceFile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "runs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProtocolRun"
+            },
+            "title": "Runs",
+            "type": "array"
+          },
+          "track_f": {
+            "$ref": "#/components/schemas/TrackF",
+            "default": {
+              "available": false,
+              "by_item": [],
+              "earnings_by_year": [],
+              "item_code_increment": [],
+              "non_earnings_by_year": [],
+              "note": "",
+              "pairs": 0
+            }
+          }
+        },
+        "required": [
+          "available",
+          "preregistration",
+          "p1_regression",
+          "runs",
+          "track_f",
+          "command"
+        ],
+        "title": "StudyView",
+        "type": "object"
+      },
       "TaxonomyItem": {
         "properties": {
           "default_scenario": {
@@ -4095,64 +6349,77 @@
         "title": "TimestampOrigin",
         "type": "string"
       },
-      "TrainingInfo": {
+      "TrackF": {
         "additionalProperties": false,
         "properties": {
-          "config_digest": {
-            "title": "Config Digest",
-            "type": "string"
+          "available": {
+            "title": "Available",
+            "type": "boolean"
           },
-          "dataset": {
-            "title": "Dataset",
-            "type": "string"
-          },
-          "label_distribution": {
-            "additionalProperties": {
-              "type": "integer"
+          "by_item": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ContrastRow"
             },
-            "title": "Label Distribution",
-            "type": "object"
+            "title": "By Item",
+            "type": "array"
           },
-          "licence": {
-            "title": "Licence",
+          "earnings_by_year": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ContrastRow"
+            },
+            "title": "Earnings By Year",
+            "type": "array"
+          },
+          "headline": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContrastRow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "item_code_increment": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Increment"
+            },
+            "title": "Item Code Increment",
+            "type": "array"
+          },
+          "non_earnings_by_year": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ContrastRow"
+            },
+            "title": "Non Earnings By Year",
+            "type": "array"
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
             "type": "string"
           },
-          "rows": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "title": "Rows",
-            "type": "object"
-          },
-          "seed": {
-            "title": "Seed",
+          "pairs": {
+            "default": 0,
+            "title": "Pairs",
             "type": "integer"
-          },
-          "split_note": {
-            "title": "Split Note",
-            "type": "string"
-          },
-          "table": {
-            "title": "Table",
-            "type": "string"
-          },
-          "table_sha256": {
-            "title": "Table Sha256",
-            "type": "string"
           }
         },
         "required": [
-          "dataset",
-          "licence",
-          "table",
-          "table_sha256",
-          "rows",
-          "label_distribution",
-          "split_note",
-          "seed",
-          "config_digest"
+          "available",
+          "pairs",
+          "headline",
+          "by_item",
+          "earnings_by_year",
+          "non_earnings_by_year",
+          "item_code_increment",
+          "note"
         ],
-        "title": "TrainingInfo",
+        "title": "TrackF",
         "type": "object"
       },
       "UncoveredExposure": {
@@ -4225,16 +6492,334 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "YearCount": {
+        "additionalProperties": false,
+        "properties": {
+          "filing_events": {
+            "default": 0,
+            "title": "Filing Events",
+            "type": "integer"
+          },
+          "issuer": {
+            "default": 0,
+            "title": "Issuer",
+            "type": "integer"
+          },
+          "market": {
+            "default": 0,
+            "title": "Market",
+            "type": "integer"
+          },
+          "year": {
+            "title": "Year",
+            "type": "string"
+          }
+        },
+        "required": [
+          "year",
+          "issuer",
+          "market",
+          "filing_events"
+        ],
+        "title": "YearCount",
+        "type": "object"
+      },
+      "eventshock__pipeline__event_card__Acceptance": {
+        "additionalProperties": false,
+        "properties": {
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/eventshock__pipeline__event_card__AcceptanceCheck"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "met": {
+            "title": "Met",
+            "type": "boolean"
+          },
+          "rule": {
+            "description": "the bar, fixed before the gold set was scored",
+            "title": "Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule",
+          "met",
+          "checks"
+        ],
+        "title": "Acceptance",
+        "type": "object"
+      },
+      "eventshock__pipeline__event_card__AcceptanceCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "model",
+          "baseline",
+          "detail",
+          "passed"
+        ],
+        "title": "AcceptanceCheck",
+        "type": "object"
+      },
+      "eventshock__pipeline__impact_card__Acceptance": {
+        "additionalProperties": false,
+        "properties": {
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/eventshock__pipeline__impact_card__AcceptanceCheck"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "met": {
+            "title": "Met",
+            "type": "boolean"
+          },
+          "rule": {
+            "description": "the bar, fixed in configs/impact_model.yaml before the first held-out run",
+            "title": "Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rule",
+          "met",
+          "checks"
+        ],
+        "title": "Acceptance",
+        "type": "object"
+      },
+      "eventshock__pipeline__impact_card__AcceptanceCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "passed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null = could not be evaluated (too little data): never counts as a pass",
+            "title": "Passed"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "passed",
+          "value",
+          "detail"
+        ],
+        "title": "AcceptanceCheck",
+        "type": "object"
+      },
+      "eventshock__pipeline__impact_card__TrainingInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "config_sha256": {
+            "title": "Config Sha256",
+            "type": "string"
+          },
+          "episodes": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Episodes",
+            "type": "object"
+          },
+          "excluded": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Excluded",
+            "type": "object"
+          },
+          "folds": {
+            "title": "Folds",
+            "type": "string"
+          },
+          "rows": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Rows",
+            "type": "object"
+          },
+          "seed": {
+            "title": "Seed",
+            "type": "integer"
+          },
+          "table_sha256": {
+            "title": "Table Sha256",
+            "type": "string"
+          },
+          "train_period": {
+            "title": "Train Period",
+            "type": "string"
+          }
+        },
+        "required": [
+          "table_sha256",
+          "rows",
+          "episodes",
+          "train_period",
+          "folds",
+          "excluded",
+          "seed",
+          "config_sha256"
+        ],
+        "title": "TrainingInfo",
+        "type": "object"
+      },
+      "eventshock__pipeline__sentiment_card__TrainingInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "config_digest": {
+            "title": "Config Digest",
+            "type": "string"
+          },
+          "dataset": {
+            "title": "Dataset",
+            "type": "string"
+          },
+          "label_distribution": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Label Distribution",
+            "type": "object"
+          },
+          "licence": {
+            "title": "Licence",
+            "type": "string"
+          },
+          "rows": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Rows",
+            "type": "object"
+          },
+          "seed": {
+            "title": "Seed",
+            "type": "integer"
+          },
+          "split_note": {
+            "title": "Split Note",
+            "type": "string"
+          },
+          "table": {
+            "title": "Table",
+            "type": "string"
+          },
+          "table_sha256": {
+            "title": "Table Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dataset",
+          "licence",
+          "table",
+          "table_sha256",
+          "rows",
+          "label_distribution",
+          "split_note",
+          "seed",
+          "config_digest"
+        ],
+        "title": "TrainingInfo",
+        "type": "object"
       }
     }
   },
   "info": {
-    "description": "Event-driven risk signals and deterministic portfolio stress testing. Replay profile: real source documents through the ingestion pipeline (trained sentiment and event models; impact is still a placeholder rule); demo profile: fixtures. The stress engine is real in both.",
+    "description": "Event-driven risk signals and deterministic portfolio stress testing. Replay profile: real source documents through the ingestion pipeline (trained sentiment and event models; impact is a trained, labelled model where one can score a signal and a labelled placeholder rule elsewhere); demo profile: fixtures. The stress engine is real in both.",
     "title": "EventShock API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/evidence": {
+      "get": {
+        "description": "How far the numbers can be trusted.\n\nStage status, data foundation, feature availability, the incremental-value study and the\nrepresentation comparison. Read-only: built once at start-up from the loaded model cards and\nthe committed evidence files. A section whose evidence file does not exist says so and names\nthe command that produces it; nothing is computed or invented per request.",
+        "operationId": "evidence_api_evidence_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceBundle"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Evidence",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
     "/api/health": {
       "get": {
         "operationId": "health_api_health_get",
@@ -4298,6 +6883,28 @@
           }
         },
         "summary": "Event Model",
+        "tags": [
+          "models"
+        ]
+      }
+    },
+    "/api/models/impact": {
+      "get": {
+        "description": "The impact model card: per-scope lifecycle, baselines vs model, calibration, acceptance, limits.",
+        "operationId": "impact_model_api_models_impact_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImpactModelCard"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Impact Model",
         "tags": [
           "models"
         ]

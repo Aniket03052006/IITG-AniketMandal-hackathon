@@ -1,4 +1,5 @@
 import type { Meta, RiskSignal } from "../api/types";
+import { impactIsModel, servedKinds } from "./impact";
 
 /** Short label for the data profile the API is serving. */
 export function profileLabel(meta: Meta | undefined): string {
@@ -22,6 +23,13 @@ export const sentimentIsModel = (meta: Meta | undefined): boolean => stageKind(m
 /** Whether the event stage of the replay run is a trained model, from the pipeline report's stage_origins. */
 export const eventIsModel = (meta: Meta | undefined): boolean => stageKind(meta?.replay?.stage_origins?.event) === "model";
 
+/** The impact clause of the profile note, from what the running app says it serves (never hard-coded). */
+function impactClause(meta: Meta): string {
+  if (!impactIsModel(meta)) return "impact is a placeholder rule";
+  const kinds = servedKinds(meta).join(" / ");
+  return `impact is a trained model (${kinds}) where it can score a signal, and a labelled placeholder rule elsewhere`;
+}
+
 /** One-sentence honesty note about what the signals are. */
 export function profileNote(meta: Meta): string {
   if (meta.profile !== "replay") return "Signals are hand-authored fixtures. The stress engine is computed.";
@@ -29,7 +37,7 @@ export function profileNote(meta: Meta): string {
   const event = eventIsModel(meta);
   const base = "Documents are real, replayed from a frozen snapshot.";
   if (sent && event) {
-    return `${base} Sentiment and event type are trained models (event type can say “not an event” or “uncertain”); impact is a placeholder rule. The stress engine is computed.`;
+    return `${base} Sentiment and event type are trained models (event type can say “not an event” or “uncertain”); ${impactClause(meta)}. The stress engine is computed.`;
   }
   if (sent) return `${base} Sentiment is a trained model; event type and impact are placeholder rules. The stress engine is computed.`;
   return `${base} Sentiment, event type and impact are placeholder rules. The stress engine is computed.`;
@@ -37,8 +45,9 @@ export function profileNote(meta: Meta): string {
 
 /** "sentiment" / "sentiment and event" for the NLP stages a signal's own provenance says are trained models. */
 function trainedStages(stageOrigins?: Record<string, string>): string {
-  const names = (["sentiment", "event"] as const).filter((k) => stageKind(stageOrigins?.[k]) === "model");
-  return names.length ? names.join(" and ") : "models";
+  const names = (["sentiment", "event", "impact"] as const).filter((k) => stageKind(stageOrigins?.[k]) === "model");
+  if (!names.length) return "models";
+  return names.length > 2 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names.join(" and ");
 }
 
 export function originLabel(origin: string, stageOrigins?: Record<string, string>): string {
@@ -74,7 +83,8 @@ const KIND_TEXT: Record<StageKind, string> = { model: "Trained model", "source-l
 export const stageName = (stage: string): string => STAGE_NAME[stage] ?? stage;
 export const stageKindText = (origin: string | undefined): string => KIND_TEXT[stageKind(origin)];
 
-export const isPlaceholder = (s: RiskSignal): boolean => (s.model_versions.impact ?? "").startsWith("placeholder");
+/** True when THIS signal's impact came from the placeholder rule (read from its own stage origin, not from a version string). */
+export const isPlaceholder = (s: RiskSignal): boolean => stageKind(s.provenance?.stage_origins.impact) !== "model";
 
 const ORIGIN_NOTE: Record<string, string> = {
   SOURCE: "Publisher time",

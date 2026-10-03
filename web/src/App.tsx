@@ -4,6 +4,7 @@ import { ApiError } from "./api/client";
 import { Shell } from "./components/Shell";
 import { EmptyState } from "./components/ui";
 import { EventPage } from "./pages/EventPage";
+import { EvidencePage } from "./pages/EvidencePage";
 import { FeedPage } from "./pages/FeedPage";
 import { PipelinePage } from "./pages/PipelinePage";
 import { StressPage } from "./pages/StressPage";
@@ -35,6 +36,7 @@ export function App() {
             <Route index element={<FeedPage />} />
             <Route path="events/:id" element={<EventPage />} />
             <Route path="pipeline" element={<PipelinePage />} />
+            <Route path="evidence" element={<EvidencePage />} />
             <Route path="stress" element={<StressPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>

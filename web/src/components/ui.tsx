@@ -1,20 +1,32 @@
 import clsx from "clsx";
 import type { ReactNode } from "react";
 import type { EventCategory, SourceType } from "../api/types";
+import { KIND_LABEL, type ImpactKind } from "../lib/impact";
 import { sentimentLabel, severityBand } from "../lib/severity";
 import { Alert, CATEGORY_ICON, Info, NewsIcon, SocialIcon, Spinner } from "./icons";
 
 /* -------------------------------------------------------------------------- impact */
 
-/** 10-segment ladder + numeric score. Colour is reinforced by the number and a text label. */
+/**
+ * 10-segment ladder + numeric score. Colour is reinforced by the number and a text label.
+ * `range` (the scores comparable historical events realised) adds a bracket under the ladder; `kind` marks what produced the number:
+ * a trained, validated model is drawn plain, an experimental one gets a dashed outline, and the placeholder rule a dotted one,
+ * each also stated in words (aria-label, and `showKind`) so the outline is never the only signal.
+ */
 export function ImpactMeter({
   score,
   size = "sm",
   showLabel = false,
+  range,
+  kind,
+  showKind = false,
 }: {
   score: number | null;
   size?: "sm" | "lg";
   showLabel?: boolean;
+  range?: [number, number] | null;
+  kind?: ImpactKind;
+  showKind?: boolean;
 }) {
   if (score === null) {
     return (
@@ -25,18 +37,38 @@ export function ImpactMeter({
     );
   }
   const band = severityBand(score);
+  const hasRange = !!range && range[0] <= range[1] && !(range[0] === score && range[1] === score);
+  const kindText = kind ? KIND_LABEL[kind].toLowerCase() : null;
+  const aria = `Impact ${score} of 10${hasRange ? `, comparable events realised ${range![0]} to ${range![1]}` : ""}${kindText ? `, ${kindText}` : ""}, ${band.label}`;
   return (
-    <span className="inline-flex items-center gap-2.5" role="img" aria-label={`Impact ${score} of 10, ${band.label}`}>
+    <span className="inline-flex items-center gap-2.5" role="img" aria-label={aria}>
       <span className={clsx("num font-semibold leading-none", band.text, size === "lg" ? "text-4xl" : "text-lg w-6 text-right")}>
         {score}
       </span>
       <span className="flex flex-col gap-1">
-        <span className={clsx("ladder", size === "lg" ? "h-3 w-40" : "h-2 w-[4.5rem]")}>
+        <span
+          data-kind={kind}
+          className={clsx(
+            "ladder",
+            size === "lg" ? "h-3 w-40" : "h-2 w-[4.5rem]",
+            kind === "experimental" && "outline outline-1 outline-offset-2 outline-dashed outline-muted",
+            kind === "placeholder" && "outline outline-1 outline-offset-2 outline-dotted outline-muted",
+          )}
+        >
           {Array.from({ length: 10 }, (_, i) => (
             <i key={i} className={i < score ? band.bg : undefined} />
           ))}
         </span>
+        {hasRange && (
+          <span className={clsx("relative block h-1", size === "lg" ? "w-40" : "w-[4.5rem]")} aria-hidden="true">
+            <span
+              className="absolute inset-y-0 rounded-[1px] bg-ink-2"
+              style={{ left: `${((range![0] - 1) / 10) * 100}%`, width: `${((range![1] - range![0] + 1) / 10) * 100}%` }}
+            />
+          </span>
+        )}
         {showLabel && <span className={clsx("text-xs font-medium", band.text)}>{band.label}</span>}
+        {showKind && kindText && <span className="text-2xs text-muted">{kindText}</span>}
       </span>
     </span>
   );

@@ -1,8 +1,11 @@
+import { Link } from "react-router-dom";
 import { usePipelineReport, useMeta } from "../api/hooks";
 import { EventModelPanel } from "../components/EventModelPanel";
+import { ImpactModelPanel } from "../components/ImpactModelPanel";
 import { SentimentModelPanel } from "../components/SentimentModelPanel";
-import { Card, EmptyState, ErrorState, Loading, PageHeader, Stat, StatusTag } from "../components/ui";
+import { Card, EmptyState, ErrorState, InlineNote, Loading, PageHeader, Stat, StatusTag } from "../components/ui";
 import { dateTime } from "../lib/format";
+import { impactIsModel } from "../lib/impact";
 import { eventIsModel, sentimentIsModel, stageKind } from "../lib/provenance";
 
 export function PipelinePage() {
@@ -114,6 +117,15 @@ export function PipelinePage() {
           </Card>
         </div>
 
+        {(sentimentIsModel(meta) || eventIsModel(meta) || impactIsModel(meta)) && (
+          <div className="lg:col-span-12">
+            <InlineNote title="How far can these models be trusted?">
+              The panels below are each model's own card. For what they learned from, what they were allowed to see, and whether event information adds anything beyond the volatility
+              regime, see <Link className="underline underline-offset-2" to="/evidence">Model evidence</Link>.
+            </InlineNote>
+          </div>
+        )}
+
         {sentimentIsModel(meta) && (
           <div className="min-w-0 lg:col-span-12">
             <SentimentModelPanel enabled />
@@ -123,6 +135,12 @@ export function PipelinePage() {
         {eventIsModel(meta) && (
           <div className="min-w-0 lg:col-span-12">
             <EventModelPanel enabled />
+          </div>
+        )}
+
+        {impactIsModel(meta) && (
+          <div className="min-w-0 lg:col-span-12">
+            <ImpactModelPanel enabled />
           </div>
         )}
 

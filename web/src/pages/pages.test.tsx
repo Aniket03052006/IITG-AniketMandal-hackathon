@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, vi } from "vitest";
 import { EventPage } from "./EventPage";
+import { EvidencePage } from "./EvidencePage";
 import { FeedPage } from "./FeedPage";
 import { PipelinePage } from "./PipelinePage";
 import { StressPage } from "./StressPage";
@@ -184,6 +185,8 @@ const eventCard = {
   limitations: ["Labels are produced by an AI annotator.", "Roughly 3,000 annotated rows."],
 };
 
+let impactCardResponse: unknown = null;
+let evidenceResponse: unknown = null;
 let feedItems: object[] = [];
 let stressResponse: unknown = completed;
 let metaResponse: unknown = meta;
@@ -200,6 +203,8 @@ function mockFetch() {
       if (url.endsWith("/api/pipeline/report")) return json(reportResponse);
       if (url.endsWith("/api/models/sentiment")) return json(modelCard);
       if (url.endsWith("/api/models/event")) return json(eventCard);
+      if (url.endsWith("/api/evidence")) return evidenceResponse ? json(evidenceResponse) : json({ detail: "no evidence" }, 404);
+      if (url.endsWith("/api/models/impact")) return impactCardResponse ? json(impactCardResponse) : json({ detail: "no impact model" }, 404);
       if (url.includes("/api/signals?") || url.endsWith("/api/signals")) {
         const q = new URL(url, "http://x").searchParams;
         const cat = q.get("category");
@@ -226,6 +231,7 @@ function renderAt(path: string) {
           <Route path="/events/:id" element={<EventPage />} />
           <Route path="/stress" element={<StressPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
+          <Route path="/evidence" element={<EvidencePage />} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -235,6 +241,8 @@ function renderAt(path: string) {
 beforeEach(() => {
   feedItems = feed.items;
   reportResponse = report;
+  impactCardResponse = null;
+  evidenceResponse = null;
   mockFetch();
   stressResponse = completed;
   signalDetail = detail(2);
@@ -548,5 +556,288 @@ describe("Real-source replay with the trained event model", () => {
     renderAt("/pipeline");
     expect(await screen.findByText("No pipeline in the demo profile")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Event model" })).not.toBeInTheDocument();
+  });
+});
+
+
+// ---------------------------------------------------------------------------------------------- the impact model
+const est = (value: number | null, lo: number | null = null, hi: number | null = null) => ({ value, lo, hi });
+const iScore = (id: string, mae: number, rho: number, d: number) => ({
+  id, mae: est(mae, mae - 0.01, mae + 0.01), rmse: 0.4, spearman: est(rho, rho - 0.1, rho + 0.1), top_decile_lift: 1.4,
+  placebo_spearman: est(rho + 0.1, rho, rho + 0.2), delta_mae_vs_constant: est(d, d - 0.005, d + 0.005), delta_mae_vs_market_state: est(0, -0.003, 0.003),
+});
+const iBin = (lo: number, hi: number, n: number, p: number) => ({
+  score_low: lo, score_high: hi, n_episodes: n, severity_q10: 0.2, severity_q50: 0.6 + lo * 0.1, severity_q90: 2, realised_score_q10: 1, realised_score_q90: 5, p_extreme: est(p, p / 2, p * 2),
+});
+const iScope = (scope: string, lifecycle: string, met = false) => ({
+  scope, lifecycle, served: true, summary: `${lifecycle}: R3-full selected out of fold. Held-out rank skill +0.12 (95% interval +0.01 to +0.22).`,
+  target: "t", selected_id: "R3-full", algorithm: "gradient boosting on log1p(|z|)", features: ["f_sigma_60"],
+  training: { table_sha256: "f".repeat(64), rows: { train: 68823, val: 8494, test: 7282, live: 16630 }, episodes: { train: 9133, val: 166, test: 181, live: 963 }, train_period: "2015-01-02..2022-03-24", folds: "21 rolling-origin folds", excluded: {}, seed: 1, config_sha256: "e".repeat(64) },
+  ladder: [
+    { id: "R0-constant", family: "constant", rung: null, servable: false, params: {}, n_features: 0, oof_mae: est(0.306, 0.3, 0.31), oof_spearman: est(-0.008), delta_mae_vs_previous_choice: est(0), chosen: false, verdict: "baseline: the training mean" },
+    { id: "R3-full", family: "hgb_full", rung: "R3", servable: true, params: {}, n_features: 30, oof_mae: est(0.297, 0.29, 0.3), oof_spearman: est(0.226, 0.2, 0.25), delta_mae_vs_previous_choice: est(-0.002, -0.003, -0.001), chosen: true, verdict: "adopted: beats R3-additive out of fold" },
+  ],
+  evaluations: [
+    { id: "val+test", title: "2022 Q2+Q3 pooled", role: "pooled for the acceptance checks", n_episodes: 347, n_rows: 15776, period: "2022-04-01..2022-09-30", models: [iScore("R0-constant", 0.284, 0, 0), iScore("R3-full", 0.284, 0.119, 0)] },
+    { id: "live", title: "2026 news", role: "live-like", n_episodes: 963, n_rows: 16630, period: "2026-02-17..2026-09-30", models: [iScore("R0-constant", 0.259, 0, 0), iScore("R3-full", 0.248, 0.084, -0.011)] },
+  ],
+  calibration: { method: "rank-calibrated", reference_episodes: 6786, reference_period: "2017-01-03..2022-03-24", extreme_score: 7, base_rate_extreme: 0.039, bins_reference: [iBin(1, 1, 2906, 0.015), iBin(8, 10, 130, 0.28)], bins_heldout: [iBin(1, 1, 107, 0.0)],
+    nominal_coverage: 0.8, heldout_coverage: est(0.945, 0.916, 0.965), monotonicity_spearman: null, extreme_brier: 0.0249, extreme_brier_base_rate: 0.0254 },
+  strata: [{ dimension: "event type", value: "PRODUCT_OPERATIONS", n_episodes: 40, spearman: est(0.1, -0.1, 0.3), mae_model: 0.28, mae_constant: 0.29 }],
+  attribution: { kind: "sensitivity", exact: false, max_abs_error: 0.0453, units: "ln(1 + |z|): baseline + contributions = prediction" },
+  horizon: [{ window_sessions: 1, spearman: est(0.15) }, { window_sessions: 2, spearman: est(0.12) }], direction: { n: 570, hit_rate: est(0.528, 0.454, 0.594), note: "n" },
+  leakage_findings: ["[INFO] feature_availability: all features are registered event-time features"],
+  acceptance: { rule: "Pre-registered bar", met, checks: [
+    { id: "C1", label: "Rank skill on held-out episodes (val+test)", passed: true, value: "+0.119 [+0.014, +0.220]", detail: "d1" },
+    { id: "C7", label: "More skill on the real window than on the pre-event placebo (val+test)", passed: met, value: "-0.110", detail: "d7" },
+    { id: "C4", label: "Score buckets ordered by realised severity", passed: null, value: "n/a", detail: "d4" },
+  ] },
+  limitations: ["Held-out evidence is 347 episodes."],
+});
+const impactCard = (lifecycle = "CALIBRATED", met = false) => ({
+  id: "impact-v1", version: "impact-v1", feature_schema: "impact-features-v1", output_definition: "Per scope: predicted log1p(|z|).", artifact_file: "model.joblib",
+  artifact_sha256: "ac".repeat(32), artifact_bytes: 112_000, libraries: { "scikit-learn": "1.9.1" }, dataset: {}, selection_rule: "rolling-origin out-of-fold MAE",
+  scopes: [iScope("ISSUER", lifecycle, met), { ...iScope("MARKET", "CALIBRATED"), calibration: null }],
+});
+const impactMeta = (lifecycle = "CALIBRATED") => ({
+  ...eventMeta,
+  replay: { ...eventMeta.replay, stage_origins: { ...eventMeta.replay.stage_origins, impact: "MODEL (impact-v1: ISSUER calibrated, MARKET calibrated; placeholder heuristic for signals it cannot score)" } },
+  impact: { mode: "MODEL", model_id: "impact-v1", scopes: { ISSUER: lifecycle, MARKET: "CALIBRATED" }, served_scopes: ["ISSUER", "MARKET"], reason: null },
+});
+const impactAudit = (over: object = {}) => ({
+  model_id: "impact-v1", model_version: "impact-v1", artifact_sha256: "ac".repeat(32), lifecycle: "CALIBRATED", scope: "ISSUER", feature_schema: "impact-features-v1", calibrated: true,
+  session: "2026-10-01", timing: "OFF_HOURS", timing_reliable: true, market_context_as_of: "2026-10-01", inputs: { f_sigma_60: 0.0123, f_vix_level: 16.3, novelty: 1 }, missing_inputs: [], ...over,
+});
+const impactDetail = (audit: object | null, impactOver: object = {}) => ({
+  ...detail(8),
+  event: { ...detail(8).event, status: "CLASSIFIED", no_event_probability: 0.12 },
+  status: "COMPLETE", status_reason: null,
+  provenance: { ...bothProvenance(), stage_origins: { sentiment: "MODEL", event: "MODEL", impact: audit ? "MODEL" : "PLACEHOLDER_RULES" }, impact: audit, impact_note: audit ? null : "the document has no real timestamp (replay assigned one): there is no event time to measure from" },
+  impact: {
+    score: 7, raw: 0.62, quantisation: "ceil(raw * 10), min 1; raw = rank-calibrated severity", scope: audit ? "ISSUER" : null,
+    drivers: audit ? [{ feature: "baseline", contribution: 0.5, note: "the model's output for a typical event (training medians)", value: null }, { feature: "f_sigma_60", contribution: 0.12, note: "volatility regime", value: 0.0123 }, { feature: "ev_p_none", contribution: -0.04, note: "event type (text model)", value: 0.1 }]
+      : [{ feature: "event_category_prior", contribution: 0.3, note: "Placeholder heuristic, not a trained model" }],
+    predicted_severity: audit ? 1.42 : null, comparable_events: audit ? 130 : null, score_low: audit ? 3 : null, score_high: audit ? 9 : null, realised_severity_low: audit ? 0.3 : null,
+    realised_severity_median: audit ? 1.1 : null, realised_severity_high: audit ? 3.1 : null, p_extreme: audit ? 0.28 : null, driver_basis: audit ? "log-severity, ln(1 + |z|): each feature moved alone from its typical value (does not sum to the prediction)" : null, ...impactOver,
+  },
+  data_origin: "REAL_SOURCE_MIXED_NLP", model_versions: { sentiment: "tfidf-lr-v1+a1a1a1a1", event: "tfidf-lr-event-v1+e1e1e1e1", impact: audit ? "impact-v1+acacacac" : "placeholder-v0-heuristic", entity_resolver: "dictionary-er-v1", feature_schema: "1" },
+});
+
+describe("Real-source replay with the trained impact model", () => {
+  beforeEach(() => {
+    metaResponse = impactMeta();
+    reportResponse = { ...report, stage_origins: impactMeta().replay.stage_origins };
+    impactCardResponse = impactCard();
+    signalDetail = impactDetail(impactAudit());
+  });
+
+  it("shows the raw prediction, the calibrated score with its range, the extreme-move share and the lifecycle in words", async () => {
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("Model prediction")).toBeInTheDocument();
+    expect(screen.getByText("1.42σ")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /Impact 7 of 10, comparable events realised 3 to 9, experimental model, High/ })).toBeInTheDocument();
+    expect(screen.getByText("28.0%")).toBeInTheDocument();
+    expect(screen.getAllByText("Experimental model").length).toBeGreaterThan(0);
+    expect(screen.getByText(/on experimental model output/)).toBeInTheDocument();
+    expect(screen.queryByText("Placeholder heuristic · not a trained model")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Fixture drivers/)).not.toBeInTheDocument();
+  });
+
+  it("says why an experimental model is not validated, using the failing checks from its card", async () => {
+    renderAt("/events/sig_2");
+    expect(await screen.findByText(/calibrated, not production/)).toBeInTheDocument();
+    expect(await screen.findByText(/Not met: more skill on the real window than on the pre-event placebo/)).toBeInTheDocument();
+  });
+
+  it("explains the drivers as the model's own and states their units", async () => {
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("Model attributions · from the model's own inputs")).toBeInTheDocument();
+    expect(screen.getByText("f_sigma_60")).toBeInTheDocument();
+    expect(screen.getByText(/does not sum to the prediction/)).toBeInTheDocument();
+    expect(screen.getByText(/the number of outlets, for example, is deliberately not an input/)).toBeInTheDocument();
+  });
+
+  it("flags a weak timestamp", async () => {
+    signalDetail = impactDetail(impactAudit({ timing: "FIRST_SEEN", timing_reliable: false }));
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("Timestamp is the weak link")).toBeInTheDocument();
+  });
+
+  it("draws a validated model plainly, with no experimental warning", async () => {
+    metaResponse = impactMeta("PRODUCTION");
+    impactCardResponse = impactCard("PRODUCTION", true);
+    signalDetail = impactDetail(impactAudit({ lifecycle: "PRODUCTION" }));
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("Model prediction")).toBeInTheDocument();
+    expect(screen.getAllByText("Validated model").length).toBeGreaterThan(0);
+    expect(screen.queryByText(/not production/)).not.toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /validated model/ })).toBeInTheDocument();
+  });
+
+  it("keeps a signal the model could not score visibly on the placeholder rule, with the reason", async () => {
+    signalDetail = impactDetail(null);
+    renderAt("/events/sig_2");
+    expect(await screen.findByText(/placeholder rule/, { selector: "p" })).toBeInTheDocument();
+    expect(screen.getAllByText("Placeholder rule").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/no real timestamp/).length).toBeGreaterThan(0); // the card note and the provenance step
+    expect(screen.queryByText("Model prediction")).not.toBeInTheDocument();
+    expect(screen.getByText("Placeholder heuristic · not a trained model")).toBeInTheDocument();
+  });
+
+  it("shows the stage strip with the impact stage as experimental, not as a plain trained model", async () => {
+    feedItems = [row({ id: "sig_2", headline: "Kestrel launches jet", data_origin: "REAL_SOURCE_MIXED_NLP", impact_origin: "MODEL", impact_lifecycle: "CALIBRATED" }),
+      row({ id: "sig_9", headline: "Old rule", data_origin: "REAL_SOURCE_MIXED_NLP", impact_origin: "PLACEHOLDER", impact_lifecycle: null, impact_score: 6 })];
+    renderAt("/");
+    expect(await screen.findByText("Impact: experimental model")).toBeInTheDocument();
+    expect(screen.getAllByText("experimental model").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("placeholder rule").length).toBeGreaterThan(0);
+    expect(await screen.findByText(/impact is a experimental model where it can score a signal/)).toBeInTheDocument();
+  });
+
+  it("explains the model on the pipeline page: lifecycle, acceptance, baseline ladder, calibration and limits, per scope", async () => {
+    renderAt("/pipeline");
+    const panel = (await screen.findByRole("heading", { name: "Impact model" })).closest("section") as HTMLElement;
+    const w = within(panel);
+    expect(await w.findByLabelText("Lifecycle of the Issuer events model")).toBeInTheDocument();
+    expect(w.getByText("5 · Calibrated").closest("li")).toHaveAttribute("aria-current", "step");
+    expect(w.getByText("PASS")).toBeInTheDocument();
+    expect(w.getAllByText("FAIL").length).toBeGreaterThan(0);
+    expect(w.getByText("N/A")).toBeInTheDocument(); // an unevaluable check is never a pass
+    expect(w.getAllByText("R0-constant").length).toBeGreaterThan(0);
+    expect(w.getByText(/Reference: out-of-fold training period/)).toBeInTheDocument();
+    expect(w.getByText("Held-out evidence is 347 episodes.")).toBeInTheDocument();
+    expect(w.getByText(/each feature moved alone from its typical value/)).toBeInTheDocument();
+    await userEvent.click(w.getByRole("button", { name: /Market-wide events/ }));
+    expect(await w.findByLabelText("Lifecycle of the Market-wide events model")).toBeInTheDocument();
+    await userEvent.click(within(panel).getByRole("button", { name: "live" }) ).catch(() => undefined);
+  });
+
+  it("shows the audit's impact artifact and lifecycle", async () => {
+    renderAt("/events/sig_2");
+    expect(await screen.findByText("Impact artifact")).toBeInTheDocument();
+    expect(screen.getByText(/calibrated · impact-features-v1/)).toBeInTheDocument();
+  });
+
+  it("does not show an impact panel when the app has no impact model", async () => {
+    metaResponse = eventMeta;
+    renderAt("/pipeline");
+    expect(await screen.findByRole("heading", { name: "Event model" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Impact model" })).not.toBeInTheDocument();
+  });
+});
+
+
+const evidence = (over: object = {}) => ({
+  schema_version: 1,
+  generated_from: [{ file: "docs/evidence/impact_study.json", sha256: "ab".repeat(32) }],
+  stages: [
+    { stage: "sentiment", model_id: "tfidf-lr-v1", kind: "experimental", summary: "Trained TF-IDF logistic regression, calibrated.", passed: [], failed: [], not_evaluable: [], artifact_sha256: "a1".repeat(32) },
+    { stage: "event", model_id: "tfidf-lr-event-v1", kind: "experimental", summary: "Trained 9-way classifier that can abstain. It did NOT meet its pre-registered bar on the gold set.", passed: [], failed: ["served macro-F1 on gold history rows"], not_evaluable: [], artifact_sha256: "e1".repeat(32) },
+    { stage: "impact", model_id: "impact-v1", kind: "experimental", summary: "issuer: calibrated; market: calibrated", passed: ["C1 (issuer)"], failed: ["C7 (issuer)", "C2 (issuer)"], not_evaluable: ["C4 (issuer)"], artifact_sha256: "ac".repeat(32) },
+  ],
+  data: {
+    available: true, command: "make impact-study",
+    sources: [{ name: "SEC EDGAR filings", kind: "filing", period: "2014-2026", records: 9772, timestamps: "exact SEC acceptance time (UTC)", note: "public domain" }],
+    episodes_by_year: [{ year: "2023", issuer: 800, market: 100, filing_events: 380 }, { year: "2024", issuer: 900, market: 120, filing_events: 389 }],
+    held_out: {}, calendar_filings: 9772, calendar_fomc: 102, exclusions: {},
+    gold: [{ name: "Gold v1 (frozen)", rows: 400, labelled_by: "one AI annotator", agreement: null, kappa: null, agreed_rows: null, human_reviewed: 0, note: "evaluation only" },
+      { name: "Gold v2 (2023-2025)", rows: 300, labelled_by: "two independent blind AI passes", agreement: 0.81, kappa: 0.77, agreed_rows: 243, human_reviewed: 0, note: "same-family agreement" }],
+    known_gaps: ["News for 2023-2025 is a deterministic sample, not a complete archive."],
+  },
+  features: [
+    { name: "earn_window", group: "earnings calendar (known in advance)", availability: "a", allowed: true, used_by: ["issuer:R2s"], why: "a: expected earnings release is within a day" },
+    { name: "f8k_earnings_24h", group: "recent SEC filings (published before the report)", availability: "b", allowed: true, used_by: ["issuer:R2s"], why: "b: an earnings 8-K accepted in the last 24 hours" },
+    { name: "f_sigma_60", group: "volatility regime", availability: "t", allowed: true, used_by: ["issuer:R2"], why: "trailing residual vol" },
+    { name: "eps_surprise", group: "market state", availability: "c", allowed: false, used_by: [], why: "realised EPS minus consensus: known only once results are out" },
+    { name: "ticker", group: "market state", availability: "shortcut", allowed: false, used_by: [], why: "issuer identity" },
+  ],
+  study: {
+    available: true, command: "make impact-study", preregistration: { file: "configs/evidence_v2.yaml", sha256: "cd".repeat(32) }, p1_regression: "every v1 row is reproduced exactly in the v2 table",
+    runs: [{
+      protocol: "P2_extended", scope: "ISSUER", status: "ok", episodes: { train: 11000, test: 400 }, selected: "R2-ridge", best_state: "R2-ridge", best_block: "R2s-full", years_helpful: "3 of 4 years", verdict: "failed C10",
+      checks: [{ id: "C9", label: "Regime-neutral rank skill (test)", value: "+0.04 [-0.03, +0.11]", passed: false, detail: "lower bound must exceed 0" }, { id: "C4", label: "Score buckets ordered", value: "n/a", passed: null, detail: "needs calibration" }],
+      increments: [
+        { block: "calendar block (earnings dates, 8-K recency, FOMC)", family: "ridge", where: "test", delta_mae: est(-0.012, -0.02, -0.004), verdict: "helps" },
+        { block: "text-model outputs, given the calendar", family: "ridge", where: "test", delta_mae: est(0.001, -0.004, 0.006), verdict: "no measurable effect" },
+      ],
+      battery: [{ model: "R2-ridge", role: "selected", set: "test", neutral_skill: est(0.04, -0.03, 0.11), within_issuer_skill: 0.01, placebo_gap: -0.08 }],
+      ablation: [{ block: "calendar", method: "shuffled among the same issuer and month", spearman_lost: 0.03, mae_added: 0.01, mae_added_lo: 0.005, mae_added_hi: 0.015 }],
+    }],
+    track_f: { available: true, pairs: 4713, note: "controls: same issuer", headline: { label: "all filing events vs matched quiet sessions", pairs: 4713, lift: est(0.24, 0.22, 0.26), auc: 0.63 },
+      by_item: [{ label: "earnings (item 2.02)", pairs: 1084, lift: est(0.64, 0.6, 0.68), auc: 0.82 }, { label: "officer changes (5.02)", pairs: 813, lift: est(0.04, 0.0, 0.07), auc: 0.51 }],
+      earnings_by_year: [], non_earnings_by_year: [], item_code_increment: [] },
+  },
+  representation: {
+    available: true, command: "make bakeoff", decision: "no candidate met every pre-registered check; the shipped TF-IDF model stays", baseline: "tfidf-lr-event-v1", sets: { pooled: 600 }, baseline_pooled_f1: 0.43,
+    candidates: [{ id: "H1[e5-base]", family: "H1", detail: "intfloat/multilingual-e5-base", pooled_delta_f1: est(0.05, -0.02, 0.12), checks_passed: ["log_loss_delta"], checks_failed: ["served_macro_f1_delta"], adopt: false }],
+    cost: [{ model: "intfloat/multilingual-e5-base", kind: "dense", parameters_m: 278, ms_per_text_batch1: 30, ms_per_text_batch32: 12.5, peak_rss_mb: 1300, controlled: true, deterministic: true }],
+    probe: [{ channel: "ProsusAI/finbert (P(pos)-P(neg))", pairs: 30, share_correct: 0.93, lo: 0.79, hi: 0.98 }],
+  },
+  limitations: ["All labels are AI-annotated."],
+  ...over,
+});
+
+describe("Model evidence page", () => {
+  beforeEach(() => {
+    metaResponse = impactMeta();
+    evidenceResponse = evidence();
+  });
+
+  it("names each stage in the product's three words and lists the checks it fails", async () => {
+    renderAt("/evidence");
+    expect(await screen.findByRole("heading", { name: "Model evidence" })).toBeInTheDocument();
+    expect(screen.getAllByText("Experimental model").length).toBe(3);
+    expect(screen.queryByText("Validated model")).not.toBeInTheDocument();
+    expect(screen.getByText(/served macro-F1 on gold history rows/)).toBeInTheDocument();
+    expect(screen.getByText(/C7 \(issuer\); C2 \(issuer\)/)).toBeInTheDocument();
+  });
+
+  it("states every verdict in words: a helpful block, a block with no measurable effect", async () => {
+    renderAt("/evidence");
+    expect(await screen.findByText("helps", { selector: "span" })).toBeInTheDocument();
+    expect(screen.getAllByText(/no measurable effect/).length).toBeGreaterThan(0);
+    expect(screen.getByRole("img", { name: /calendar block.*, ridge, test: .*95% interval/ })).toBeInTheDocument();
+    expect(screen.getByText("FAIL")).toBeInTheDocument();
+    expect(screen.getByText("N/A")).toBeInTheDocument();
+  });
+
+  it("separates what a model may see from what it is refused", async () => {
+    renderAt("/evidence");
+    expect(await screen.findByText("What a model may see")).toBeInTheDocument();
+    const refused = screen.getByText(/Refused: only known after the event/).closest("section") as HTMLElement;
+    expect(within(refused).getByText("eps_surprise")).toBeInTheDocument();
+    expect(within(refused).getByText("ticker")).toBeInTheDocument();
+    expect(within(refused).queryByText("earn_window")).not.toBeInTheDocument();
+    const calendar = screen.getByText(/Structured calendar/).closest("section") as HTMLElement;
+    expect(within(calendar).getByText("earn_window")).toBeInTheDocument();
+  });
+
+  it("shows the decision, cost and the finance-in-context probe for the representation comparison", async () => {
+    renderAt("/evidence");
+    expect(await screen.findByText(/the shipped TF-IDF model stays/)).toBeInTheDocument();
+    expect(screen.getByText("not adopted")).toBeInTheDocument();
+    expect(screen.getByText(/controlled benchmark/)).toBeInTheDocument();
+    expect(screen.getByText("93%", { exact: false })).toBeInTheDocument();
+  });
+
+  it("says plainly when a study has not been run instead of showing anything", async () => {
+    evidenceResponse = evidence({ study: { available: false, command: "make impact-study", p1_regression: "", runs: [], track_f: { available: false, pairs: 0, by_item: [], earnings_by_year: [], non_earnings_by_year: [], item_code_increment: [], note: "" } },
+      representation: { available: false, command: "make bakeoff", decision: "", baseline: "", sets: {}, candidates: [], cost: [], probe: [] } });
+    renderAt("/evidence");
+    expect(await screen.findByText("The incremental-value study has not been produced")).toBeInTheDocument();
+    expect(screen.getByText("The representation comparison has not been produced")).toBeInTheDocument();
+    expect(screen.getAllByText(/make /).length).toBeGreaterThan(1);
+  });
+
+  it("shows the event-versus-quiet-session lift by filing type", async () => {
+    renderAt("/evidence");
+    expect(await screen.findByText("earnings (item 2.02)")).toBeInTheDocument();
+    expect(screen.getByText("officer changes (5.02)")).toBeInTheDocument();
+  });
+
+  it("is not available in the demo profile", async () => {
+    metaResponse = meta;
+    renderAt("/evidence");
+    expect(await screen.findByText("No evidence in the demo profile")).toBeInTheDocument();
   });
 });

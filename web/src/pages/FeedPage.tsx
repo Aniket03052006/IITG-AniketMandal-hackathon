@@ -9,6 +9,7 @@ import { EmptyState, ErrorState, ImpactMeter, PageHeader, SentimentBar, Skeleton
 import { EventStatusTag } from "../components/EventStatusTag";
 import { StageStrip } from "../components/StageStrip";
 import { ago, dateTime } from "../lib/format";
+import { impactIsModel, servedKinds, summaryKind } from "../lib/impact";
 import { eventIsModel, sentimentIsModel } from "../lib/provenance";
 import { categoryLabeler } from "../lib/taxonomy";
 
@@ -23,7 +24,11 @@ function FeedRow({ s, asOf, label }: { s: SignalSummary; asOf: string; label: (c
         className="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 gap-y-2.5 border-b border-rule px-4 py-3.5 transition-colors duration-[var(--duration-fast)] hover:bg-paper-3 xl:grid-cols-[7.5rem_minmax(0,1fr)_9.5rem_3.75rem_4.25rem] xl:items-center"
       >
         <div className="pt-0.5 xl:pt-0">
-          <ImpactMeter score={s.impact_score} />
+          <ImpactMeter
+            score={s.impact_score}
+            kind={s.impact_score === null || s.data_origin === "DEMO_FIXTURE" ? undefined : summaryKind(s)}
+            showKind={s.impact_score !== null && s.data_origin !== "DEMO_FIXTURE"}
+          />
         </div>
         <div className="min-w-0">
           <p className="font-medium leading-snug text-ink group-hover:text-accent-strong">{s.headline}</p>
@@ -80,7 +85,9 @@ function FeedSkeleton() {
 function feedNote(meta: Meta | undefined): string {
   if (meta?.profile !== "replay") return "All demo fixtures (fixture-v0), not model output.";
   if (sentimentIsModel(meta) && eventIsModel(meta)) {
-    return "Real documents. Sentiment and event type are trained models that can abstain; impact is a placeholder rule.";
+    return impactIsModel(meta)
+      ? `Real documents. Sentiment and event type are trained models that can abstain; impact is a ${servedKinds(meta).join(" / ")} model where it can score a signal and a labelled placeholder rule elsewhere.`
+      : "Real documents. Sentiment and event type are trained models that can abstain; impact is a placeholder rule.";
   }
   return sentimentIsModel(meta)
     ? "Real documents. Sentiment is a trained model; event type and impact are placeholder rules."
@@ -119,6 +126,7 @@ export function FeedPage() {
   const threshold = meta?.trigger_threshold ?? 7;
   const everything = all.data?.items ?? [];
   const triggering = everything.filter((s) => (s.impact_score ?? 0) >= threshold).length;
+  const triggeringByModel = everything.filter((s) => (s.impact_score ?? 0) >= threshold && s.impact_origin === "MODEL").length;
   const partial = everything.filter((s) => s.status === "PARTIAL").length;
   const news = everything.filter((s) => s.source_type === "NEWS").length;
   const social = everything.length - news;
@@ -141,7 +149,7 @@ export function FeedPage() {
 
       <div className="card card-pad mb-5 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
         <Stat label="Signals" value={all.isLoading ? "–" : everything.length} sub={all.isLoading ? "" : `${news} news · ${social} social`} />
-        <Stat label={`Impact ≥ ${threshold}`} value={all.isLoading ? "–" : triggering} sub="Trigger a stress test" tone="high" />
+        <Stat label={`Impact ≥ ${threshold}`} value={all.isLoading ? "–" : triggering} sub={all.isLoading || !impactIsModel(meta) ? "Trigger a stress test" : `${triggeringByModel} on model output, ${triggering - triggeringByModel} on the placeholder rule`} tone="high" />
         <Stat
           label={hasEventModel ? "No impact scored" : "Partial"}
           value={all.isLoading ? "–" : partial}

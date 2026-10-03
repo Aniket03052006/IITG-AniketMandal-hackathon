@@ -2,7 +2,9 @@ import clsx from "clsx";
 import { Fragment, useMemo, useState } from "react";
 import type { AppliedShock, Contribution, PositionResult, Scenario, StressResult } from "../api/types";
 import { ASSET_CLASS_LABEL, FACTOR_LABEL, SCOPE_LABEL, money, moneyFull, pct, shockValue } from "../lib/format";
+import { lifecycleKind } from "../lib/impact";
 import { originLabel } from "../lib/provenance";
+import { ImpactLifecycleTag } from "./ImpactLifecycleTag";
 import { Chevron } from "./icons";
 import { Card, StatusTag } from "./ui";
 
@@ -17,6 +19,9 @@ export function ResultHero({ r }: { r: StressResult }) {
         <StatusTag tone="ok">Computed · deterministic engine</StatusTag>
         <StatusTag tone="warn">Illustrative scenario assumptions</StatusTag>
         {r.audit.forced && <StatusTag tone="demo">What-if run</StatusTag>}
+        {r.audit.impact_origin && !r.audit.impact_overridden && (
+          <ImpactLifecycleTag kind={r.audit.impact_origin === "MODEL" ? lifecycleKind(r.audit.impact_lifecycle) : "placeholder"} detail="impact that triggered this" />
+        )}
       </div>
       <div className="mt-5 grid gap-x-10 gap-y-6 md:grid-cols-[repeat(3,minmax(0,auto))] md:justify-start">
         <div className="min-w-0">
@@ -306,6 +311,7 @@ export function AuditPanel({ r }: { r: StressResult }) {
     ["Scenario", r.scenario ? `${r.scenario.id} v${a.scenario_version}` : "–"],
     ["Engine", `v${a.engine_version}`],
     ["Portfolio", `${a.portfolio_id} #${a.portfolio_hash}`],
+    ["Impact used", a.impact_overridden ? "what-if override" : a.impact_origin === "MODEL" ? `trained model · ${(a.impact_lifecycle ?? "").toLowerCase()}` : a.impact_origin === "PLACEHOLDER" ? "placeholder rule" : "–"],
     ["Trigger threshold", `impact ≥ ${a.threshold}${a.forced ? " (overridden: what-if)" : ""}`],
     ["Calculated at", new Date(a.calculated_at).toISOString().replace(".000Z", "Z")],
   ];

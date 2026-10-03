@@ -161,3 +161,11 @@ export const Spinner = (p: P) => (
     <path d="M8 2a6 6 0 1 0 6 6" />
   </Icon>
 );
+
+/** A scale: what the evidence weighs. */
+export const EvidenceIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M8 2v11M4 13h8M3 5h10" />
+    <path d="M3 5l-1.6 4a1.8 1.8 0 0 0 3.2 0L3 5zM13 5l-1.6 4a1.8 1.8 0 0 0 3.2 0L13 5z" />
+  </Icon>
+);

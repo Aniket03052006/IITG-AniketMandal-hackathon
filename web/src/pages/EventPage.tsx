@@ -1,14 +1,16 @@
 import clsx from "clsx";
 import { Link, useParams } from "react-router-dom";
-import { useEventModel, useMeta, useScenarios, useSentimentModel, useSignal } from "../api/hooks";
+import { useEventModel, useMeta, useSentimentModel, useSignal } from "../api/hooks";
 import type { EventCategory, RiskSignal } from "../api/types";
 import { EVENT_CATEGORIES } from "../api/types";
-import { Alert, ArrowLeft, ArrowRight, Check, Info } from "../components/icons";
+import { Alert, ArrowLeft, Check } from "../components/icons";
 import { EventStatusTag } from "../components/EventStatusTag";
+import { ImpactCard } from "../components/ImpactCard";
+import { ImpactLifecycleTag } from "../components/ImpactLifecycleTag";
+import { impactKind, KIND_LABEL } from "../lib/impact";
 import {
   Card,
   ErrorState,
-  ImpactMeter,
   InlineNote,
   Loading,
   SourceBadge,
@@ -16,91 +18,10 @@ import {
   StackBar,
   StatusTag,
 } from "../components/ui";
-import { ago, dateTime, signed } from "../lib/format";
+import { ago, dateTime } from "../lib/format";
 import { categoryLabeler } from "../lib/taxonomy";
-import { isPlaceholder, originChip, originLabel, relationNote, ruleNote, stageKind, stageKindText, stageName, timestampNote } from "../lib/provenance";
-import { sentimentLabel, severityBand } from "../lib/severity";
-
-function ImpactCard({ s, threshold }: { s: RiskSignal; threshold: number }) {
-  const scenarios = useScenarios();
-  const scenarioId = scenarios.data?.default_by_category[s.event.category];
-  const scenario = scenarios.data?.scenarios.find((x) => x.id === scenarioId);
-  const impact = s.impact;
-  const band = impact ? severityBand(impact.score) : null;
-  const maxAbs = Math.max(0.01, ...(impact?.drivers.map((d) => Math.abs(d.contribution)) ?? [0]));
-  const triggers = !!impact && impact.score >= threshold;
-
-  return (
-    <Card title="Impact assessment" aside="Market-response proxy, 1 to 10" className="h-full">
-      {!impact ? (
-        <InlineNote tone="warn" title={s.event.status === "CLASSIFIED" ? "Impact unavailable for this signal" : "No impact scored for this signal"}>
-          {s.status_reason} EventShock never substitutes a default score, so this signal cannot trigger a stress test.
-        </InlineNote>
-      ) : (
-        <>
-          <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
-            <ImpactMeter score={impact.score} size="lg" />
-            <div className="pb-1">
-              <p className={clsx("font-display text-lg font-semibold", band?.text)}>{band?.label} impact</p>
-              <p className="num text-xs text-muted">
-                raw {impact.raw.toFixed(2)} → {impact.quantisation}
-              </p>
-            </div>
-          </div>
-          <p className="mt-3 max-w-[60ch] text-sm text-muted">
-            An estimate of how large a market reaction this event is likely to cause. It is not a probability of loss and not a price forecast.
-          </p>
-
-          <h3 className="mt-6 mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm font-semibold">
-            What drives the score
-            <StatusTag tone="demo">{isPlaceholder(s) ? "Placeholder heuristic · not a trained model" : "Fixture drivers · illustrative, not SHAP"}</StatusTag>
-          </h3>
-          <ul className="space-y-2">
-            {impact.drivers.map((d) => (
-              <li key={d.feature} className="grid grid-cols-[minmax(0,1fr)_7.5rem_3.25rem] items-center gap-3 sm:grid-cols-[minmax(0,1.3fr)_9rem_3.5rem]">
-                <span className="min-w-0 text-sm text-ink-2" title={d.note}>
-                  {d.feature}
-                  {d.note && <span className="block text-xs text-muted">{d.note}</span>}
-                </span>
-                <span className="relative h-2 rounded-sm bg-paper-4" aria-hidden="true">
-                  <span className="absolute inset-y-0 left-1/2 w-px bg-faint" />
-                  <span
-                    className={clsx("absolute inset-y-0 rounded-sm", d.contribution >= 0 ? "bg-sev-high" : "bg-sev-low")}
-                    style={d.contribution >= 0 ? { left: "50%", width: `${(d.contribution / maxAbs) * 50}%` } : { right: "50%", width: `${(Math.abs(d.contribution) / maxAbs) * 50}%` }}
-                  />
-                </span>
-                <span className={clsx("num text-right text-sm", d.contribution >= 0 ? "text-sev-high" : "text-sev-low")}>
-                  {signed(d.contribution)}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-rule pt-5">
-            <div className="min-w-0 text-sm">
-              <p className="flex items-center gap-2 font-medium">
-                {triggers ? <Check size={15} className="text-sev-high" /> : <Info size={15} className="text-muted" />}
-                {triggers ? `Meets the trigger threshold (≥ ${threshold})` : `Below the trigger threshold (≥ ${threshold})`}
-              </p>
-              <p className="mt-1 text-muted">
-                {scenario ? (
-                  <>
-                    Maps to <span className="text-ink-2">{scenario.name}</span>, an illustrative template.
-                  </>
-                ) : (
-                  "Scenario mapping loading…"
-                )}
-              </p>
-            </div>
-            <Link to={`/stress?signal=${s.id}${triggers ? "&run=1" : ""}`} className={clsx("btn", triggers && "btn-primary")}>
-              {triggers ? "Run stress test" : "Run as what-if"} <ArrowRight size={14} />
-            </Link>
-          </div>
-        </>
-      )}
-    </Card>
-  );
-}
+import { originChip, originLabel, relationNote, ruleNote, stageKind, stageKindText, stageName, timestampNote } from "../lib/provenance";
+import { sentimentLabel } from "../lib/severity";
 
 function EventTypeCard({ s, label }: { s: RiskSignal; label: (c: string) => string }) {
   const audit = s.provenance?.event;
@@ -353,13 +274,21 @@ function ProvenanceCard({ s }: { s: RiskSignal }) {
             {(["sentiment", "event", "impact"] as const).map((k) => (
               <li key={k} className="flex flex-wrap items-baseline gap-x-2">
                 <span className="w-20 shrink-0 text-muted">{stageName(k)}</span>
-                <span className={stageKind(p.stage_origins[k]) === "model" ? "text-pos" : "text-warn"}>{stageKindText(p.stage_origins[k])}</span>
+                <span className={stageKind(p.stage_origins[k]) === "model" ? "text-pos" : "text-warn"}>
+                  {k === "impact" && p.impact ? KIND_LABEL[impactKind(s)] : stageKindText(p.stage_origins[k])}
+                </span>
                 {k === "event" && p.event && (
                   <span className="num text-muted">
                     {p.event.model_id} · {p.event.artifact_sha256.slice(0, 8)} · {s.event.status.toLowerCase().replace("_", " ")}
                     {p.event.seen_in_training ? " · in-sample" : ""}
                   </span>
                 )}
+                {k === "impact" && p.impact && (
+                  <span className="num text-muted">
+                    {p.impact.model_id} · {p.impact.artifact_sha256.slice(0, 8)} · {p.impact.scope.toLowerCase()} scope · {p.impact.lifecycle.toLowerCase()}
+                  </span>
+                )}
+                {k === "impact" && !p.impact && p.impact_note && <span className="text-muted">{p.impact_note}</span>}
                 {k === "sentiment" && p.sentiment && (
                   <span className="num text-muted">
                     {p.sentiment.model_id} · {p.sentiment.artifact_sha256.slice(0, 8)}
@@ -405,6 +334,7 @@ export function EventPage() {
               )}
               {s.status === "PARTIAL" && s.event.status === "CLASSIFIED" && <StatusTag tone="warn" icon={<Alert size={12} />}>Partial signal</StatusTag>}
               <StatusTag tone="demo">{originChip(s.data_origin, s.provenance?.stage_origins)}</StatusTag>
+              {s.impact && s.data_origin !== "DEMO_FIXTURE" && <ImpactLifecycleTag kind={impactKind(s)} />}
             </div>
             <h1 className="max-w-[28ch] text-2xl font-semibold sm:max-w-[36ch] sm:text-3xl">{s.document.headline}</h1>
             <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
@@ -484,6 +414,14 @@ export function EventPage() {
                   )}
                   <dt className="text-muted">Impact model</dt>
                   <dd className="num">{s.model_versions.impact ?? "unavailable"}</dd>
+                  {s.provenance?.impact && (
+                    <>
+                      <dt className="text-muted">Impact artifact</dt>
+                      <dd className="num break-all">sha256 {s.provenance.impact.artifact_sha256.slice(0, 16)}…</dd>
+                      <dt className="text-muted">Impact lifecycle</dt>
+                      <dd className="num">{s.provenance.impact.lifecycle.toLowerCase()} · {s.provenance.impact.feature_schema}</dd>
+                    </>
+                  )}
                   <dt className="text-muted">Entity resolver</dt>
                   <dd className="num">{s.model_versions.entity_resolver}</dd>
                   <dt className="text-muted">Created</dt>
