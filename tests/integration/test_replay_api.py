@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import json
+
+import pytest
+
 from eventshock.domain import UNKNOWN_ENTITY, DataOrigin
 
 
@@ -358,3 +362,48 @@ class TestEvidenceEndpoint:
 
     def test_no_evidence_in_the_demo_profile(self, client):
         assert client.get("/api/evidence").status_code == 404
+
+
+class TestSignalContext:
+    """GET /api/signals/{id}/context: additive, read-only, and kept away from the signal itself."""
+
+    HERO = "sig_90ee2542ae"  # Nike Q3 earnings preview: model-scored, one source, filings before and after the report
+
+    def test_context_for_a_model_scored_signal(self, replay_client):
+        c = replay_client.get(f"/api/signals/{self.HERO}/context").json()
+        assert c["impact_scored"] and c["inputs"] and c["assessed_at"].startswith("2026-10-01T12:00")
+        by = {i["name"]: i for i in c["inputs"]}
+        assert by["earn_window"]["availability"] == "a" and by["f_sigma_60"]["availability"] == "t"
+        # the context's inputs are the very numbers stored on the signal's audit
+        audit = replay_client.get(f"/api/signals/{self.HERO}").json()["provenance"]["impact"]
+        assert {k: v["value"] for k, v in by.items()} == pytest.approx(audit["inputs"])
+
+    def test_filings_split_around_the_report_and_never_leak_into_inputs(self, replay_client):
+        c = replay_client.get(f"/api/signals/{self.HERO}/context").json()
+        before = [f for f in c["filings"] if f["role"] != "AFTER_REPORT"]
+        after = [f for f in c["filings"] if f["role"] == "AFTER_REPORT"]
+        assert before and all(f["hours_from_report"] < 0 for f in before)
+        assert after and all(f["hours_from_report"] >= 0 for f in after)
+        assert any("2.02" in f["items"] and not f["known_at_assessment"] for f in after), "the earnings release came after the replay clock"
+        assert not any(n.startswith("f8k_") and v for n, v in {i["name"]: i["value"] for i in c["inputs"]}.items() if n in {"f8k_earnings_24h"}), \
+            "the post-report earnings filing must not set the earnings flag"
+
+    def test_outcome_is_only_on_the_context_never_on_signal_routes(self, replay_client):
+        c = replay_client.get(f"/api/signals/{self.HERO}/context").json()
+        assert c["outcome"] is not None and c["outcome"]["window_sessions"] == 2 and c["outcome"]["ticker"] == "NKE"
+        assert "outcome" not in json.dumps(replay_client.get(f"/api/signals/{self.HERO}").json()).lower().replace("outcomes", "")
+        assert "outcome" not in json.dumps(replay_client.get("/api/signals").json()).lower()
+
+    def test_placeholder_and_partial_signals_degrade_with_a_reason(self, replay_client):
+        items = replay_client.get("/api/signals").json()["items"]
+        partial = next(i for i in items if i["status"] == "PARTIAL")
+        c = replay_client.get(f"/api/signals/{partial['id']}/context").json()
+        assert not c["impact_scored"] and c["inputs"] == [] and c["outcome"] is None and c["outcome_note"]
+
+    def test_unknown_signal_is_404(self, replay_client):
+        assert replay_client.get("/api/signals/sig_nope/context").status_code == 404
+
+    def test_demo_profile_has_no_calendar_or_outcomes(self, client):
+        sid = client.get("/api/signals").json()["items"][0]["id"]
+        c = client.get(f"/api/signals/{sid}/context").json()
+        assert c["filings"] == [] and c["filings_note"] and c["outcome"] is None

@@ -3,8 +3,9 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ...domain import EventCategory, EventStatus, RiskSignal, SourceType
+from ...services.signal_context import build_signal_context
 from ..deps import Container, get_container
-from ..schemas import SignalPage, SignalSummary
+from ..schemas import SignalContext, SignalPage, SignalSummary
 
 router = APIRouter(prefix="/signals", tags=["signals"])
 
@@ -56,3 +57,16 @@ def get_signal(signal_id: str, c: Container = Depends(get_container)) -> RiskSig
     if signal is None:
         raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
     return signal
+
+
+@router.get("/{signal_id}/context", response_model=SignalContext)
+def get_signal_context(signal_id: str, c: Container = Depends(get_container)) -> SignalContext:
+    """What the impact model saw (grouped, with availability classes), the issuer's filings placed around
+    the report, and, separately and labelled, what the market did afterwards.
+
+    Read-only: nothing here feeds scoring.
+    """
+    signal = c.signals.get(signal_id)
+    if signal is None:
+        raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
+    return build_signal_context(signal, c.calendar, c.outcomes, c.as_of or signal.created_at)

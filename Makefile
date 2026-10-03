@@ -187,6 +187,10 @@ train-event-hybrid:  ## fit, calibrate, evaluate the adopted hybrid event model 
 train-impact-v2:  ## fit, calibrate, evaluate impact-v2 (document level, Stage 4 protocol) -> models/impact/impact-v2/ (long; needs impact-table-v2 and impact-study)
 	PYTHONPATH=src $(PY) -u -m eventshock.modeling.impact_train_v2
 
+.PHONY: outcomes
+outcomes:  ## export the realised moves after the replay reports -> data/outcomes/replay_outcomes.json (needs impact-table-v2; read by the per-signal context endpoint only)
+	$(PY) scripts/export_outcomes.py
+
 .PHONY: freeze-check freeze-write smoke
 freeze-check:  ## verify the final model state against docs/freeze_manifest.json (models, configs, gold, calendar, replay, evidence)
 	$(PY) scripts/freeze_manifest.py --check

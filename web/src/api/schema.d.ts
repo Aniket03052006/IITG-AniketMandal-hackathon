@@ -262,6 +262,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/signals/{signal_id}/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Signal Context
+         * @description What the impact model saw (grouped, with availability classes), the issuer's filings placed around the report, and, separately and
+         *     labelled, what the market did afterwards. Read-only: nothing here feeds scoring.
+         */
+        get: operations["get_signal_context_api_signals__signal_id__context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stress-runs/{run_id}": {
         parameters: {
             query?: never;
@@ -581,6 +602,29 @@ export interface components {
             note: string;
             /** Share None First Pass */
             share_none_first_pass: number | null;
+        };
+        /**
+         * ContextInput
+         * @description One numeric input the impact model saw for this signal, with its family and availability class.
+         */
+        ContextInput: {
+            /**
+             * Availability
+             * @description a: known before the event | b: published at event time | t: from the report's own text/timestamp or prices before it
+             */
+            availability: string;
+            /**
+             * Group
+             * @description the family the feature belongs to
+             */
+            group: string;
+            /**
+             * Name
+             * @description the model's feature id
+             */
+            name: string;
+            /** Value */
+            value: number;
         };
         /** ContrastRow */
         ContrastRow: {
@@ -1345,6 +1389,40 @@ export interface components {
              */
             status: string;
         };
+        /**
+         * FilingMoment
+         * @description An SEC 8-K of the signal's issuer, placed relative to the report's own timestamp.
+         */
+        FilingMoment: {
+            /**
+             * Acceptance Utc
+             * Format: date-time
+             */
+            acceptance_utc: string;
+            /** Accession */
+            accession: string;
+            /** Form */
+            form: string;
+            /**
+             * Hours From Report
+             * @description negative: accepted before the report; positive: at or after it
+             */
+            hours_from_report: number;
+            /** Items */
+            items: string[];
+            /**
+             * Known At Assessment
+             * @description accepted no later than the replay clock (the moment EventShock assessed the report)
+             */
+            known_at_assessment: boolean;
+            /**
+             * Role
+             * @description FEEDS_MODEL: accepted before the report and read by a calendar feature | BEFORE_NOT_USED: before the report, outside every feature window | AFTER_REPORT: accepted at or after the report; the model never reads it
+             */
+            role: string;
+            /** Role Note */
+            role_note: string;
+        };
         /** GoldSummary */
         GoldSummary: {
             /** Agreed Rows */
@@ -2082,6 +2160,43 @@ export interface components {
             /** Url */
             url: string | null;
         };
+        /**
+         * RealisedOutcome
+         * @description What the market actually did after the report. Known only after the fact; never a model input.
+         */
+        RealisedOutcome: {
+            /**
+             * Abs Z
+             * @description size of the move in units of its usual volatility (the model's target)
+             */
+            abs_z: number;
+            /** Note */
+            note: string;
+            /**
+             * Scope
+             * @description ISSUER: the issuer's own abnormal move | MARKET: the S&P 500's move
+             */
+            scope: string;
+            /**
+             * Score
+             * @description the same 1-10 scale the prediction is stated on
+             */
+            score: number;
+            /**
+             * Session
+             * @description reaction session the move is measured from (ISO date)
+             */
+            session: string;
+            /** Ticker */
+            ticker: string | null;
+            /** Window Sessions */
+            window_sessions: number;
+            /**
+             * Z
+             * @description signed move; direction is observed here but never predicted
+             */
+            z: number;
+        };
         /** RejectedCandidate */
         RejectedCandidate: {
             /** Entity Id */
@@ -2475,6 +2590,48 @@ export interface components {
             scope: components["schemas"]["ShockScope"];
             /** Value */
             value: number;
+        };
+        /** SignalContext */
+        SignalContext: {
+            /**
+             * Assessed At
+             * Format: date-time
+             * @description the replay clock: the moment the signal was assessed
+             */
+            assessed_at: string;
+            /** Filings */
+            filings: components["schemas"]["FilingMoment"][];
+            /**
+             * Filings Note
+             * @description why there are no filings to show, when there are none
+             */
+            filings_note: string | null;
+            /** Impact Scored */
+            impact_scored: boolean;
+            /**
+             * Inputs
+             * @description empty unless a trained model scored the impact
+             */
+            inputs: components["schemas"]["ContextInput"][];
+            /** Missing Inputs */
+            missing_inputs: string[];
+            /**
+             * Not Used
+             * @description things that exist but are deliberately not model inputs
+             */
+            not_used: string[];
+            outcome: components["schemas"]["RealisedOutcome"] | null;
+            /** Outcome Note */
+            outcome_note: string;
+            /**
+             * Report Time
+             * Format: date-time
+             */
+            report_time: string;
+            /** Signal Id */
+            signal_id: string;
+            /** Timestamp Origin */
+            timestamp_origin: string;
         };
         /** SignalPage */
         SignalPage: {
@@ -3332,6 +3489,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RiskSignal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_signal_context_api_signals__signal_id__context_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignalContext"];
                 };
             };
             /** @description Validation Error */

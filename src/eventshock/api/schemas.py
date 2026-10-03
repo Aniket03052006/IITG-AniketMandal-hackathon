@@ -156,3 +156,61 @@ __all__ = [
     "ReplayInfo", "RiskSignal", "ScenarioList", "ScenarioWithDefault", "SignalPage", "SignalSummary",
     "StressRequest", "TaxonomyItem",
 ]
+
+
+# ------------------------------------------------------------ per-signal context (inputs + timeline)
+class ContextInput(ContractModel):
+    """One numeric input the impact model saw for this signal, with its family and availability class."""
+
+    name: str = Field(description="the model's feature id")
+    group: str = Field(description="the family the feature belongs to")
+    availability: str = Field(
+        description="a: known before the event | b: published at event time | "
+                    "t: from the report's own text/timestamp or prices before it")
+    value: float
+
+
+class FilingMoment(ContractModel):
+    """An SEC 8-K of the signal's issuer, placed relative to the report's own timestamp."""
+
+    accession: str
+    form: str
+    items: list[str]
+    acceptance_utc: datetime
+    hours_from_report: float = Field(
+        description="negative: accepted before the report; positive: at or after it")
+    role: str = Field(
+        description="FEEDS_MODEL: accepted before the report and read by a calendar feature | "
+                    "BEFORE_NOT_USED: before the report, outside every feature window | "
+                    "AFTER_REPORT: accepted at or after the report; the model never reads it")
+    role_note: str
+    known_at_assessment: bool = Field(
+        description="accepted no later than the replay clock (the moment EventShock assessed the report)")
+
+
+class RealisedOutcome(ContractModel):
+    """What the market actually did after the report. Known only after the fact; never a model input."""
+
+    scope: str = Field(description="ISSUER: the issuer's own abnormal move | MARKET: the S&P 500's move")
+    ticker: str | None
+    session: str = Field(description="reaction session the move is measured from (ISO date)")
+    window_sessions: int
+    abs_z: float = Field(description="size of the move in units of its usual volatility (the model's target)")
+    z: float = Field(description="signed move; direction is observed here but never predicted")
+    score: int = Field(description="the same 1-10 scale the prediction is stated on")
+    note: str
+
+
+class SignalContext(ContractModel):
+    signal_id: str
+    report_time: datetime
+    timestamp_origin: str
+    assessed_at: datetime = Field(description="the replay clock: the moment the signal was assessed")
+    impact_scored: bool
+    inputs: list[ContextInput] = Field(description="empty unless a trained model scored the impact")
+    missing_inputs: list[str]
+    not_used: list[str] = Field(description="things that exist but are deliberately not model inputs")
+    filings: list[FilingMoment]
+    filings_note: str | None = Field(description="why there are no filings to show, when there are none")
+    outcome: RealisedOutcome | None
+    outcome_note: str

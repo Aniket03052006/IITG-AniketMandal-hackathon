@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import Request
@@ -45,6 +46,7 @@ from ..pipeline.sentiment_card import SentimentModelCard
 from ..pipeline.sentiment_model import SentimentModel
 from ..ports import PortfolioRepository, SignalRepository
 from ..services.evidence import build_evidence
+from ..services.signal_context import Outcomes
 from ..services.stress_service import StressService
 from ..store import (
     InMemorySignalRepository,
@@ -77,6 +79,11 @@ class Container:
     impact_status: ImpactStatus | None = None
     evidence: EvidenceBundle | None = None
     impact_event_reference: str | None = None  # event model the impact stage reads when not the served one
+    # SEC filings + FOMC dates the impact model reads (read-only, for the per-signal context)
+    calendar: EventCalendar | None = None
+    # realised moves after the replay reports (derived, committed; never a model input)
+    outcomes: Outcomes | None = None
+    as_of: datetime | None = None  # the replay clock
 
 
 def _load_impact(
@@ -167,6 +174,9 @@ def build_container(settings: Settings | None = None) -> Container:
     impact_card: ImpactModelCard | None = None
     impact_status: ImpactStatus | None = None
     impact_event_reference: str | None = None
+    calendar: EventCalendar | None = None
+    outcomes: Outcomes | None = None
+    as_of: datetime | None = None
     if config.data.profile == "replay":
         # Real sources: verify the frozen snapshot, run the pipeline, serve its output. Fails loudly on any
         # tampered file or invalid configuration; never touches the network.
@@ -196,6 +206,10 @@ def build_container(settings: Settings | None = None) -> Container:
         pipeline_cfg = load_pipeline_config(settings.config_dir)
         result = run_snapshot(snapshot, pipeline_cfg, enrich_cfg, enricher=enricher)
         impact_card = impact_model.card if impact_model is not None else None
+        calendar = impact_model.calendar if impact_model is not None else None
+        outcomes_path = REPO_ROOT / "data" / "outcomes" / "replay_outcomes.json"
+        outcomes = Outcomes.load(outcomes_path) if outcomes_path.is_file() else None
+        as_of = snapshot.manifest.replay_as_of
         card = model.card
         event_card = event_model.card
         report = result.report
@@ -225,6 +239,9 @@ def build_container(settings: Settings | None = None) -> Container:
         impact_status=impact_status,
         evidence=evidence,
         impact_event_reference=impact_event_reference,
+        calendar=calendar,
+        outcomes=outcomes,
+        as_of=as_of,
     )
 
 

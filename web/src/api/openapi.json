@@ -741,6 +741,38 @@
         "title": "ConsistencyInfo",
         "type": "object"
       },
+      "ContextInput": {
+        "description": "One numeric input the impact model saw for this signal, with its family and availability class.",
+        "properties": {
+          "availability": {
+            "description": "a: known before the event | b: published at event time | t: from the report's own text/timestamp or prices before it",
+            "title": "Availability",
+            "type": "string"
+          },
+          "group": {
+            "description": "the family the feature belongs to",
+            "title": "Group",
+            "type": "string"
+          },
+          "name": {
+            "description": "the model's feature id",
+            "title": "Name",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "group",
+          "availability",
+          "value"
+        ],
+        "title": "ContextInput",
+        "type": "object"
+      },
       "ContrastRow": {
         "additionalProperties": false,
         "properties": {
@@ -2680,6 +2712,62 @@
         "title": "FetchQuery",
         "type": "object"
       },
+      "FilingMoment": {
+        "description": "An SEC 8-K of the signal's issuer, placed relative to the report's own timestamp.",
+        "properties": {
+          "acceptance_utc": {
+            "format": "date-time",
+            "title": "Acceptance Utc",
+            "type": "string"
+          },
+          "accession": {
+            "title": "Accession",
+            "type": "string"
+          },
+          "form": {
+            "title": "Form",
+            "type": "string"
+          },
+          "hours_from_report": {
+            "description": "negative: accepted before the report; positive: at or after it",
+            "title": "Hours From Report",
+            "type": "number"
+          },
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "known_at_assessment": {
+            "description": "accepted no later than the replay clock (the moment EventShock assessed the report)",
+            "title": "Known At Assessment",
+            "type": "boolean"
+          },
+          "role": {
+            "description": "FEEDS_MODEL: accepted before the report and read by a calendar feature | BEFORE_NOT_USED: before the report, outside every feature window | AFTER_REPORT: accepted at or after the report; the model never reads it",
+            "title": "Role",
+            "type": "string"
+          },
+          "role_note": {
+            "title": "Role Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "accession",
+          "form",
+          "items",
+          "acceptance_utc",
+          "hours_from_report",
+          "role",
+          "role_note",
+          "known_at_assessment"
+        ],
+        "title": "FilingMoment",
+        "type": "object"
+      },
       "GoldSummary": {
         "additionalProperties": false,
         "properties": {
@@ -4435,6 +4523,67 @@
         "title": "RawDocument",
         "type": "object"
       },
+      "RealisedOutcome": {
+        "description": "What the market actually did after the report. Known only after the fact; never a model input.",
+        "properties": {
+          "abs_z": {
+            "description": "size of the move in units of its usual volatility (the model's target)",
+            "title": "Abs Z",
+            "type": "number"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "scope": {
+            "description": "ISSUER: the issuer's own abnormal move | MARKET: the S&P 500's move",
+            "title": "Scope",
+            "type": "string"
+          },
+          "score": {
+            "description": "the same 1-10 scale the prediction is stated on",
+            "title": "Score",
+            "type": "integer"
+          },
+          "session": {
+            "description": "reaction session the move is measured from (ISO date)",
+            "title": "Session",
+            "type": "string"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "window_sessions": {
+            "title": "Window Sessions",
+            "type": "integer"
+          },
+          "z": {
+            "description": "signed move; direction is observed here but never predicted",
+            "title": "Z",
+            "type": "number"
+          }
+        },
+        "required": [
+          "scope",
+          "ticker",
+          "session",
+          "window_sessions",
+          "abs_z",
+          "z",
+          "score",
+          "note"
+        ],
+        "title": "RealisedOutcome",
+        "type": "object"
+      },
       "RejectedCandidate": {
         "properties": {
           "entity_id": {
@@ -5388,6 +5537,105 @@
           "rationale"
         ],
         "title": "ShockSpec",
+        "type": "object"
+      },
+      "SignalContext": {
+        "properties": {
+          "assessed_at": {
+            "description": "the replay clock: the moment the signal was assessed",
+            "format": "date-time",
+            "title": "Assessed At",
+            "type": "string"
+          },
+          "filings": {
+            "items": {
+              "$ref": "#/components/schemas/FilingMoment"
+            },
+            "title": "Filings",
+            "type": "array"
+          },
+          "filings_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "why there are no filings to show, when there are none",
+            "title": "Filings Note"
+          },
+          "impact_scored": {
+            "title": "Impact Scored",
+            "type": "boolean"
+          },
+          "inputs": {
+            "description": "empty unless a trained model scored the impact",
+            "items": {
+              "$ref": "#/components/schemas/ContextInput"
+            },
+            "title": "Inputs",
+            "type": "array"
+          },
+          "missing_inputs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Inputs",
+            "type": "array"
+          },
+          "not_used": {
+            "description": "things that exist but are deliberately not model inputs",
+            "items": {
+              "type": "string"
+            },
+            "title": "Not Used",
+            "type": "array"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RealisedOutcome"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome_note": {
+            "title": "Outcome Note",
+            "type": "string"
+          },
+          "report_time": {
+            "format": "date-time",
+            "title": "Report Time",
+            "type": "string"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "timestamp_origin": {
+            "title": "Timestamp Origin",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "report_time",
+          "timestamp_origin",
+          "assessed_at",
+          "impact_scored",
+          "inputs",
+          "missing_inputs",
+          "not_used",
+          "filings",
+          "filings_note",
+          "outcome",
+          "outcome_note"
+        ],
+        "title": "SignalContext",
         "type": "object"
       },
       "SignalPage": {
@@ -7237,6 +7485,49 @@
           }
         },
         "summary": "Get Signal",
+        "tags": [
+          "signals"
+        ]
+      }
+    },
+    "/api/signals/{signal_id}/context": {
+      "get": {
+        "description": "What the impact model saw (grouped, with availability classes), the issuer's filings placed around the report, and, separately and\nlabelled, what the market did afterwards. Read-only: nothing here feeds scoring.",
+        "operationId": "get_signal_context_api_signals__signal_id__context_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "signal_id",
+            "required": true,
+            "schema": {
+              "title": "Signal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignalContext"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Signal Context",
         "tags": [
           "signals"
         ]
