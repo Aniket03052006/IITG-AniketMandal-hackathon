@@ -15,6 +15,7 @@ import os
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -91,6 +92,39 @@ def run_checks(base: str) -> None:
     strip = lambda r: {k: v for k, v in r.items() if k not in ("run_id", "id")}  # noqa: E731
     check(strip(run1) == strip(run2), "the stress engine is deterministic (same signal, same result)")
 
+    # Stage 6: one engine, many doors. The smoke test uses a private journal (see main), so nothing it pastes outlives it.
+    before = get(base, "/api/signals?channel=REPLAY")["total"]
+    pasted = post(base, "/api/analyze", {"text": "Chipmakers slide as semiconductor demand softens and data center spending slows"})
+    sig = pasted["signal"]
+    check(pasted["outcome"] in ("NEW", "DUPLICATE") and sig["scope_level"] == "SECTOR" and sig["scope_sector"] == "Technology" and sig["channel"] == "MANUAL",
+          "/api/analyze: a pasted sector story is a MANUAL SECTOR-scope signal, no company invented")
+    check(get(base, "/api/signals?channel=REPLAY")["total"] == before, "...and the replay signals are untouched by it")
+    rel = get(base, f"/api/signals/{sig['id']}/relevance")
+    check(rel["level"] == "SECTOR" and 0 < rel["share"] < 1 and rel["reach"], "/api/signals/{id}/relevance reports the sector exposure of the book")
+    st = post(base, "/api/stress-test", {"signal_id": sig["id"], "force": True})
+    check(st["status"] in ("COMPLETED", "NOT_APPLICABLE") and st["audit"]["scope_level"] == "SECTOR", "a pasted signal runs through the same stress engine")
+    # Stage 7: the risk assessment (rule mode here: no key, no network)
+    caps = get(base, "/api/meta")["capabilities"]
+    check(caps["assessment"] is True and caps["llm"]["mode"] == "RULES" and caps["llm"]["sends_text_off_machine"] is False,
+          "/api/meta: the assessment layer is on and reads text by rules (no language model, nothing leaves the machine)")
+    regulatory = post(base, "/api/analyze", {"text": "European regulators propose stricter capital requirements for major banks, potentially increasing funding costs."})
+    a = regulatory["assessment"]
+    check(a["reading"]["event_type"] == "REGULATORY_LEGAL" and "Financials" in a["reading"]["sectors"] and a["reading"]["primary_issuer"]["entity_id"] == "UNKNOWN_ENTITY",
+          "/api/analyze: a regulatory headline is read as Regulatory / Legal, Financials, with no issuer invented")
+    check(a["severity"]["basis"] == "TRANSPARENT_HYBRID" and a["labels"] and 1 <= a["severity"]["score"] <= 10,
+          "...scored by the transparent hybrid severity, labelled not validated / not a forecast")
+    ev = get(base, f"/api/signals/{regulatory['signal_id']}/evidence")
+    tl = get(base, f"/api/signals/{regulatory['signal_id']}/timeline")
+    check(set(ev) >= {"source_evidence", "model_inference", "scenario_assumptions"} and tl["items"] and tl["excluded"],
+          "/api/signals/{id}/evidence and /timeline answer, with the exclusions listed")
+    run = post(base, "/api/stress-test", {"signal_id": regulatory["signal_id"], "force": True})
+    check(run["status"] == "COMPLETED" and run["audit"]["impact_origin"] == "ASSESSMENT" and any(s["scope"] == "SECTOR" and s["applicable"] for s in run["shocks"]),
+          "a stress run on it is driven by the assessment, and the sector read from the text reaches the portfolio")
+    live = get(base, "/api/live/status")
+    check(live["state"] == "OFF" and live["enabled"] is False, "/api/live/status: live is off by default (replay data only)")
+    scope = get(base, "/api/scope")
+    check(scope["replay_mix"].get("UNRESOLVED", 0) > 0 and scope["evaluation"], "/api/scope: unresolved events are kept, and the sector vocabulary has a measured evaluation")
+
     index = get(base, "/", raw=True).decode("utf-8", "replace")
     check("<div id=\"root\"" in index or "id=\"root\"" in index, "the built UI is served at /")
 
@@ -109,7 +143,10 @@ def main() -> int:
         run_checks(args.url.rstrip("/"))
         return 0
     port = free_port()
-    env = {**os.environ, "EVENTSHOCK_PROFILE": "replay", "PYTHONPATH": str(ROOT / "src")}
+    journal = Path(tempfile.mkdtemp(prefix="eventshock-smoke-")) / "journal.jsonl"
+    env = {**os.environ, "EVENTSHOCK_PROFILE": "replay", "PYTHONPATH": str(ROOT / "src"), "EVENTSHOCK_JOURNAL_PATH": str(journal),
+           # the smoke test never calls a language model: rule mode, and a private cache file
+           "EVENTSHOCK_LLM": "0", "EVENTSHOCK_LLM_CACHE_PATH": str(journal.parent / "llm_cache.jsonl")}
     proc = subprocess.Popen([sys.executable, "-m", "eventshock", "--port", str(port)], cwd=ROOT, env=env)
     base = f"http://127.0.0.1:{port}"
     try:

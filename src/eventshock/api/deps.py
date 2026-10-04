@@ -9,6 +9,12 @@ from pathlib import Path
 
 from fastapi import Request
 
+from ..assessment.config import load_hybrid_config, load_semantics_config
+from ..assessment.extractor import SemanticExtractor
+from ..assessment.hybrid import HybridScorer
+from ..assessment.rules import RuleExtractor
+from ..assessment.service import AssessmentService
+from ..assessment.vocab import Vocab
 from ..config import (
     REPO_ROOT,
     AppConfig,
@@ -21,7 +27,11 @@ from ..config import (
     resolve_fixtures_dir,
     resolve_replay_dir,
 )
+from ..ingestion.live import CaptureSource, GdeltLiveSource, LiveSource
 from ..ingestion.snapshot import Snapshot, load_snapshot
+from ..llm.cache import ExtractionCache
+from ..llm.client import CLIENTS, LLMClient
+from ..llm.config import load_llm_config
 from ..pipeline.config import (
     load_enrichment_config,
     load_event_model_config,
@@ -30,6 +40,7 @@ from ..pipeline.config import (
     load_sentiment_model_config,
 )
 from ..pipeline.embeddings import ChainedEmbeddings, LiveEncoder, PinnedEmbeddings
+from ..pipeline.engine import RiskEngine
 from ..pipeline.enrich import ImpactModelEnricher, ModelEnricher
 from ..pipeline.event_card import EventModelCard
 from ..pipeline.event_context import EventCalendar
@@ -41,15 +52,21 @@ from ..pipeline.impact_features_v2 import FEATURE_SCHEMA_V2
 from ..pipeline.impact_model import ImpactModel
 from ..pipeline.market_context import MarketContext
 from ..pipeline.models import PipelineReport
-from ..pipeline.run import run_snapshot
+from ..pipeline.run import load_entities, run_snapshot
+from ..pipeline.scope import ScopeConfig, ScopeResolver, load_scope_config
 from ..pipeline.sentiment_card import SentimentModelCard
 from ..pipeline.sentiment_model import SentimentModel
-from ..ports import PortfolioRepository, SignalRepository
+from ..ports import PortfolioRepository
+from ..services.analyze import Analyzer
 from ..services.evidence import build_evidence
+from ..services.live import Journal, LiveConfig, LiveService, load_live_config
+from ..services.relevance import RelevanceService
 from ..services.signal_context import Outcomes
 from ..services.stress_service import StressService
 from ..store import (
+    CombinedSignalRepository,
     InMemorySignalRepository,
+    LiveSignalStore,
     load_portfolio_files,
     load_portfolio_repository,
     load_signal_repository,
@@ -67,7 +84,7 @@ class Container:
     taxonomy: Taxonomy
     scenario_set_version: str
     catalog: ScenarioCatalog
-    signals: SignalRepository
+    signals: CombinedSignalRepository
     portfolio: PortfolioRepository
     stress: StressService
     profile: str = "demo"
@@ -84,6 +101,16 @@ class Container:
     # realised moves after the replay reports (derived, committed; never a model input)
     outcomes: Outcomes | None = None
     as_of: datetime | None = None  # the replay clock
+    relevance: RelevanceService | None = None
+    # the incremental engine (replay profile only): pasted text and the live feed enter through it
+    engine: RiskEngine | None = None
+    analyzer: Analyzer | None = None
+    live: LiveService | None = None
+    live_store: LiveSignalStore | None = None
+    live_config: LiveConfig | None = None
+    scope_config: ScopeConfig | None = None
+    # reads the text (LLM or rules), scores severity from explicit weights, feeds the stress engine's trigger (replay profile only)
+    assessments: AssessmentService | None = None
 
 
 def _load_impact(
@@ -161,6 +188,68 @@ def _fallback(served: Path, reference: Path, why: str) -> EventModel:
     return EventModel.load(reference)
 
 
+def _live_source(settings: Settings, cfg: LiveConfig) -> LiveSource | None:
+    """The configured live source, or None when live is off (the default). Capture mode reads a local file and needs no network."""
+    enabled = settings.live if settings.live is not None else cfg.enabled
+    if not enabled:
+        return None
+    if (settings.live_source or cfg.source.kind) == "capture":
+        cap = cfg.source.capture if settings.capture_path is None else cfg.source.capture.model_copy(update={"path": settings.capture_path})
+        return CaptureSource(cap, base=REPO_ROOT)
+    return GdeltLiveSource(cfg.source.gdelt)
+
+
+def _build_engine(pipeline_cfg, live_cfg: LiveConfig, enrich_cfg, scope_resolver, enricher, sentiment, event_model, legacy,
+                  impact_model, market_context, store: LiveSignalStore, entities, snapshot_id: str):  # noqa: ANN001, ANN202
+    """The incremental engine over the same models the replay run used (loaded once, shared).
+
+    New text has no pinned vector, so a hybrid event model can only score it when an encoder is installed. Without one the engine
+    starts on the reference TF-IDF model (impact is trained on that model's outputs anyway) and says so in its status.
+    """
+    import importlib.util
+
+    cfg = pipeline_cfg.model_copy(update={"dedup": pipeline_cfg.dedup.model_copy(
+        update={"unknown_same_event": live_cfg.dedup.unknown_same_event})})
+    hybrid = isinstance(event_model, HybridEventModel)
+    fallback = None
+    if hybrid and legacy is not None:
+        if impact_model is not None and market_context is not None and impact_model.served_scopes:
+            fallback = ImpactModelEnricher(enrich_cfg, sentiment, legacy, impact_model, market_context)
+        else:
+            fallback = ModelEnricher(enrich_cfg, sentiment, legacy)
+    engine = RiskEngine(
+        entities=entities, pipeline_cfg=cfg, enrich_cfg=enrich_cfg, scope_resolver=scope_resolver, enricher=enricher,
+        fallback_enricher=fallback, store=store, event_model_id=event_model.model_id,
+        fallback_event_model_id=legacy.model_id if legacy is not None else None,
+        start_on_fallback=hybrid and importlib.util.find_spec("torch") is None, snapshot_id=f"{snapshot_id}+live")
+    return engine, (legacy.model_id if legacy is not None else None)
+
+
+def _build_assessments(settings: Settings, taxonomy: Taxonomy, scope_config: ScopeConfig, scope_resolver: ScopeResolver,
+                       signals: CombinedSignalRepository, config: AppConfig) -> AssessmentService:
+    """The risk-assessment layer: closed vocabulary, the language model if (and only if) it is switched on and has a key, the rule extractor
+    otherwise, and the hybrid scorer. A missing key is a labelled degradation (rule mode), never a start-up failure."""
+    sem = load_semantics_config(settings.config_dir)
+    hybrid = load_hybrid_config(settings.config_dir)
+    llm_cfg = load_llm_config(settings.config_dir)
+    llm_cfg = llm_cfg.for_provider(settings.llm_provider or llm_cfg.provider, settings.llm_model)
+    enabled = settings.llm if settings.llm is not None else llm_cfg.enabled
+    llm_cfg = llm_cfg.model_copy(update={"enabled": enabled})
+    vocab = Vocab.build(sem, scope_config, {c.id.value: c.label for c in taxonomy.categories})
+    rules = RuleExtractor(vocab, scope_resolver, max_quotes=llm_cfg.grounding.max_quotes, max_entities=llm_cfg.grounding.max_entities)
+    client: LLMClient | None = None
+    why: str | None = None
+    if enabled:
+        key = settings.llm_key(llm_cfg.provider)
+        if not key:
+            why = f"the language model is switched on (EVENTSHOCK_LLM) but {llm_cfg.key_env} is not set"
+        else:
+            client = CLIENTS[llm_cfg.provider](key, llm_cfg)
+    cache = ExtractionCache(llm_cfg.cache_path(settings.llm_cache_path), llm_cfg.cache.max_entries)
+    extractor = SemanticExtractor(vocab, rules, llm_cfg, client=client, cache=cache, unavailable_reason=why)
+    return AssessmentService(extractor, HybridScorer(hybrid), signals, stress=config.stress)
+
+
 def build_container(settings: Settings | None = None) -> Container:
     settings = settings or Settings()
     config = load_app_config(settings)
@@ -177,6 +266,7 @@ def build_container(settings: Settings | None = None) -> Container:
     calendar: EventCalendar | None = None
     outcomes: Outcomes | None = None
     as_of: datetime | None = None
+    engine = live_cfg = live_store = market_context = pipeline_cfg = scope_config = assessments = None
     if config.data.profile == "replay":
         # Real sources: verify the frozen snapshot, run the pipeline, serve its output. Fails loudly on any
         # tampered file or invalid configuration; never touches the network.
@@ -204,7 +294,9 @@ def build_container(settings: Settings | None = None) -> Container:
         else:
             enricher = ModelEnricher(enrich_cfg, model, event_model)
         pipeline_cfg = load_pipeline_config(settings.config_dir)
-        result = run_snapshot(snapshot, pipeline_cfg, enrich_cfg, enricher=enricher)
+        scope_config = load_scope_config(settings.config_dir)
+        scope_resolver = ScopeResolver(scope_config)
+        result = run_snapshot(snapshot, pipeline_cfg, enrich_cfg, enricher=enricher, scope_resolver=scope_resolver)
         impact_card = impact_model.card if impact_model is not None else None
         calendar = impact_model.calendar if impact_model is not None else None
         outcomes_path = REPO_ROOT / "data" / "outcomes" / "replay_outcomes.json"
@@ -213,14 +305,35 @@ def build_container(settings: Settings | None = None) -> Container:
         card = model.card
         event_card = event_model.card
         report = result.report
-        signals = InMemorySignalRepository(result.signals, snapshot.manifest.replay_as_of)
+        base = InMemorySignalRepository(result.signals, snapshot.manifest.replay_as_of)
         portfolio = load_portfolio_files(snapshot.portfolio_path(), snapshot.entities_path())
+        live_cfg = load_live_config(settings.config_dir)
+        live_source = _live_source(settings, live_cfg)
+        retention = max(live_cfg.retention_hours, 24.0 * 365) if isinstance(live_source, CaptureSource) else live_cfg.retention_hours
+        live_store = LiveSignalStore(retention, live_cfg.max_signals)
+        signals = CombinedSignalRepository(base, live_store)
+        engine, fallback_id = _build_engine(
+            pipeline_cfg, live_cfg, enrich_cfg, scope_resolver, enricher, model, event_model, legacy, impact_model, market_context,
+            live_store, load_entities(snapshot.entities_path()), snapshot.manifest.snapshot_id)
     else:
         fixtures = resolve_fixtures_dir(settings, config)
-        signals = load_signal_repository(fixtures)
+        signals = CombinedSignalRepository(load_signal_repository(fixtures), LiveSignalStore())
         portfolio = load_portfolio_repository(fixtures)
     replay = config.data.profile == "replay"
     evidence = build_evidence(REPO_ROOT, card, event_card, impact_card) if replay else None
+    catalog_relevance = RelevanceService(portfolio, catalog)
+    analyzer = live = None
+    if replay:
+        journal = Journal(settings.journal_path or REPO_ROOT / live_cfg.journal)
+        analyzer = Analyzer(engine, signals, pipeline_cfg.validation, journal=journal)
+        market_through = market_context.last_session if market_context is not None else None
+        live = LiveService(
+            cfg=live_cfg, engine=engine, store=live_store, source=live_source, journal=journal,
+            event_model_note=lambda: (engine.status.event_model, engine.status.event_fallback_reason),
+            market_through=market_through)
+        live.warm_start()
+        assert scope_config is not None
+        assessments = _build_assessments(settings, taxonomy, scope_config, scope_resolver, signals, config)
     return Container(
         settings=settings,
         config=config,
@@ -229,7 +342,8 @@ def build_container(settings: Settings | None = None) -> Container:
         catalog=catalog,
         signals=signals,
         portfolio=portfolio,
-        stress=StressService(signals, portfolio, catalog, config),
+        stress=StressService(signals, portfolio, catalog, config,
+                             severity_provider=assessments.severity_view if assessments else None),
         profile=config.data.profile,
         snapshot=snapshot,
         pipeline_report=report,
@@ -242,6 +356,14 @@ def build_container(settings: Settings | None = None) -> Container:
         calendar=calendar,
         outcomes=outcomes,
         as_of=as_of,
+        relevance=catalog_relevance,
+        engine=engine if replay else None,
+        analyzer=analyzer,
+        live=live,
+        live_store=live_store if replay else None,
+        live_config=live_cfg if replay else None,
+        scope_config=scope_config,
+        assessments=assessments,
     )
 
 

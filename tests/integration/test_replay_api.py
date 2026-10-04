@@ -81,7 +81,11 @@ class TestSignals:
 
 class TestRealSignalsDriveTheStressEngine:
     def pick(self, container, *, known: bool, min_impact: int = 7):
-        for s in container.signals.list(min_impact=min_impact):
+        for s in container.signals.list():
+            # the trigger reads the assessment's severity (the trained impact is a reference), so "triggering" means severity >= min_impact
+            sev = container.assessments.assess(s).severity if container.assessments else None
+            if (sev.score if sev else 0) < min_impact:
+                continue
             if (s.entity.entity_id != UNKNOWN_ENTITY) == known:
                 return s
         return None
@@ -108,11 +112,39 @@ class TestRealSignalsDriveTheStressEngine:
         assert a == b and a["audit"]["calculated_at"].startswith("2026-10-01")
 
     def test_unresolved_real_signal_only_gets_market_wide_shocks(self, replay_client, replay_container):
-        s = self.pick(replay_container, known=False, min_impact=1)
-        assert s is not None and s.entity.entity_id == UNKNOWN_ENTITY
+        s = next(x for x in replay_container.signals.list(min_impact=1)
+                 if x.scope.level.value == "UNRESOLVED" and x.entity.entity_id == UNKNOWN_ENTITY)
         r = replay_client.post("/api/stress-test", json={"signal_id": s.id, "force": True}).json()
-        assert r["status"] == "COMPLETED"
+        assert r["status"] in {"COMPLETED", "NOT_APPLICABLE"}
         assert all(sh["scope"] == "MARKET" or not sh["applicable"] for sh in r["shocks"])
+        assert all(sh["applicable"] or sh["not_applicable_reason"] for sh in r["shocks"])
+        assert r["audit"]["scope_level"] == "UNRESOLVED"
+
+    def test_a_scenario_with_no_market_shock_is_not_applicable_not_a_zero(self, replay_client, replay_container):
+        """Found while building Stage 6: an unresolved M&A/product/earnings signal used to return COMPLETED with pnl 0 and 100% uncovered."""
+        for cat in ("MA_CORPORATE_ACTION", "PRODUCT_OPERATIONS", "EARNINGS_FINANCIAL_PERFORMANCE"):
+            s = next((x for x in replay_container.signals.list(min_impact=1)
+                      if x.scope.level.value in {"UNRESOLVED", "MARKET"} and x.event.category.value == cat
+                      and x.event.status.value == "CLASSIFIED"), None)
+            if s is None:
+                continue
+            r = replay_client.post("/api/stress-test", json={"signal_id": s.id, "force": True}).json()
+            assert r["status"] == "NOT_APPLICABLE" and r["summary"] is None
+            assert "reaches what this event is about" in r["reason"]
+            return
+        raise AssertionError("the pack should contain an unresolved signal in one of the issuer-only categories")
+
+    def test_a_sector_signal_applies_sector_shocks_without_an_issuer(self, replay_client, replay_container):
+        s = next((x for x in replay_container.signals.list(min_impact=1)
+                  if x.scope.level.value == "SECTOR" and x.event.status.value == "CLASSIFIED"), None)
+        assert s is not None
+        r = replay_client.post("/api/stress-test", json={"signal_id": s.id, "force": True}).json()
+        assert r["audit"]["scope_level"] == "SECTOR"
+        by = {(sh["scope"]): sh for sh in r["shocks"]}
+        if "SECTOR" in by:
+            assert by["SECTOR"]["applicable"] is True
+        if "ISSUER" in by:
+            assert by["ISSUER"]["applicable"] is False and "No single company" in by["ISSUER"]["not_applicable_reason"]
 
 
 class TestSentimentModelEndpoint:
@@ -174,7 +206,8 @@ class TestEventStatusInTheFeed:
 
     def test_a_category_filter_matches_only_findings_not_best_guesses(self, replay_client):
         part = replay_client.get("/api/signals", params={"category": "PRODUCT_OPERATIONS"}).json()
-        assert part["total"] > 0 and all(i["event_status"] == "CLASSIFIED" and i["category"] == "PRODUCT_OPERATIONS" for i in part["items"])
+        # with the assessment layer the category a row shows (and the filter reads) is the ASSESSED class; the trained reading is kept on the signal
+        assert part["total"] > 0 and all(i["assessed_category"] == "PRODUCT_OPERATIONS" for i in part["items"])
 
     def test_non_events_have_no_impact_and_the_stress_engine_reports_them_unavailable(self, replay_client):
         item = replay_client.get("/api/signals", params={"event_status": "NO_EVENT"}).json()["items"][0]
@@ -243,10 +276,14 @@ class TestImpactModel:
 
     def test_a_stress_run_records_which_stage_produced_the_trigger(self, replay_client):
         items = replay_client.get("/api/signals").json()["items"]
-        for origin, lifecycle in (("MODEL", True), ("PLACEHOLDER", False)):
-            it = next(i for i in items if i["impact_origin"] == origin and i["impact_score"] is not None)
+        # the trigger comes from the assessment (explicit weights); the trained model that scored the report is a reference, recorded on the assessment
+        for origin in ("MODEL", "PLACEHOLDER"):
+            it = next(i for i in items if i["impact_origin"] == origin and i["impact_score"] is not None and i["severity_score"] is not None)
             r = replay_client.post("/api/stress-test", json={"signal_id": it["id"], "force": True}).json()
-            assert r["audit"]["impact_origin"] == origin and (r["audit"]["impact_lifecycle"] is not None) is lifecycle
+            assert r["audit"]["impact_origin"] == "ASSESSMENT" and r["audit"]["severity_basis"] == "TRANSPARENT_HYBRID"
+            assert r["audit"]["impact_lifecycle"] is None
+            ref = replay_client.get(f"/api/signals/{it['id']}/assessment").json()["reference"]
+            assert ref["available"] is True and ref["origin"] == origin and ref["score"] == it["impact_score"]
 
 
 class TestImpactDegradesHonestly:
@@ -407,3 +444,16 @@ class TestSignalContext:
         sid = client.get("/api/signals").json()["items"][0]["id"]
         c = client.get(f"/api/signals/{sid}/context").json()
         assert c["filings"] == [] and c["filings_note"] and c["outcome"] is None
+
+
+class TestScopeEndpoint:
+    def test_describes_the_rules_the_mix_and_the_measured_vocabulary(self, replay_client):
+        r = replay_client.get("/api/scope").json()
+        assert r["version"] == "scope-v1" and len(r["rules"]) == 6 and set(r["sectors"]) >= {"Energy", "Financials"}
+        assert r["replay_mix"] == {"COMPANY": 1182, "MARKET": 170, "SECTOR": 131, "UNRESOLVED": 847}
+        ev = r["evaluation"]
+        assert ev["by_strength"]["STRONG"]["precision"] == 0.9 and ev["coverage"] == 0.2724
+        assert any("optimistic proxy" in x for x in ev["limits"])
+
+    def test_the_demo_profile_has_no_scope_resolver(self, client):
+        assert client.get("/api/scope").status_code == 404

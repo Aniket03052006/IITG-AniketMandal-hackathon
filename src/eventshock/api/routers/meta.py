@@ -6,9 +6,21 @@ from ... import __version__
 from ...domain import DataOrigin
 from ...stress.engine import ENGINE_VERSION
 from ..deps import Container, get_container
-from ..schemas import Meta, ReplayInfo, TaxonomyItem
+from ..schemas import Capabilities, LLMInfo, Meta, ReplayInfo, TaxonomyItem
 
 router = APIRouter(tags=["meta"])
+
+
+def llm_info(c: Container) -> LLMInfo | None:
+    if c.assessments is None:
+        return None
+    st = c.assessments.extractor.status()
+    return LLMInfo(
+        mode=str(st["mode"]), enabled=bool(st["enabled"]), model=st["model"] if isinstance(st["model"], str) else None,
+        reason=st["reason"] if isinstance(st["reason"], str) else None, llm_calls=int(st["llm_calls"]),  # type: ignore[call-overload]
+        cache_hits=int(st["cache_hits"]), fallbacks=int(st["fallbacks"]),  # type: ignore[call-overload]
+        last_fallback_reason=st["last_fallback_reason"] if isinstance(st["last_fallback_reason"], str) else None,
+        sends_text_off_machine=st["mode"] == "LLM")
 
 
 @router.get("/health")
@@ -89,4 +101,6 @@ def meta(c: Container = Depends(get_container)) -> Meta:
         taxonomy=[TaxonomyItem(**t.model_dump()) for t in c.taxonomy.categories],
         notices=_notices(c),
         impact=c.impact_status,
+        capabilities=Capabilities(analyze=c.analyzer is not None, live_enabled=bool(c.live and c.live.source),
+                                  assessment=c.assessments is not None, llm=llm_info(c)),
     )

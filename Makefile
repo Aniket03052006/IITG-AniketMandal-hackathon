@@ -7,7 +7,7 @@ GDELT_THROTTLE ?= 20
 PRICES_START ?= 2014-01-01
 PRICES_END ?= 2026-10-02
 
-.PHONY: market-context impact-table train-impact audit probe gold-sample gold-validate gold-score train-sentiment train-event event-pools event-merge event-table fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
+.PHONY: run-llm market-context impact-table train-impact audit probe gold-sample gold-validate gold-score train-sentiment train-event event-pools event-merge event-table fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
 
 setup: setup-api setup-web  ## install everything
 
@@ -24,6 +24,21 @@ build:  ## build the web UI into web/dist (served by the API)
 
 run: build  ## single process: API + built UI on http://127.0.0.1:8000
 	$(PY) -m eventshock
+
+run-llm: build  ## like `run`, with a language model reading new text (needs GROQ_API_KEY (default) or ANTHROPIC_API_KEY in .env or the environment; sends pasted text to the provider). Falls back to rules, labelled, if it fails
+	EVENTSHOCK_LLM=1 $(PY) -m eventshock
+
+run-live: build  ## like `run`, with the live feed on: polls GDELT DOC 2.0 every 5 min (network). Replay data keeps serving if it fails
+	EVENTSHOCK_LIVE=1 $(PY) -m eventshock
+
+run-capture: build  ## like `run-live`, but replays a captured GDELT file as if live (offline, labelled "simulated")
+	EVENTSHOCK_LIVE=1 EVENTSHOCK_LIVE_SOURCE=capture $(PY) -m eventshock
+
+capture-gdelt:  ## capture what GDELT saw recently into data/live/sample_capture.jsonl for `make run-capture` (network, ~2 min, throttled)
+	$(PY) scripts/capture_gdelt.py
+
+scope-eval:  ## measure the sector vocabulary on replay documents whose company resolved -> docs/evidence/scope_eval.json
+	PYTHONPATH=src $(PY) -m eventshock.modeling.scope_eval
 
 dev:  ## API with reload on :8000 and Vite on :5173 (open http://localhost:5173)
 	./scripts/dev.sh
@@ -191,7 +206,7 @@ train-impact-v2:  ## fit, calibrate, evaluate impact-v2 (document level, Stage 4
 outcomes:  ## export the realised moves after the replay reports -> data/outcomes/replay_outcomes.json (needs impact-table-v2; read by the per-signal context endpoint only)
 	$(PY) scripts/export_outcomes.py
 
-.PHONY: freeze-check freeze-write smoke
+.PHONY: freeze-check freeze-write smoke run-live run-capture capture-gdelt scope-eval
 freeze-check:  ## verify the final model state against docs/freeze_manifest.json (models, configs, gold, calendar, replay, evidence)
 	$(PY) scripts/freeze_manifest.py --check
 

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, Field, model_validator
+from pydantic import AliasChoices, BaseModel, Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .domain import EventCategory, RunMode, Scenario
@@ -48,7 +48,7 @@ class AppConfig(BaseModel):
 class Settings(BaseSettings):
     """Environment overrides (``EVENTSHOCK_*``). See ``.env.example``."""
 
-    model_config = SettingsConfigDict(env_prefix="EVENTSHOCK_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="EVENTSHOCK_", env_file=".env", extra="ignore", populate_by_name=True)
 
     config_dir: Path = REPO_ROOT / "configs"
     fixtures_dir: Path | None = None
@@ -60,6 +60,20 @@ class Settings(BaseSettings):
     web_dist_dir: Path = REPO_ROOT / "web" / "dist"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     trigger_threshold: float | None = None
+    journal_path: Path | None = None  # overrides configs/live.yaml: journal (tests point it at a temp file)
+    capture_path: Path | None = None  # overrides configs/live.yaml: source.capture.path
+    live_source: Literal["gdelt", "capture"] | None = None  # EVENTSHOCK_LIVE_SOURCE=capture replays the capture file instead of calling GDELT
+    live: bool | None = None  # EVENTSHOCK_LIVE=1 turns the live feed on (overrides configs/live.yaml: enabled)
+    llm: bool | None = None  # EVENTSHOCK_LLM=1 lets a language model read new text (needs a key); overrides configs/llm.yaml: enabled
+    llm_model: str | None = None  # EVENTSHOCK_LLM_MODEL overrides configs/llm.yaml: model
+    llm_cache_path: Path | None = None  # EVENTSHOCK_LLM_CACHE_PATH overrides configs/llm.yaml: cache.path (tests point it at a temp file)
+    llm_provider: Literal["groq", "anthropic"] | None = None  # EVENTSHOCK_LLM_PROVIDER overrides configs/llm.yaml: provider
+    # provider keys are read from the environment / .env only, under the providers' own names (never from a config file)
+    anthropic_api_key: str | None = Field(default=None, validation_alias=AliasChoices("ANTHROPIC_API_KEY", "EVENTSHOCK_ANTHROPIC_API_KEY"))
+    groq_api_key: str | None = Field(default=None, validation_alias=AliasChoices("GROQ_API_KEY", "EVENTSHOCK_GROQ_API_KEY"))
+
+    def llm_key(self, provider: str) -> str | None:
+        return {"anthropic": self.anthropic_api_key, "groq": self.groq_api_key}.get(provider)
 
 
 class TaxonomyEntry(BaseModel):

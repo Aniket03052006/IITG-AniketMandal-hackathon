@@ -6,6 +6,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from ..assessment.model import RiskAssessment
 from ..domain import (
     Entity,
     EventCategory,
@@ -53,11 +54,58 @@ class SignalSummary(ContractModel):
     status: SignalStatus
     source_count: int
     data_origin: str
+    scope_level: str = Field(description="COMPANY | SECTOR | MARKET | UNRESOLVED: what the signal is about")
+    scope_sector: str | None = None
+    scope_strength: str | None = Field(default=None, description="STRONG | WEAK for a SECTOR scope (a rule tier, not a probability)")
+    scope_themes: list[str] = Field(default_factory=list)
+    scope_regions: list[str] = Field(default_factory=list)
+    channel: str = Field(description="REPLAY | LIVE | MANUAL: which door the signal came through")
+    first_seq: int | None = Field(default=None, description="live overlay change counter when it first appeared (null for replay)")
+    updated_seq: int | None = Field(default=None, description="…and when it last changed (more reports, rebuilt)")
+    relevance_level: str = Field(description="DIRECT | SECTOR | MARKET_WIDE | NONE | UNDETERMINED: how the book is reached")
+    relevance_share: float | None = Field(default=None, description="share of the book the most specific slice covers")
+    severity_score: int | None = Field(
+        default=None, description="the headline score: the transparent hybrid severity (1-10) from the risk assessment; null when the text is not a market event or no assessment ran")
+    severity_low: int | None = None
+    severity_high: int | None = None
+    severity_basis: str | None = Field(default=None, description="TRANSPARENT_HYBRID: explicit weights, not a trained model, not validated")
+    assessed_category: str | None = Field(default=None, description="the event class the assessment reads (an EventCategory id or NO_EVENT)")
+    assessed_sector: str | None = Field(default=None, description="the first sector the assessment reads from the text")
+    extraction_mode: str | None = Field(default=None, description="LLM | RULES: what read the text")
+    above_trigger: bool | None = Field(default=None, description="severity_score meets the automatic stress trigger")
 
 
 class SignalPage(ContractModel):
     total: int
+    seq: int = Field(description="the live overlay's change counter at the time of the response")
     items: list[SignalSummary]
+
+
+class AnalyzeRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=20000, description="a headline, a short post, or the opening of an article")
+    source_type: SourceType = SourceType.NEWS
+    published_at: datetime | None = Field(
+        default=None, description="when it was published (with a time zone); omitted = the moment of the request")
+    source: str | None = Field(
+        default=None, max_length=80, description="where the text came from (an outlet or account name); omitted = 'manual paste'")
+
+
+class Rejection(ContractModel):
+    code: str
+    detail: str
+
+
+class AnalyzeResponse(ContractModel):
+    outcome: str = Field(description="NEW | UPDATED (joined an existing story) | DUPLICATE (already analysed) | QUARANTINED (not scorable)")
+    signal_id: str | None
+    signal: SignalSummary | None
+    rejection: Rejection | None
+    headline: str = Field(description="the part of the text read as the headline")
+    analysed_chars: int
+    truncated: bool
+    notes: list[str]
+    assessment: RiskAssessment | None = Field(
+        default=None, description="the structured reading, severity, threshold state and caveats; null when the text was quarantined")
 
 
 class ScenarioWithDefault(ContractModel):
@@ -101,6 +149,27 @@ class ImpactStatus(ContractModel):
     reason: str | None = Field(default=None, description="why the app is on the heuristic, when it is")
 
 
+class LLMInfo(ContractModel):
+    """How new text is read right now. ``mode`` is RULES when no language model is configured or it has no key: the app still works."""
+
+    mode: str = Field(description="LLM | RULES")
+    enabled: bool = Field(description="the language model is switched on (EVENTSHOCK_LLM)")
+    model: str | None = None
+    reason: str | None = Field(default=None, description="why the app is in RULES mode, when it is")
+    llm_calls: int = 0
+    cache_hits: int = 0
+    fallbacks: int = 0
+    last_fallback_reason: str | None = None
+    sends_text_off_machine: bool = Field(description="true only in LLM mode: the report text goes to the model provider")
+
+
+class Capabilities(ContractModel):
+    analyze: bool = Field(description="POST /api/analyze is available (needs the replay profile's models)")
+    live_enabled: bool = Field(description="a live source is configured and polling")
+    assessment: bool = Field(default=False, description="the risk-assessment endpoints are available (replay profile)")
+    llm: LLMInfo | None = Field(default=None, description="how new text is read; null where there is no assessment layer")
+
+
 class Meta(ContractModel):
     app: str
     version: str
@@ -118,6 +187,7 @@ class Meta(ContractModel):
     taxonomy: list[TaxonomyItem]
     notices: list[str]
     impact: ImpactStatus | None = Field(default=None, description="null for the demo-fixture profile")
+    capabilities: Capabilities
 
 
 class ExposureRow(ContractModel):
@@ -152,6 +222,7 @@ class EntityList(ContractModel):
 
 
 __all__ = [
+    "AnalyzeRequest", "AnalyzeResponse", "Capabilities", "LLMInfo", "Rejection",
     "EntityList", "ExposureRow", "Meta", "PortfolioExposure", "PortfolioSummary",
     "ReplayInfo", "RiskSignal", "ScenarioList", "ScenarioWithDefault", "SignalPage", "SignalSummary",
     "StressRequest", "TaxonomyItem",

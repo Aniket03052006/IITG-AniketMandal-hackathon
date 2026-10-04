@@ -19,6 +19,9 @@ web/.vite/
 .env
 .DS_Store
 data/raw/
+data/live/journal.jsonl
+data/live/llm_cache.jsonl
+data/live/.journal.*
 data/processed/
 data/history/
 # Derived modelling corpora (rebuildable; impact_events.jsonl alone is >100 MB, over GitHub's file limit)

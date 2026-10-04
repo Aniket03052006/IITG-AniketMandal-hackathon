@@ -2,16 +2,31 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from ...assessment.model import EvidenceView, RiskAssessment, TimelineView
+from ...assessment.views import build_evidence, build_timeline
 from ...domain import EventCategory, EventStatus, RiskSignal, SourceType
+from ...services.relevance import PortfolioRelevance, RelevanceLevel
 from ...services.signal_context import build_signal_context
+from ...store import CHANNELS
 from ..deps import Container, get_container
 from ..schemas import SignalContext, SignalPage, SignalSummary
 
 router = APIRouter(prefix="/signals", tags=["signals"])
 
 
-def _summary(s: RiskSignal) -> SignalSummary:
+def summarise(c: Container, s: RiskSignal) -> SignalSummary:
+    """The feed row for a signal: its own fields plus where it came from and how it reaches the book."""
+    meta = c.signals.meta_of(s.id)
+    level, share = c.relevance.headline(s) if c.relevance else (RelevanceLevel.UNDETERMINED, None)
+    sc = s.scope
+    assert sc is not None
+    a = c.assessments.assess(s) if c.assessments else None
+    sev = a.severity if a else None
     return SignalSummary(
+        severity_score=sev.score if sev else None, severity_low=sev.low if sev else None, severity_high=sev.high if sev else None,
+        severity_basis=sev.basis if sev else None, assessed_category=a.reading.event_type if a else None,
+        assessed_sector=(a.reading.sectors[0] if a and a.reading.sectors else None), extraction_mode=a.extraction.mode.value if a else None,
+        above_trigger=a.threshold.crosses if a and a.threshold else None,
         id=s.id,
         headline=s.document.headline,
         source=s.document.source,
@@ -34,6 +49,16 @@ def _summary(s: RiskSignal) -> SignalSummary:
         status=s.status,
         source_count=s.evidence.source_count,
         data_origin=s.data_origin.value,
+        scope_level=sc.level.value,
+        scope_sector=sc.sector,
+        scope_strength=sc.strength.value if sc.strength else None,
+        scope_themes=sc.themes,
+        scope_regions=sc.regions,
+        channel=c.signals.channel_of(s.id),
+        first_seq=meta.first_seq if meta else None,
+        updated_seq=meta.updated_seq if meta else None,
+        relevance_level=level.value,
+        relevance_share=share,
     )
 
 
@@ -44,11 +69,24 @@ def list_signals(
     min_impact: int | None = Query(default=None, ge=1, le=10),
     q: str | None = Query(default=None, max_length=100),
     event_status: EventStatus | None = None,
+    scope_level: str | None = Query(default=None, pattern="^(COMPANY|SECTOR|MARKET|UNRESOLVED)$"),
+    channel: str | None = Query(default=None, pattern="^(REPLAY|LIVE|MANUAL)$"),
+    since_seq: int | None = Query(default=None, ge=0, description="only live-overlay signals changed after this counter"),
     c: Container = Depends(get_container),
 ) -> SignalPage:
-    items = c.signals.list(category=category, source_type=source_type, min_impact=min_impact, query=q,
-                           event_status=event_status)
-    return SignalPage(total=len(items), items=[_summary(s) for s in items])
+    assert channel is None or channel in CHANNELS
+    seq = c.signals.seq  # read first: a change landing mid-listing is then picked up by the next poll
+    # the headline score is the assessment's severity where there is one, so the filter reads the same number the feed shows
+    # with an assessment layer the event class a row shows is the assessed one, so the category filter reads that too
+    items = c.signals.list(category=None if c.assessments else category, source_type=source_type,
+                           min_impact=None if c.assessments else min_impact, query=q, event_status=event_status, scope_level=scope_level,
+                           channel=channel, since_seq=since_seq)
+    rows = [summarise(c, s) for s in items]
+    if c.assessments and min_impact is not None:
+        rows = [r for r in rows if (r.severity_score or 0) >= min_impact]
+    if c.assessments and category is not None:
+        rows = [r for r in rows if r.assessed_category == category.value]
+    return SignalPage(total=len(rows), seq=seq, items=rows)
 
 
 @router.get("/{signal_id}", response_model=RiskSignal)
@@ -57,6 +95,16 @@ def get_signal(signal_id: str, c: Container = Depends(get_container)) -> RiskSig
     if signal is None:
         raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
     return signal
+
+
+@router.get("/{signal_id}/relevance", response_model=PortfolioRelevance)
+def get_signal_relevance(signal_id: str, c: Container = Depends(get_container)) -> PortfolioRelevance:
+    """What the event means for the book: which holdings it reaches, by issuer / sector / region / whole book, and how many of the
+    default scenario's shocks bind to this kind of event. Exposure is the book's own; nothing here is a forecast."""
+    signal = c.signals.get(signal_id)
+    if signal is None or c.relevance is None:
+        raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
+    return c.relevance.assess(signal)
 
 
 @router.get("/{signal_id}/context", response_model=SignalContext)
@@ -70,3 +118,42 @@ def get_signal_context(signal_id: str, c: Container = Depends(get_container)) ->
     if signal is None:
         raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
     return build_signal_context(signal, c.calendar, c.outcomes, c.as_of or signal.created_at)
+
+
+def _need_signal(c: Container, signal_id: str) -> RiskSignal:
+    signal = c.signals.get(signal_id)
+    if signal is None or c.assessments is None:
+        raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
+    return signal
+
+
+@router.get("/{signal_id}/assessment", response_model=RiskAssessment)
+def get_signal_assessment(signal_id: str, refine: bool = Query(default=False, description="read the text with the language model, if one is configured"),
+                          c: Container = Depends(get_container)) -> RiskAssessment:
+    """The risk assessment: what the report means (event, tone, entities, sectors, regions, asset classes, severity indicators, evidence quotes),
+    how serious it is and why (explicit factors and weights), whether it crosses the stress trigger, and what the trained reference model says.
+
+    Derived from the signal and never stored on it. ``extraction.mode`` says whether a language model or the deterministic rules read the text."""
+    signal = _need_signal(c, signal_id)
+    assert c.assessments is not None
+    return c.assessments.detail(signal, refine=refine)
+
+
+@router.get("/{signal_id}/evidence", response_model=EvidenceView)
+def get_signal_evidence(signal_id: str, c: Container = Depends(get_container)) -> EvidenceView:
+    """Evidence for this assessment in three separate groups: source evidence (verbatim quotes, the reports), model inference (the reading and the
+    score's factors) and scenario assumptions (the configured shocks). They are never blended."""
+    signal = _need_signal(c, signal_id)
+    assert c.assessments is not None
+    a = c.assessments.assess(signal)
+    return build_evidence(signal, a, c.catalog, c.config.stress.severity_scale_min, c.config.stress.severity_scale_max)
+
+
+@router.get("/{signal_id}/timeline", response_model=TimelineView)
+def get_signal_timeline(signal_id: str, c: Container = Depends(get_container)) -> TimelineView:
+    """What was known when. Items dated after the report are shown for audit and flagged as never used by the score."""
+    signal = _need_signal(c, signal_id)
+    assert c.assessments is not None
+    as_of = c.as_of or signal.created_at
+    ctx = build_signal_context(signal, c.calendar, c.outcomes, as_of)
+    return build_timeline(signal, c.assessments.assess(signal), ctx, as_of)

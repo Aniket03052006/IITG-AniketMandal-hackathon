@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ...domain import StressResult
 from ...services.stress_service import ScenarioNotFound, SignalNotFound
@@ -21,6 +21,14 @@ def run_stress_test(req: StressRequest, c: Container = Depends(get_container)) -
         raise HTTPException(status_code=404, detail=f"signal {req.signal_id!r} not found") from exc
     except ScenarioNotFound as exc:
         raise HTTPException(status_code=404, detail=f"scenario {req.scenario_id!r} not found") from exc
+
+
+@router.get("/stress-runs", response_model=list[StressResult])
+def list_stress_runs(signal_id: str = Query(description="runs made for this signal, newest first"),
+                     c: Container = Depends(get_container)) -> list[StressResult]:
+    if c.signals.get(signal_id) is None:
+        raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
+    return c.stress.runs_for(signal_id)
 
 
 @router.get("/stress-runs/{run_id}", response_model=StressResult)

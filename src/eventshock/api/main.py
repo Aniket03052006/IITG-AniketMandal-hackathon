@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import contextlib
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
@@ -11,7 +13,19 @@ from fastapi.responses import FileResponse
 from .. import __version__
 from ..config import Settings
 from .deps import build_container
-from .routers import evidence, meta, models, pipeline, portfolio, scenarios, signals, stress
+from .routers import (
+    analyze,
+    evidence,
+    live,
+    meta,
+    models,
+    pipeline,
+    portfolio,
+    scenarios,
+    scope,
+    signals,
+    stress,
+)
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -21,7 +35,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         app.state.container = container
-        yield
+        stop = asyncio.Event()
+        poller = None
+        if container.live is not None and container.live.source is not None:
+            poller = asyncio.create_task(container.live.run(stop), name="eventshock-live")
+        try:
+            yield
+        finally:
+            stop.set()
+            if poller is not None:
+                poller.cancel()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await poller
 
     app = FastAPI(
         title="EventShock API",
@@ -44,7 +69,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
     for r in (meta.router, pipeline.router, models.router, evidence.router, signals.router, portfolio.router,
-              scenarios.router, stress.router):
+              scenarios.router, stress.router, analyze.router, live.router, scope.router):
         app.include_router(r, prefix="/api")
 
     dist = settings.web_dist_dir
