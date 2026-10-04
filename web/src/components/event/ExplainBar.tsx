@@ -13,6 +13,8 @@ export const WHY: Explain = { key: "why", label: "Why?", Icon: Question };
 export const INPUTS: Explain = { key: "inputs", label: "Show inputs", Icon: Inputs };
 export const MATH: Explain = { key: "math", label: "How calculated?", Icon: Sigma };
 export const TECH: Explain = { key: "tech", label: "Technical details", Icon: Wrench };
+export const SEVERITY_WHY: Explain = { key: "severity", label: "Why this severity?", Icon: Question };
+export const ASSESSED_INPUTS: Explain = { key: "assessed", label: "What the assessment used", Icon: Inputs };
 export const NLP: Explain = { key: "nlp", label: "Why?", Icon: Question };
 
 /** The progressive-disclosure row: each button opens one drawer (state lives in ?open=, so a link or a screenshot can land on it). */

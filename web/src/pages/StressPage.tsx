@@ -1,6 +1,7 @@
+import { subjectLine, subjectOf, subjectOfSummary } from "../lib/scope";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useMeta, usePortfolioExposure, usePortfolioSummary, useScenarios, useSignal, useSignals, useStressTest } from "../api/hooks";
+import { useAssessment, useMeta, usePortfolioExposure, usePortfolioSummary, useScenarios, useSignal, useSignals, useStressTest } from "../api/hooks";
 import type { ExposureRow, StressResult } from "../api/types";
 import { FlowRail } from "../components/FlowRail";
 import { useOpenDrawer } from "../components/Drawer";
@@ -87,15 +88,20 @@ export function StressPage() {
   const [, setOpen] = useOpenDrawer();
 
   const s = signal.data;
-  const eventImpact = s?.impact?.score ?? null;
+  // with a risk assessment the trigger, the scenario and the what-if slider all follow its severity score (the trained impact is a reference)
+  const assessed = meta?.capabilities.assessment === true;
+  const asm = useAssessment(signalId || undefined, assessed);
+  const a = assessed ? asm.data : undefined;
+  const eventImpact = a ? (a.severity?.score ?? null) : (s?.impact?.score ?? null);
   const [severity, setSeverity] = useState<number>(7);
   const autoRan = useRef("");
   const threshold = meta?.trigger_threshold ?? 7;
-  const defaultScenarioId = s ? scenarios.data?.default_by_category[s.event.category] : undefined;
+  const mappedCategory = a ? (a.reading.event_type === "NO_EVENT" ? undefined : a.reading.event_type) : s?.event.category;
+  const defaultScenarioId = mappedCategory ? scenarios.data?.default_by_category[mappedCategory as keyof typeof scenarios.data.default_by_category] : undefined;
   const scenarioId = scenarioParam || defaultScenarioId || "";
   const selectedScenario = scenarios.data?.scenarios.find((x) => x.id === scenarioId);
   const entityNames = useMemo(() => new Map((exposure.data?.by_entity ?? []).map((r) => [r.key, r.label])), [exposure.data]);
-  const partial = s?.status === "PARTIAL";
+  const partial = a ? !a.severity : s?.status === "PARTIAL";
 
   useEffect(() => {
     main.reset();
@@ -150,9 +156,9 @@ export function StressPage() {
           eventId={s.id}
           context={
             <>
-              <span className="font-medium text-ink">{s.entity.entity_name ?? "Company not identified"}</span>
-              {s.event.status === "CLASSIFIED" ? ` · ${label(s.event.category)}` : ""}
-              {s.impact ? ` · impact ${s.impact.score}/10` : ""}
+              <span className="font-medium text-ink">{subjectLine(subjectOf(s))}</span>
+              {a ? (a.reading.event_type === "NO_EVENT" ? "" : ` · ${label(a.reading.event_type)}`) : s.event.status === "CLASSIFIED" ? ` · ${label(s.event.category)}` : ""}
+              {eventImpact != null ? ` · ${a ? "severity" : "impact"} ${eventImpact}/10` : ""}
             </>
           }
         />
@@ -173,10 +179,13 @@ export function StressPage() {
                 {s.document.headline}
               </Link>
               <p className="mt-1 text-sm text-muted">
-                {s.entity.entity_id !== "UNKNOWN_ENTITY" ? s.entity.entity_name : "Company not identified"} · scenario <span className="text-ink-2">{selectedScenario?.name ?? "none mapped"}</span>
+                {subjectLine(subjectOf(s))} · scenario <span className="text-ink-2">{selectedScenario?.name ?? "none mapped"}</span>
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-4">
+              {a ? (
+                <ImpactMeter score={a.severity?.score ?? null} noun="Severity" showLabel range={a.severity && a.severity.low !== a.severity.high ? [a.severity.low, a.severity.high] : null} />
+              ) : (
               <ImpactMeter
                 score={s.impact?.score ?? null}
                 showLabel
@@ -184,6 +193,7 @@ export function StressPage() {
                 kind={s.impact && s.data_origin !== "DEMO_FIXTURE" ? impactKind(s) : undefined}
                 range={s.impact?.score_low != null && s.impact.score_high != null ? [s.impact.score_low, s.impact.score_high] : null}
               />
+              )}
               <button className="btn btn-primary" data-loading={main.isPending} disabled={main.isPending || partial} onClick={() => run()}>
                 {main.isPending ? <Spinner size={14} /> : <Play size={13} />}
                 {main.isPending ? "Running" : result ? "Run again" : "Run scenario"}
@@ -199,12 +209,12 @@ export function StressPage() {
               <select className="field" value={signalId} onChange={(e) => set("signal", e.target.value || null)}>
                 <option value="">Select an event…</option>
                 {[...(signals.data?.items ?? [])]
-                  .filter((x) => x.impact_score != null)
-                  .sort((a, b) => (b.impact_score ?? -1) - (a.impact_score ?? -1) || a.id.localeCompare(b.id))
+                  .filter((x) => (assessed ? x.severity_score : x.impact_score) != null)
+                  .sort((p, q) => ((assessed ? q.severity_score : q.impact_score) ?? -1) - ((assessed ? p.severity_score : p.impact_score) ?? -1) || p.id.localeCompare(q.id))
                   .slice(0, 150)
                   .map((x) => (
                     <option key={x.id} value={x.id}>
-                      {x.impact_score ?? "–"} · {x.entity_name ?? "Unresolved entity"}: {x.headline.slice(0, 70)}
+                      {(assessed ? x.severity_score : x.impact_score) ?? "–"} · {subjectLine(subjectOfSummary(x))}: {x.headline.slice(0, 70)}
                     </option>
                   ))}
               </select>
@@ -229,8 +239,8 @@ export function StressPage() {
           <div className="mt-4 max-w-[68ch]">
             <StateNotice
               tone="warn"
-              what="This signal has no impact score"
-              why={`${s.status_reason} It cannot be mapped to a scenario, and EventShock will not substitute a default.`}
+              what={a ? "This text is not a market event" : "This signal has no impact score"}
+              why={`${a ? (a.severity_note ?? "") : (s.status_reason ?? "")} It cannot be mapped to a scenario, and EventShock will not substitute a default.`}
               next={<button className="btn" onClick={() => set("signal", null)}>Pick another event</button>}
             />
           </div>
@@ -243,24 +253,28 @@ export function StressPage() {
         <div className="grid gap-10">
           <section aria-label="Triggering events">
             <h2 className="mb-1 text-lg font-semibold">Start from a triggering event</h2>
-            <p className="mb-3 text-sm text-muted">Events at impact ≥ {threshold} trigger a scenario.</p>
+            <p className="mb-3 text-sm text-muted">Events at {assessed ? "severity" : "impact"} ≥ {threshold} trigger a scenario.</p>
             {signals.isLoading ? (
               <Loading />
             ) : (
               <ul className="divide-y divide-rule border-y border-rule">
                 {(signals.data?.items ?? [])
-                  .filter((x) => (x.impact_score ?? 0) >= threshold)
-                  .sort((a, b) => (b.impact_score ?? 0) - (a.impact_score ?? 0) || a.id.localeCompare(b.id))
+                  .filter((x) => ((assessed ? x.severity_score : x.impact_score) ?? 0) >= threshold)
+                  .sort((p, q) => ((assessed ? q.severity_score : q.impact_score) ?? 0) - ((assessed ? p.severity_score : p.impact_score) ?? 0) || p.id.localeCompare(q.id))
                   .map((x) => (
                     <li key={x.id}>
                       <button className="group flex w-full items-start gap-4 py-3 text-left transition-colors hover:bg-paper-3" onClick={() => setParams({ signal: x.id, run: "1" }, { replace: true })}>
                         <span className="pl-2">
-                          <ImpactMeter score={x.impact_score} kind={x.data_origin === "DEMO_FIXTURE" ? undefined : summaryKind(x)} showKind={x.data_origin !== "DEMO_FIXTURE"} />
+                          {assessed ? (
+                            <ImpactMeter score={x.severity_score ?? null} noun="Severity" />
+                          ) : (
+                            <ImpactMeter score={x.impact_score} kind={x.data_origin === "DEMO_FIXTURE" ? undefined : summaryKind(x)} showKind={x.data_origin !== "DEMO_FIXTURE"} />
+                          )}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block font-medium leading-snug group-hover:text-accent-strong">{x.headline}</span>
                           <span className="mt-0.5 block text-xs text-muted">
-                            {x.entity_name ?? "Market-wide, no single issuer"} · {label(x.category)}
+                            {subjectLine(subjectOfSummary(x))} · {label(x.category)}
                           </span>
                         </span>
                         <ArrowRight size={14} className="mt-1 mr-2 shrink-0 text-muted" />
@@ -287,7 +301,15 @@ export function StressPage() {
         <div className="max-w-[72ch]">
           <StateNotice
             tone={result.status === "NOT_TRIGGERED" ? "info" : "warn"}
-            what={result.status === "NOT_TRIGGERED" ? "Below the trigger threshold" : result.status === "NO_SCENARIO" ? "No scenario mapped to this event type" : "Stress test unavailable"}
+            what={
+              result.status === "NOT_TRIGGERED"
+                ? "Below the trigger threshold"
+                : result.status === "NO_SCENARIO"
+                  ? "No scenario mapped to this event type"
+                  : result.status === "NOT_APPLICABLE"
+                    ? "This scenario does not reach what the event is about"
+                    : "Stress test unavailable"
+            }
             why={result.reason}
             next={
               result.status === "NOT_TRIGGERED" ? (
@@ -304,9 +326,13 @@ export function StressPage() {
         <div className="grid gap-12">
           <ResultHero r={shown} s={s} onShowAssumptions={() => setOpen("assumptions")} />
 
-          {s?.entity.entity_id === "UNKNOWN_ENTITY" && (
+          {s && s.scope.level !== "COMPANY" && (
             <div className="max-w-[68ch]">
-              <StateNotice tone="warn" what="Only market-wide shocks applied" why="No company was linked to this event, so issuer- and sector-specific shocks had nothing to attach to." />
+              <StateNotice
+                tone="info"
+                what={s.scope.level === "SECTOR" ? "Sector and market-wide shocks applied" : "Only market-wide shocks applied"}
+                why={(shown.audit.scope_note ?? "") + " Each shock below says whether it applied and why."}
+              />
             </div>
           )}
 

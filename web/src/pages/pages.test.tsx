@@ -13,7 +13,7 @@ const AS_OF = "2026-10-01T12:00:00Z";
 const meta: Record<string, unknown> = {
   app: "EventShock", version: "0.1.0", mode: "REPLAY", profile: "demo", replay: null, data_origin: "DEMO_FIXTURE", as_of: AS_OF,
   trigger_threshold: 7, base_currency: "USD", signal_count: 2, asset_count: 3, scenario_set_version: "1",
-  engine_version: "1.0.0", notices: [],
+  engine_version: "1.0.0", notices: [], capabilities: { analyze: false, live_enabled: false },
   taxonomy: [
     { id: "CREDIT_FUNDING", label: "Credit / Funding", description: "", default_scenario: "scn_credit" },
     { id: "PRODUCT_OPERATIONS", label: "Product / Operations", description: "", default_scenario: "scn_ops" },
@@ -24,11 +24,14 @@ const row = (over: object) => ({
   id: "sig_1", headline: "Meridian flags funding gap", source: "Ledger Wire", source_type: "NEWS",
   published_at: "2026-10-01T08:30:00Z", entity_id: "ENT_M", entity_name: "Meridian Bancorp", ticker: "MRDB",
   sector: "Financials", category: "CREDIT_FUNDING", event_status: "CLASSIFIED", sentiment_score: -0.72, impact_score: 9, status: "COMPLETE",
-  source_count: 5, data_origin: "DEMO_FIXTURE", ...over,
+  source_count: 5, data_origin: "DEMO_FIXTURE",
+  scope_level: "COMPANY", scope_sector: "Financials", scope_strength: null, scope_themes: [], scope_regions: ["US"],
+  channel: "REPLAY", first_seq: null, updated_seq: null, relevance_level: "DIRECT", relevance_share: 0.05, ...over,
 });
 
 const feed = {
   total: 2,
+  seq: 0,
   items: [
     row({}),
     row({ id: "sig_2", headline: "Kestrel launches jet", entity_name: "Kestrel", ticker: "KSTR", category: "PRODUCT_OPERATIONS", sentiment_score: 0.7, impact_score: 2, source_count: 2 }),
@@ -39,10 +42,11 @@ const detail = (impact: number | null) => ({
   id: "sig_2",
   document: { id: "d", source: "Ledger Wire", source_type: "NEWS", published_at: "2026-10-01T08:30:00Z", ingested_at: "2026-10-01T08:31:00Z", author: null, headline: "Kestrel launches jet", body: "Body text", url: "https://demo.invalid/x", language: "en", raw_metadata: {} },
   entity: { entity_id: "ENT_K", entity_name: "Kestrel", ticker: "KSTR", sector: "Industrials", country: "FR", link_confidence: 0.99 },
+  scope: { level: "COMPANY", sector: "Industrials", regions: ["FR"], themes: [], basis: "ENTITY_RESOLVER", strength: null, matched_terms: {}, note: "Kestrel was named in the text.", resolver_version: "entity-only" },
   sentiment: { positive: 0.8, neutral: 0.1, negative: 0.1, score: 0.7 },
   event: { category: "PRODUCT_OPERATIONS", status: "CLASSIFIED", no_event_probability: null, probabilities: { PRODUCT_OPERATIONS: 0.73, CREDIT_FUNDING: 0.03, GEOPOLITICAL: 0.03, MACROECONOMIC: 0.03, MA_CORPORATE_ACTION: 0.03, REGULATORY_LEGAL: 0.03, EARNINGS_FINANCIAL_PERFORMANCE: 0.1, MARKET_VALUATION: 0.02 } },
   impact: impact === null ? null : { score: impact, raw: impact / 10, drivers: [{ feature: "event_type", contribution: 0.05, note: "" }], quantisation: "ceil(raw * 10), min 1" },
-  evidence: { source_count: 2, unique_domain_count: 2, recent_mention_count: 5, coverage_velocity: 0.3, novelty_score: 0.45, model_confidence: 0.85, contradicted_by: [], corroborating: [] },
+  evidence: { source_count: 2, unique_domain_count: 2, recent_mention_count: 5, coverage_velocity: 0.3, novelty_score: 0.45, novelty_measured: true, model_confidence: 0.85, contradicted_by: [], corroborating: [] },
   status: impact === null ? "PARTIAL" : "COMPLETE",
   status_reason: impact === null ? "Impact model unavailable" : null,
   data_origin: "DEMO_FIXTURE",
@@ -327,6 +331,25 @@ const ctxFixture = (over: object = {}) => ({
   ...over,
 });
 
+const liveStatus = {
+  enabled: false, state: "OFF", source_mode: null, simulated: false, poll_interval_seconds: null, last_attempt_at: null, last_success_at: null,
+  next_attempt_at: null, last_error: null, consecutive_failures: 0, fetched_total: 0, new_total: 0, updated_total: 0, quarantined_total: 0,
+  live_signal_count: 0, seq: 0, retention_hours: 48, event_model: "tfidf-lr-event-v1", event_model_note: null, market_context_through: "2026-10-01",
+};
+const relevanceResponse = {
+  signal_id: "sig_2", scope_level: "COMPANY", level: "DIRECT", share: 0.05, summary: "The book holds Kestrel directly: 3 positions, 5.0% of its value.",
+  path: ["Kestrel: held, 5.0% of the book in 3 positions"],
+  slices: [{ kind: "ISSUER", key: "ENT_K", label: "Kestrel", market_value: 50000, share: 0.05, asset_count: 3, by_asset_class: { EQUITY: 50000 } }],
+  reach: { scenario_id: "scn_ops", scenario_name: "Product / operations disruption", shocks_total: 1, shocks_bound: 1, note: "every shock reaches this event" },
+};
+const scopeInfo = {
+  version: "scope-v1", rules: ["A resolved company is the scope."], sectors: { Energy: 3 }, themes: { rates: 2 }, regions: ["US"],
+  replay_mix: { COMPANY: 3, UNRESOLVED: 1 }, live_mix: {},
+  evaluation: { snapshot_id: "replay-test", single_issuer_documents: 100, vocabulary_fired: 30, coverage: 0.3,
+    by_strength: { STRONG: { predicted: 5, correct: 4, precision: 0.8 }, WEAK: { predicted: 25, correct: 20, precision: 0.8 } },
+    per_sector: { Energy: { documents: 10, recall: 0.5, precision: 0.9 } }, limits: ["an optimistic proxy"] },
+};
+
 function mockFetch() {
   vi.stubGlobal(
     "fetch",
@@ -343,8 +366,11 @@ function mockFetch() {
         const q = new URL(url, "http://x").searchParams;
         const cat = q.get("category");
         const items = (feedItems as typeof feed.items).filter((i) => !cat || i.category === cat);
-        return json({ total: items.length, items });
+        return json({ total: items.length, seq: 0, items });
       }
+      if (url.endsWith("/api/live/status")) return json(liveStatus);
+      if (url.endsWith("/relevance")) return json(relevanceResponse);
+      if (url.endsWith("/api/scope")) return json(scopeInfo);
       if (url.endsWith("/context")) return contextResponse ? json(contextResponse) : json({ detail: "no context" }, 404);
       if (url.includes("/api/signals/")) return json(signalDetail);
       if (url.endsWith("/api/scenarios")) return json(scenarios);
@@ -439,7 +465,8 @@ describe("Event Intelligence", () => {
   it("states that sentiment is tone, not impact, and keeps them in separate readings", async () => {
     renderAt("/events/sig_2");
     expect(await screen.findByText(/Sentiment is tone, not impact/)).toBeInTheDocument();
-    expect(screen.getByText(/the text models' outputs add none/)).toBeInTheDocument();
+    expect(screen.getByText(/a finding about that model, not about the news/)).toBeInTheDocument();
+    expect(screen.queryByText(/the text models' outputs add none/)).not.toBeInTheDocument(); // the overbroad claim is gone
     expect(screen.getByText(/Tone is not impact/)).toBeInTheDocument();
   });
 
@@ -460,14 +487,17 @@ describe("Event Intelligence", () => {
     expect(screen.queryByRole("button", { name: "Show inputs" })).not.toBeInTheDocument();
   });
 
-  it("explains an unresolved company in words and offers a market-wide scenario", async () => {
-    signalDetail = { ...detail(8), entity: { entity_id: "UNKNOWN_ENTITY", entity_name: null, ticker: null, sector: null, country: null, link_confidence: 0 } };
+  it("says an unresolved event has no subject, why, and keeps offering the market-wide shocks", async () => {
+    signalDetail = {
+      ...detail(8),
+      entity: { entity_id: "UNKNOWN_ENTITY", entity_name: null, ticker: null, sector: null, country: null, link_confidence: 0 },
+      scope: { level: "UNRESOLVED", sector: null, regions: [], themes: [], basis: "NONE", strength: null, matched_terms: {}, note: "Kept as reported, not guessed about: no company, sector or market-wide theme could be identified.", resolver_version: "scope-v1" },
+    };
     renderAt("/events/sig_2");
-    expect((await screen.findAllByText("Company not identified")).length).toBeGreaterThan(0);
-    expect(screen.getByText(/could not confidently link this story to a company/)).toBeInTheDocument();
-    expect(screen.getByText(/Company-specific portfolio stress is therefore unavailable/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Use market-wide scenario" })).toHaveAttribute("href", "/stress?signal=sig_2");
-    expect(screen.getByText("Why?", { selector: "summary" })).toBeInTheDocument();
+    expect((await screen.findAllByText("No subject identified")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Kept as reported, not guessed about/).length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "See what market-wide shocks would do" })).toHaveAttribute("href", "/stress?signal=sig_2");
+    expect(screen.getByText("Why no company?", { selector: "summary" })).toBeInTheDocument();
   });
 
   it("tells the placeholder drivers apart from a model's and says the number is not authoritative", async () => {
@@ -1049,7 +1079,7 @@ describe("Evidence page", () => {
   it("offers methodology, evaluation, datasets, mathematics, limitations and how it is built as tabs", async () => {
     renderAt("/evidence");
     const tabs = await screen.findAllByRole("tab");
-    expect(tabs.map((t) => t.textContent)).toEqual(["Methodology", "Evaluation", "Datasets", "Mathematics", "Limitations", "How it is built"]);
+    expect(tabs.map((t) => t.textContent)).toEqual(["Methodology", "Evaluation", "Datasets", "Mathematics", "Limitations", "Scope", "How it is built"]);
     expect(screen.getByRole("tab", { name: "Methodology" })).toHaveAttribute("aria-selected", "true");
     await userEvent.click(screen.getByRole("tab", { name: "Datasets" }));
     expect(screen.getByRole("tab", { name: "Datasets" })).toHaveAttribute("aria-selected", "true");

@@ -1,15 +1,17 @@
 import clsx from "clsx";
 import { Link } from "react-router-dom";
 import { useEventModel } from "../../api/hooks";
-import type { EventCategory, RiskSignal } from "../../api/types";
+import type { EventAudit, EventCategory, RiskAssessment, RiskSignal } from "../../api/types";
 import { EVENT_CATEGORIES } from "../../api/types";
 import { dateTime } from "../../lib/format";
 import { stageKind, stageKindText } from "../../lib/provenance";
 import { sentimentLabel } from "../../lib/severity";
 import { Check } from "../icons";
+import { ScopeCard } from "../scope/ScopeCard";
 import { StateNotice } from "../StateNotice";
 import { StatusTag } from "../ui";
 import { Chapter } from "./Chapter";
+import { UnderstandingCard } from "../assessment/UnderstandingCard";
 import { ExplainBar, NLP } from "./ExplainBar";
 
 const pc = (p: number) => `${Math.round(p * 100)}%`;
@@ -115,34 +117,9 @@ function SentimentReading({ s }: { s: RiskSignal }) {
   );
 }
 
-/** Chapter 2: NLP as a real analytical stage: the text goes in, an event type and a sentiment come out. */
-export function UnderstandChapter({ s, label }: { s: RiskSignal; label: (c: string) => string }) {
-  const audit = s.provenance?.event;
-  const evModel = stageKind(s.provenance?.stage_origins.event) === "model" && !!audit;
-  const hybrid = audit?.model_id.startsWith("hybrid");
+function TrainedReadings({ s, label, evModel, audit, hybrid }: { s: RiskSignal; label: (c: string) => string; evModel: boolean; audit: EventAudit | null | undefined; hybrid: boolean }) {
   return (
-    <Chapter
-      id="understand"
-      eyebrow="Understand"
-      title="What the text says"
-      lede={
-        <>
-          EventShock interpreted this text as{" "}
-          {s.event.status === "CLASSIFIED" ? <strong className="font-medium text-ink">{label(s.event.category)}</strong> : s.event.status === "NO_EVENT" ? "not a market event" : "an event whose type it cannot settle"}
-          , with {sentimentLabel(s.sentiment.score).toLowerCase()} tone.
-        </>
-      }
-      badge={
-        evModel ? (
-          <StatusTag tone="ok" icon={<Check size={12} />}>
-            Trained text models
-          </StatusTag>
-        ) : (
-          <StatusTag tone="warn">{stageKindText(s.provenance?.stage_origins.event)}</StatusTag>
-        )
-      }
-    >
-      <div className="understand">
+    <div className="understand">
         <div className="understand-in">
           <p className="eyebrow">Input text</p>
           <blockquote className="quote">{s.document.headline}</blockquote>
@@ -161,17 +138,71 @@ export function UnderstandChapter({ s, label }: { s: RiskSignal; label: (c: stri
         </div>
         <div className="understand-arrow" aria-hidden="true" />
         <div className="understand-out">
+          <ScopeCard s={s} />
           <EventReading s={s} label={label} />
           <SentimentReading s={s} />
         </div>
-      </div>
-      {s.event.status !== "CLASSIFIED" && (
+    </div>
+  );
+}
+
+/** Chapter 2: NLP as a real analytical stage: the text goes in, an event type and a sentiment come out. */
+export function UnderstandChapter({ s, label, a }: { s: RiskSignal; label: (c: string) => string; a?: RiskAssessment }) {
+  const audit = s.provenance?.event;
+  const evModel = stageKind(s.provenance?.stage_origins.event) === "model" && !!audit;
+  const hybrid = audit?.model_id.startsWith("hybrid");
+  return (
+    <Chapter
+      id="understand"
+      eyebrow="Understand"
+      title="What the text says"
+      lede={
+        a ? (
+          a.summary
+        ) : (
+        <>
+          EventShock interpreted this text as{" "}
+          {s.event.status === "CLASSIFIED" ? <strong className="font-medium text-ink">{label(s.event.category)}</strong> : s.event.status === "NO_EVENT" ? "not a market event" : "an event whose type it cannot settle"}
+          , with {sentimentLabel(s.sentiment.score).toLowerCase()} tone.
+        </>
+        )
+      }
+      badge={
+        evModel ? (
+          <StatusTag tone="ok" icon={<Check size={12} />}>
+            Trained text models
+          </StatusTag>
+        ) : (
+          <StatusTag tone="warn">{stageKindText(s.provenance?.stage_origins.event)}</StatusTag>
+        )
+      }
+    >
+      {a && <UnderstandingCard a={a} />}
+      {a && (
+        <details className="disclosure mt-6">
+          <summary>The trained models' own readings, for comparison</summary>
+          <div className="mt-4">
+            <TrainedReadings s={s} label={label} evModel={evModel} audit={audit} hybrid={!!hybrid} />
+          </div>
+        </details>
+      )}
+      {!a && <TrainedReadings s={s} label={label} evModel={evModel} audit={audit} hybrid={!!hybrid} />}
+      {(a ? !a.severity : s.event.status !== "CLASSIFIED") && (
         <div className="mt-5 max-w-[64ch]">
           <StateNotice
             tone="info"
-            what={s.event.status === "NO_EVENT" ? "No impact will be scored" : "No impact will be scored while the type is uncertain"}
-            why="EventShock abstains instead of guessing: an impact built on a guessed event type would look more certain than it is."
-            next={<Link className="btn" to="/?min=7">Browse high-impact events</Link>}
+            what={a ? "No severity will be scored" : s.event.status === "NO_EVENT" ? "No impact will be scored" : "No impact will be scored while the type is uncertain"}
+            why="EventShock abstains instead of guessing: a score built on a guessed event type would look more certain than it is."
+            next={<Link className="btn" to="/?min=7">{a ? "Browse high-severity events" : "Browse high-impact events"}</Link>}
+          />
+        </div>
+      )}
+      {a && s.event.status !== "CLASSIFIED" && !!a.severity && (
+        <div className="mt-5 max-w-[64ch]">
+          <StateNotice
+            tone="info"
+            what="The trained event model abstained; the assessment still read the text"
+            why={`The trained model judged this ${s.event.status === "NO_EVENT" ? "probably not a market event" : "an event whose type it could not settle"}. The reading above comes from the text's own cue phrases and is checked against it; its confidence is stated, and a trained model's probability is not claimed.`}
           />
         </div>
       )}

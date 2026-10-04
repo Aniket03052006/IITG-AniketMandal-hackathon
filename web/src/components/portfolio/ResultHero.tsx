@@ -1,3 +1,4 @@
+import { subjectLine, subjectOf } from "../../lib/scope";
 import clsx from "clsx";
 import type { RiskSignal, StressResult } from "../../api/types";
 import { money, moneyFull, pct, shockValue, FACTOR_LABEL } from "../../lib/format";
@@ -12,7 +13,7 @@ function Propagation({ r, s }: { r: StressResult; s?: RiskSignal }) {
   const hit = r.positions.filter((p) => p.shocks.length > 0).length;
   const applied = r.shocks.filter((x) => x.applicable);
   const nodes = [
-    { k: "Event", v: s ? (s.entity.entity_name ?? "Market-wide event") : "Event", d: s ? `impact ${r.severity?.impact_used}` : "" },
+    { k: "Event", v: s ? subjectLine(subjectOf(s)) : "Event", d: s ? `${r.audit.impact_origin === "ASSESSMENT" ? "severity" : "impact"} ${r.severity?.impact_used}` : "" },
     { k: "Scenario", v: r.scenario?.name ?? "", d: r.severity ? `severity ×${r.severity.scale.toFixed(2)}` : "" },
     { k: "Shocks", v: `${applied.length} risk factor${applied.length === 1 ? "" : "s"}`, d: applied.slice(0, 2).map((x) => `${FACTOR_LABEL[x.factor] ?? x.factor} ${shockValue(x.factor, x.scaled_value)}`).join(" · ") },
     { k: "Positions hit", v: `${hit} of ${r.positions.length}`, d: r.uncovered ? `${r.uncovered.asset_count} untouched` : "" },
@@ -49,7 +50,13 @@ export function ResultHero({ r, s, onShowAssumptions }: { r: StressResult; s?: R
         {r.audit.impact_overridden ? (
           <StatusTag tone="demo">What-if severity {r.severity.impact_used}</StatusTag>
         ) : (
-          r.audit.impact_origin && <ImpactLifecycleTag kind={r.audit.impact_origin === "MODEL" ? lifecycleKind(r.audit.impact_lifecycle) : "placeholder"} detail="impact that triggered this" />
+          r.audit.impact_origin === "ASSESSMENT" ? (
+            <StatusTag tone="demo">
+              Severity {r.severity.impact_used} · {r.audit.extraction_mode === "LLM" ? "AI-assisted" : "rule-based"} · transparent weights, not validated
+            </StatusTag>
+          ) : (
+            r.audit.impact_origin && <ImpactLifecycleTag kind={r.audit.impact_origin === "MODEL" ? lifecycleKind(r.audit.impact_lifecycle) : "placeholder"} detail="impact that triggered this" />
+          )
         )}
       </div>
 

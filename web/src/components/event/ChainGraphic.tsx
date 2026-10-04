@@ -1,10 +1,11 @@
 import clsx from "clsx";
 import { Link } from "react-router-dom";
-import type { RiskSignal } from "../../api/types";
+import type { RiskAssessment, RiskSignal } from "../../api/types";
 import { dateTime } from "../../lib/format";
 import { impactKind } from "../../lib/impact";
 import { stageKind } from "../../lib/provenance";
 import { sentimentLabel, severityBand } from "../../lib/severity";
+import { signed as signedScore } from "../../lib/assessment";
 import { ArrowRight } from "../icons";
 
 const INPUT_CHIPS = ["Event type", "Sentiment", "Calendar", "Market state", "Timing"];
@@ -46,6 +47,7 @@ export function ChainGraphic({
   triggers,
   threshold,
   onGo,
+  a,
 }: {
   s: RiskSignal;
   label: (c: string) => string;
@@ -53,7 +55,9 @@ export function ChainGraphic({
   triggers: boolean;
   threshold: number;
   onGo: (stage: "understand" | "impact") => void;
+  a?: RiskAssessment;
 }) {
+  if (a) return <AssessedChain s={s} a={a} label={label} scenarioName={scenarioName} threshold={threshold} onGo={onGo} />;
   const ev = s.event;
   const audit = s.provenance?.event;
   const isEventModel = stageKind(s.provenance?.stage_origins.event) === "model";
@@ -123,8 +127,103 @@ export function ChainGraphic({
         </Node>
       </ol>
       <p className="chain-note">
-        Sentiment is tone, not impact. The impact estimate reads it next to event-time calendar and market state; in our evaluation the calendar and
-        market state carry the measurable skill, and the text models' outputs add none.
+        Sentiment is tone, not impact. In the trained reaction model's own evaluation, the calendar and market state carried its measurable skill and its text-model
+        inputs added none: that is a finding about that model, not about the news.
+      </p>
+    </div>
+  );
+}
+
+
+/**
+ * The chain when a risk assessment exists: news -> AI understanding -> risk signal -> scenario -> portfolio impact. The risk-signal step lists
+ * only the factors that actually entered the score (with their weights), so nothing is drawn as an input that is not one.
+ */
+function AssessedChain({
+  s,
+  a,
+  label,
+  scenarioName,
+  threshold,
+  onGo,
+}: {
+  s: RiskSignal;
+  a: RiskAssessment;
+  label: (c: string) => string;
+  scenarioName?: string;
+  threshold: number;
+  onGo: (stage: "understand" | "impact") => void;
+}) {
+  const r = a.reading;
+  const sev = a.severity;
+  const band = sev ? severityBand(sev.score) : null;
+  const used = sev?.factors.filter((f) => f.available) ?? [];
+  const crosses = !!sev && sev.score >= threshold;
+  const eventText = r.event_type === "NO_EVENT" ? "Not a market event" : label(r.event_type);
+  const toneWord = r.sentiment_label[0]!.toUpperCase() + r.sentiment_label.slice(1);
+  return (
+    <div className="chain-wrap">
+      <ol className="chain" aria-label="How EventShock got from this text to a portfolio result">
+        <Node i={0} n={1} title="News">
+          <p className="chain-main">{s.document.source}</p>
+          <p className="chain-sub num">{dateTime(s.document.published_at)}</p>
+          <p className="chain-sub">{s.document.body ? "Full text" : "Headline only"}</p>
+        </Node>
+        <Node i={1} n={2} title="AI understanding" onGo={() => onGo("understand")}>
+          <div className="chain-reading">
+            <p className="chain-k">Event</p>
+            <p className="chain-main">{eventText}</p>
+            {r.event_confidence != null && <p className="chain-sub num">{Math.round(r.event_confidence * 100)}% confident</p>}
+          </div>
+          <div className="chain-reading">
+            <p className="chain-k">Tone</p>
+            <p className="chain-main">
+              {toneWord} <span className="num text-muted">{signedScore(r.sentiment)}</span>
+            </p>
+          </div>
+          <p className="chain-sub">{a.extraction.mode === "LLM" ? "AI-assisted reading, checked against the text" : "Rule-based reading"}</p>
+        </Node>
+        <Node i={2} n={3} title="Risk signal" onGo={() => onGo("impact")}>
+          {sev && band ? (
+            <>
+              <p className="chain-k">computed from {used.length} factors</p>
+              <ul className="chain-chips">
+                {used.map((f) => (
+                  <li key={f.id} className="chain-chip">
+                    {f.label} {Math.round(f.weight * 100)}%
+                  </li>
+                ))}
+              </ul>
+              <p className={clsx("chain-result num", band.text)}>
+                {sev.score}
+                <span className="text-base text-muted"> / 10</span>
+              </p>
+              <p className="chain-sub">Transparent weights · not validated</p>
+            </>
+          ) : (
+            <p className="chain-sub">Not scored: not a market event</p>
+          )}
+        </Node>
+        <Node i={3} n={4} title="Scenario">
+          <p className="chain-main">{sev ? (scenarioName ?? "No scenario mapped") : "None"}</p>
+          <p className="chain-sub">
+            {sev ? (crosses ? `Suggested: severity ≥ ${threshold}` : `Below the trigger (≥ ${threshold}); runs as a what-if`) : "Needs a severity score"}
+          </p>
+          <p className="chain-sub">Assumptions, scaled by severity</p>
+        </Node>
+        <Node i={4} n={5} title="Portfolio impact">
+          <p className="chain-main">Value before vs after</p>
+          <p className="chain-sub">Deterministic engine</p>
+          {sev && (
+            <Link className="btn btn-sm mt-2" to={`/stress?signal=${s.id}${crosses ? "&run=1" : ""}`}>
+              {crosses ? "Run scenario" : "Run as what-if"} <ArrowRight size={13} />
+            </Link>
+          )}
+        </Node>
+      </ol>
+      <p className="chain-note">
+        Tone is one input among {used.length || "several"}, with the weight shown, not the whole story. The trained market-reaction model is kept as a reference and does not
+        drive the trigger.
       </p>
     </div>
   );

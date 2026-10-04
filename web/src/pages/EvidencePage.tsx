@@ -9,6 +9,7 @@ import { EventModelPanel } from "../components/EventModelPanel";
 import { Formula } from "../components/Math";
 import { ImpactModelPanel } from "../components/ImpactModelPanel";
 import { SentimentModelPanel } from "../components/SentimentModelPanel";
+import { ScopeTab } from "../components/scope/ScopeTab";
 import { Tabs, useTab } from "../components/Tabs";
 import { KindLegend } from "../components/ProvenanceKind";
 import * as TeX from "../lib/formulas";
@@ -661,7 +662,7 @@ function Evaluation({ b }: { b: EvidenceBundle }) {
     <div className="space-y-10">
       <section>
         <h3 className="mb-1 text-lg font-semibold">Does event information add value, or only the volatility regime?</h3>
-        <p className="mb-3 max-w-[70ch] text-sm text-muted">The honest finding: the calendar adds real skill, the text models add none beyond it, and what remains is the volatility regime.</p>
+        <p className="mb-3 max-w-[70ch] text-sm text-muted">The honest finding about the trained market-reaction model (experimental, a reference on the event page): the calendar adds real skill, its text-model inputs add none beyond it, and what remains is the volatility regime. It describes that model only; the severity score is built from explicit weights and is not validated.</p>
         <div className="grid gap-5">
           <StudyCard s={b.study} />
           {b.study.available && <TrackFCard t={b.study.track_f} />}
@@ -705,6 +706,7 @@ const TABS = [
   { id: "datasets", label: "Datasets" },
   { id: "mathematics", label: "Mathematics" },
   { id: "limitations", label: "Limitations" },
+  { id: "scope", label: "Scope" },
   { id: "pipeline", label: "How it is built" },
 ] as const;
 
@@ -752,6 +754,7 @@ export function EvidencePage() {
             </ul>
           </div>
         )}
+        {tab === "scope" && <ScopeTab />}
         {tab === "pipeline" && <PipelineView />}
       </Tabs>
     </>

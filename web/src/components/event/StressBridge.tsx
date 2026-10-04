@@ -1,23 +1,26 @@
 import { Link } from "react-router-dom";
-import type { RiskSignal, Scenario } from "../../api/types";
+import type { RiskAssessment, RiskSignal, Scenario } from "../../api/types";
+import { ThresholdNotice } from "../assessment/ThresholdNotice";
 import { impactKind, KIND_LABEL } from "../../lib/impact";
 import { ArrowRight } from "../icons";
 import { KindBadge } from "../ProvenanceKind";
+import { RelevancePanel } from "../scope/RelevancePanel";
 import { StateNotice } from "../StateNotice";
 import { Chapter } from "./Chapter";
 
 /** Chapter 5: the hand-off. A scenario is an assumption someone chose, scaled by the impact; it is not a prediction. */
-export function StressBridge({ s, scenario, threshold }: { s: RiskSignal; scenario?: Scenario; threshold: number }) {
-  const impact = s.impact;
+export function StressBridge({ s, scenario, threshold, a }: { s: RiskSignal; scenario?: Scenario; threshold: number; a?: RiskAssessment }) {
+  const sevScore = a ? (a.severity?.score ?? null) : null;
+  const impact = a ? (a.severity ? { score: a.severity.score } : null) : s.impact;
   const triggers = !!impact && impact.score >= threshold;
   const kind = impactKind(s);
-  const unresolved = s.entity.entity_id === "UNKNOWN_ENTITY";
+  const level = s.scope.level;
   return (
     <Chapter
       id="stress"
       eyebrow="Stress"
       title="What a scenario does to the portfolio"
-      lede="The impact estimate decides how hard a mapped scenario is applied to a synthetic wholesale-banking book. The arithmetic is deterministic and shown."
+      lede={a ? "The severity score decides whether a mapped scenario is suggested and how hard it is applied to a synthetic wholesale-banking book. The arithmetic is deterministic and shown." : "The impact estimate decides how hard a mapped scenario is applied to a synthetic wholesale-banking book. The arithmetic is deterministic and shown."}
       badge={<KindBadge kind="scenario" />}
     >
       <div className="bridge">
@@ -30,7 +33,11 @@ export function StressBridge({ s, scenario, threshold }: { s: RiskSignal; scenar
         </div>
         <div>
           <p className="eyebrow">Trigger</p>
-          {impact ? (
+          {a ? (
+            <div className="mt-2">
+              <ThresholdNotice score={sevScore} threshold={threshold} signalId={s.id} action={false} compact />
+            </div>
+          ) : impact ? (
             <p className="mt-1 text-ink-2">
               {triggers ? `Impact ${impact.score} meets the threshold (≥ ${threshold}).` : `Impact ${impact.score} is below the threshold (≥ ${threshold}); it can still run as a what-if.`}
               {triggers && kind !== "validated" && <span className="text-warn"> On {KIND_LABEL[kind].toLowerCase()} output.</span>}
@@ -49,12 +56,19 @@ export function StressBridge({ s, scenario, threshold }: { s: RiskSignal; scenar
           )}
         </div>
       </div>
-      {unresolved && (
+      <RelevancePanel signalId={s.id} />
+      {level !== "COMPANY" && (
         <div className="mt-5 max-w-[64ch]">
           <StateNotice
-            tone="warn"
-            what="Only market-wide shocks can apply"
-            why="No company was linked to this story, so company-specific shocks have nothing to attach to. The scenario's market-wide shocks still run."
+            tone={level === "UNRESOLVED" ? "warn" : "info"}
+            what={level === "SECTOR" ? "Sector and market-wide shocks apply" : level === "MARKET" ? "Only market-wide shocks apply" : "Only market-wide shocks could apply"}
+            why={
+              level === "SECTOR"
+                ? "No single company is named, so issuer shocks have nothing to attach to; the sector's shocks and the market-wide ones still run."
+                : level === "MARKET"
+                  ? "A market-wide event reaches the book through market factors (equity level, rates, spreads), not through one holding."
+                  : "Nothing was identified for the shocks to attach to. If the scenario has no market-wide shock, no loss is computed rather than a zero reported."
+            }
           />
         </div>
       )}

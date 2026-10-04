@@ -10,6 +10,14 @@ import type {
   ImpactModelCard,
   EvidenceBundle,
   SignalContext,
+  RiskAssessment,
+  EvidenceView,
+  TimelineView,
+  AnalyzeRequest,
+  AnalyzeResponse,
+  LiveStatus,
+  PortfolioRelevance,
+  ScopeInfo,
   SignalPage,
   StressRequest,
   StressResult,
@@ -56,6 +64,9 @@ export interface SignalFilters {
   min_impact?: number;
   q?: string;
   event_status?: string;
+  channel?: string;
+  scope_level?: string;
+  since_seq?: number;
 }
 
 export const api = {
@@ -68,6 +79,15 @@ export const api = {
   },
   signal: (id: string) => request<RiskSignal>(`/signals/${encodeURIComponent(id)}`),
   signalContext: (id: string) => request<SignalContext>(`/signals/${encodeURIComponent(id)}/context`),
+  assessment: (id: string, refine = false) =>
+    request<RiskAssessment>(`/signals/${encodeURIComponent(id)}/assessment${refine ? "?refine=true" : ""}`),
+  signalEvidence: (id: string) => request<EvidenceView>(`/signals/${encodeURIComponent(id)}/evidence`),
+  signalTimeline: (id: string) => request<TimelineView>(`/signals/${encodeURIComponent(id)}/timeline`),
+  signalRelevance: (id: string) => request<PortfolioRelevance>(`/signals/${encodeURIComponent(id)}/relevance`),
+  analyze: (body: AnalyzeRequest) => request<AnalyzeResponse>("/analyze", { method: "POST", body: JSON.stringify(body) }),
+  liveStatus: () => request<LiveStatus>("/live/status"),
+  liveRefresh: () => request<LiveStatus>("/live/refresh", { method: "POST" }),
+  scopeInfo: () => request<ScopeInfo>("/scope"),
   scenarios: () => request<ScenarioList>("/scenarios"),
   pipelineReport: () => request<PipelineReport>("/pipeline/report"),
   sentimentModel: () => request<SentimentModelCard>("/models/sentiment"),

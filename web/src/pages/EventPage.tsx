@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { useMeta, useScenarios, useSignal, useSignalContext } from "../api/hooks";
+import { useAssessment, useMeta, useScenarios, useSignal, useSignalContext, useSignalEvidence, useSignalTimeline } from "../api/hooks";
+import { SeverityChapter } from "../components/assessment/SeverityChapter";
 import { ArrowLeft } from "../components/icons";
 import { ChainGraphic } from "../components/event/ChainGraphic";
 import { EventDrawers } from "../components/event/Drawers";
@@ -13,6 +14,7 @@ import { FlowRail, type Stage } from "../components/FlowRail";
 import { ErrorState, Skeleton } from "../components/ui";
 import { useChapterSpy } from "../lib/motion";
 import { rememberEvent } from "../lib/featured";
+import { subjectLine, subjectOf } from "../lib/scope";
 import { categoryLabeler } from "../lib/taxonomy";
 
 const CHAPTERS = ["event", "understand", "impact", "evidence", "stress"] as const satisfies readonly Stage[];
@@ -35,6 +37,12 @@ export function EventPage() {
   const { data: meta } = useMeta();
   const scenarios = useScenarios();
   const ctx = useSignalContext(s?.id);
+  // the risk assessment exists only where the engine does (replay profile); without it the page keeps the trained-model view
+  const assessed = meta?.capabilities.assessment === true;
+  const asm = useAssessment(s?.id, assessed);
+  const evid = useSignalEvidence(s?.id, assessed);
+  const tl = useSignalTimeline(s?.id, assessed);
+  const a = assessed ? asm.data : undefined;
   const label = categoryLabeler(meta);
   const [active, go] = useChapterSpy(CHAPTERS, !!s);
 
@@ -48,10 +56,12 @@ export function EventPage() {
   }, [s, hash]);
 
   const threshold = meta?.trigger_threshold ?? 7;
-  const scenarioId = s ? scenarios.data?.default_by_category[s.event.category] : undefined;
-  // a text that is not a classified market event maps to no scenario: its category is only a best guess
-  const scenario = s?.event.status === "CLASSIFIED" ? scenarios.data?.scenarios.find((x) => x.id === scenarioId) : undefined;
-  const triggers = !!s?.impact && s.impact.score >= threshold;
+  // with an assessment the scenario follows the ASSESSED event class; without one, only a classified trained reading maps to a scenario
+  const category = a ? (a.reading.event_type === "NO_EVENT" ? undefined : a.reading.event_type) : s?.event.status === "CLASSIFIED" ? s.event.category : undefined;
+  const scenarioId = category ? scenarios.data?.default_by_category[category as keyof typeof scenarios.data.default_by_category] : undefined;
+  const scenario = category ? scenarios.data?.scenarios.find((x) => x.id === scenarioId) : undefined;
+  const score = a ? (a.severity?.score ?? null) : (s?.impact?.score ?? null);
+  const triggers = score !== null && score >= threshold;
 
   return (
     <>
@@ -73,13 +83,13 @@ export function EventPage() {
             onNavigate={(st) => go(st as (typeof CHAPTERS)[number])}
             context={
               <>
-                <span className="font-medium text-ink">{s.entity.entity_name ?? "Company not identified"}</span>
-                {s.event.status === "CLASSIFIED" ? ` · ${label(s.event.category)}` : ""}
-                {s.impact ? ` · impact ${s.impact.score}/10` : ""}
+                <span className="font-medium text-ink">{subjectLine(subjectOf(s))}</span>
+                {a ? (a.reading.event_type === "NO_EVENT" ? "" : ` · ${label(a.reading.event_type)}`) : s.event.status === "CLASSIFIED" ? ` · ${label(s.event.category)}` : ""}
+                {score !== null ? ` · ${a ? "severity" : "impact"} ${score}/10` : ""}
               </>
             }
           />
-          <EventHero s={s} label={label} />
+          <EventHero s={s} label={label} a={a} threshold={threshold} />
           <ChainGraphic
             s={s}
             label={label}
@@ -87,9 +97,10 @@ export function EventPage() {
             triggers={triggers}
             threshold={threshold}
             onGo={(st) => go(st)}
+            a={a}
           />
-          <UnderstandChapter s={s} label={label} />
-          <ImpactChapter s={s} label={label} />
+          <UnderstandChapter s={s} label={label} a={a} />
+          {a ? <SeverityChapter a={a} /> : <ImpactChapter s={s} label={label} />}
           <EvidenceChapter
             s={s}
             ctx={ctx.data}
@@ -97,9 +108,13 @@ export function EventPage() {
             ctxError={ctx.error}
             asOf={meta?.as_of ?? s.created_at}
             label={label}
+            a={a}
+            evidence={evid.data}
+            timeline={tl.data}
+            assessLoading={assessed && (asm.isLoading || evid.isLoading || tl.isLoading)}
           />
-          <StressBridge s={s} scenario={scenario} threshold={threshold} />
-          <EventDrawers s={s} ctx={ctx.data} ctxLoading={ctx.isLoading} label={label} />
+          <StressBridge s={s} scenario={scenario} threshold={threshold} a={a} />
+          <EventDrawers s={s} ctx={ctx.data} ctxLoading={ctx.isLoading} label={label} assessment={a} timeline={tl.data} />
         </>
       )}
     </>

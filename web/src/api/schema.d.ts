@@ -4,6 +4,27 @@
  */
 
 export interface paths {
+    "/api/analyze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Analyze
+         * @description Analyse pasted text through the same engine as the live feed. Always 200 for a usable request: ``outcome`` says what happened
+         *     (a text that cannot be scored is ``QUARANTINED`` with the reason, never given a guessed value).
+         */
+        post: operations["analyze_api_analyze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/evidence": {
         parameters: {
             query?: never;
@@ -38,6 +59,46 @@ export interface paths {
         };
         /** Health */
         get: operations["health_api_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/live/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Live Refresh
+         * @description Poll the source once now. 409 when live is off. A failed poll is reported in the status, not as an HTTP error.
+         */
+        post: operations["live_refresh_api_live_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/live/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Live Status
+         * @description The live feed's health, honestly: OFF by default; DEGRADED / ERROR when the source fails (replay data keeps serving).
+         */
+        get: operations["live_status_api_live_status_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -228,6 +289,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/scope": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Scope Info
+         * @description How the scope of a signal is decided, how well the sector vocabulary was measured to work, and what the data looks like.
+         */
+        get: operations["scope_info_api_scope_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/signals": {
         parameters: {
             query?: never;
@@ -262,6 +343,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/signals/{signal_id}/assessment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Signal Assessment
+         * @description The risk assessment: what the report means (event, tone, entities, sectors, regions, asset classes, severity indicators, evidence quotes),
+         *     how serious it is and why (explicit factors and weights), whether it crosses the stress trigger, and what the trained reference model says.
+         *
+         *     Derived from the signal and never stored on it. ``extraction.mode`` says whether a language model or the deterministic rules read the text.
+         */
+        get: operations["get_signal_assessment_api_signals__signal_id__assessment_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/signals/{signal_id}/context": {
         parameters: {
             query?: never;
@@ -271,10 +375,91 @@ export interface paths {
         };
         /**
          * Get Signal Context
-         * @description What the impact model saw (grouped, with availability classes), the issuer's filings placed around the report, and, separately and
-         *     labelled, what the market did afterwards. Read-only: nothing here feeds scoring.
+         * @description What the impact model saw (grouped, with availability classes), the issuer's filings placed around
+         *     the report, and, separately and labelled, what the market did afterwards.
+         *
+         *     Read-only: nothing here feeds scoring.
          */
         get: operations["get_signal_context_api_signals__signal_id__context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/signals/{signal_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Signal Evidence
+         * @description Evidence for this assessment in three separate groups: source evidence (verbatim quotes, the reports), model inference (the reading and the
+         *     score's factors) and scenario assumptions (the configured shocks). They are never blended.
+         */
+        get: operations["get_signal_evidence_api_signals__signal_id__evidence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/signals/{signal_id}/relevance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Signal Relevance
+         * @description What the event means for the book: which holdings it reaches, by issuer / sector / region / whole book, and how many of the
+         *     default scenario's shocks bind to this kind of event. Exposure is the book's own; nothing here is a forecast.
+         */
+        get: operations["get_signal_relevance_api_signals__signal_id__relevance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/signals/{signal_id}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Signal Timeline
+         * @description What was known when. Items dated after the report are shown for audit and flagged as never used by the score.
+         */
+        get: operations["get_signal_timeline_api_signals__signal_id__timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stress-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Stress Runs */
+        get: operations["list_stress_runs_api_stress_runs_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -340,6 +525,71 @@ export interface components {
             spearman_lost: number;
         };
         /**
+         * Agreement
+         * @description The extraction against what the trained pipeline already said about the same text. Shown, not hidden.
+         */
+        Agreement: {
+            /** Event Type Agrees */
+            event_type_agrees: boolean | null;
+            /** Note */
+            note: string;
+            /** Reference Event Confidence */
+            reference_event_confidence: number | null;
+            /** Reference Event Status */
+            reference_event_status: string | null;
+            /** Reference Event Type */
+            reference_event_type: string | null;
+            /** Reference Sentiment */
+            reference_sentiment: number | null;
+            /** Sentiment Direction Agrees */
+            sentiment_direction_agrees: boolean | null;
+        };
+        /** AnalyzeRequest */
+        AnalyzeRequest: {
+            /**
+             * Published At
+             * @description when it was published (with a time zone); omitted = the moment of the request
+             */
+            published_at?: string | null;
+            /**
+             * Source
+             * @description where the text came from (an outlet or account name); omitted = 'manual paste'
+             */
+            source?: string | null;
+            /** @default NEWS */
+            source_type?: components["schemas"]["SourceType"];
+            /**
+             * Text
+             * @description a headline, a short post, or the opening of an article
+             */
+            text: string;
+        };
+        /** AnalyzeResponse */
+        AnalyzeResponse: {
+            /** Analysed Chars */
+            analysed_chars: number;
+            /** @description the structured reading, severity, threshold state and caveats; null when the text was quarantined */
+            assessment: components["schemas"]["RiskAssessment"] | null;
+            /**
+             * Headline
+             * @description the part of the text read as the headline
+             */
+            headline: string;
+            /** Notes */
+            notes: string[];
+            /**
+             * Outcome
+             * @description NEW | UPDATED (joined an existing story) | DUPLICATE (already analysed) | QUARANTINED (not scorable)
+             */
+            outcome: string;
+            rejection: components["schemas"]["Rejection"] | null;
+            signal: components["schemas"]["SignalSummary"] | null;
+            /** Signal Id */
+            signal_id: string | null;
+            /** Truncated */
+            truncated: boolean;
+        };
+        /**
          * AppliedShock
          * @description A scenario shock after severity scaling and entity binding.
          */
@@ -353,6 +603,11 @@ export interface components {
             base_value: number;
             factor: components["schemas"]["RiskFactor"];
             /**
+             * Not Applicable Reason
+             * @description why the shock was skipped, in terms of what the event is about
+             */
+            not_applicable_reason: string | null;
+            /**
              * Rationale
              * @default
              */
@@ -360,6 +615,35 @@ export interface components {
             /** Scaled Value */
             scaled_value: number;
             scope: components["schemas"]["ShockScope"];
+        };
+        /** AssessedEntity */
+        AssessedEntity: {
+            /** Entity Id */
+            entity_id: string | null;
+            /**
+             * Kind
+             * @description COMPANY | INSTITUTION | REGULATOR | GOVERNMENT | OTHER
+             */
+            kind: string;
+            /**
+             * Name
+             * @description exactly as written in the text
+             */
+            name: string;
+            /**
+             * Resolved
+             * @description true only when the name matched the entity master (a listed issuer EventShock holds data for)
+             */
+            resolved: boolean;
+            /**
+             * Role
+             * @description subject | counterparty | mentioned
+             */
+            role: string;
+            /** Sector */
+            sector: string | null;
+            /** Ticker */
+            ticker: string | null;
         };
         /**
          * AssetClass
@@ -525,6 +809,27 @@ export interface components {
             id: string;
             pooled_delta_f1: components["schemas"]["Estimate"];
         };
+        /** Capabilities */
+        Capabilities: {
+            /**
+             * Analyze
+             * @description POST /api/analyze is available (needs the replay profile's models)
+             */
+            analyze: boolean;
+            /**
+             * Assessment
+             * @description the risk-assessment endpoints are available (replay profile)
+             * @default false
+             */
+            assessment: boolean;
+            /**
+             * Live Enabled
+             * @description a live source is configured and polling
+             */
+            live_enabled: boolean;
+            /** @description how new text is read; null where there is no assessment layer */
+            llm: components["schemas"]["LLMInfo"] | null;
+        };
         /** CheckRow */
         CheckRow: {
             /**
@@ -586,6 +891,19 @@ export interface components {
             text: string;
             /** Truth */
             truth: string;
+        };
+        /** Conflict */
+        Conflict: {
+            /** Headline */
+            headline: string;
+            /** Hours Apart */
+            hours_apart: number;
+            /** Note */
+            note: string;
+            /** Sentiment */
+            sentiment: number;
+            /** Signal Id */
+            signal_id: string;
         };
         /** ConsistencyInfo */
         ConsistencyInfo: {
@@ -1306,6 +1624,12 @@ export interface components {
             coverage_velocity: number;
             /** Model Confidence */
             model_confidence: number;
+            /**
+             * Novelty Measured
+             * @description false when novelty is the default 1.0 because no issuer was resolved to compare against (the value is still what the impact model was trained on; it is not a finding)
+             * @default true
+             */
+            novelty_measured: boolean;
             /** Novelty Score */
             novelty_score: number;
             /** Recent Mention Count */
@@ -1334,6 +1658,34 @@ export interface components {
             stages: components["schemas"]["StageStatus"][];
             study: components["schemas"]["StudyView"];
         };
+        /** EvidenceSpan */
+        EvidenceSpan: {
+            /** End */
+            end: number;
+            /**
+             * Quote
+             * @description a verbatim excerpt of the analysed text
+             */
+            quote: string;
+            /**
+             * Start
+             * @description character offset into `SemanticReading.text`
+             */
+            start: number;
+            /**
+             * Supports
+             * @description event_type | sentiment | entity | sector | region | severity
+             */
+            supports: string;
+        };
+        /** EvidenceView */
+        EvidenceView: {
+            model_inference: components["schemas"]["ModelInference"];
+            scenario_assumptions: components["schemas"]["ScenarioAssumptions"];
+            /** Signal Id */
+            signal_id: string;
+            source_evidence: components["schemas"]["SourceEvidence"];
+        };
         /** ExposureRow */
         ExposureRow: {
             /** Asset Count */
@@ -1347,6 +1699,73 @@ export interface components {
             /** Share */
             share: number;
         };
+        /** ExposureSlice */
+        ExposureSlice: {
+            /** Asset Count */
+            asset_count: number;
+            /**
+             * By Asset Class
+             * @description market value of the slice, by asset class
+             */
+            by_asset_class: {
+                [key: string]: number;
+            };
+            /** Key */
+            key: string;
+            /**
+             * Kind
+             * @description ISSUER | SECTOR | REGION | BOOK
+             */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Market Value */
+            market_value: number;
+            /**
+             * Share
+             * @description of the whole book's market value
+             */
+            share: number;
+        };
+        /** ExtractionInfo */
+        ExtractionInfo: {
+            /**
+             * Basis
+             * @description one plain sentence on how this reading was produced
+             */
+            basis: string;
+            /**
+             * Cached
+             * @description served from the local cache: no call was made
+             * @default false
+             */
+            cached: boolean;
+            /**
+             * Fallback Reason
+             * @description why the rule extractor served although an LLM was configured (timeout, rate limit, bad output, no key)
+             */
+            fallback_reason: string | null;
+            mode: components["schemas"]["ExtractionMode"];
+            /**
+             * Model Id
+             * @description the LLM (LLM mode) or the vocabulary version (rules mode)
+             */
+            model_id: string | null;
+            /**
+             * Notes
+             * @description what was dropped or corrected by the checks (ungrounded entity, unknown id, ...)
+             */
+            notes: string[];
+            /** Prompt Version */
+            prompt_version: string | null;
+            /** Vocabulary Version */
+            vocabulary_version: string;
+        };
+        /**
+         * ExtractionMode
+         * @enum {string}
+         */
+        ExtractionMode: "LLM" | "RULES";
         /** FeatureRow */
         FeatureRow: {
             /** Allowed */
@@ -1698,6 +2117,87 @@ export interface components {
             /** Where */
             where: string;
         };
+        /** IndicatorHit */
+        IndicatorHit: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /**
+             * Quote
+             * @description the words that show it, when found in the text
+             */
+            quote: string | null;
+            /**
+             * Weight
+             * @description the configured judgement prior for this kind of development
+             */
+            weight: number;
+        };
+        /** InferenceLine */
+        InferenceLine: {
+            /**
+             * Detail
+             * @default
+             */
+            detail: string;
+            kind: components["schemas"]["Kind"];
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * Kind
+         * @description What sort of statement a number or phrase is. The UI shows these as separate badges and never blends them.
+         * @enum {string}
+         */
+        Kind: "SOURCE" | "EXTRACTION" | "JUDGEMENT_PRIOR" | "MARKET_STATE" | "MODEL_REFERENCE" | "SCENARIO_ASSUMPTION" | "REALISED";
+        /**
+         * LLMInfo
+         * @description How new text is read right now. ``mode`` is RULES when no language model is configured or it has no key: the app still works.
+         */
+        LLMInfo: {
+            /**
+             * Cache Hits
+             * @default 0
+             */
+            cache_hits: number;
+            /**
+             * Enabled
+             * @description the language model is switched on (EVENTSHOCK_LLM)
+             */
+            enabled: boolean;
+            /**
+             * Fallbacks
+             * @default 0
+             */
+            fallbacks: number;
+            /** Last Fallback Reason */
+            last_fallback_reason: string | null;
+            /**
+             * Llm Calls
+             * @default 0
+             */
+            llm_calls: number;
+            /**
+             * Mode
+             * @description LLM | RULES
+             */
+            mode: string;
+            /** Model */
+            model: string | null;
+            /**
+             * Reason
+             * @description why the app is in RULES mode, when it is
+             */
+            reason: string | null;
+            /**
+             * Sends Text Off Machine
+             * @description true only in LLM mode: the report text goes to the model provider
+             */
+            sends_text_off_machine: boolean;
+        };
         /**
          * LabelScores
          * @description Accuracy and macro-F1 of one way of turning the output into a label.
@@ -1733,6 +2233,67 @@ export interface components {
             /** Verdict */
             verdict: string;
         };
+        /** LiveStatus */
+        LiveStatus: {
+            /** Consecutive Failures */
+            consecutive_failures: number;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Event Model
+             * @description the event model scoring live text
+             */
+            event_model: string;
+            /**
+             * Event Model Note
+             * @description why it is not the served hybrid, when it is not
+             */
+            event_model_note: string | null;
+            /** Fetched Total */
+            fetched_total: number;
+            /** Last Attempt At */
+            last_attempt_at: string | null;
+            /** Last Error */
+            last_error: string | null;
+            /** Last Success At */
+            last_success_at: string | null;
+            /** Live Signal Count */
+            live_signal_count: number;
+            /**
+             * Market Context Through
+             * @description last session of the frozen market context; later reports get the labelled placeholder impact
+             */
+            market_context_through: string | null;
+            /** New Total */
+            new_total: number;
+            /** Next Attempt At */
+            next_attempt_at: string | null;
+            /** Poll Interval Seconds */
+            poll_interval_seconds: number | null;
+            /** Quarantined Total */
+            quarantined_total: number;
+            /** Retention Hours */
+            retention_hours: number;
+            /**
+             * Seq
+             * @description changes whenever a live signal is added, updated or dropped; clients refetch when it moves
+             */
+            seq: number;
+            /** Simulated */
+            simulated: boolean;
+            /**
+             * Source Mode
+             * @description GDELT (the live API) | CAPTURE (a file replayed as if live: simulated)
+             */
+            source_mode: string | null;
+            /**
+             * State
+             * @description OFF | OK | DEGRADED | ERROR | IDLE (a capture has no more batches)
+             */
+            state: string;
+            /** Updated Total */
+            updated_total: number;
+        };
         /** Meta */
         Meta: {
             /** App */
@@ -1746,6 +2307,7 @@ export interface components {
             asset_count: number;
             /** Base Currency */
             base_currency: string;
+            capabilities: components["schemas"]["Capabilities"];
             /** Data Origin */
             data_origin: string;
             /** Engine Version */
@@ -1768,6 +2330,14 @@ export interface components {
             trigger_threshold: number;
             /** Version */
             version: string;
+        };
+        /** ModelInference */
+        ModelInference: {
+            agreement: components["schemas"]["Agreement"];
+            /** Lines */
+            lines: components["schemas"]["InferenceLine"][];
+            /** Note */
+            note: string;
         };
         /**
          * ModelScore
@@ -1809,6 +2379,20 @@ export interface components {
             /** Sentiment */
             sentiment: string;
         };
+        /** OmittedFactor */
+        OmittedFactor: {
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * Phase
+         * @enum {string}
+         */
+        Phase: "BEFORE_REPORT" | "AT_REPORT" | "AFTER_REPORT";
         /** PipelineCounts */
         PipelineCounts: {
             /** Accepted */
@@ -1879,7 +2463,7 @@ export interface components {
             /** Snapshot Id */
             snapshot_id: string;
             /** Sources */
-            sources: components["schemas"]["SourceReport"][];
+            sources: components["schemas"]["eventshock__pipeline__models__SourceReport"][];
             /**
              * Stage Origins
              * @description what is real vs placeholder in this run
@@ -1962,6 +2546,29 @@ export interface components {
             /** By Sector */
             by_sector: components["schemas"]["ExposureRow"][];
         };
+        /** PortfolioRelevance */
+        PortfolioRelevance: {
+            level: components["schemas"]["RelevanceLevel"];
+            /**
+             * Path
+             * @description the chain from what the event is about to the book, most specific first
+             */
+            path: string[];
+            reach: components["schemas"]["ScenarioReach"] | null;
+            /** Scope Level */
+            scope_level: string;
+            /**
+             * Share
+             * @description of the book the most specific slice covers; null when undetermined
+             */
+            share: number | null;
+            /** Signal Id */
+            signal_id: string;
+            /** Slices */
+            slices: components["schemas"]["ExposureSlice"][];
+            /** Summary */
+            summary: string;
+        };
         /** PortfolioSummary */
         PortfolioSummary: {
             /**
@@ -2040,6 +2647,25 @@ export interface components {
             set_id: string;
             spearman_new: components["schemas"]["Estimate"];
             spearman_previous: components["schemas"]["Estimate"];
+        };
+        /**
+         * PrimaryIssuer
+         * @description The one issuer the signal is about, or ``UNKNOWN_ENTITY``: a name in the text that is not in the entity master never becomes an issuer.
+         */
+        PrimaryIssuer: {
+            /** Entity Id */
+            entity_id: string;
+            /** Name */
+            name: string | null;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /** Resolved */
+            resolved: boolean;
+            /** Ticker */
+            ticker: string | null;
         };
         /** ProbeRow */
         ProbeRow: {
@@ -2197,6 +2823,31 @@ export interface components {
              */
             z: number;
         };
+        /**
+         * ReferenceReading
+         * @description The trained market-reaction model's own output, kept next to the severity score as a labelled reference. It is not used by the trigger.
+         */
+        ReferenceReading: {
+            /** Available */
+            available: boolean;
+            /** Lifecycle */
+            lifecycle: string | null;
+            /** Model Id */
+            model_id: string | null;
+            /** Note */
+            note: string;
+            /**
+             * Origin
+             * @description MODEL | PLACEHOLDER
+             */
+            origin: string | null;
+            /** Score */
+            score: number | null;
+            /** Score High */
+            score_high: number | null;
+            /** Score Low */
+            score_low: number | null;
+        };
         /** RejectedCandidate */
         RejectedCandidate: {
             /** Entity Id */
@@ -2206,6 +2857,18 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** Rejection */
+        Rejection: {
+            /** Code */
+            code: string;
+            /** Detail */
+            detail: string;
+        };
+        /**
+         * RelevanceLevel
+         * @enum {string}
+         */
+        RelevanceLevel: "DIRECT" | "SECTOR" | "MARKET_WIDE" | "NONE" | "UNDETERMINED";
         /** ReliabilityBin */
         ReliabilityBin: {
             /** Accuracy */
@@ -2293,6 +2956,80 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /** RiskAssessment */
+        RiskAssessment: {
+            agreement: components["schemas"]["Agreement"];
+            /**
+             * Analysed At
+             * Format: date-time
+             */
+            analysed_at: string;
+            conflict: components["schemas"]["Conflict"] | null;
+            /**
+             * Corroborating At Event Time
+             * @description independent reports that already existed when this one appeared
+             */
+            corroborating_at_event_time: number;
+            extraction: components["schemas"]["ExtractionInfo"];
+            /** Headline */
+            headline: string;
+            /**
+             * Ingested At
+             * Format: date-time
+             */
+            ingested_at: string;
+            /** Labels */
+            labels: string[];
+            /**
+             * Later Reports Excluded
+             * @description reports about the same story that appeared afterwards: shown, never scored
+             */
+            later_reports_excluded: number;
+            /** Limitations */
+            limitations: string[];
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+            reading: components["schemas"]["SemanticReading"];
+            reference: components["schemas"]["ReferenceReading"];
+            /** @description null when the text is not a market event: nothing is scored for it */
+            severity: components["schemas"]["SeverityAssessment"] | null;
+            /** Severity Note */
+            severity_note: string | null;
+            /** Signal Id */
+            signal_id: string;
+            /** Source */
+            source: string;
+            /** Source Type */
+            source_type: string;
+            /**
+             * Summary
+             * @description what happened, in one sentence assembled from the reading (no free-text generation)
+             */
+            summary: string;
+            threshold: components["schemas"]["ThresholdState"] | null;
+            /** Timestamp Origin */
+            timestamp_origin: string;
+        };
+        /**
+         * RiskDriver
+         * @description A plain-language reading of one factor, produced by rule from its computed value (never free text).
+         */
+        RiskDriver: {
+            /**
+             * Direction
+             * @description UP | DOWN | NEUTRAL: whether the factor pushed severity up, down, or sat near the middle
+             */
+            direction: string;
+            /** Factor Id */
+            factor_id: string;
+            /** Points */
+            points: number;
+            /** Text */
+            text: string;
+        };
         /**
          * RiskFactor
          * @description Scenario risk factors. Units are fixed per factor (see ``FACTOR_UNITS``).
@@ -2320,6 +3057,8 @@ export interface components {
             model_versions: components["schemas"]["ModelVersions"];
             /** @description present for signals built from real/replayed sources */
             provenance: components["schemas"]["SignalProvenance"] | null;
+            /** @description what the signal is about; derived from `entity` when a producer did not set it */
+            scope: components["schemas"]["SignalScope"];
             sentiment: components["schemas"]["SentimentResult"];
             status: components["schemas"]["SignalStatus"];
             /** Status Reason */
@@ -2354,6 +3093,28 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** ScenarioAssumptions */
+        ScenarioAssumptions: {
+            /**
+             * Illustrative
+             * @default true
+             */
+            illustrative: boolean;
+            /** Note */
+            note: string;
+            /** Reference Impact */
+            reference_impact: number | null;
+            /** Scenario Id */
+            scenario_id: string | null;
+            /** Scenario Name */
+            scenario_name: string | null;
+            /** Severity Scaling */
+            severity_scaling: string;
+            /** Shocks */
+            shocks: string[];
+            /** Trigger Threshold */
+            trigger_threshold: number;
+        };
         /** ScenarioList */
         ScenarioList: {
             /** Default By Category */
@@ -2364,6 +3125,22 @@ export interface components {
             scenarios: components["schemas"]["Scenario"][];
             /** Version */
             version: string;
+        };
+        /** ScenarioReach */
+        ScenarioReach: {
+            /** Note */
+            note: string;
+            /** Scenario Id */
+            scenario_id: string;
+            /** Scenario Name */
+            scenario_name: string;
+            /**
+             * Shocks Bound
+             * @description of the scenario's shocks, how many reach this kind of event
+             */
+            shocks_bound: number;
+            /** Shocks Total */
+            shocks_total: number;
         };
         /** ScenarioRef */
         ScenarioRef: {
@@ -2378,6 +3155,11 @@ export interface components {
             /** Version */
             version: string;
         };
+        /**
+         * ScopeBasis
+         * @enum {string}
+         */
+        ScopeBasis: "ENTITY_RESOLVER" | "SECTOR_TERMS" | "THEME_TERMS" | "EVENT_MODEL" | "NONE";
         /** ScopeCard */
         ScopeCard: {
             acceptance: components["schemas"]["eventshock__pipeline__impact_card__Acceptance"];
@@ -2415,6 +3197,146 @@ export interface components {
             /** Target */
             target: string;
             training: components["schemas"]["eventshock__pipeline__impact_card__TrainingInfo"];
+        };
+        /** ScopeEvaluation */
+        ScopeEvaluation: {
+            /** By Strength */
+            by_strength: {
+                [key: string]: components["schemas"]["TierResult"];
+            };
+            /** Coverage */
+            coverage: number | null;
+            /** Limits */
+            limits: string[];
+            /** Per Sector */
+            per_sector: {
+                [key: string]: components["schemas"]["SectorResult"];
+            };
+            /** Single Issuer Documents */
+            single_issuer_documents: number;
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Vocabulary Fired */
+            vocabulary_fired: number;
+        };
+        /** ScopeInfo */
+        ScopeInfo: {
+            /** @description the sector vocabulary measured on documents whose company resolved */
+            evaluation: components["schemas"]["ScopeEvaluation"] | null;
+            /**
+             * Live Mix
+             * @description live and pasted signals by scope level
+             */
+            live_mix: {
+                [key: string]: number;
+            };
+            /** Regions */
+            regions: string[];
+            /**
+             * Replay Mix
+             * @description the replay signals by scope level
+             */
+            replay_mix: {
+                [key: string]: number;
+            };
+            /**
+             * Rules
+             * @description the ordered decision table, in words
+             */
+            rules: string[];
+            /**
+             * Sectors
+             * @description sector -> number of vocabulary terms
+             */
+            sectors: {
+                [key: string]: number;
+            };
+            /** Themes */
+            themes: {
+                [key: string]: number;
+            };
+            /** Version */
+            version: string;
+        };
+        /**
+         * ScopeLevel
+         * @enum {string}
+         */
+        ScopeLevel: "COMPANY" | "SECTOR" | "MARKET" | "UNRESOLVED";
+        /**
+         * ScopeStrength
+         * @enum {string}
+         */
+        ScopeStrength: "STRONG" | "WEAK";
+        /** SectorResult */
+        SectorResult: {
+            /** Documents */
+            documents: number;
+            /** Precision */
+            precision: number | null;
+            /** Recall */
+            recall: number | null;
+        };
+        /** SemanticReading */
+        SemanticReading: {
+            /** Asset Classes */
+            asset_classes: string[];
+            /** Entities */
+            entities: components["schemas"]["AssessedEntity"][];
+            /**
+             * Event Confidence
+             * @description LLM: its stated confidence. Rules: the trained event model's calibrated probability for this class, when it has one
+             */
+            event_confidence: number | null;
+            /** Event Label */
+            event_label: string;
+            /** Event Subtype */
+            event_subtype: string;
+            /** Event Subtype Label */
+            event_subtype_label: string;
+            /**
+             * Event Type
+             * @description an EventCategory id, or NO_EVENT when the text is not a market event
+             */
+            event_type: string;
+            /** Evidence */
+            evidence: components["schemas"]["EvidenceSpan"][];
+            primary_issuer: components["schemas"]["PrimaryIssuer"];
+            /**
+             * Rationale
+             * @description the model's one-line reason (LLM mode only); an explanation, not evidence
+             */
+            rationale: string | null;
+            /** Regions */
+            regions: string[];
+            /** Sectors */
+            sectors: string[];
+            /** Sentiment */
+            sentiment: number;
+            /** Sentiment Confidence */
+            sentiment_confidence: number | null;
+            /**
+             * Sentiment Intensity
+             * @description low | medium | high
+             */
+            sentiment_intensity: string;
+            /**
+             * Sentiment Label
+             * @description negative | neutral | positive
+             */
+            sentiment_label: string;
+            /** Severity Indicators */
+            severity_indicators: components["schemas"]["IndicatorHit"][];
+            /**
+             * Text
+             * @description the text that was analysed; evidence offsets index into it
+             */
+            text: string;
+            /**
+             * Uncertainty
+             * @description how unsure the reading is; null when it cannot say
+             */
+            uncertainty: number | null;
         };
         /**
          * SentimentAudit
@@ -2553,6 +3475,81 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** SeverityAssessment */
+        SeverityAssessment: {
+            /**
+             * Basis
+             * @default TRANSPARENT_HYBRID
+             */
+            basis: string;
+            /** Drivers */
+            drivers: components["schemas"]["RiskDriver"][];
+            /** Factors */
+            factors: components["schemas"]["SeverityFactor"][];
+            /** Formula */
+            formula: string;
+            /** High */
+            high: number;
+            /** Low */
+            low: number;
+            /** Omitted */
+            omitted: components["schemas"]["OmittedFactor"][];
+            /**
+             * Points
+             * @description before rounding
+             */
+            points: number;
+            /** Range Basis */
+            range_basis: string;
+            /** Score */
+            score: number;
+            /** Uncertainty */
+            uncertainty: number;
+            /** Uncertainty Points Removed */
+            uncertainty_points_removed: number;
+            /**
+             * Uncertainty Stated
+             * @description false when the reading stated no uncertainty and the configured neutral value was assumed
+             */
+            uncertainty_stated: boolean;
+            /** Version */
+            version: string;
+        };
+        /** SeverityFactor */
+        SeverityFactor: {
+            /** Available */
+            available: boolean;
+            /**
+             * Contribution Points
+             * @description severity points this factor adds (they sum, with the 1-point floor, to the score before rounding)
+             */
+            contribution_points: number;
+            /**
+             * Detail
+             * @description the actual computed value in words
+             */
+            detail: string;
+            /** Id */
+            id: string;
+            kind: components["schemas"]["Kind"];
+            /** Label */
+            label: string;
+            /**
+             * Raw Weight
+             * @description the configured weight
+             */
+            raw_weight: number;
+            /**
+             * Value
+             * @description the factor on [0, 1]; null when unavailable
+             */
+            value: number | null;
+            /**
+             * Weight
+             * @description after renormalising over the available factors; 0 when unavailable
+             */
+            weight: number;
+        };
         /** SeverityScaling */
         SeverityScaling: {
             /** Formula */
@@ -2637,6 +3634,11 @@ export interface components {
         SignalPage: {
             /** Items */
             items: components["schemas"]["SignalSummary"][];
+            /**
+             * Seq
+             * @description the live overlay's change counter at the time of the response
+             */
+            seq: number;
             /** Total */
             total: number;
         };
@@ -2680,6 +3682,47 @@ export interface components {
             };
             timestamp_origin: components["schemas"]["TimestampOrigin"];
         };
+        /** SignalScope */
+        SignalScope: {
+            /** @default NONE */
+            basis: components["schemas"]["ScopeBasis"];
+            level: components["schemas"]["ScopeLevel"];
+            /**
+             * Matched Terms
+             * @description dimension (sector | theme | region) -> the terms that matched
+             */
+            matched_terms: {
+                [key: string]: string[];
+            };
+            /**
+             * Note
+             * @description why the scope is what it is, in plain words (always set when UNRESOLVED)
+             * @default
+             */
+            note: string;
+            /**
+             * Regions
+             * @description portfolio geography codes the text points to
+             */
+            regions: string[];
+            /**
+             * Resolver Version
+             * @default entity-only
+             */
+            resolver_version: string;
+            /**
+             * Sector
+             * @description set for COMPANY and SECTOR scope
+             */
+            sector: string | null;
+            /** @description rule tier for a SECTOR scope; not a probability */
+            strength: components["schemas"]["ScopeStrength"] | null;
+            /**
+             * Themes
+             * @description macro / market themes the text names
+             */
+            themes: string[];
+        };
         /**
          * SignalStatus
          * @description COMPLETE: all stages produced output. PARTIAL: a stage failed; nothing is invented.
@@ -2691,7 +3734,27 @@ export interface components {
          * @description Compact feed row (the feed does not need evidence arrays or drivers).
          */
         SignalSummary: {
+            /**
+             * Above Trigger
+             * @description severity_score meets the automatic stress trigger
+             */
+            above_trigger: boolean | null;
+            /**
+             * Assessed Category
+             * @description the event class the assessment reads (an EventCategory id or NO_EVENT)
+             */
+            assessed_category: string | null;
+            /**
+             * Assessed Sector
+             * @description the first sector the assessment reads from the text
+             */
+            assessed_sector: string | null;
             category: components["schemas"]["EventCategory"];
+            /**
+             * Channel
+             * @description REPLAY | LIVE | MANUAL: which door the signal came through
+             */
+            channel: string;
             /** Data Origin */
             data_origin: string;
             /** Entity Id */
@@ -2700,6 +3763,16 @@ export interface components {
             entity_name: string | null;
             /** @description CLASSIFIED: `category` is a finding; otherwise it is only a best guess */
             event_status: components["schemas"]["EventStatus"];
+            /**
+             * Extraction Mode
+             * @description LLM | RULES: what read the text
+             */
+            extraction_mode: string | null;
+            /**
+             * First Seq
+             * @description live overlay change counter when it first appeared (null for replay)
+             */
+            first_seq: number | null;
             /** Headline */
             headline: string;
             /** Id */
@@ -2725,10 +3798,50 @@ export interface components {
              * Format: date-time
              */
             published_at: string;
+            /**
+             * Relevance Level
+             * @description DIRECT | SECTOR | MARKET_WIDE | NONE | UNDETERMINED: how the book is reached
+             */
+            relevance_level: string;
+            /**
+             * Relevance Share
+             * @description share of the book the most specific slice covers
+             */
+            relevance_share: number | null;
+            /**
+             * Scope Level
+             * @description COMPANY | SECTOR | MARKET | UNRESOLVED: what the signal is about
+             */
+            scope_level: string;
+            /** Scope Regions */
+            scope_regions: string[];
+            /** Scope Sector */
+            scope_sector: string | null;
+            /**
+             * Scope Strength
+             * @description STRONG | WEAK for a SECTOR scope (a rule tier, not a probability)
+             */
+            scope_strength: string | null;
+            /** Scope Themes */
+            scope_themes: string[];
             /** Sector */
             sector: string | null;
             /** Sentiment Score */
             sentiment_score: number;
+            /**
+             * Severity Basis
+             * @description TRANSPARENT_HYBRID: explicit weights, not a trained model, not validated
+             */
+            severity_basis: string | null;
+            /** Severity High */
+            severity_high: number | null;
+            /** Severity Low */
+            severity_low: number | null;
+            /**
+             * Severity Score
+             * @description the headline score: the transparent hybrid severity (1-10) from the risk assessment; null when the text is not a market event or no assessment ran
+             */
+            severity_score: number | null;
             /** Source */
             source: string;
             /** Source Count */
@@ -2737,6 +3850,29 @@ export interface components {
             status: components["schemas"]["SignalStatus"];
             /** Ticker */
             ticker: string | null;
+            /**
+             * Updated Seq
+             * @description …and when it last changed (more reports, rebuilt)
+             */
+            updated_seq: number | null;
+        };
+        /** SourceEvidence */
+        SourceEvidence: {
+            /**
+             * Entity Match
+             * @description how the entity master matched a company, if one did
+             */
+            entity_match: string | null;
+            /** Headline */
+            headline: string;
+            /** Note */
+            note: string;
+            /** Reports */
+            reports: components["schemas"]["eventshock__assessment__model__SourceReport"][];
+            /** Spans */
+            spans: components["schemas"]["EvidenceSpan"][];
+            /** Text */
+            text: string;
         };
         /** SourceFile */
         SourceFile: {
@@ -2744,30 +3880,6 @@ export interface components {
             file: string;
             /** Sha256 */
             sha256: string | null;
-        };
-        /** SourceReport */
-        SourceReport: {
-            /** Accepted */
-            accepted: number;
-            /** Attribution */
-            attribution: string;
-            /** Exact Duplicates Folded */
-            exact_duplicates_folded: number;
-            /** License */
-            license: string;
-            /** Name */
-            name: string;
-            /** Notes */
-            notes: string;
-            /** Origin Url */
-            origin_url: string;
-            /** Quarantined */
-            quarantined: number;
-            /** Records */
-            records: number;
-            /** Signals */
-            signals: number;
-            source_type: components["schemas"]["SourceType"];
         };
         /** SourceRow */
         SourceRow: {
@@ -2849,6 +3961,11 @@ export interface components {
         /** StressAudit */
         StressAudit: {
             /**
+             * Assessed Sector
+             * @description a sector taken from the assessment (not the vocabulary scope) that sector shocks were bound to
+             */
+            assessed_sector: string | null;
+            /**
              * Calculated At
              * Format: date-time
              */
@@ -2861,6 +3978,11 @@ export interface components {
             data_origin: components["schemas"]["DataOrigin"];
             /** Engine Version */
             engine_version: string;
+            /**
+             * Extraction Mode
+             * @description LLM | RULES: what read the text behind the severity score
+             */
+            extraction_mode: string | null;
             /** Forced */
             forced: boolean;
             /**
@@ -2882,6 +4004,26 @@ export interface components {
             portfolio_id: string;
             /** Scenario Version */
             scenario_version: string | null;
+            /**
+             * Scope Level
+             * @description what the signal is about (COMPANY | SECTOR | MARKET | UNRESOLVED), which decides the shocks that bind
+             */
+            scope_level: string | null;
+            /**
+             * Scope Note
+             * @description what that means for which shocks applied
+             */
+            scope_note: string | null;
+            /**
+             * Severity Basis
+             * @description TRANSPARENT_HYBRID when the severity score of the risk assessment drove the trigger (null: the signal's own impact)
+             */
+            severity_basis: string | null;
+            /**
+             * Severity Version
+             * @description version of the hybrid weights that produced the score
+             */
+            severity_version: string | null;
             /** Threshold */
             threshold: number;
         };
@@ -2930,7 +4072,7 @@ export interface components {
          * StressStatus
          * @enum {string}
          */
-        StressStatus: "COMPLETED" | "NOT_TRIGGERED" | "NO_SCENARIO" | "UNAVAILABLE";
+        StressStatus: "COMPLETED" | "NOT_TRIGGERED" | "NO_SCENARIO" | "UNAVAILABLE" | "NOT_APPLICABLE";
         /** StressSummary */
         StressSummary: {
             /** Baseline Value */
@@ -2985,12 +4127,90 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** ThresholdState */
+        ThresholdState: {
+            /**
+             * Can Run What If
+             * @default true
+             */
+            can_run_what_if: boolean;
+            /** Crosses */
+            crosses: boolean;
+            /** Message */
+            message: string;
+            /** Score */
+            score: number;
+            /**
+             * Status
+             * @description ABOVE_TRIGGER | BELOW_TRIGGER
+             */
+            status: string;
+            /** Threshold */
+            threshold: number;
+        };
+        /** TierResult */
+        TierResult: {
+            /** Correct */
+            correct: number;
+            /** Precision */
+            precision: number | null;
+            /** Predicted */
+            predicted: number;
+        };
+        /** TimelineItem */
+        TimelineItem: {
+            /** At */
+            at: string | null;
+            /** Detail */
+            detail: string;
+            /**
+             * Kind
+             * @description REPORT | INGESTED | ASSESSED | MARKET_STATE | FILING | CORROBORATION | OUTCOME
+             */
+            kind: string;
+            /** Known At Assessment */
+            known_at_assessment: boolean;
+            /** Label */
+            label: string;
+            number_kind: components["schemas"]["Kind"];
+            phase: components["schemas"]["Phase"];
+            /** Used By Reference Model */
+            used_by_reference_model: boolean;
+            /** Used In Severity */
+            used_in_severity: boolean;
+        };
+        /** TimelineView */
+        TimelineView: {
+            /**
+             * Assessed At
+             * Format: date-time
+             */
+            assessed_at: string;
+            /**
+             * Excluded
+             * @description things that exist but are deliberately not inputs to the severity score
+             */
+            excluded: string[];
+            /** Items */
+            items: components["schemas"]["TimelineItem"][];
+            /** Note */
+            note: string;
+            /**
+             * Report Time
+             * Format: date-time
+             */
+            report_time: string;
+            /** Signal Id */
+            signal_id: string;
+            /** Timestamp Origin */
+            timestamp_origin: string;
+        };
         /**
          * TimestampOrigin
          * @description How trustworthy ``published_at`` is. Only SOURCE-grade clocks are used to correlate documents.
          * @enum {string}
          */
-        TimestampOrigin: "SOURCE" | "SOURCE_DATE_ONLY" | "GDELT_FIRST_SEEN" | "SYNTHETIC_REPLAY_CLOCK";
+        TimestampOrigin: "SOURCE" | "SOURCE_DATE_ONLY" | "GDELT_FIRST_SEEN" | "SYNTHETIC_REPLAY_CLOCK" | "ANALYSIS_TIME" | "USER_ASSERTED";
         /** TrackF */
         TrackF: {
             /** Available */
@@ -3071,6 +4291,27 @@ export interface components {
             /** Year */
             year: string;
         };
+        /** SourceReport */
+        eventshock__assessment__model__SourceReport: {
+            /** Headline */
+            headline: string;
+            phase: components["schemas"]["Phase"];
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+            /** Relation */
+            relation: string;
+            /** Source */
+            source: string;
+            /** Source Type */
+            source_type: string;
+            /** Url */
+            url: string | null;
+            /** Used In Score */
+            used_in_score: boolean;
+        };
         /** Acceptance */
         eventshock__pipeline__event_card__Acceptance: {
             /** Checks */
@@ -3149,6 +4390,30 @@ export interface components {
             /** Train Period */
             train_period: string;
         };
+        /** SourceReport */
+        eventshock__pipeline__models__SourceReport: {
+            /** Accepted */
+            accepted: number;
+            /** Attribution */
+            attribution: string;
+            /** Exact Duplicates Folded */
+            exact_duplicates_folded: number;
+            /** License */
+            license: string;
+            /** Name */
+            name: string;
+            /** Notes */
+            notes: string;
+            /** Origin Url */
+            origin_url: string;
+            /** Quarantined */
+            quarantined: number;
+            /** Records */
+            records: number;
+            /** Signals */
+            signals: number;
+            source_type: components["schemas"]["SourceType"];
+        };
         /** TrainingInfo */
         eventshock__pipeline__sentiment_card__TrainingInfo: {
             /** Config Digest */
@@ -3183,6 +4448,39 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    analyze_api_analyze_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnalyzeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalyzeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     evidence_api_evidence_get: {
         parameters: {
             query?: never;
@@ -3221,6 +4519,46 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+        };
+    };
+    live_refresh_api_live_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveStatus"];
+                };
+            };
+        };
+    };
+    live_status_api_live_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveStatus"];
                 };
             };
         };
@@ -3436,6 +4774,26 @@ export interface operations {
             };
         };
     };
+    scope_info_api_scope_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScopeInfo"];
+                };
+            };
+        };
+    };
     list_signals_api_signals_get: {
         parameters: {
             query?: {
@@ -3444,6 +4802,10 @@ export interface operations {
                 min_impact?: number | null;
                 q?: string | null;
                 event_status?: components["schemas"]["EventStatus"] | null;
+                scope_level?: string | null;
+                channel?: string | null;
+                /** @description only live-overlay signals changed after this counter */
+                since_seq?: number | null;
             };
             header?: never;
             path?: never;
@@ -3502,6 +4864,40 @@ export interface operations {
             };
         };
     };
+    get_signal_assessment_api_signals__signal_id__assessment_get: {
+        parameters: {
+            query?: {
+                /** @description read the text with the language model, if one is configured */
+                refine?: boolean;
+            };
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiskAssessment"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_signal_context_api_signals__signal_id__context_get: {
         parameters: {
             query?: never;
@@ -3520,6 +4916,131 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SignalContext"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_signal_evidence_api_signals__signal_id__evidence_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_signal_relevance_api_signals__signal_id__relevance_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioRelevance"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_signal_timeline_api_signals__signal_id__timeline_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_stress_runs_api_stress_runs_get: {
+        parameters: {
+            query: {
+                /** @description runs made for this signal, newest first */
+                signal_id: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StressResult"][];
                 };
             };
             /** @description Validation Error */

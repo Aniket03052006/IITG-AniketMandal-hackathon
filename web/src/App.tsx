@@ -3,6 +3,7 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { ApiError } from "./api/client";
 import { Shell } from "./components/Shell";
 import { EmptyState } from "./components/ui";
+import { AnalyzePage } from "./pages/AnalyzePage";
 import { EventPage } from "./pages/EventPage";
 import { EvidencePage } from "./pages/EvidencePage";
 import { FeedPage } from "./pages/FeedPage";
@@ -33,6 +34,7 @@ export function App() {
         <Routes>
           <Route element={<Shell />}>
             <Route index element={<FeedPage />} />
+            <Route path="analyze" element={<AnalyzePage />} />
             <Route path="events/:id" element={<EventPage />} />
             <Route path="pipeline" element={<Navigate to="/evidence?tab=pipeline" replace />} />
             <Route path="evidence" element={<EvidencePage />} />

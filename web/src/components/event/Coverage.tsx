@@ -26,7 +26,11 @@ export function Coverage({ s, asOf }: { s: RiskSignal; asOf: string }) {
       <h3 className="mb-3 text-sm font-semibold">Coverage of this story</h3>
       <div className="grid grid-cols-3 gap-x-6 gap-y-4">
         <Stat label="Reports" value={e.source_count} sub={`${e.unique_domain_count} outlet${e.unique_domain_count === 1 ? "" : "s"}`} />
-        <Stat label="Novelty" value={e.novelty_score.toFixed(2)} sub="0 repeat · 1 new" />
+        <Stat
+          label="Novelty"
+          value={e.novelty_measured ? e.novelty_score.toFixed(2) : "–"}
+          sub={e.novelty_measured ? "0 repeat · 1 new" : "not measured: no issuer to compare with"}
+        />
         <Stat label="Pace" value={`${e.coverage_velocity.toFixed(1)}/h`} sub="reports per hour" />
       </div>
       {list.length === 0 ? (

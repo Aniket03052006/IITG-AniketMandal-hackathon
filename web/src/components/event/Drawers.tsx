@@ -1,6 +1,7 @@
+import { subjectLine, subjectOf } from "../../lib/scope";
 import clsx from "clsx";
 import { useEventModel, useImpactModel, useSentimentModel } from "../../api/hooks";
-import type { EventCategory, RiskSignal, SignalContext } from "../../api/types";
+import type { EventCategory, RiskAssessment, RiskSignal, SignalContext, TimelineView } from "../../api/types";
 import { EVENT_CATEGORIES } from "../../api/types";
 import { AVAILABILITY, featureInfo, featureSection, formatFeature, SECTION_TITLE, type InputSection } from "../../lib/featureLabels";
 import * as TeX from "../../lib/formulas";
@@ -12,6 +13,8 @@ import { sentimentLabel } from "../../lib/severity";
 import { Drawer, DrawerSection, useOpenDrawer } from "../Drawer";
 import { Formula } from "../Math";
 import { Skeleton } from "../ui";
+import { AssessedInputs } from "../assessment/AssessedInputs";
+import { RiskDrivers } from "../assessment/SeverityBreakdown";
 import { DriverBars } from "./DriverBars";
 
 const pc = (p: number) => `${Math.round(p * 100)}%`;
@@ -153,7 +156,7 @@ function InputsBody({ s, ctx, loading, label }: { s: RiskSignal; ctx: SignalCont
             ["Headline", <span key="h" className="font-sans">{s.document.headline}</span>],
             ["Source", s.document.source],
             ["Published", `${dateTime(s.document.published_at)} · ${timestampNote(s.provenance?.timestamp_origin ?? "SOURCE")}`],
-            ["Company", s.entity.entity_name ? `${s.entity.entity_name} (${s.entity.ticker}) · ${ruleNote(s.provenance?.entity_audit.rule ?? "")}` : "not identified"],
+            ["Subject", `${subjectLine(subjectOf(s))} · ${s.scope.level === "COMPANY" ? ruleNote(s.provenance?.entity_audit.rule ?? "") : `${s.scope.basis.toLowerCase().replace(/_/g, " ")} (${s.scope.resolver_version})`}`],
             ["Reaction measured from", audit.session === "NEXT" ? "the next session (not yet traded)" : audit.session],
           ]}
         />
@@ -400,17 +403,54 @@ function AuditBody({ s }: { s: RiskSignal }) {
   );
 }
 
+/* ----------------------------------------------------------------------------------------- SEVERITY WHY */
+function SeverityWhyBody({ a }: { a: RiskAssessment }) {
+  const sev = a.severity;
+  if (!sev) return <p className="text-sm text-ink-2">{a.severity_note}</p>;
+  return (
+    <>
+      <DrawerSection title="In one line">
+        <p className="text-ink-2">
+          {a.summary} Severity {sev.score}/10 comes from {sev.factors.filter((f) => f.available).length} explicit factors
+          {sev.omitted.length ? `; ${sev.omitted.length} could not be computed from what was known at the time and were left out` : ""}.
+        </p>
+      </DrawerSection>
+      <DrawerSection title="Risk drivers" note="Each line is one factor's computed value for this report, turned into words by rule. The points add up to the score.">
+        <RiskDrivers sev={sev} />
+      </DrawerSection>
+      <DrawerSection title="Where the weights come from">
+        <p className="text-sm text-ink-2">
+          Every weight and prior is a documented judgement in <span className="num">configs/impact_hybrid.yaml</span>, chosen before looking at any result and
+          configurable. No outcome labels are used, so the score is not supervised and not validated. If any single weight were off by 30%, the score would be
+          between {sev.low} and {sev.high}.
+        </p>
+      </DrawerSection>
+      <DrawerSection title="What this score does not tell you">
+        <ul className="list-disc space-y-1.5 pl-5 text-sm text-ink-2">
+          <li>It is not a forecast of a price move, and not a probability of loss.</li>
+          <li>It does not say whether prices go up or down.</li>
+          <li>It is a triage level: how serious this kind of development usually is for a financial book, given what the report says.</li>
+        </ul>
+      </DrawerSection>
+    </>
+  );
+}
+
 /** All the event page's drawers, selected by ?open=. Closing removes the parameter. */
 export function EventDrawers({
   s,
   ctx,
   ctxLoading,
   label,
+  assessment,
+  timeline,
 }: {
   s: RiskSignal;
   ctx: SignalContext | undefined;
   ctxLoading: boolean;
   label: (c: string) => string;
+  assessment?: RiskAssessment;
+  timeline?: TimelineView;
 }) {
   const [open, setOpen] = useOpenDrawer();
   const close = () => setOpen(null);
@@ -423,7 +463,17 @@ export function EventDrawers({
       <Drawer open={open === "why" && impact} onClose={close} title="Why this impact?" eyebrow="Impact">
         {impact && <WhyBody s={s} label={label} />}
       </Drawer>
-      <Drawer open={open === "inputs"} onClose={close} title="What the model saw" eyebrow="Inputs, as available at event time" wide>
+      {assessment && (
+        <>
+          <Drawer open={open === "severity"} onClose={close} title="Why this severity?" eyebrow="Severity">
+            <SeverityWhyBody a={assessment} />
+          </Drawer>
+          <Drawer open={open === "assessed"} onClose={close} title="What the assessment used" eyebrow="Only what was knowable when the report appeared" wide>
+            <AssessedInputs a={assessment} tl={timeline} />
+          </Drawer>
+        </>
+      )}
+      <Drawer open={open === "inputs"} onClose={close} title={assessment ? "What the reference model saw" : "What the model saw"} eyebrow="Inputs, as available at event time" wide>
         <InputsBody s={s} ctx={ctx} loading={ctxLoading} label={label} />
       </Drawer>
       <Drawer open={open === "math" && impact} onClose={close} title="How impact is calculated" eyebrow="Mathematics" wide>

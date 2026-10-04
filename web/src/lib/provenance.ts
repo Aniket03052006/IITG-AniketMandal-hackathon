@@ -91,6 +91,8 @@ const ORIGIN_NOTE: Record<string, string> = {
   SOURCE_DATE_ONLY: "Publisher date (no time of day)",
   GDELT_FIRST_SEEN: "When GDELT first saw the page",
   SYNTHETIC_REPLAY_CLOCK: "Assigned by replay (the source has no time)",
+  ANALYSIS_TIME: "The moment the text was pasted (no publication time was given)",
+  USER_ASSERTED: "A publication time given by the person who pasted the text, taken at their word",
 };
 export const timestampNote = (o: string): string => ORIGIN_NOTE[o] ?? o;
 

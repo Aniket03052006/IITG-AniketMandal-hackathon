@@ -5,7 +5,7 @@ import { useMeta, useSignals } from "../api/hooks";
 import { FEATURED, lastEvent, pickFeatured } from "../lib/featured";
 import { dateTime } from "../lib/format";
 import { profileLabel, profileNote } from "../lib/provenance";
-import { Database, EventIcon, EvidenceIcon, FeedIcon, StressIcon } from "./icons";
+import { AnalyzeIcon, Database, EventIcon, EvidenceIcon, FeedIcon, StressIcon } from "./icons";
 import { Logo } from "./Logo";
 import { ThemeSwitch } from "./ThemeSwitch";
 
@@ -42,6 +42,7 @@ export function Shell() {
 
   const nav = [
     { to: "/", label: "Risk Feed", icon: FeedIcon, active: pathname === "/" },
+    ...(meta?.capabilities.analyze !== false ? [{ to: "/analyze", label: "Analyze", icon: AnalyzeIcon, active: pathname.startsWith("/analyze") }] : []),
     { to: eventTo, label: "Event Intelligence", icon: EventIcon, active: pathname.startsWith("/events/") },
     { to: "/stress", label: "Portfolio Stress", icon: StressIcon, active: pathname.startsWith("/stress") },
     ...(meta?.replay ? [{ to: "/evidence", label: "Evidence", icon: EvidenceIcon, active: pathname.startsWith("/evidence") || pathname.startsWith("/pipeline") }] : []),

@@ -86,6 +86,12 @@ export const FeedIcon = (p: P) => (
     <path d="M2.5 4h11M2.5 8h11M2.5 12h7" />
   </Icon>
 );
+export const AnalyzeIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M2.5 3.5h11M2.5 7h6M2.5 10.5h4" />
+    <path d="M11.5 9.5v4M9.5 11.5h4" />
+  </Icon>
+);
 export const EventIcon = (p: P) => (
   <Icon {...p}>
     <circle cx="8" cy="8" r="2" />

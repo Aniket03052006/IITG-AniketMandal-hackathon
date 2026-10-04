@@ -22,6 +22,7 @@ export function ImpactMeter({
   showKind = false,
   hideNumber = false,
   wide = false,
+  noun = "Impact",
 }: {
   score: number | null;
   size?: "sm" | "lg";
@@ -33,6 +34,8 @@ export function ImpactMeter({
   hideNumber?: boolean;
   /** A full-width ladder (fills its container) instead of the fixed 10rem one. */
   wide?: boolean;
+  /** What the number is called in the accessible name: "Impact" for the trained model, "Severity" for the risk assessment. */
+  noun?: string;
 }) {
   if (score === null) {
     return (
@@ -45,7 +48,7 @@ export function ImpactMeter({
   const band = severityBand(score);
   const hasRange = !!range && range[0] <= range[1] && !(range[0] === score && range[1] === score);
   const kindText = kind ? KIND_LABEL[kind].toLowerCase() : null;
-  const aria = `Impact ${score} of 10${hasRange ? `, comparable events realised ${range![0]} to ${range![1]}` : ""}${kindText ? `, ${kindText}` : ""}, ${band.label}`;
+  const aria = `${noun} ${score} of 10${hasRange ? `, ${noun === "Impact" ? "comparable events realised" : "weight sensitivity range"} ${range![0]} to ${range![1]}` : ""}${kindText ? `, ${kindText}` : ""}, ${band.label}`;
   return (
     <span className={clsx("inline-flex items-center gap-2.5", wide && "flex w-full")} role="img" aria-label={aria}>
       {!hideNumber && (
