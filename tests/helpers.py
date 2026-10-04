@@ -15,6 +15,7 @@ from eventshock.domain import (
     RawDocument,
     RiskSignal,
     SentimentResult,
+    SignalScope,
     SignalStatus,
     SourceType,
 )
@@ -53,6 +54,7 @@ def make_signal(
     impact: int | None = 8,
     entity_id: str = "E1",
     sector: str = "Fin",
+    scope: SignalScope | None = None,
 ) -> RiskSignal:
     unknown = entity_id == "UNKNOWN_ENTITY"
     return RiskSignal(
@@ -63,6 +65,7 @@ def make_signal(
         entity=({"entity_id": "UNKNOWN_ENTITY"} if unknown else
                 {"entity_id": entity_id, "entity_name": entity_id, "sector": sector,
                  "link_confidence": 0.9}),
+        scope=scope,
         sentiment=SentimentResult(positive=0.1, neutral=0.2, negative=0.7, score=-0.6),
         event=make_event(category),
         impact=None if impact is None else ImpactAssessment(score=impact, raw=impact / 10),

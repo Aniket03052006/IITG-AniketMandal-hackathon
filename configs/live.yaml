@@ -1,0 +1,37 @@
+# Live information (opt-in). Off by default so the default run is offline and deterministic.
+# Turn on with EVENTSHOCK_LIVE=1 (or `make run-live`). Nothing here changes the replay profile's signals.
+version: "1"
+enabled: false
+poll_interval_seconds: 300      # GDELT updates every ~15 minutes; one poll per 5 minutes is polite and enough
+retention_hours: 48             # live signals older than this (by publication time) are dropped
+max_signals: 1500               # hard cap on the live overlay (oldest published go first)
+journal: data/live/journal.jsonl  # raw inputs, git-ignored; replayed at start so a restart is warm
+
+source:
+  kind: gdelt                   # gdelt: GDELT DOC 2.0 (network) | capture: a file of captured GDELT lines delivered in batches
+  gdelt:
+    timespan_minutes: 90        # each poll asks for what GDELT saw in this trailing window
+    maxrecords: 60
+    throttle_seconds: 6         # GDELT asks for at most one request per 5 s
+    # GDELT requires an OR'd group to be wrapped in parentheses (found by calling it for real: a bare OR is a non-JSON error)
+    queries:
+      - '"Federal Reserve" interest rates'
+      - '(inflation OR recession OR "jobs report")'
+      - '(OPEC OR "oil prices" OR crude)'
+      - '("stock market" OR "Wall Street")'
+      - '(tariffs OR sanctions OR "trade war")'
+      - '(bank OR lender OR "credit rating")'
+      - '(earnings OR guidance OR "profit warning")'
+      - '(acquisition OR merger OR takeover)'
+  capture:
+    path: data/live/sample_capture.jsonl   # create with `make capture-gdelt`; not shipped (GDELT rate-limited the capture run, see the journal)
+    batch_size: 20
+    interval_seconds: 10        # a capture is a local file, so it is delivered faster than the live poll
+
+# Reports that name no company may still be the same event. The issuer rule (configs/pipeline.yaml: 0.60, 4 tokens, 48 h) leans on
+# the issuer match for precision; with none, this rule is deliberately stricter. A stated starting point, not tuned on any data.
+dedup:
+  unknown_same_event:
+    threshold: 0.7
+    min_shared_tokens: 5
+    window_hours: 24

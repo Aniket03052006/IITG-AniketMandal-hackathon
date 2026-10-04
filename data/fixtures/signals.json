@@ -28,6 +28,19 @@
         "country": "US",
         "link_confidence": 0.99
       },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Financials",
+        "regions": [
+          "US"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Meridian Bancorp was named in the text.",
+        "resolver_version": "entity-only"
+      },
       "sentiment": {
         "positive": 0.07,
         "neutral": 0.14,
@@ -102,6 +115,7 @@
         "recent_mention_count": 14,
         "coverage_velocity": 3.5,
         "novelty_score": 0.86,
+        "novelty_measured": true,
         "model_confidence": 0.81,
         "contradicted_by": [],
         "corroborating": [
@@ -177,6 +191,19 @@
         "country": "GB",
         "link_confidence": 0.96
       },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Financials",
+        "regions": [
+          "GB"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Northgate Capital was named in the text.",
+        "resolver_version": "entity-only"
+      },
       "sentiment": {
         "positive": 0.16,
         "neutral": 0.3,
@@ -245,6 +272,7 @@
         "recent_mention_count": 7,
         "coverage_velocity": 1.4,
         "novelty_score": 0.74,
+        "novelty_measured": true,
         "model_confidence": 0.77,
         "contradicted_by": [],
         "corroborating": [
@@ -303,6 +331,19 @@
         "sector": "Energy",
         "country": "GB",
         "link_confidence": 0.98
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Energy",
+        "regions": [
+          "GB"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Halden Energy was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.16,
@@ -372,6 +413,7 @@
         "recent_mention_count": 9,
         "coverage_velocity": 1.9,
         "novelty_score": 0.78,
+        "novelty_measured": true,
         "model_confidence": 0.79,
         "contradicted_by": [],
         "corroborating": [
@@ -438,6 +480,17 @@
         "sector": null,
         "country": null,
         "link_confidence": 0.0
+      },
+      "scope": {
+        "level": "UNRESOLVED",
+        "sector": null,
+        "regions": [],
+        "themes": [],
+        "basis": "NONE",
+        "strength": null,
+        "matched_terms": {},
+        "note": "No company was resolved and no scope resolver ran.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.12,
@@ -507,6 +560,7 @@
         "recent_mention_count": 21,
         "coverage_velocity": 2.7,
         "novelty_score": 0.62,
+        "novelty_measured": true,
         "model_confidence": 0.86,
         "contradicted_by": [],
         "corroborating": [
@@ -573,6 +627,19 @@
         "sector": "Technology",
         "country": "TW",
         "link_confidence": 0.97
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Technology",
+        "regions": [
+          "TW"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Vantor Semiconductors was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.15,
@@ -642,6 +709,7 @@
         "recent_mention_count": 3,
         "coverage_velocity": 0.8,
         "novelty_score": 0.9,
+        "novelty_measured": true,
         "model_confidence": 0.35,
         "contradicted_by": [
           "sig_0006"
@@ -685,6 +753,19 @@
         "sector": "Technology",
         "country": "TW",
         "link_confidence": 0.99
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Technology",
+        "regions": [
+          "TW"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Vantor Semiconductors was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.25,
@@ -748,6 +829,7 @@
         "recent_mention_count": 4,
         "coverage_velocity": 1.1,
         "novelty_score": 0.4,
+        "novelty_measured": true,
         "model_confidence": 0.74,
         "contradicted_by": [
           "sig_0005"
@@ -800,6 +882,19 @@
         "sector": "Technology",
         "country": "US",
         "link_confidence": 0.98
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Technology",
+        "regions": [
+          "US"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Prism Cloud Systems was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.1,
@@ -863,6 +958,7 @@
         "recent_mention_count": 6,
         "coverage_velocity": 0.6,
         "novelty_score": 0.55,
+        "novelty_measured": true,
         "model_confidence": 0.83,
         "contradicted_by": [],
         "corroborating": [
@@ -921,6 +1017,19 @@
         "sector": "Healthcare",
         "country": "US",
         "link_confidence": 0.99
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Healthcare",
+        "regions": [
+          "US"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Corvale Therapeutics was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.04,
@@ -990,6 +1099,7 @@
         "recent_mention_count": 11,
         "coverage_velocity": 0.9,
         "novelty_score": 0.7,
+        "novelty_measured": true,
         "model_confidence": 0.8,
         "contradicted_by": [],
         "corroborating": [
@@ -1056,6 +1166,19 @@
         "sector": "Consumer",
         "country": "US",
         "link_confidence": 0.98
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Consumer",
+        "regions": [
+          "US"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Lumenar Retail was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.05,
@@ -1125,6 +1248,7 @@
         "recent_mention_count": 8,
         "coverage_velocity": 0.5,
         "novelty_score": 0.68,
+        "novelty_measured": true,
         "model_confidence": 0.82,
         "contradicted_by": [],
         "corroborating": [
@@ -1183,6 +1307,19 @@
         "sector": "Consumer",
         "country": "US",
         "link_confidence": 0.95
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Consumer",
+        "regions": [
+          "US"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Brightwell Foods was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.675,
@@ -1246,6 +1383,7 @@
         "recent_mention_count": 12,
         "coverage_velocity": 2.1,
         "novelty_score": 0.6,
+        "novelty_measured": true,
         "model_confidence": 0.42,
         "contradicted_by": [],
         "corroborating": []
@@ -1287,6 +1425,19 @@
         "sector": "Industrials",
         "country": "DE",
         "link_confidence": 0.98
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Industrials",
+        "regions": [
+          "DE"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Ashford Industrial Group was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.66,
@@ -1350,6 +1501,7 @@
         "recent_mention_count": 4,
         "coverage_velocity": 0.3,
         "novelty_score": 0.5,
+        "novelty_measured": true,
         "model_confidence": 0.84,
         "contradicted_by": [],
         "corroborating": [
@@ -1400,6 +1552,19 @@
         "sector": "Industrials",
         "country": "FR",
         "link_confidence": 0.99
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Industrials",
+        "regions": [
+          "FR"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Kestrel Aerospace was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.74,
@@ -1457,6 +1622,7 @@
         "recent_mention_count": 5,
         "coverage_velocity": 0.3,
         "novelty_score": 0.45,
+        "novelty_measured": true,
         "model_confidence": 0.85,
         "contradicted_by": [],
         "corroborating": [
@@ -1507,6 +1673,17 @@
         "sector": null,
         "country": null,
         "link_confidence": 0.0
+      },
+      "scope": {
+        "level": "UNRESOLVED",
+        "sector": null,
+        "regions": [],
+        "themes": [],
+        "basis": "NONE",
+        "strength": null,
+        "matched_terms": {},
+        "note": "No company was resolved and no scope resolver ran.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.1,
@@ -1570,6 +1747,7 @@
         "recent_mention_count": 2,
         "coverage_velocity": 0.5,
         "novelty_score": 0.95,
+        "novelty_measured": true,
         "model_confidence": 0.2,
         "contradicted_by": [],
         "corroborating": []
@@ -1612,6 +1790,19 @@
         "country": "SG",
         "link_confidence": 0.98
       },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Industrials",
+        "regions": [
+          "SG"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Amberline Logistics was named in the text.",
+        "resolver_version": "entity-only"
+      },
       "sentiment": {
         "positive": 0.1,
         "neutral": 0.3,
@@ -1640,6 +1831,7 @@
         "recent_mention_count": 3,
         "coverage_velocity": 0.9,
         "novelty_score": 0.8,
+        "novelty_measured": true,
         "model_confidence": 0.0,
         "contradicted_by": [],
         "corroborating": [
@@ -1690,6 +1882,19 @@
         "sector": "Financials",
         "country": "US",
         "link_confidence": 0.97
+      },
+      "scope": {
+        "level": "COMPANY",
+        "sector": "Financials",
+        "regions": [
+          "US"
+        ],
+        "themes": [],
+        "basis": "ENTITY_RESOLVER",
+        "strength": null,
+        "matched_terms": {},
+        "note": "Orchard Mutual was named in the text.",
+        "resolver_version": "entity-only"
       },
       "sentiment": {
         "positive": 0.1,
@@ -1753,6 +1958,7 @@
         "recent_mention_count": 5,
         "coverage_velocity": 0.6,
         "novelty_score": 0.66,
+        "novelty_measured": true,
         "model_confidence": 0.78,
         "contradicted_by": [],
         "corroborating": [

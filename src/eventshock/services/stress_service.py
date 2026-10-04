@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
 
 from ..config import AppConfig
@@ -12,6 +13,8 @@ from ..domain import (
     EventCategory,
     RiskSignal,
     Scenario,
+    ScopeLevel,
+    ShockScope,
     SignalStatus,
     StressStatus,
 )
@@ -27,6 +30,25 @@ from ..ports import PortfolioRepository, SignalRepository
 from ..stress.attribution import build_contributions, find_uncovered
 from ..stress.engine import ENGINE_VERSION, scaled_shock_value, stress_portfolio
 from ..stress.scenarios import ScenarioCatalog
+
+
+@dataclass(frozen=True)
+class SeverityView:
+    """What the risk assessment hands the stress engine: a trigger score, the event class to map a scenario from, and a sector to bind sector
+    shocks to when the signal's own scope has none. The engine applies them mechanically; nothing here is computed by a model at run time."""
+
+    score: int
+    category: EventCategory
+    sector: str | None
+    basis: str
+    version: str
+    extraction_mode: str
+
+
+SeverityProvider = Callable[[RiskSignal], "SeverityView | None"]
+
+
+MAX_RUNS_KEPT = 500
 
 
 class SignalNotFound(LookupError):
@@ -45,14 +67,16 @@ class StressService:
         catalog: ScenarioCatalog,
         config: AppConfig,
         clock: Callable[[], datetime] | None = None,
+        severity_provider: SeverityProvider | None = None,
     ) -> None:
+        self._severity = severity_provider
         self._signals = signals
         self._portfolio = portfolio
         self._catalog = catalog
         self._cfg = config
         # Replay mode pins time to the fixture clock so results are reproducible byte for byte.
         self._clock = clock or (lambda: signals.as_of)
-        self._runs: dict[str, StressResult] = {}
+        self._runs: dict[str, StressResult] = {}  # bounded (oldest dropped): a run id is a hash, so any run can be recomputed identically
 
     # ------------------------------------------------------------------ public
 
@@ -74,14 +98,22 @@ class StressService:
             if scenario is None:
                 raise ScenarioNotFound(scenario_id)
         else:
-            scenario = self._catalog.default_for(signal.event.category)
+            view = self._severity(signal) if self._severity else None
+            scenario = self._catalog.default_for(view.category if view else signal.event.category)
 
         result = self._evaluate(signal, scenario, force, impact_override)
+        self._runs.pop(result.run_id, None)
         self._runs[result.run_id] = result
+        while len(self._runs) > MAX_RUNS_KEPT:
+            self._runs.pop(next(iter(self._runs)))
         return result
 
     def get_run(self, run_id: str) -> StressResult | None:
         return self._runs.get(run_id)
+
+    def runs_for(self, signal_id: str) -> list[StressResult]:
+        """Runs already made for a signal, newest first."""
+        return [r for r in reversed(self._runs.values()) if r.signal_id == signal_id]
 
     def default_scenario(self, category: EventCategory) -> Scenario | None:
         return self._catalog.default_for(category)
@@ -94,6 +126,11 @@ class StressService:
         threshold = self._cfg.stress.trigger_threshold
         portfolio = self._portfolio.get()
         pf_hash = portfolio.content_hash()
+        view = self._severity(signal) if self._severity else None
+
+        scope0 = signal.scope
+        # A sector read from the text by the assessment binds sector shocks only where the vocabulary scope found none (never over a resolved company).
+        assessed_sector = (view.sector if view and view.sector and not (scope0 is not None and scope0.has_sector) else None)
 
         def audit(impact: float | None, version: str | None) -> StressAudit:
             return StressAudit(
@@ -106,14 +143,20 @@ class StressService:
                 threshold=threshold,
                 forced=force,
                 impact_overridden=override is not None,
-                impact_origin=_impact_origin(signal),
-                impact_lifecycle=_impact_lifecycle(signal),
-                calculated_at=self._clock(),
+                impact_origin="ASSESSMENT" if view else _impact_origin(signal),
+                impact_lifecycle=None if view else _impact_lifecycle(signal),
+                scope_level=signal.scope.level.value if signal.scope else None,
+                scope_note=_scope_note(signal, assessed_sector),
+                severity_basis=view.basis if view else None,
+                severity_version=view.version if view else None,
+                assessed_sector=assessed_sector,
+                extraction_mode=view.extraction_mode if view else None,
+                calculated_at=max(self._clock(), signal.created_at),
             )
 
         def early(status: StressStatus, reason: str, impact: float | None = None) -> StressResult:
             return StressResult(
-                run_id=self._run_id(signal.id, scenario, impact, force, pf_hash, status),
+                run_id=self._run_id(signal.id, scenario, impact, force, pf_hash, status, view.basis if view else None),
                 status=status,
                 reason=reason,
                 signal_id=signal.id,
@@ -121,7 +164,7 @@ class StressService:
                 audit=audit(impact, scenario.version if scenario else None),
             )
 
-        if signal.status is SignalStatus.PARTIAL or signal.impact is None:
+        if view is None and (signal.status is SignalStatus.PARTIAL or signal.impact is None):
             return early(
                 StressStatus.UNAVAILABLE,
                 "This signal has no impact score (partial signal). EventShock does not invent one, "
@@ -130,11 +173,12 @@ class StressService:
         if scenario is None:
             return early(
                 StressStatus.NO_SCENARIO,
-                f"No scenario template is mapped to {signal.event.category.value}.",
-                signal.impact.score,
+                f"No scenario template is mapped to {(view.category if view else signal.event.category).value}.",
+                float(view.score) if view else signal.impact.score,  # type: ignore[union-attr]
             )
 
-        impact = float(override) if override is not None else float(signal.impact.score)
+        base_impact = float(view.score) if view else float(signal.impact.score)  # type: ignore[union-attr]
+        impact = float(override) if override is not None else base_impact
         if override is not None and not force:
             return early(
                 StressStatus.NOT_TRIGGERED,
@@ -144,7 +188,7 @@ class StressService:
         if impact < threshold and not force:
             return early(
                 StressStatus.NOT_TRIGGERED,
-                f"Impact {impact:g} is below the trigger threshold {threshold:g}. "
+                f"{'Severity' if view else 'Impact'} {impact:g} is below the trigger threshold {threshold:g}. "
                 "Run as a what-if to stress it anyway.",
                 impact,
             )
@@ -166,26 +210,34 @@ class StressService:
             ),
         )
 
-        entity_known = not signal.entity.is_unknown
+        scope = signal.scope
+        assert scope is not None  # RiskSignal always carries one (derived from the entity when a producer set none)
+        entity_known = scope.level is ScopeLevel.COMPANY and not signal.entity.is_unknown
         entity_id = signal.entity.entity_id if entity_known else None
-        sector = signal.entity.sector if entity_known else None
-        applied = [
-            AppliedShock(
-                factor=s.factor,
-                scope=s.scope,
-                base_value=s.value,
+        sector = scope.sector if scope.has_sector else assessed_sector
+        level = ScopeLevel.SECTOR if assessed_sector else scope.level
+        applied = []
+        for s in scenario.shocks:
+            ok, why = _binds(s.scope, level, entity_known, sector)
+            applied.append(AppliedShock(
+                factor=s.factor, scope=s.scope, base_value=s.value,
                 scaled_value=scaled_shock_value(s.factor, s.value, scale),
-                applicable=(s.scope.value == "MARKET") or entity_known,
-                rationale=s.rationale,
-            )
-            for s in scenario.shocks
-        ]
+                applicable=ok, not_applicable_reason=why, rationale=s.rationale))
+        if not any(a.applicable for a in applied):
+            return StressResult(
+                run_id=self._run_id(signal.id, scenario, impact, force, pf_hash, StressStatus.NOT_APPLICABLE, view.basis if view else None),
+                status=StressStatus.NOT_APPLICABLE,
+                reason=(f"No shock in '{scenario.name}' reaches what this event is about "
+                        f"({_scope_words(level, sector)}); the scenario is written for an identified "
+                        "company or sector, so no loss is computed rather than reporting a zero."),
+                signal_id=signal.id, scenario=self._ref(scenario), severity=severity, shocks=applied,
+                audit=audit(impact, scenario.version))
 
         positions = stress_portfolio(portfolio, applied, entity_id, sector)
         baseline = sum(p.baseline_value for p in positions)
         pnl = sum(p.delta for p in positions)
         return StressResult(
-            run_id=self._run_id(signal.id, scenario, impact, force, pf_hash, StressStatus.COMPLETED),
+            run_id=self._run_id(signal.id, scenario, impact, force, pf_hash, StressStatus.COMPLETED, view.basis if view else None),
             status=StressStatus.COMPLETED,
             reason=None,
             signal_id=signal.id,
@@ -221,19 +273,49 @@ class StressService:
         force: bool,
         pf_hash: str,
         status: StressStatus,
+        basis: str | None = None,
     ) -> str:
-        payload = json.dumps(
-            {
-                "signal": signal_id,
-                "scenario": [scenario.id, scenario.version] if scenario else None,
-                "impact": None if impact is None else round(impact, 6),
-                "force": force,
-                "portfolio": pf_hash,
-                "status": status.value,
-            },
-            sort_keys=True,
-        )
+        body = {
+            "signal": signal_id,
+            "scenario": [scenario.id, scenario.version] if scenario else None,
+            "impact": None if impact is None else round(impact, 6),
+            "force": force,
+            "portfolio": pf_hash,
+            "status": status.value,
+        }
+        if basis:  # only a run driven by the assessment carries it: every other run id is unchanged
+            body["basis"] = basis
+        payload = json.dumps(body, sort_keys=True)
         return "run_" + hashlib.sha256(payload.encode()).hexdigest()[:12]
+
+
+def _scope_words(level: ScopeLevel, sector: str | None) -> str:
+    return {ScopeLevel.COMPANY: "one named company", ScopeLevel.SECTOR: f"the {sector} sector, no single company",
+            ScopeLevel.MARKET: "the market as a whole, no single company or sector",
+            ScopeLevel.UNRESOLVED: "no company, sector or market theme could be identified"}[level]
+
+
+def _binds(shock_scope: ShockScope, level: ScopeLevel, entity_known: bool, sector: str | None) -> tuple[bool, str | None]:
+    """Does a shock of this scope reach the event? MARKET always; SECTOR needs a sector (named or implied); ISSUER needs a company."""
+    if shock_scope is ShockScope.MARKET:
+        return True, None
+    if shock_scope is ShockScope.SECTOR:
+        return (True, None) if sector else (False, f"No sector was identified ({_scope_words(level, sector)}).")
+    return (True, None) if entity_known else (False, f"No single company was identified ({_scope_words(level, sector)}).")
+
+
+def _scope_note(signal: RiskSignal, assessed_sector: str | None = None) -> str | None:
+    s = signal.scope
+    if s is None:
+        return None
+    if assessed_sector:
+        return (f"Sector ({assessed_sector}) was read from the text by the risk assessment, not found by the vocabulary scope; "
+                "sector and market-wide shocks apply, issuer shocks do not (no single company).")
+    return {ScopeLevel.COMPANY: "Issuer, sector and market-wide shocks apply.",
+            ScopeLevel.SECTOR: f"Sector ({s.sector}) and market-wide shocks apply; issuer shocks do not (no single company).",
+            ScopeLevel.MARKET: "Only market-wide shocks apply (no single company or sector).",
+            ScopeLevel.UNRESOLVED: "No subject was identified: only market-wide shocks can apply, and the impact is a "
+                                   "market-state estimate."}[s.level]
 
 
 def _impact_origin(signal: RiskSignal) -> str | None:

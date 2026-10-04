@@ -54,3 +54,21 @@ def jsonl_path(tmp_path: Path, name: str, text: str) -> Path:
     p = tmp_path / name
     p.write_text(text, encoding="utf-8")
     return p
+
+
+def digest_without_stage6(signals) -> str:
+    """The pipeline's output digest with the two fields Stage 6 added (`scope`, `evidence.novelty_measured`) removed.
+
+    The golden digests of earlier stages were taken before those fields existed; this reproduces them, which is the proof that adding
+    the fields moved no pre-existing value.
+    """
+    import hashlib
+    import json
+
+    payload = []
+    for s in sorted(signals, key=lambda s: s.id):
+        d = s.model_dump(mode="json")
+        d.pop("scope", None)
+        d["evidence"].pop("novelty_measured", None)
+        payload.append(d)
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()

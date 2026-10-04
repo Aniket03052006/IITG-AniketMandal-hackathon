@@ -13,6 +13,7 @@ from eventshock.pipeline.embeddings import PinnedEmbeddings
 from eventshock.pipeline.enrich import ImpactModelEnricher
 from eventshock.pipeline.hybrid_event_model import HybridEventModel
 from eventshock.pipeline.run import load_entities, read_snapshot, run_documents, run_snapshot
+from tests.pipe_helpers import digest_without_stage6
 
 from . import test_replay_pack as T
 
@@ -48,14 +49,14 @@ def test_the_pack_is_accounted_for_exactly_as_with_the_tfidf_model():
 
 
 def test_the_hybrid_run_is_pinned_deterministic_and_input_order_independent():
-    assert HYBRID.report.output_digest == GOLDEN_HYBRID_DIGEST
+    assert digest_without_stage6(HYBRID.signals) == GOLDEN_HYBRID_DIGEST
     records, metas = read_snapshot(T.SNAP)
     random.Random(5).shuffle(records)
     m = T.SNAP.manifest
     shuffled = run_documents(records, snapshot_id=m.snapshot_id, description=m.description, as_of=m.replay_as_of, window_start=m.window_start,
                              window_end=m.window_end, entities=load_entities(T.SNAP.entities_path()), cfg=T.CFG, enrich_cfg=T.ENR, sources=metas,
                              enricher=ENRICHER)
-    assert shuffled.report.output_digest == GOLDEN_HYBRID_DIGEST
+    assert digest_without_stage6(shuffled.signals) == GOLDEN_HYBRID_DIGEST and shuffled.report.output_digest == HYBRID.report.output_digest
 
 
 def test_every_signal_names_the_hybrid_and_carries_its_audit():

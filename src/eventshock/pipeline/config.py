@@ -49,6 +49,14 @@ class EntityResolutionConfig(_Strict):
     finance_context: list[str] = []
 
 
+class UnknownSameEventConfig(_Strict):
+    """SAME_EVENT clustering for reports that name no company (off unless configured; the replay config leaves it off)."""
+
+    threshold: float = Field(gt=0, le=1, description="token Jaccard")
+    min_shared_tokens: int = Field(ge=1)
+    window_hours: float = Field(gt=0)
+
+
 class DedupConfig(_Strict):
     window_hours: float = Field(default=72, gt=0)
     near_duplicate_threshold: float = Field(default=0.8, gt=0, le=1)
@@ -56,6 +64,8 @@ class DedupConfig(_Strict):
     same_event_min_shared_tokens: int = Field(default=4, ge=1)
     same_event_window_hours: float = Field(default=48, gt=0)
     max_posting_length: int = Field(default=1500, ge=10, description="tokens in more clusters than this are not used to find candidates")
+    unknown_same_event: UnknownSameEventConfig | None = Field(
+        default=None, description="when set, reports with no resolved company may also cluster as SAME_EVENT under these stricter limits")
 
     @model_validator(mode="after")
     def _ordered(self) -> DedupConfig:

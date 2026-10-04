@@ -25,6 +25,8 @@ class AppliedShock(ContractModel):
     base_value: float
     scaled_value: float
     applicable: bool = Field(description="False when the scope needs an entity the signal lacks")
+    not_applicable_reason: str | None = Field(
+        default=None, description="why the shock was skipped, in terms of what the event is about")
     rationale: str = ""
 
 
@@ -113,6 +115,15 @@ class StressAudit(ContractModel):
         default=None, description="MODEL | PLACEHOLDER: what produced the impact this run used")
     impact_lifecycle: str | None = Field(
         default=None, description="lifecycle of the trained impact model for this signal (null: heuristic)")
+    scope_level: str | None = Field(
+        default=None, description="what the signal is about (COMPANY | SECTOR | MARKET | UNRESOLVED), which decides the shocks that bind")
+    scope_note: str | None = Field(default=None, description="what that means for which shocks applied")
+    severity_basis: str | None = Field(
+        default=None, description="TRANSPARENT_HYBRID when the severity score of the risk assessment drove the trigger (null: the signal's own impact)")
+    severity_version: str | None = Field(default=None, description="version of the hybrid weights that produced the score")
+    assessed_sector: str | None = Field(
+        default=None, description="a sector taken from the assessment (not the vocabulary scope) that sector shocks were bound to")
+    extraction_mode: str | None = Field(default=None, description="LLM | RULES: what read the text behind the severity score")
     calculated_at: datetime
     calculation: str = "deterministic engine (no model, no randomness)"
 

@@ -1,0 +1,138 @@
+{
+  "by_source": {
+    "gdelt-doc": {
+      "docs": 521,
+      "fired": 132,
+      "strong_correct": 7,
+      "strong_predicted": 8,
+      "weak_correct": 110,
+      "weak_predicted": 123
+    },
+    "gdelt-gkg": {
+      "docs": 938,
+      "fired": 282,
+      "strong_correct": 20,
+      "strong_predicted": 22,
+      "weak_correct": 197,
+      "weak_predicted": 256
+    },
+    "tfn-replay": {
+      "docs": 90,
+      "fired": 8,
+      "weak_correct": 7,
+      "weak_predicted": 8
+    }
+  },
+  "by_strength": {
+    "STRONG": {
+      "correct": 27,
+      "precision": 0.9,
+      "predicted": 30
+    },
+    "WEAK": {
+      "correct": 314,
+      "precision": 0.8114,
+      "predicted": 387
+    }
+  },
+  "confusion": {
+    "Consumer": {
+      "Consumer": 8,
+      "Energy": 1,
+      "Financials": 4,
+      "Healthcare": 2,
+      "Technology": 10,
+      "none": 269
+    },
+    "Energy": {
+      "Energy": 44,
+      "Financials": 2,
+      "none": 76,
+      "tied": 1
+    },
+    "Financials": {
+      "Energy": 8,
+      "Financials": 44,
+      "Technology": 20,
+      "none": 218,
+      "tied": 1
+    },
+    "Healthcare": {
+      "Financials": 5,
+      "Healthcare": 42,
+      "Industrials": 1,
+      "Technology": 3,
+      "none": 108
+    },
+    "Industrials": {
+      "Financials": 1,
+      "Industrials": 47,
+      "Technology": 13,
+      "none": 153
+    },
+    "Technology": {
+      "Consumer": 1,
+      "Financials": 5,
+      "Technology": 156,
+      "none": 303,
+      "tied": 3
+    }
+  },
+  "coverage": 0.2724,
+  "documents_read": 3302,
+  "limits": [
+    "Documents used here also name their company, so sector words co-occur with it more than in a text that names none: the agreement is an optimistic proxy for the no-company case, not a measurement of it.",
+    "Titles are short (GDELT supplies a headline only), so the vocabulary often finds nothing; coverage is reported beside precision.",
+    "The vocabulary was written before this run. Any later edit is disclosed in docs/PROJECT_JOURNEY.md."
+  ],
+  "per_sector": {
+    "Consumer": {
+      "documents": 294,
+      "found_as_this_sector": 8,
+      "precision": 0.8889,
+      "predicted_as_this_sector": 9,
+      "recall": 0.0272
+    },
+    "Energy": {
+      "documents": 123,
+      "found_as_this_sector": 44,
+      "precision": 0.8302,
+      "predicted_as_this_sector": 53,
+      "recall": 0.3577
+    },
+    "Financials": {
+      "documents": 291,
+      "found_as_this_sector": 44,
+      "precision": 0.7213,
+      "predicted_as_this_sector": 61,
+      "recall": 0.1512
+    },
+    "Healthcare": {
+      "documents": 159,
+      "found_as_this_sector": 42,
+      "precision": 0.9545,
+      "predicted_as_this_sector": 44,
+      "recall": 0.2642
+    },
+    "Industrials": {
+      "documents": 214,
+      "found_as_this_sector": 47,
+      "precision": 0.9792,
+      "predicted_as_this_sector": 48,
+      "recall": 0.2196
+    },
+    "Technology": {
+      "documents": 468,
+      "found_as_this_sector": 156,
+      "precision": 0.7723,
+      "predicted_as_this_sector": 202,
+      "recall": 0.3333
+    }
+  },
+  "schema": "eventshock-scope-eval-v1",
+  "scope_config_sha256": "f5f1421648df37aa45533f5b1998be453c5d447548dd2ef1cac6cfc684876e7b",
+  "scope_config_version": "scope-v1",
+  "single_issuer_documents": 1549,
+  "snapshot_id": "replay-2026-09-30-v1",
+  "vocabulary_fired": 422
+}

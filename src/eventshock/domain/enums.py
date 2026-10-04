@@ -108,6 +108,7 @@ class StressStatus(StrEnum):
     NOT_TRIGGERED = "NOT_TRIGGERED"  # impact below threshold and not forced
     NO_SCENARIO = "NO_SCENARIO"  # no template maps to the event category
     UNAVAILABLE = "UNAVAILABLE"  # signal has no impact score (PARTIAL); never fabricated
+    NOT_APPLICABLE = "NOT_APPLICABLE"  # the scenario has no shock that reaches what this event is about
 
 
 UNKNOWN_ENTITY = "UNKNOWN_ENTITY"

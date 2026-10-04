@@ -96,6 +96,16 @@ def relate(a: Item, b: Item, cfg: DedupConfig) -> tuple[DedupRelation, float] | 
         and abs(b.doc.published_at - a.doc.published_at) <= timedelta(hours=cfg.same_event_window_hours)
     ):
         return DedupRelation.SAME_EVENT, sim
+    u = cfg.unknown_same_event
+    if (
+        u is not None
+        and a.entity_id == UNKNOWN_ENTITY
+        and both_trusted
+        and sim >= u.threshold
+        and len(a.tokens & b.tokens) >= u.min_shared_tokens
+        and abs(b.doc.published_at - a.doc.published_at) <= timedelta(hours=u.window_hours)
+    ):
+        return DedupRelation.SAME_EVENT, sim
     return None
 
 

@@ -18,6 +18,7 @@ from eventshock.pipeline.enrich import ModelEnricher, ModelSentimentEnricher
 from eventshock.pipeline.event_model import EventModel
 from eventshock.pipeline.run import load_entities, read_snapshot, run_documents, run_snapshot
 from eventshock.pipeline.sentiment_model import SentimentModel
+from tests.pipe_helpers import digest_without_stage6
 
 PACK = REPO_ROOT / "data" / "replay"
 CFG = load_pipeline_config(REPO_ROOT / "configs")
@@ -42,6 +43,8 @@ def _legacy_digest(signals, *, strip_event_stage: bool = False) -> str:
     payload = []
     for s in sorted(signals, key=lambda s: s.id):
         d = s.model_dump(mode="json")
+        d.pop("scope")  # Stage 6 fields: the anchors predate them
+        d["evidence"].pop("novelty_measured")
         assert d["provenance"].pop("impact") is None and d["provenance"].pop("impact_note") is None
         if d["impact"] is not None:
             assert all(d["impact"].pop(k) is None for k in _IMPACT_FIELDS)
@@ -245,14 +248,14 @@ GOLDEN_IMPACT_MIX = {("PARTIAL", "PLACEHOLDER_RULES", None): 1574, ("COMPLETE", 
 
 
 def test_impact_run_is_pinned_deterministic_and_input_order_independent():
-    assert IMPACTED.report.output_digest == GOLDEN_IMPACT_DIGEST
+    assert digest_without_stage6(IMPACTED.signals) == GOLDEN_IMPACT_DIGEST
     records, metas = read_snapshot(SNAP)
     random.Random(11).shuffle(records)
     m = SNAP.manifest
     shuffled = run_documents(records, snapshot_id=m.snapshot_id, description=m.description, as_of=m.replay_as_of,
                              window_start=m.window_start, window_end=m.window_end, entities=load_entities(SNAP.entities_path()),
                              cfg=CFG, enrich_cfg=ENR, sources=metas, enricher=IMPACT_ENRICHER)
-    assert shuffled.report.output_digest == GOLDEN_IMPACT_DIGEST
+    assert digest_without_stage6(shuffled.signals) == GOLDEN_IMPACT_DIGEST and shuffled.report.output_digest == IMPACTED.report.output_digest
 
 
 def test_the_impact_stage_changes_only_impact_fields():

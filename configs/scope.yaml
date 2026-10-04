@@ -1,0 +1,301 @@
+# Scope resolution (scope-v1): what an event is ABOUT when no company is named.
+# Deterministic vocabulary rules, not a trained model. The tiers below are measured, not asserted:
+# `make scope-eval` runs the sector vocabulary on replay documents whose company DID resolve and writes the agreement with
+# that company's real sector to docs/evidence/scope_eval.json. Vocabulary was written from domain knowledge BEFORE that run;
+# any change after seeing the result is disclosed in docs/PROJECT_JOURNEY.md (same discipline as the pre-registered bars).
+#
+# Matching is on text folded by pipeline.normalize.match_form (case-folded, punctuation -> space), whole words/phrases only.
+# Sectors are exactly the six of the portfolio's universe. There is no industry level: the entity master carries none.
+version: "scope-v1"
+
+sector:
+  strong_min_terms: 2     # distinct terms of ONE sector, with no other sector tied, for a STRONG sector scope
+  weak_allowed: true      # exactly one distinct term of one sector gives a WEAK sector scope (only after macro/market is ruled out)
+
+# An event the trained event model calls one of these (status CLASSIFIED) is market-wide when no sector is strongly indicated.
+market_categories: [MACROECONOMIC, GEOPOLITICAL]
+
+# Everyday uses of sector words that are not the sector ("central bank" is monetary policy, not the banking sector).
+# Removed before SECTOR terms are searched; themes and regions are searched on the original text.
+sector_neutralisers:
+  - central bank
+  - central banks
+  - world bank
+  - bank holiday
+  - river bank
+  - bank of england
+  - bank of japan
+  - bank of canada
+  - bank of china
+  - bank of korea
+  - bank of israel
+  - blood bank
+  - food bank
+  - oil painting
+  - olive oil
+
+sectors:
+  Financials:
+    - banks
+    - bank
+    - banking
+    - lender
+    - lenders
+    - lending
+    - insurer
+    - insurers
+    - insurance
+    - credit card
+    - card issuers
+    - payments
+    - brokerage
+    - brokerages
+    - asset manager
+    - asset managers
+    - private equity
+    - mortgage
+    - mortgages
+    - regional banks
+    - investment banks
+    - bank stocks
+    - financial stocks
+    - financials
+    - wall street banks
+  Technology:
+    - semiconductor
+    - semiconductors
+    - chip
+    - chips
+    - chipmaker
+    - chipmakers
+    - chip maker
+    - chip makers
+    - software
+    - cloud
+    - artificial intelligence
+    - ai
+    - data center
+    - data centers
+    - data centre
+    - data centres
+    - tech stocks
+    - big tech
+    - tech giants
+    - technology sector
+    - smartphone
+    - smartphones
+    - cybersecurity
+    - gpu
+    - gpus
+    - foundry
+    - silicon valley
+    - social media
+  Energy:
+    - oil
+    - crude
+    - brent
+    - wti
+    - opec
+    - natural gas
+    - lng
+    - refinery
+    - refineries
+    - refiners
+    - refining
+    - oilfield
+    - drilling
+    - shale
+    - energy stocks
+    - gasoline
+    - petroleum
+    - oil prices
+    - oil and gas
+    - offshore drilling
+    - fuel prices
+  Healthcare:
+    - drugmaker
+    - drugmakers
+    - pharma
+    - pharmaceutical
+    - pharmaceuticals
+    - biotech
+    - biopharma
+    - fda
+    - clinical trial
+    - clinical trials
+    - vaccine
+    - vaccines
+    - hospital
+    - hospitals
+    - medicare
+    - medicaid
+    - healthcare
+    - drug pricing
+    - obesity drug
+    - obesity drugs
+    - gene therapy
+    - medical device
+    - medical devices
+  Industrials:
+    - aerospace
+    - airline
+    - airlines
+    - aircraft
+    - defense contractor
+    - defense contractors
+    - defence
+    - railroad
+    - railroads
+    - freight
+    - shipping
+    - logistics
+    - manufacturing
+    - machinery
+    - heavy equipment
+    - construction equipment
+    - shipbuilding
+    - capital goods
+    - industrial stocks
+    - plane maker
+    - jet maker
+    - trucking
+  Consumer:
+    - retail
+    - retailer
+    - retailers
+    - consumer spending
+    - consumer stocks
+    - consumer goods
+    - grocery
+    - supermarket
+    - supermarkets
+    - restaurant
+    - restaurants
+    - fast food
+    - apparel
+    - footwear
+    - e commerce
+    - ecommerce
+    - automaker
+    - automakers
+    - carmaker
+    - carmakers
+    - car makers
+    - electric vehicle
+    - electric vehicles
+    - beverage
+    - beverages
+    - soft drink
+    - soft drinks
+    - packaged food
+    - holiday shopping
+    - black friday
+
+# Macro / market-wide vocabulary. Any hit makes an unresolved, non-sector event MARKET scope and records the theme.
+themes:
+  rates:
+    - interest rate
+    - interest rates
+    - rate cut
+    - rate cuts
+    - rate hike
+    - rate hikes
+    - the fed
+    - fed
+    - federal reserve
+    - fomc
+    - powell
+    - central bank
+    - central banks
+    - treasury yield
+    - treasury yields
+    - bond yields
+    - yield curve
+    - monetary policy
+    - ecb
+    - bank of england
+    - bank of japan
+  inflation:
+    - inflation
+    - cpi
+    - pce
+    - consumer prices
+    - producer prices
+    - disinflation
+    - deflation
+  growth_and_jobs:
+    - gdp
+    - recession
+    - economic growth
+    - jobs report
+    - nonfarm payrolls
+    - payrolls
+    - unemployment
+    - jobless claims
+    - labor market
+    - labour market
+    - pmi
+    - soft landing
+  credit_stress:
+    - credit spreads
+    - credit crunch
+    - junk bonds
+    - high yield
+    - sovereign debt
+    - debt crisis
+    - debt ceiling
+    - bank failure
+    - bank failures
+    - liquidity crunch
+    - sovereign downgrade
+  trade_and_conflict:
+    - tariff
+    - tariffs
+    - sanctions
+    - trade war
+    - trade deal
+    - export controls
+    - embargo
+    - invasion
+    - ceasefire
+    - missile
+    - geopolitical
+    - blockade
+    - military strike
+    - strait of hormuz
+    - red sea
+  currencies_and_commodities:
+    - dollar
+    - yen
+    - euro
+    - exchange rate
+    - currency
+    - forex
+    - gold prices
+    - commodity prices
+  equity_market:
+    - wall street
+    - s and p 500
+    - sp 500
+    - dow jones
+    - nasdaq
+    - stock market
+    - stock markets
+    - equities
+    - sell off
+    - selloff
+    - vix
+    - volatility
+    - bull market
+    - bear market
+
+# Regions, as portfolio geography codes where the book has any (US, GB); the rest are reported as exposure-free.
+regions:
+  US: [united states, us economy, us treasury, us stocks, us government, america, american, americans, washington]
+  GB: [britain, british, united kingdom, uk, london, bank of england, ftse, sterling]
+  EU: [europe, european, eurozone, euro zone, ecb, germany, german, france, french, italy, brussels]
+  CN: [china, chinese, beijing, yuan, hong kong, taiwan]
+  JP: [japan, japanese, tokyo, yen, nikkei]
+  IN: [india, indian, mumbai, rupee]
+  MIDEAST: [middle east, israel, iran, gaza, saudi, opec, gulf, red sea, strait of hormuz]
+  RU_UA: [russia, russian, ukraine, ukrainian, kremlin, moscow]

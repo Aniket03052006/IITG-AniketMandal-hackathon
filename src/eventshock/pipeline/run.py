@@ -31,6 +31,7 @@ from ..domain import (
     SignalProvenance,
     SignalStatus,
     TimestampOrigin,
+    scope_from_entity,
 )
 from ..ingestion.base import RejectCode, Rejected
 from ..ingestion.gdelt import GdeltAdapter
@@ -42,6 +43,7 @@ from .enrich import Enricher, EnrichmentInput, PlaceholderEnricher
 from .entities import EntityResolver
 from .models import FetchQuery, PipelineCounts, PipelineReport, QuarantinedRecord, SourceReport
 from .normalize import canonical_url, clean_text
+from .scope import ScopeResolver
 from .validate import validate_document
 
 PIPELINE_VERSION = "pipeline-2.0"
@@ -93,6 +95,42 @@ def _sid(prefix: str, doc_id: str) -> str:
     return f"{prefix}_{hashlib.sha1(doc_id.encode()).hexdigest()[:10]}"  # noqa: S324
 
 
+@dataclass
+class PreparedRecord:
+    """The front half of the pipeline for one input record: either quarantined (with the reason) or an entity-resolved ``Item``."""
+
+    source: str
+    quarantined: QuarantinedRecord | None = None
+    item: Item | None = None
+    mention: object | None = None
+    audit: object | None = None
+
+
+def prepare_record(rec: RawDocument | Rejected, *, cfg: PipelineConfig, as_of: datetime, window_start: datetime,
+                   window_end: datetime, resolver: EntityResolver, enricher: Enricher) -> PreparedRecord:
+    """normalise -> validate -> enrichment-can-score -> entity resolution. Shared by the batch run and the live engine."""
+    if isinstance(rec, Rejected):
+        return PreparedRecord(rec.source, quarantined=QuarantinedRecord(
+            source=rec.source, record_ref=rec.record_ref, code=rec.code.value, detail=rec.detail, preview=rec.preview))
+    src = str(rec.raw_metadata.get("adapter", rec.source))
+    ref = str(rec.raw_metadata.get("record_ref", rec.id))
+    norm = _normalise(rec)
+    problem = norm if isinstance(norm, tuple) else validate_document(
+        norm, cfg=cfg.validation, as_of=as_of, window_start=window_start, window_end=window_end,
+        timestamp_origin=_origin(rec))
+    if problem is not None:
+        code, detail = problem
+        return PreparedRecord(src, quarantined=QuarantinedRecord(
+            source=src, record_ref=ref, code=code.value, detail=detail, preview=rec.headline[:120]))
+    doc: RawDocument = norm  # type: ignore[assignment]
+    unscorable = enricher.unscorable(f"{doc.headline} {doc.body}".strip())
+    if unscorable:  # the enrichment stage has nothing to score: quarantine, never invent a value
+        return PreparedRecord(src, quarantined=QuarantinedRecord(
+            source=src, record_ref=ref, code=RejectCode.UNSCORABLE_TEXT.value, detail=unscorable, preview=rec.headline[:120]))
+    mention, audit = resolver.resolve(f"{doc.headline} {doc.body}".strip())
+    return PreparedRecord(src, item=Item.build(doc, mention.entity_id, _origin(rec)), mention=mention, audit=audit)
+
+
 def run_documents(
     records: Iterable[RawDocument | Rejected],
     *,
@@ -106,6 +144,7 @@ def run_documents(
     enrich_cfg: EnrichmentConfig,
     sources: list[SourceMeta] | None = None,
     enricher: Enricher | None = None,
+    scope_resolver: ScopeResolver | None = None,
 ) -> PipelineResult:
     resolver = EntityResolver(entities, cfg.entity_resolution)
     enricher = enricher or PlaceholderEnricher(enrich_cfg)
@@ -121,40 +160,21 @@ def run_documents(
         per_source.setdefault(source, Counter())[key] += n
 
     for rec in records:
-        if isinstance(rec, Rejected):
-            bump(rec.source, "records")
-            bump(rec.source, "quarantined")
-            quarantined.append(QuarantinedRecord(source=rec.source, record_ref=rec.record_ref, code=rec.code.value,
-                                                 detail=rec.detail, preview=rec.preview))
+        prep = prepare_record(rec, cfg=cfg, as_of=as_of, window_start=window_start, window_end=window_end,
+                              resolver=resolver, enricher=enricher)
+        bump(prep.source, "records")
+        if prep.quarantined is not None:
+            bump(prep.source, "quarantined")
+            quarantined.append(prep.quarantined)
             continue
-        src = str(rec.raw_metadata.get("adapter", rec.source))
-        bump(src, "records")
-        ref = str(rec.raw_metadata.get("record_ref", rec.id))
-        norm = _normalise(rec)
-        problem = norm if isinstance(norm, tuple) else validate_document(
-            norm, cfg=cfg.validation, as_of=as_of, window_start=window_start, window_end=window_end,
-            timestamp_origin=_origin(rec))
-        if problem is not None:
-            code, detail = problem
-            bump(src, "quarantined")
-            quarantined.append(QuarantinedRecord(source=src, record_ref=ref, code=code.value, detail=detail,
-                                                 preview=rec.headline[:120]))
-            continue
-        doc: RawDocument = norm  # type: ignore[assignment]
-        unscorable = enricher.unscorable(f"{doc.headline} {doc.body}".strip())
-        if unscorable:  # the enrichment stage has nothing to score: quarantine, never invent a value
-            bump(src, "quarantined")
-            quarantined.append(QuarantinedRecord(source=src, record_ref=ref, code=RejectCode.UNSCORABLE_TEXT.value,
-                                                 detail=unscorable, preview=rec.headline[:120]))
-            continue
-        mention, audit = resolver.resolve(f"{doc.headline} {doc.body}".strip())
-        audits[doc.id], mentions[doc.id] = audit, mention
-        items.append(Item.build(doc, mention.entity_id, _origin(rec)))
-        bump(src, "accepted")
+        assert prep.item is not None and prep.mention is not None and prep.audit is not None
+        audits[prep.item.doc.id], mentions[prep.item.doc.id] = prep.audit, prep.mention
+        items.append(prep.item)
+        bump(prep.source, "accepted")
 
     clusters = cluster_items(items, cfg.dedup)
-    signals = [_build_signal(c, mentions, audits, resolver, enricher, enrich_version, snapshot_id, as_of)
-               for c in clusters]
+    signals = [build_signal(c, mentions, audits, resolver, enricher, enrich_version, snapshot_id, as_of,
+                             scope_resolver) for c in clusters]
     # novelty needs the other clusters, so it is filled in a second pass
     signals = _apply_novelty(signals, clusters)
     # impact (when it is a trained model) reads novelty, so it is the last enrichment step
@@ -173,8 +193,9 @@ def run_documents(
     return PipelineResult(signals=signals, quarantined=quarantined, clusters=clusters, report=report)
 
 
-def _build_signal(c: Cluster, mentions: dict, audits: dict, resolver: EntityResolver, enricher: Enricher,
-                  enrich_version: str, snapshot_id: str, as_of: datetime) -> RiskSignal:
+def build_signal(c: Cluster, mentions: dict, audits: dict, resolver: EntityResolver, enricher: Enricher,
+                  enrich_version: str, snapshot_id: str, as_of: datetime,
+                  scope_resolver: ScopeResolver | None = None) -> RiskSignal:
     canon = c.canonical
     doc = canon.doc
     mention, audit = mentions[doc.id], audits[doc.id]
@@ -195,12 +216,15 @@ def _build_signal(c: Cluster, mentions: dict, audits: dict, resolver: EntityReso
         id=_sid("sig", doc.id),
         document=doc,
         entity=mention,
+        scope=(scope_resolver.resolve(text, mention, enr.event) if scope_resolver is not None
+               else scope_from_entity(mention)),
         sentiment=enr.sentiment,
         event=enr.event,
         impact=enr.impact,
         evidence=Evidence(
             source_count=len(reports), unique_domain_count=len(domains), recent_mention_count=recent,
-            coverage_velocity=velocity, novelty_score=1.0, model_confidence=round(enr.event.confidence, 4),
+            coverage_velocity=velocity, novelty_score=1.0, novelty_measured=mention.entity_id != UNKNOWN_ENTITY,
+            model_confidence=round(enr.event.confidence, 4),
             contradicted_by=[],
             corroborating=[
                 CorroboratingSource(source=m.item.doc.source, source_type=m.item.doc.source_type,
@@ -234,26 +258,35 @@ def _build_signal(c: Cluster, mentions: dict, audits: dict, resolver: EntityReso
     )
 
 
-def _apply_novelty(signals: list[RiskSignal], clusters: list[Cluster]) -> list[RiskSignal]:
-    """Novelty = 1 / (1 + log2(1 + k)), k = earlier trusted clusters for the same known issuer within 72 h."""
-    from bisect import bisect_left
-
+def novelty_times(clusters: list[Cluster]) -> dict[str, list[datetime]]:
+    """entity id -> sorted canonical times of its trusted clusters (what novelty counts earlier reports from)."""
     times: dict[str, list[datetime]] = {}
     for c in clusters:
         if c.canonical.trusted and c.canonical.entity_id != UNKNOWN_ENTITY:
             times.setdefault(c.canonical.entity_id, []).append(c.canonical.doc.published_at)
     for v in times.values():
         v.sort()
-    out: list[RiskSignal] = []
-    for s, c in zip(signals, clusters, strict=True):
-        k = 0
-        if c.canonical.trusted and s.entity.entity_id != UNKNOWN_ENTITY:
-            t = c.canonical.doc.published_at
-            ts = times[c.canonical.entity_id]
-            k = bisect_left(ts, t) - bisect_left(ts, t - timedelta(hours=72))  # earlier = strictly before t
-        novelty = round(1.0 / (1.0 + math.log2(1 + k)), 4)
-        out.append(s.model_copy(update={"evidence": s.evidence.model_copy(update={"novelty_score": novelty})}))
-    return out
+    return times
+
+
+def apply_novelty_one(s: RiskSignal, c: Cluster, times: dict[str, list[datetime]]) -> RiskSignal:
+    """Novelty = 1 / (1 + log2(1 + k)), k = earlier trusted clusters for the same known issuer within 72 h."""
+    from bisect import bisect_left
+
+    k = 0
+    if c.canonical.trusted and s.entity.entity_id != UNKNOWN_ENTITY:
+        t = c.canonical.doc.published_at
+        ts = times[c.canonical.entity_id]
+        k = bisect_left(ts, t) - bisect_left(ts, t - timedelta(hours=72))  # earlier = strictly before t
+    novelty = round(1.0 / (1.0 + math.log2(1 + k)), 4)
+    measured = c.canonical.trusted and s.entity.entity_id != UNKNOWN_ENTITY
+    return s.model_copy(update={"evidence": s.evidence.model_copy(
+        update={"novelty_score": novelty, "novelty_measured": measured})})
+
+
+def _apply_novelty(signals: list[RiskSignal], clusters: list[Cluster]) -> list[RiskSignal]:
+    times = novelty_times(clusters)
+    return [apply_novelty_one(s, c, times) for s, c in zip(signals, clusters, strict=True)]
 
 
 def _report(snapshot_id, description, as_of, w0, w1, resolver_version, enrich_version, signals, clusters,
@@ -354,13 +387,13 @@ def summarise_fetch_log(entries: list[dict], plan: list[str] | None = None) -> t
 
 
 def run_snapshot(snapshot: Snapshot, cfg: PipelineConfig, enrich_cfg: EnrichmentConfig,
-                 enricher: Enricher | None = None) -> PipelineResult:
+                 enricher: Enricher | None = None, scope_resolver: ScopeResolver | None = None) -> PipelineResult:
     records, metas = read_snapshot(snapshot)
     m = snapshot.manifest
     result = run_documents(
         records, snapshot_id=m.snapshot_id, description=m.description, as_of=m.replay_as_of,
         window_start=m.window_start, window_end=m.window_end, entities=load_entities(snapshot.entities_path()),
-        cfg=cfg, enrich_cfg=enrich_cfg, sources=metas, enricher=enricher)
+        cfg=cfg, enrich_cfg=enrich_cfg, sources=metas, enricher=enricher, scope_resolver=scope_resolver)
     fetch_log, superseded = summarise_fetch_log(m.fetch_log, m.fetch_plan)
     result.report = result.report.model_copy(update={"fetch_log": fetch_log, "superseded_requests": superseded})
     return result

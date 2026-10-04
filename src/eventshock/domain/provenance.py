@@ -16,10 +16,13 @@ class TimestampOrigin(StrEnum):
     SOURCE_DATE_ONLY = "SOURCE_DATE_ONLY"  # publisher date without a time of day (stored as 00:00 UTC)
     GDELT_FIRST_SEEN = "GDELT_FIRST_SEEN"  # when GDELT first crawled the page (>= publication time)
     SYNTHETIC_REPLAY_CLOCK = "SYNTHETIC_REPLAY_CLOCK"  # the source has no time; replay assigned one
+    ANALYSIS_TIME = "ANALYSIS_TIME"  # pasted text with no stated time: the moment EventShock was given it
+    USER_ASSERTED = "USER_ASSERTED"  # pasted text the user dated; taken at their word, not independently known
 
 
 TRUSTED_TIMESTAMPS = frozenset(
-    {TimestampOrigin.SOURCE, TimestampOrigin.SOURCE_DATE_ONLY, TimestampOrigin.GDELT_FIRST_SEEN})
+    {TimestampOrigin.SOURCE, TimestampOrigin.SOURCE_DATE_ONLY, TimestampOrigin.GDELT_FIRST_SEEN,
+     TimestampOrigin.ANALYSIS_TIME, TimestampOrigin.USER_ASSERTED})
 
 
 class StageOrigin(StrEnum):

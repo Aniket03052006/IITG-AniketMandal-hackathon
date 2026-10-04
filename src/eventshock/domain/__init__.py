@@ -35,6 +35,7 @@ from .provenance import (
     TimestampOrigin,
 )
 from .scenarios import Scenario, ShockSpec
+from .scope import ScopeBasis, ScopeLevel, ScopeStrength, SignalScope, scope_from_entity
 from .signals import (
     CorroboratingSource,
     EventClassification,
@@ -58,4 +59,5 @@ __all__ = [
     "ImpactDriver", "ModelVersions", "Portfolio", "PortfolioAsset", "RawDocument", "RiskFactor",
     "RiskSignal", "RunMode", "Scenario", "SentimentResult", "ShockScope", "ShockSpec",
     "SignalStatus", "SourceType", "StressResult", "StressStatus",
+    "ScopeBasis", "ScopeLevel", "ScopeStrength", "SignalScope", "scope_from_entity",
 ]

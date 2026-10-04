@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from datetime import datetime
+from typing import Any
 
 from pydantic import Field, field_validator, model_validator
 
@@ -11,6 +12,7 @@ from .base import ContractModel
 from .documents import EntityMention, RawDocument, _require_aware
 from .enums import DataOrigin, EventCategory, EventStatus, SignalStatus, SourceType
 from .provenance import SignalProvenance
+from .scope import SignalScope, scope_from_entity
 
 _PROB_TOL = 1e-3
 
@@ -117,6 +119,10 @@ class Evidence(ContractModel):
     recent_mention_count: int = Field(ge=0)
     coverage_velocity: float = Field(ge=0, description="mentions per hour over the recent window")
     novelty_score: float = Field(ge=0, le=1)
+    novelty_measured: bool = Field(
+        default=True,
+        description="false when novelty is the default 1.0 because no issuer was resolved to compare against "
+                    "(the value is still what the impact model was trained on; it is not a finding)")
     model_confidence: float = Field(ge=0, le=1)
     contradicted_by: list[str] = Field(
         default_factory=list, description="signal ids that report the opposite narrative"
@@ -138,6 +144,8 @@ class RiskSignal(ContractModel):
     id: str = Field(min_length=1)
     document: RawDocument
     entity: EntityMention
+    scope: SignalScope = Field(
+        description="what the signal is about; derived from `entity` when a producer did not set it")
     sentiment: SentimentResult
     event: EventClassification
     impact: ImpactAssessment | None
@@ -152,6 +160,16 @@ class RiskSignal(ContractModel):
     )
 
     aware_check = field_validator("created_at")(_require_aware)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _scope_default(cls, data: Any) -> Any:
+        """A producer that sets no scope (the demo fixtures, older JSON) gets the one its entity implies: COMPANY or UNRESOLVED."""
+        if isinstance(data, dict) and data.get("scope") is None and data.get("entity") is not None:
+            ent = data["entity"]
+            mention = ent if isinstance(ent, EntityMention) else EntityMention.model_validate(ent)
+            return {**data, "scope": scope_from_entity(mention)}
+        return data
 
     @model_validator(mode="after")
     def _partial_has_no_impact(self) -> RiskSignal:

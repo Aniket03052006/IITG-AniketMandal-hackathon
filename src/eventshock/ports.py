@@ -30,6 +30,7 @@ class SignalRepository(Protocol):
         min_impact: int | None = None,
         query: str | None = None,
         event_status: EventStatus | None = None,
+        scope_level: str | None = None,
     ) -> list[RiskSignal]: ...
 
     def get(self, signal_id: str) -> RiskSignal | None: ...
