@@ -1,0 +1,45 @@
+# LLM semantic extraction (llm-v1). The LLM READS a report and fills a closed schema (event type, subtype, tone, entities, sectors, regions,
+# asset classes, severity indicators, evidence quotes). It never produces the impact number, never decides the stress trigger and never
+# does portfolio arithmetic: those are explicit code (configs/impact_hybrid.yaml, the stress engine).
+#
+# OFF BY DEFAULT. Turning it on sends the report text (capped, below) to the provider. Enable with EVENTSHOCK_LLM=1 and the provider's key
+# (GROQ_API_KEY or ANTHROPIC_API_KEY); choose the provider with `provider` below or EVENTSHOCK_LLM_PROVIDER.
+# Without a key, or when a call fails (timeout, rate limit, malformed output), the deterministic rule extractor serves and every
+# assessment says so. The key itself is never in a config file.
+version: "llm-v1"
+
+enabled: false                 # EVENTSHOCK_LLM=1 overrides
+provider: groq                 # groq | anthropic; EVENTSHOCK_LLM_PROVIDER overrides
+providers:
+  groq:                        # OpenAI-compatible chat completions with a forced function call
+    model: openai/gpt-oss-120b   # EVENTSHOCK_LLM_MODEL overrides. What your key can use: GET https://api.groq.com/openai/v1/models (llama-3.3-70b-versatile was not available to ours)
+    api_url: https://api.groq.com/openai/v1/chat/completions
+    key_env: GROQ_API_KEY
+    request_extra: {reasoning_effort: low}   # a short extraction, not a reasoning task: keep the reasoning tokens (and the latency) small
+  anthropic:                   # Messages API with a forced tool call
+    model: claude-haiku-4-5-20251001
+    api_url: https://api.anthropic.com/v1/messages
+    api_version: "2023-06-01"
+    key_env: ANTHROPIC_API_KEY
+
+timeout_seconds: 15            # per attempt
+max_retries: 2                 # extra attempts on 429 / 5xx / network errors (never on a malformed answer: that is a model problem, not a transient one)
+retry_backoff_seconds: 1.5     # doubled each retry; a Retry-After header is honoured up to max_retry_after_seconds
+max_retry_after_seconds: 8
+max_total_seconds: 30          # the whole call, retries included: a person is waiting; past this the rules answer, labelled
+max_output_tokens: 1500       # includes a reasoning model's hidden reasoning tokens
+
+max_calls_per_minute: 30       # a local cost guard: past this many provider calls in a minute, new text is read by the rules (labelled) until the minute passes. Cache hits are free
+max_chars_sent: 2000           # only the report text is sent, cut here (the pipeline already caps pasted text at the same length)
+
+cache:
+  path: data/live/llm_cache.jsonl   # git-ignored; EVENTSHOCK_LLM_CACHE_PATH overrides. Keyed by text + model + prompt version.
+  max_entries: 5000
+
+# Applied to what the model returns, before anything is believed.
+grounding:
+  min_quote_chars: 6           # an evidence quote shorter than this is not evidence
+  max_quotes: 6
+  max_entities: 8
+  max_quote_share: 0.8         # a "quote" that is nearly the whole text highlights nothing: dropped (only for texts longer than the next value)
+  share_applies_above_chars: 40
