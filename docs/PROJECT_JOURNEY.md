@@ -590,3 +590,110 @@ A late finding from that fresh-start walk: the count-up numbers (portfolio value
 ### Stage 5, docs and history (2026-10-03)
 
 Added `docs/FEATURES_AND_PAIN_POINTS.md`: every feature of the final UI mapped to the frustration it removes, who feels it, where to see it and how we know it works (a test, a rule or a file). Writing it was a useful audit: two rows had to be softened because the claim was stronger than the evidence ("three clipping bugs" became "several"), and the comparable-events row is explicitly marked as a limit. README gained a short pain-point table and the replay headline figures (the old figures there were demo-profile only). The Stage-5 work was then pushed as a series of small commits (backend context endpoint, design system and shared components, event page, stress page, feed/evidence/pipeline plus the rewritten page tests, then docs and screenshots) instead of one dump; the page commits are not individually green under vitest, because the page tests were rewritten as one unit and land with the last page commit.
+
+
+## Stage 6: one risk engine (scope, pasted text, live feed) (2026-10-04)
+
+**Goal.** Move from a company-centric, batch, replay-only analyser to one engine with several doors: UNSTRUCTURED INFORMATION → UNDERSTANDING → RISK SIGNAL → EVIDENCE → EXPOSURE → SCENARIO → PORTFOLIO CONSEQUENCE, for events that name a company, a sector, the market, or nothing, entering as pasted text, a live feed or a replay. Models, thresholds and the replay pack stay frozen.
+
+**What exploration found (and what it changed).**
+- *Unresolved documents were never dropped* (`UNKNOWN_ENTITY` is a first-class state; 847 of the 2,330 replay signals end up unresolved and 301 more name a sector or the market), but nothing said what an unresolved event is *about*. The stress service bound the sector only from a resolved company, so a pure sector event could never apply sector shocks, and the UI called a valid market-wide event "company not identified".
+- *A real defect:* an unresolved signal whose default scenario has no market-wide shock (M&A, product/operations, earnings: 3 of 8 scenarios) returned `COMPLETED` with P&L 0 and 100 % "uncovered". 12 of the 19 replay signals at impact ≥ 7 are unresolved. It now returns `NOT_APPLICABLE` with the reason. This changes behaviour on purpose; it is journalled here and pinned by a test.
+- *Nothing could be fed to the app.* The container threw the enricher away after start-up and the signal store had no `add`. Two traps for ad-hoc text: the served hybrid event model needs an e5-large vector per text and `torch` is not installed (it would raise `EmbeddingUnavailable` on any new text), and the frozen market context ends 2026-10-01, so later reports get the labelled placeholder impact. Both now degrade labelled, never silently.
+- *Novelty was 1.0 for every unresolved signal,* which reads as a measurement. The value is kept (the impact model was fitted on it) but `evidence.novelty_measured` says it is not one, and the UI shows "not measured".
+
+**What we built.**
+- *Scope layer.* `domain/scope.py`, `pipeline/scope.py`, `configs/scope.yaml`: COMPANY / SECTOR / MARKET / UNRESOLVED from an ordered, explainable rule table (entity resolver → not-an-event → ≥2 sector terms → macro/geopolitical class or market vocabulary → one sector term → unresolved with the reason). Deterministic vocabulary, no model. `RiskSignal.scope` is derived from the entity when a producer sets none, so fixtures and old JSON still validate.
+- *Measured, not asserted.* `make scope-eval` runs the sector vocabulary on the 1,549 replay documents that name exactly one company (whose sector is therefore known): it fires on 27 %, STRONG matches (≥2 terms) agree with the issuer's sector 90 % of the time (27/30), WEAK ones 81 % (314/387). The vocabulary was written before that run and has not been edited since. The bias is stated in the file: these documents also name the company, so the number is an optimistic proxy for the no-company case. There is no labelled set of no-company documents.
+- *Stress and relevance.* Shocks bind by scope (`ISSUER` needs a company, `SECTOR` a sector, named or implied, `MARKET` always) with a stated reason when one is skipped; `NOT_APPLICABLE` for the defect above. `services/relevance.py` answers "what does this mean for this portfolio?" from the book alone (issuer / sector / region / whole book, shares, the path, how many of the default scenario's shocks reach this kind of event). Geography is exposure-only: region shocks would need new assumptions in the frozen `scenarios.yaml`.
+- *One engine.* `run_documents` now calls `prepare_record`, `build_signal` and the novelty helpers, which `pipeline/engine.py::RiskEngine` reuses for incremental ingestion over a bounded live window (cluster membership fingerprints, only changed clusters rebuilt, an alias when a late earlier report takes over a cluster). `store.py` gained `LiveSignalStore` (age and count bounded, change counter) and `CombinedSignalRepository`. Start-up picks the TF-IDF event model for new text when no encoder is installed and says so on every signal and in `/api/live/status`.
+- *Pasted text.* `POST /api/analyze` → an ordinary signal (`adapter manual-paste`, time marked `ANALYSIS_TIME` or `USER_ASSERTED`), idempotent, joins a story already in the feed, rejected with the reason when it cannot be scored.
+- *Live information.* `ingestion/live.py` + `services/live.py`: GDELT DOC 2.0 through the existing `fetch.get_json` and `GdeltAdapter.parse`, an asyncio poller with back-off, `LiveStatus` (OFF/OK/DEGRADED/ERROR/IDLE), an input journal (git-ignored) for warm restarts, and a capture source that replays a GDELT file on its own clock, labelled "simulated". Off by default (`make run-live`, `make run-capture`). A failed poll changes the status, never the data.
+- *Clustering of reports that name no company* (`unknown_same_event`, stricter than the issuer rule, set only in `configs/live.yaml`; the replay config leaves it off so its digest is unchanged).
+- *UI.* Analyze page (four examples, one per kind of subject), Risk Feed → Risk Monitor (live bar, channel and scope filters, scope / relevance / new / updated chips), scope-aware Event Intelligence (the wrong "company not identified" copy for market-wide events is gone; a "what it is about" card and a portfolio-relevance panel), a Scope tab in Evidence (rules, mix, the measured vocabulary and its limits).
+
+**What broke along the way.**
+- *Calling GDELT for real found two bugs the fake transport could not:* a bare `a OR b` query is rejected ("Queries containing OR'd terms must be surrounded by ()") and arrives as non-JSON (every query in the first `live.yaml` was wrong); and querying faster than one request per five seconds gets HTTP 429 for minutes. Fixed the queries; the failure paths (non-JSON, 429, partial failure) were exactly what the status line was built for and behaved.
+- *A test that shared the developer's journal:* pasted text is journalled, so the session-scoped app in the existing suite warm-started text pasted by another test and broke two model-id assertions. Every test app now gets its own journal (`EVENTSHOCK_JOURNAL_PATH`).
+- *`RiskSignal.scope` as an optional field* made the OpenAPI type nullable and the whole UI needed `!`; a `before` validator derives it, so the contract is non-null.
+- *The golden digest* changed because every signal gained `scope` and `novelty_measured`. Rather than re-pin blindly, `test_no_pre_existing_signal_field_changed` hashes the served run with only those two fields removed and requires the Stage-5 digest `d265604e…`; the new digest is `70478b2d…`.
+- *Lint:* the repo's strict E501 passed at HEAD; the new modules carry long contract docstrings, so they were added to the existing per-file ignores like the pipeline modules.
+
+**Decisions kept visible.** Impact is still Experimental everywhere and is *not* a sector model: a sector or market event gets the existing MARKET-scope estimate, labelled; nothing blended. The trained event model cannot embed new text without an encoder, so live and pasted text use `tfidf-lr-event-v1` (impact was fitted on its outputs anyway) and say so. Kalshi was **deferred**: it would need a curated theme→contract mapping and a verified API, and it must stay an independent, labelled observation, so it is not worth a half-built version. A learned scope model, contradiction detection (`contradicted_by` is still always empty), region shocks and a live market-context refresh (prices) are also not done.
+
+**Not done in Stage 6 (honest list).** No sample capture is committed: GDELT answered HTTP 429 to every request for the rest of the session after our first, too-fast attempts (the live source and `scripts/capture_gdelt.py` throttle at 6-20 s and retry with back-off, but the block did not lift), so the offline *simulated live* mode was verified with a ten-record hand-made file in the scratchpad (queries, clustering, scoring, UI) and `make capture-gdelt` creates a real one. The live poller therefore has been exercised against the real API only up to its failure handling, never to a successful poll: its success path is tested with a fake transport. The freeze manifest changed by exactly three added files (`configs/live.yaml`, `configs/scope.yaml`, `docs/evidence/scope_eval.json`); no existing hash moved. Older golden tests (Stage 2-4 digests) now hash the run with the two Stage-6 fields removed and still match their original pins.
+
+
+## Stage 7: LLM understanding + a transparent severity score (2026-10-05)
+
+**Goal.** Turn "raw financial text → structured understanding → impact → scenario → portfolio stress → evidence" into a product that is statistically honest. Three weaknesses were
+checked against the code before anything changed: understanding was shallow (8-class TF-IDF/e5 event type, TF-IDF sentiment, keyword scope; no subtype, entity list, asset classes,
+severity indicators or evidence spans); the headline impact (`impact-v2`) fails its own pre-registered bar (placebo ≥ real), so it cannot defensibly trigger a stress test; and the UI said
+"the text models' outputs add none" next to a per-event score.
+
+**What exploration corrected.** There is *no* XGBoost in the repo (the impact model is `HistGradientBoosting` / Ridge) and real outcome labels *do* exist (two-session abnormal returns) — so
+"no legitimate labels" was not the reason to leave supervised learning; the reason is that the trained model's own evaluation says it measures the volatility regime. No labels were created or
+inferred. This contradicted CLAUDE.md's "architecture finalised / models frozen" status; the brief authorised it, and the change was kept narrow: an additive layer, trained models and the frozen replay
+pack untouched.
+
+**What we built.**
+- *LLM adapter* (`llm/`): Anthropic Messages API over `urllib` (no new dependency), forced tool-call JSON schema, closed enums, timeout / retry-with-back-off / `Retry-After`, typed errors, JSONL cache keyed by
+  text + model + prompt version (so a restart that re-ingests the journal costs nothing). Off by default (`EVENTSHOCK_LLM=1` + `ANTHROPIC_API_KEY`).
+- *Grounding* (`assessment/grounding.py`): entities must appear in the text and can never become the issuer; quotes must be verbatim (found by position so the UI highlights them); every id must be in the
+  closed vocabulary (`configs/semantics.yaml`); what was dropped is shown.
+- *Rule extractor* (`assessment/rules.py`): the no-key demo mode and the fallback for every provider failure; cue phrases anchored to the trained models' readings.
+- *Hybrid severity* (`assessment/hybrid.py`, `configs/impact_hybrid.yaml`): seven explicit factors, configurable weights each with a rationale, renormalised over what is available, uncertainty discount,
+  assumption-sensitivity range, drivers generated by rule from the computed values. Not supervised, not validated, said everywhere.
+- *Side-car, not a `RiskSignal` change* (`assessment/service.py`): an `AssessmentService` derives the assessment from a signal. A new field on `RiskSignal` would have moved the pinned digests, fixtures and goldens;
+  the side-car leaves all of them valid (`GOLDEN_SERVED_DIGEST` etc. unchanged).
+- *Stress hook*: `StressService(severity_provider=…)`: the trigger and scaling read the severity score, the scenario follows the *assessed* class, a sector read from the text binds sector shocks where the vocabulary scope
+  found none. Audit records `ASSESSMENT`, basis, version and mode. No provider → byte-identical behaviour (`GOLDEN_RUN_ID`).
+- *API*: `/signals/{id}/assessment`, `/evidence` (source · inference · assumptions), `/timeline`, `/stress-runs?signal_id=`; `POST /analyze` returns the assessment and takes an optional `source`.
+- *UI* (Hallmark, existing tokens, no new colours): the five-step chain on the Feed, Analyze and Event pages; `UnderstandingCard` with highlighted evidence; `SeverityBreakdown` (drivers, the full table, omitted
+  factors and why); one shared `ThresholdNotice`; "What the assessment used" replaces "What the model saw" as the primary inputs drawer (NLP signals / market state / calendar / deliberately excluded); a three-box
+  evidence view and a phase-grouped timeline where everything after the report is tagged "not used"; a mode-aware privacy note. The trained model sits in a collapsed *Reference* panel.
+
+**What broke / what we got wrong, and the fix.**
+- *Pasted text borrowed a stale market state.* The frozen market pack ends 2026-10-01; a text pasted later was given that VIX as "the market at the time". Fixed: the regime factor is refused when the state is older than
+  5 days at the report's time, and the reason is listed.
+- *The first rule extractor over-claimed.* "Escalating tensions" was filed under *armed conflict* (weight 0.85). Split into a separate, lower-weight *geopolitical tension* indicator.
+- *A name inside another word matched the entity master* ("Pineapple Co" for Apple). Containment is now whole-word only, with a regression test.
+- *"Uncertainty 50%"* was shown as the reading's own when the rule extractor states none. The contract now carries `uncertainty_stated`, and the UI says a neutral value was assumed.
+- *Feed and detail disagreed*: rows still showed the trained model's event class beside the assessed one. The tag, the non-event filter, the category filter and the flow-rail context now all follow the assessment.
+- *Existing UI tests pinned the overbroad copy* ("the text models' outputs add none"). Replaced by a scoped statement about the reference model only, with a test that the old claim is gone; textbox queries now use the
+  accessible name because the Analyze form gained a second field.
+- *The backend suite is slow* (each replay-profile app builds in ~85 s), so it was run in three parallel groups (unit, integration, e2e).
+- *Dead ends considered and rejected:* adding the assessment to `RiskSignal` (moves every pinned digest); feeding LLM outputs into the trained impact model (train/serve skew; the feature registry would refuse it);
+  counting later corroborating reports in the score (violates the temporal rule: they are shown, never scored).
+
+**Verified.** Deterministic tests only: a scripted fake LLM client (success, timeout, 429, malformed JSON, ungrounded entity/quote, invalid class, cache hit with zero calls, restart over the cache file), the seven required
+cases through both extractors, the hybrid maths (contributions sum to the score, renormalisation, monotonicity, omitted factors, stale market data), temporal future-invariance, conflict detection, the stress provider,
+API behaviour through the real replay app, and the UI components and Analyze page. **Not verified: the real Anthropic API** (no key was available in this environment); the HTTP adapter is tested against a scripted opener.
+
+**Honest list of what is not done.** Weights are judgement priors (the range is sensitivity, not an interval); duplicate detection remains the token-overlap rule; the reference model is still experimental; no
+learned scope model, no region shocks, no live market-data refresh; the real-API path is unverified here.
+
+**Freeze.** `make freeze-write` was run once after adding `configs/semantics.yaml`, `configs/llm.yaml` and `configs/impact_hybrid.yaml` (the manifest globs `configs/*.yaml`); the models, replay pack, gold sets and
+evidence hashes in it are unchanged (63 files, up from 60 + the three new configs). A local call cap (`max_calls_per_minute`, default 30) was added to `configs/llm.yaml` before the freeze: a demo left open cannot run up a
+bill, and overflow text is read by the rules, labelled.
+
+**Late fix (found by driving the real app with `EVENTSHOCK_LLM=1` and no key).** The service only passed "use the model" to the extractor when a client existed, so a pasted text in "switched on but no key" mode reported no
+`fallback_reason` and the UI showed a plain rule-based reading instead of saying why. It now asks for the model whenever the text is new (a paste or the live feed), and the extractor labels the unavailability; replay text never
+asks, so it never apologises. Regression test: `test_a_model_wanted_but_not_available_says_why_on_new_text_only`.
+
+
+### Stage 7, live provider test: Groq (2026-10-05)
+
+A Groq key was supplied and put in the git-ignored `.env` (never echoed, never in a config file). The provider layer was generalised (`llm/client.py`: a shared HTTP core with `AnthropicClient` and an OpenAI-compatible `GroqClient`;
+`configs/llm.yaml` now has a `providers` table; `GROQ_API_KEY` / `EVENTSHOCK_LLM_PROVIDER` in `Settings`).
+
+**What the real service showed that the scripted client could not.**
+- *The documented default model was refused:* `llama-3.3-70b-versatile` returned `404 model_not_found` for this key. The 404 was reported as "answer does not match the schema" (wrong: it was a refused request). Fixed: a new `LLMRejected` carries the provider's own words (`model_not_found: The model … does not exist`), and the default is `openai/gpt-oss-120b`, taken from `GET /openai/v1/models`. Every refusal still fell back to the rules and nothing crashed; that was the accidental proof of the fallback.
+- *Quotes were the whole sentence.* The first live run "quoted" the entire headline for most claims, which highlights nothing. Prompt v2 asks for 2-4 short phrases and says institutions are entities; grounding drops a quote covering more than 80 % of a text longer than 40 characters, and says so. The prompt version is in the cache key, so v1 answers are not reused.
+- *One call took 107 s* (rate-limit waits plus retries). Added `max_total_seconds: 30` across retries (and a 15 s per-attempt timeout); a person waiting on a paste gets the rules, labelled, instead.
+- *A reasoning model spends tokens thinking:* `reasoning_effort: low` (a per-provider `request_extra`) and `max_output_tokens: 1500`.
+
+**Live results (7 headlines, `openai/gpt-oss-120b`, about 1-1.6 s each, repeat served from the cache with zero calls).** All seven read as expected (regulatory, monetary, geopolitical, earnings, M&A, unknown-company, non-event); Quantum Dynamics stayed a mention
+with issuer `UNKNOWN_ENTITY`; the weather headline was `NO_EVENT` with no severity. Failure modes exercised against the real service: bad key (`HTTP 401 … invalid_api_key`), unknown model (404), 1 ms timeout, unreachable host (connection refused), wrong URL (404): each returned `mode: RULES` with the reason, and the text was still read by the rules.
+The real app, started from `.env`, reported `mode: LLM, openai/gpt-oss-120b, sends_text_off_machine: true` and served pasted text with `extraction.mode: LLM`.
+The Anthropic path remains verified only against the scripted opener.

@@ -233,3 +233,61 @@ event page plus the stress and evidence screens. Technical depth sits behind pro
 The timeline in the UI is built from exactly that payload plus the signal's own cluster of reports; its view-model (`web/src/lib/timeline.ts`)
 returns only what the cursor has reached, so a later fact cannot be rendered in an earlier state (tested). There is no retrieval of similar
 *individual* past events anywhere in the system: "comparable events" are statistics of the model's own score bucket, and the UI says so.
+
+## Stage 6: one engine, several doors
+
+```
+ paste (POST /api/analyze) ─┐
+ live GDELT poll ───────────┼─► RiskEngine.ingest(records, channel, now)
+ capture file (offline) ────┘     prepare_record  = normalise → validate → can-it-be-scored → entity resolution   (shared with run_documents)
+                                  cluster_items   = the same dedup, over the bounded live window                 (shared)
+                                  build_signal    = sentiment, event, SCOPE, evidence                            (shared)
+                                  novelty → impact post-pass                                                     (shared)
+                                              │
+                         LiveSignalStore (age- and count-bounded, change counter) ┐
+                         InMemorySignalRepository (the frozen replay run)         ┴► CombinedSignalRepository ► API ► UI
+```
+
+**Scope (`domain/scope.py`, `pipeline/scope.py`, `configs/scope.yaml`).** Every `RiskSignal` says what it is about: `COMPANY`, `SECTOR`, `MARKET` or `UNRESOLVED`, with the
+terms and the rule that decided it. Company resolution is an enrichment, never a gate: an unresolved event is kept, read, and either given the subject its text supports or
+labelled unresolved with the reason. The rules are a deterministic vocabulary table, not a model; `make scope-eval` measures the sector vocabulary on documents whose company
+resolved (docs/evidence/scope_eval.json, with its bias stated). There is no industry level: the entity master has none.
+
+**Stress binding.** `ISSUER` shocks need a `COMPANY` scope, `SECTOR` shocks a sector (named or implied), `MARKET` shocks always apply; a skipped shock carries its reason. If
+none binds the run is `NOT_APPLICABLE` (before Stage 6 it was `COMPLETED` with a P&L of zero). `GET /api/signals/{id}/relevance` (`services/relevance.py`) reports what the event
+reaches in the book (issuer, sector, region, whole book) from holdings alone; shock sizes remain the scenario's illustrative assumptions.
+
+**Models for new text.** The engine reuses the models loaded at start-up. The served hybrid event model needs an encoder for any text that is not in the pinned replay vectors; if
+none is installed the engine serves the TF-IDF reference model for live and pasted text (the impact model was fitted on its outputs), and the model id on every signal says which ran.
+The impact model scores a report only inside its frozen market-context calendar (plus five days); later reports keep the labelled placeholder rule with `impact_note`.
+
+**Live (`ingestion/live.py`, `services/live.py`, `configs/live.yaml`).** Off by default. `fetch.py` stays the only HTTP code: the live source drives `fetch_gdelt` and hands records to
+`GdeltAdapter.parse`. The poller backs off, reports `OFF / OK / DEGRADED / ERROR / IDLE`, and never turns a failure into data. Raw inputs are journalled (git-ignored) so a restart is
+warm and a live session can be replayed through the same engine; a capture file is delivered in batches on its own clock and labelled *simulated*. The server calls out only when
+`EVENTSHOCK_LIVE=1` and the source is GDELT.
+
+**API additions.** `POST /analyze`, `GET /signals/{id}/relevance`, `GET /live/status`, `POST /live/refresh`, `GET /scope`; `GET /signals` gains `channel`, `scope_level`, `since_seq`
+and returns a change counter `seq`; each row carries scope, channel and relevance.
+
+
+## Stage 7: the risk assessment (an additive layer)
+
+```
+ RiskSignal (frozen shape: trained sentiment / event / impact-v2, scope, novelty)         ← unchanged, digests unchanged
+        │
+        ▼
+ AssessmentService.assess(signal)                                                         ← derived, memoised, never stored on the signal
+   SemanticExtractor:  cache → LLM (forced tool call) → grounding ──┐ on any failure
+                                                                    └──────────────► RuleExtractor (labelled, no key needed)
+   HybridScorer:       explicit factors × configured weights → severity 1-10, range, drivers, omitted factors
+   ThresholdState:     score vs the stress trigger, in words
+        │
+        ├─► GET /signals/{id}/assessment · /evidence · /timeline
+        └─► StressService(severity_provider): trigger + scaling + scenario class + sector, then the deterministic engine
+```
+
+`docs/RISK_ASSESSMENT.md` is the reference: why the headline changed, what the LLM may and may not do, the factors and their temporal rule, the fallback, and the limits. Modules: `llm/` (client, cache, schema, prompt, config),
+`assessment/` (config, vocab, cues, rules, grounding, extractor, hybrid, service, views, model). Configs: `semantics.yaml` (the closed vocabulary), `llm.yaml`, `impact_hybrid.yaml` (all in the freeze manifest).
+
+Two decisions worth defending. (1) **Side-car, not a field**: the assessment is derived from the signal, so the replay output digest, the fixtures and the stress goldens stay valid, and the trained stages remain exactly
+what their cards describe. (2) **The LLM reads, code decides**: severity, the trigger and the portfolio arithmetic are explicit and deterministic; the model fills a closed schema whose every claim is checked against the text.

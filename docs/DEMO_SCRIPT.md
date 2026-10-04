@@ -47,3 +47,18 @@ down, and a clear line between prediction, history, assumption and outcome."
   five-session embargo. The timeline shows it live.
 - **"Where do the shocks come from?"** They are illustrative assumptions per event type, scaled by impact (`clamp(I / I_ref, 0.5, 1.5)`),
   applied to a synthetic book. They are labelled *Scenario assumption* wherever they appear.
+
+
+## Stage 7 addendum: the paste-a-headline demo (about 3 minutes, no network needed)
+
+Start `make run` (rule-based demo mode: nothing leaves the machine) or `make run-llm` with `ANTHROPIC_API_KEY` set (a language model reads the text; the page says so). Open **Analyze**.
+
+| # | Presenter does | Judge sees | Presenter explains |
+|---|----------------|------------|--------------------|
+| 1 | Opens *More examples* and picks **Geopolitical** ("Escalating tensions threaten oil supply routes…"), clicks **Analyze**. | The five-step chain fills in: News → AI understanding (Geopolitical, negative) → Risk signal (Severity 7/10, above the trigger) → Scenario (Geopolitical flight-to-safety) → Portfolio impact. | One headline, five steps. The reading is a language model's (or the rules' in demo mode); everything after it is explicit code. |
+| 2 | Scrolls to **AI understanding**. | The headline with the quoted evidence highlighted, event and subtype, tone, **Who: UNKNOWN_ENTITY**, sectors, regions, asset classes, severity indicators with their quotes. | No company is named, so none is invented. Every highlighted phrase is a verbatim excerpt: a quote that is not in the text is dropped. |
+| 3 | Scrolls to **Risk signal**. | Severity 7/10 (6-7 if any weight is off by 30%), the risk drivers with points, and the trigger notice: *Severity 7/10 is above the automatic trigger (7)*. | A transparent triage score from explicit weights, not a forecast and not validated; the range is sensitivity to the weights, not a statistical interval. |
+| 4 | Pastes **Quantum Dynamics announces a major restructuring…** | *Quantum Dynamics* listed as a mention "not in the entity master: no company data is used"; issuer UNKNOWN_ENTITY; novelty and market regime **left out, with the reason**; severity 5/10, **below the trigger**, with *Run as a what-if*. | A name EventShock does not hold is never promoted to an issuer, and a factor it cannot compute from what was known is left out, not guessed. |
+| 5 | Back to the first headline, **Open the full analysis**, then **Evidence**. | Source evidence / Model inference / Scenario assumptions in three boxes; the timeline in three columns (before, at, after the report) with "used in the severity score" / "not used" tags. | Later reports and filings are shown for audit and can never change the score: a test adds six later reports and no factor moves. |
+| 6 | **Run the scenario**. | Portfolio value before → after, the change, the contributions by asset class, sector and position. | The shocks are configured assumptions; the engine is deterministic arithmetic. The severity score decides whether it is suggested and how hard it is applied. |
+| 7 | Opens **Why this severity?** and the collapsed **Reference** panel. | The drivers again, where the weights come from, and the trained market-reaction model's score next to it, labelled experimental. | The trained model is kept as a reference: in its own evaluation its skill is mostly the volatility regime, so it does not drive the trigger. |

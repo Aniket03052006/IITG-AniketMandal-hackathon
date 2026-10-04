@@ -133,6 +133,10 @@ Useful commands:
 
 | Command | What it does |
 |---|---|
+| `make run-llm` | like `make run`, with a language model reading new text (set `GROQ_API_KEY`; the pasted text is then sent to the provider, the UI says so; answers are cached; any failure falls back, labelled, to the deterministic rules). Without a key everything works in *rule-based demo mode* |
+| `make run-live` | like `make run` with the live feed on: polls GDELT DOC 2.0 every 5 minutes (network; if it fails the status says so and replay data keeps serving) |
+| `make capture-gdelt` `make run-capture` | capture what GDELT saw recently into `data/live/sample_capture.jsonl` (network, throttled, ~3 min), then replay it as if live (offline, labelled *simulated*) |
+| `make scope-eval` | measure the sector vocabulary on replay documents whose company resolved → `docs/evidence/scope_eval.json` |
 | `make dev` | API with reload on :8000 + Vite on :5173 (open http://localhost:5173) |
 | `make test` | backend pytest + frontend Vitest |
 | `make lint` | ruff + TypeScript typecheck |
@@ -153,6 +157,10 @@ Useful commands:
 | `make bakeoff` `make train-event-hybrid` | Stage 4: representation comparison (`docs/evidence/representation_bakeoff.json`; embeddings need the optional `requirements-embed.txt`) and the hybrid event model |
 | `make outcomes` | export the realised moves after the replay reports to `data/outcomes/replay_outcomes.json` (read only by `GET /api/signals/{id}/context`; needs the local impact table) |
 | `make impact-table` `make train-impact` | rebuild the impact modeling table, then select / calibrate / evaluate the impact model into `models/impact/` (about 45 min; needs the local data) |
+
+**Risk assessment (Stage 7).** Paste a headline on *Analyze*: EventShock reads it (event class and subtype, tone, entities, sectors, regions, asset classes, severity indicators, verbatim evidence quotes), scores a **transparent severity 1-10** from explicit, configurable weights (not a forecast, not validated, with the factors, the omitted factors and a sensitivity range shown), says whether it crosses the stress trigger, and, one click away, runs the deterministic scenario to show the portfolio before and after. The language model only *reads*; severity, the trigger and the arithmetic are code. Environment variables: `EVENTSHOCK_LLM=1`, `GROQ_API_KEY` (or `ANTHROPIC_API_KEY` with `EVENTSHOCK_LLM_PROVIDER=anthropic`), optional `EVENTSHOCK_LLM_MODEL`, `EVENTSHOCK_LLM_CACHE_PATH` (see `.env.example`; `.env` is git-ignored). If the model is unavailable the app says so and the deterministic rules read the text. Details and limits: [`docs/RISK_ASSESSMENT.md`](docs/RISK_ASSESSMENT.md).
+
+**Analyze (Stage 6).** The *Analyze* page takes a pasted headline or post and runs it through the same engine as the live feed: what it is about (a company, a sector, the market, or nothing), tone, event type, impact (labelled), and what it means for the portfolio, then opens as an ordinary event you can stress-test. Pasted and live text is scored by the TF-IDF event model (the served hybrid needs an encoder that is not installed by default) and says so.
 
 Without the UI build, `python src/main.py` still serves the API; interactive docs are at `/api/docs`.
 
