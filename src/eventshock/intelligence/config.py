@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..config import ConfigError
+from ..config_overrides import apply_overrides
 from ..pipeline.config import _load
 from ..pipeline.normalize import match_form
 
@@ -141,9 +144,10 @@ class IntelligenceConfig(_Strict):
     lifecycle: LifecycleCfg
 
 
-def load_intelligence_config(config_dir: Path) -> IntelligenceConfig:
+def load_intelligence_config(config_dir: Path, overrides: Mapping[str, Any] | None = None) -> IntelligenceConfig:
+    """The shipped config, with ``overrides`` (dotted path -> value, relative to this file) patched in before validation."""
     path = config_dir / "intelligence.yaml"
     try:
-        return IntelligenceConfig.model_validate(_load(path))
+        return IntelligenceConfig.model_validate(apply_overrides(_load(path), overrides))
     except ValueError as exc:
         raise ConfigError(f"invalid {path}: {exc}") from exc

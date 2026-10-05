@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..config import ConfigError, _read_yaml
+from ..config_overrides import apply_overrides
 
 
 class _Cfg(BaseModel):
@@ -59,8 +62,12 @@ class PortfolioConfig(_Cfg):
         return "MEDIUM" if share >= self.relevance_bands.medium_share else "LOW"
 
 
-def load_portfolio_config(config_dir: Path) -> PortfolioConfig:
-    cfg = PortfolioConfig.model_validate(_read_yaml(config_dir / "portfolio.yaml"))
+def load_portfolio_config(config_dir: Path, overrides: Mapping[str, Any] | None = None) -> PortfolioConfig:
+    """The shipped config, with ``overrides`` (dotted path -> value, relative to this file) patched in before validation."""
+    try:
+        cfg = PortfolioConfig.model_validate(apply_overrides(_read_yaml(config_dir / "portfolio.yaml"), overrides))
+    except ValueError as exc:
+        raise ConfigError(f"invalid portfolio configuration: {exc}") from exc
     if cfg.relevance_bands.medium_share >= cfg.relevance_bands.high_share:
         raise ConfigError("portfolio.yaml: relevance_bands.medium_share must be below high_share")
     return cfg

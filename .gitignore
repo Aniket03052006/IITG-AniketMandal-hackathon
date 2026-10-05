@@ -22,6 +22,7 @@ data/raw/
 data/live/journal.jsonl
 data/live/llm_cache.jsonl
 data/live/portfolios/
+data/live/overrides/
 data/live/.journal.*
 data/processed/
 data/history/

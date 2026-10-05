@@ -88,6 +88,13 @@ ignore = ["B008"]  # FastAPI Depends() in defaults is the framework idiom
 "src/eventshock/modeling/representations/*.py" = ["E501"]
 "src/eventshock/services/evidence.py" = ["E501"]
 "src/eventshock/services/signal_context.py" = ["E501"]
+# Stage 11 (propagation, adjustable side-cars): explanatory docstrings and field descriptions, like the other side-car modules.
+"src/eventshock/propagation/*.py" = ["E501"]
+"src/eventshock/adjust/*.py" = ["E501"]
+"src/eventshock/config_overrides.py" = ["E501"]
+"src/eventshock/domain/scenarios.py" = ["E501"]
+"src/eventshock/api/routers/propagation.py" = ["E501"]
+"src/eventshock/api/routers/adjustments.py" = ["E501"]
 # Stage 10 (event intelligence): explanatory docstrings and contract field descriptions, like the assessment modules.
 "src/eventshock/intelligence/*.py" = ["E501"]
 "tests/**" = ["E501"]

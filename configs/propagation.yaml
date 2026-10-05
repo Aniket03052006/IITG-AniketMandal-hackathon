@@ -1,0 +1,175 @@
+# Event -> portfolio propagation (propagation-v1): how an event reaches a portfolio, how much it matters there, which scenario it implies and why the
+# portfolio moved. A derived side-car: nothing here is stored on a RiskSignal, and nothing here changes the stress formulas, the severity score or any model.
+#
+# EVERY number and every transmission edge below is a JUDGEMENT PRIOR written before any result was looked at: none is fitted, calibrated or validated, and
+# the UI says so. A transmission edge is an ASSUMPTION about how a risk factor tends to reach a sector or asset class, not a measured relationship and not a
+# causal claim. What is observed (a holding, a ticker's industry, a quoted phrase) is kept apart from what is assumed (an edge, a shock size).
+#
+# Every value here can be adjusted by the user at run time (Adjust assumptions; stored apart from this file, so the defaults stay frozen). An adjusted edge or
+# value is labelled USER_ASSUMPTION wherever it appears.
+version: "propagation-v1"
+
+# ------------------------------------------------------------------------------------------------------------ scenario generation
+generation:
+  min_severity: 7.0              # the event's severity (1-10) must reach this (the same default as the stress trigger in app.yaml)
+  min_materiality: MEDIUM        # and its relevance to the portfolio must reach this level (LOW | MEDIUM | HIGH | CRITICAL)
+  downside_only: true            # a favourable event does not generate a loss scenario
+  # A propagated sector shock REPLACES the scenario's market-wide shock for that sector (the engine applies the most specific shock per factor), so each is
+  # written as the scenario's own market-wide shock plus this increment times the edge weight (a positive weight hurts, a negative one benefits).
+  propagated_equity_shock: -0.03       # at the scenario's reference impact, before severity scaling
+  propagated_spread_bps: 30            # credit spread widening for a sector the factor hurts (edge weight > 0 only)
+  max_propagated_sectors: 3            # the largest held sectors reached by the active risk factors
+  propagation_scale: 1.0               # multiplies every edge weight
+
+# ------------------------------------------------------------------------------------------------------------------ materiality
+# Relevance of an event to one portfolio is a lookup, not a weighted score: the share of the book the event reaches picks a row, the event's severity picks a
+# column, and the grid names the level. Then a bump and two caps may apply; the cell and every rule that fired are returned beside the level.
+materiality:
+  exposure_bands: {medium_share: 0.05, high_share: 0.20, very_high_share: 0.40}   # share of the book reached (counted once)
+  severity_bands: {medium: 4.0, high: 7.0, critical: 9.0}                         # severity 1-10
+  grid:                                                                           # exposure row x severity column -> level (never decreasing in either)
+    LOW:       {LOW: LOW,    MEDIUM: LOW,    HIGH: MEDIUM,   CRITICAL: MEDIUM}
+    MEDIUM:    {LOW: LOW,    MEDIUM: MEDIUM, HIGH: MEDIUM,   CRITICAL: HIGH}
+    HIGH:      {LOW: MEDIUM, MEDIUM: MEDIUM, HIGH: HIGH,     CRITICAL: CRITICAL}
+    VERY_HIGH: {LOW: MEDIUM, MEDIUM: HIGH,   HIGH: CRITICAL, CRITICAL: CRITICAL}
+  concentration_bump_top_share: 0.50   # when one position is at least this share of the reached part of the book (and the row is not LOW) the level goes up one step
+  assumption_only_cap: MEDIUM          # the book is reached only through assumed transmission edges: the level cannot exceed this
+  severity_unavailable_cap: MEDIUM     # severity was not assessed: read from the MEDIUM column and capped here
+
+# ---------------------------------------------------------------------------------------------------------------- concentration
+concentration:
+  min_share: 0.20                # a slice is flagged only if it is at least this share of the book ...
+  equal_weight_multiple: 3.0     # ... and at least this many times an equal split across the dimension's items
+  min_items: 3                   # a dimension with fewer items than this is not flagged by the multiple test (two sectors are always "concentrated")
+  hhi_flag: 0.25                 # a dimension is flagged as a whole at this Herfindahl index (needs min_items) ...
+  hhi_equal_weight_multiple: 1.5 # ... and at least this many times the 1/n of an equal split (a few items always exceed 0.25)
+  window_days: 7                 # overlapping events: reports this recent (reports with an assigned replay clock use the replay's own as-of)
+  max_signals: 150               # the most recent signals considered
+  min_events: 2                  # independent events that must share a risk factor and holdings
+  min_overlap_share: 0.05        # share of the book the shared holdings must be
+  min_materiality: MEDIUM        # an event is considered only at this materiality or above
+
+# ------------------------------------------------------------------------------------------------------ what an event is assumed about
+# Risk factors an event class is assumed to bear on when the text itself names none (a SCENARIO_ASSUMPTION; empty = the class says nothing market-wide).
+category_risk_factors:
+  GEOPOLITICAL: [GEOPOLITICAL, OIL_ENERGY, EQUITY_MARKET]
+  MACROECONOMIC: [RATES, EQUITY_MARKET, CREDIT_SPREAD]
+  CREDIT_FUNDING: [CREDIT_SPREAD, CREDIT_DEFAULT]
+  MA_CORPORATE_ACTION: []
+  REGULATORY_LEGAL: [REGULATION]
+  PRODUCT_OPERATIONS: []
+  EARNINGS_FINANCIAL_PERFORMANCE: []
+  MARKET_VALUATION: [EQUITY_MARKET, CREDIT_SPREAD]
+
+# The vocabulary themes of configs/scope.yaml, read as risk factors (a vocabulary hit in the text: evidence of what the text is about, not of impact).
+theme_risk_factors:
+  rates: [RATES]
+  inflation: [INFLATION, RATES]
+  growth_and_jobs: [EQUITY_MARKET]
+  credit_stress: [CREDIT_SPREAD, CREDIT_DEFAULT]
+  trade_and_conflict: [GEOPOLITICAL, EQUITY_MARKET]
+  currencies_and_commodities: [FX]
+  equity_market: [EQUITY_MARKET]
+
+# The stress engine's own factor names (what the Stage 10 affected view lists) as risk factors.
+engine_factor_map:
+  RATES_BPS: RATES
+  EQUITY: EQUITY_MARKET
+  CREDIT_SPREAD_BPS: CREDIT_SPREAD
+  PD_MULTIPLIER: CREDIT_DEFAULT
+  LGD_ADD: CREDIT_DEFAULT
+
+# ---------------------------------------------------------------------------------------------------------------- scenario templates
+# One per event class. The base is the catalog scenario of that class (configs/scenarios.yaml; its magnitudes are not changed here). `shock_overrides` replaces a
+# base shock's size in the GENERATED scenario only (key FACTOR:SCOPE, e.g. EQUITY:MARKET); the catalog stays as shipped.
+templates:
+  EARNINGS_FINANCIAL_PERFORMANCE: {enabled: true, label: "Earnings repricing", propagation_scale: 1.0, shock_overrides: {}}
+  GEOPOLITICAL:                   {enabled: true, label: "Geopolitical flight-to-safety", propagation_scale: 1.0, shock_overrides: {}}
+  CREDIT_FUNDING:                 {enabled: true, label: "Credit and funding stress", propagation_scale: 1.0, shock_overrides: {}}
+  MA_CORPORATE_ACTION:            {enabled: true, label: "M&A repricing", propagation_scale: 1.0, shock_overrides: {}}
+  REGULATORY_LEGAL:               {enabled: true, label: "Regulatory capital shock", propagation_scale: 1.0, shock_overrides: {}}
+  MACROECONOMIC:                  {enabled: true, label: "Macro rates shock", propagation_scale: 1.0, shock_overrides: {}}
+  PRODUCT_OPERATIONS:             {enabled: true, label: "Product / operations disruption", propagation_scale: 1.0, shock_overrides: {}}
+  MARKET_VALUATION:               {enabled: true, label: "Market drawdown", propagation_scale: 1.0, shock_overrides: {}}
+
+# ------------------------------------------------------------------------------------------------------------------ risk factors
+# modelled: ENGINE = the stress engine has a market-wide factor for it | PROXY = it acts only through sector equity/spread shocks written above |
+#           NOT_MODELLED = recognised and reported, never simulated (the engine has no such factor).
+# transmission edge: kind SECTOR | INDUSTRY | ASSET_CLASS | REGION, key = the sector / industry / asset class (EQUITY BOND LOAN DERIVATIVE) / region code it reaches;
+# weight in [-1, 1] multiplies the adverse shock (positive hurts, negative benefits); `shock` = also writes a propagated sector shock (SECTOR edges only; the
+# others only extend which holdings the event reaches, because the engine moves them through its market-wide factors or only has sector granularity).
+risk_factors:
+  RATES:
+    label: Interest rates
+    modelled: ENGINE
+    engine_factor: RATES_BPS
+    terms: [interest rates, rate hike, rate hikes, rate cut, rate cuts, treasury yields, bond yields, yield curve]
+    transmission:
+      bonds_duration:    {kind: ASSET_CLASS, key: BOND, weight: 1.0, enabled: true, shock: false, rationale: "Bond prices fall as yields rise (duration)."}
+      loans_debt_service: {kind: ASSET_CLASS, key: LOAN, weight: 0.5, enabled: true, shock: false, rationale: "Higher rates raise borrowers' debt-service burden (default probability)."}
+      equity_valuation:  {kind: ASSET_CLASS, key: EQUITY, weight: 1.0, enabled: true, shock: false, rationale: "Higher discount rates compress equity valuations."}
+      tech_long_duration: {kind: SECTOR, key: Technology, weight: 0.5, enabled: true, shock: true, rationale: "Long-duration growth equities are more rate-sensitive than the market."}
+      financials_mixed:  {kind: SECTOR, key: Financials, weight: 0.2, enabled: true, shock: true, rationale: "Mixed: margins can widen but credit quality and valuations soften; treated as mildly adverse."}
+  EQUITY_MARKET:
+    label: Equity market level
+    modelled: ENGINE
+    engine_factor: EQUITY
+    terms: [wall street, stock market, stock markets, sell-off, selloff, s&p 500]
+    transmission:
+      equities:    {kind: ASSET_CLASS, key: EQUITY, weight: 1.0, enabled: true, shock: false, rationale: "Equity positions move with the market (beta)."}
+      derivatives: {kind: ASSET_CLASS, key: DERIVATIVE, weight: 1.0, enabled: true, shock: false, rationale: "Equity derivatives are priced off the underlying (delta)."}
+  CREDIT_SPREAD:
+    label: Credit spreads
+    modelled: ENGINE
+    engine_factor: CREDIT_SPREAD_BPS
+    terms: [credit spreads, junk bonds, high yield]
+    transmission:
+      bonds_spread:       {kind: ASSET_CLASS, key: BOND, weight: 1.0, enabled: true, shock: false, rationale: "Bond prices fall as spreads widen (spread duration)."}
+      financials_funding: {kind: SECTOR, key: Financials, weight: 0.6, enabled: true, shock: true, rationale: "Financials are the most funding- and spread-sensitive sector."}
+  CREDIT_DEFAULT:
+    label: Default and recovery
+    modelled: ENGINE
+    engine_factor: PD_MULTIPLIER
+    terms: [defaults, default risk, bankruptcy, debt crisis]
+    transmission:
+      loans_default: {kind: ASSET_CLASS, key: LOAN, weight: 1.0, enabled: true, shock: false, rationale: "Loans are valued as exposure less expected loss: default probability and loss given default act directly."}
+  OIL_ENERGY:
+    label: Oil and energy prices
+    modelled: PROXY
+    engine_factor: null
+    terms: [oil, crude, brent, wti, opec, oil prices, oil supply, natural gas, lng, energy prices, refinery, pipeline]
+    transmission:
+      energy_producers: {kind: SECTOR, key: Energy, weight: -1.0, enabled: true, shock: true, rationale: "Assumption for a price spike or supply disruption: producers benefit."}
+      oil_and_gas:      {kind: INDUSTRY, key: Oil and Gas, weight: -1.0, enabled: true, shock: false, rationale: "The same producers, by industry (reach only: the engine shocks sectors)."}
+      industrials_cost: {kind: SECTOR, key: Industrials, weight: 0.5, enabled: true, shock: true, rationale: "Assumption: transport and manufacturing input costs rise."}
+      consumer_cost:    {kind: SECTOR, key: Consumer, weight: 0.4, enabled: true, shock: true, rationale: "Assumption: consumers' fuel and goods costs rise."}
+  INFLATION:
+    label: Inflation
+    modelled: PROXY
+    engine_factor: null
+    terms: [inflation, consumer prices, cpi, pce]
+    transmission:
+      bonds_yields:   {kind: ASSET_CLASS, key: BOND, weight: 0.8, enabled: true, shock: false, rationale: "Inflation surprises push yields up and bond prices down."}
+      consumer_costs: {kind: SECTOR, key: Consumer, weight: 0.4, enabled: true, shock: true, rationale: "Assumption: higher prices squeeze consumer demand and margins."}
+  FX:
+    label: Currencies
+    modelled: NOT_MODELLED
+    engine_factor: null
+    terms: [exchange rate, currency, forex, dollar, yen, euro]
+    transmission: {}
+  GEOPOLITICAL:
+    label: Geopolitical risk
+    modelled: PROXY
+    engine_factor: null
+    terms: [sanctions, tariffs, trade war, embargo, invasion, blockade, strait of hormuz, red sea]
+    transmission:
+      equities_risk_off: {kind: ASSET_CLASS, key: EQUITY, weight: 1.0, enabled: true, shock: false, rationale: "Risk-off repricing of equities."}
+      energy_supply:     {kind: SECTOR, key: Energy, weight: -0.5, enabled: true, shock: true, rationale: "Assumption: supply fears lift energy producers."}
+      industrials_chain: {kind: SECTOR, key: Industrials, weight: 0.3, enabled: true, shock: true, rationale: "Assumption: supply-chain and trade exposure."}
+      tech_chain:        {kind: SECTOR, key: Technology, weight: 0.3, enabled: true, shock: true, rationale: "Assumption: supply-chain and export-control exposure."}
+  REGULATION:
+    label: Regulation and legal action
+    modelled: PROXY
+    engine_factor: null
+    terms: []
+    transmission: {}

@@ -20,6 +20,8 @@ os.environ.setdefault("EVENTSHOCK_LLM_CACHE_PATH", str(Path(tempfile.mkdtemp(pre
 
 # Saved personal portfolios live in a temp directory: no test may read or write the developer's real data/live/portfolios.
 os.environ.setdefault("EVENTSHOCK_PORTFOLIO_STORE_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-portfolios-")) / "portfolios"))
+# Manual adjustments of the side-cars live in a temp file: no test may read or write the developer's real data/live/overrides (tests that adjust use their own).
+os.environ.setdefault("EVENTSHOCK_OVERRIDES_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-overrides-")) / "overrides.json"))
 
 
 @pytest.fixture(scope="session")
