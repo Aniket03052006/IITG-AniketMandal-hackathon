@@ -15,7 +15,8 @@ providers:
     model: openai/gpt-oss-120b   # EVENTSHOCK_LLM_MODEL overrides. What your key can use: GET https://api.groq.com/openai/v1/models (llama-3.3-70b-versatile was not available to ours)
     api_url: https://api.groq.com/openai/v1/chat/completions
     key_env: GROQ_API_KEY
-    request_extra: {reasoning_effort: low}   # a short extraction, not a reasoning task: keep the reasoning tokens (and the latency) small
+    request_extra:               # model-name prefix -> extra request fields
+      openai/gpt-oss: {reasoning_effort: low}   # a short extraction, not a reasoning task: keep the reasoning tokens (and the latency) small
   anthropic:                   # Messages API with a forced tool call
     model: claude-haiku-4-5-20251001
     api_url: https://api.anthropic.com/v1/messages
@@ -30,6 +31,7 @@ max_total_seconds: 30          # the whole call, retries included: a person is w
 max_output_tokens: 1500       # includes a reasoning model's hidden reasoning tokens
 
 max_calls_per_minute: 30       # a local cost guard: past this many provider calls in a minute, new text is read by the rules (labelled) until the minute passes. Cache hits are free
+cooldown_seconds: 60           # after a provider failure (timeout, rate limit, outage, refusal) new text goes straight to the rules, labelled, for this long: nobody waits on a provider known to be down
 max_chars_sent: 2000           # only the report text is sent, cut here (the pipeline already caps pasted text at the same length)
 
 cache:

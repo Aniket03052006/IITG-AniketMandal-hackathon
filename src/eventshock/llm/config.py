@@ -33,7 +33,7 @@ class ProviderConfig(_Strict):
     api_url: str
     api_version: str = ""
     key_env: str = Field(description="the environment variable the API key is read from (never a file)")
-    request_extra: dict[str, Any] = Field(default_factory=dict, description="extra fields merged into the request body (e.g. a reasoning-effort setting)")
+    request_extra: dict[str, dict[str, Any]] = Field(default_factory=dict, description="model-name prefix -> extra request fields (e.g. a reasoning-effort setting that only some models accept)")
 
 
 class LLMConfig(_Strict):
@@ -46,7 +46,7 @@ class LLMConfig(_Strict):
     api_url: str = ""
     api_version: str = ""
     key_env: str = ""
-    request_extra: dict[str, Any] = Field(default_factory=dict)
+    request_extra: dict[str, dict[str, Any]] = Field(default_factory=dict)
     timeout_seconds: float = Field(gt=0)
     max_retries: int = Field(ge=0, le=5)
     retry_backoff_seconds: float = Field(ge=0)
@@ -54,6 +54,7 @@ class LLMConfig(_Strict):
     max_total_seconds: float = Field(gt=0)
     max_output_tokens: int = Field(ge=100)
     max_chars_sent: int = Field(ge=100)
+    cooldown_seconds: float = Field(ge=0)
     max_calls_per_minute: int = Field(ge=1)
     cache: CacheConfig
     grounding: GroundingConfig
@@ -64,7 +65,7 @@ class LLMConfig(_Strict):
             raise ValueError(f"provider {self.provider!r} is not one of {sorted(self.providers)}")
         p = self.providers[self.provider]
         self.model, self.api_url, self.api_version, self.key_env = p.model, p.api_url, p.api_version, p.key_env
-        self.request_extra = dict(p.request_extra)
+        self.request_extra = {k: dict(v) for k, v in p.request_extra.items()}
         return self
 
     def for_provider(self, provider: str, model: str | None = None) -> LLMConfig:

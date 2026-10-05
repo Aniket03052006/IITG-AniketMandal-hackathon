@@ -17,9 +17,18 @@ import re
 from ..domain import EventCategory
 from ..llm.client import LLMBadOutput
 from ..llm.config import GroundingConfig
-from ..llm.schema import LLMExtraction
+from ..llm.schema import LLMExtraction, LLMIndicator, LLMRubric, LLMRubricAnswer
+from .config import CERTAINTY_ORDER, DIRECTION_ORDER, REACH_ORDER
 from .cues import find_cue, find_literal
-from .model import AssessedEntity, EvidenceSpan, IndicatorHit, SemanticReading
+from .model import (
+    AIRubric,
+    AssessedEntity,
+    EvidenceSpan,
+    IndicatorBasis,
+    IndicatorHit,
+    RubricProposal,
+    SemanticReading,
+)
 from .reference import Reference
 from .vocab import NO_EVENT, OTHER, Vocab, primary_issuer
 
@@ -44,6 +53,12 @@ def ground(raw: LLMExtraction, text: str, ref: Reference, vocab: Vocab, limits: 
     assets = _pick(raw.affected_asset_classes, tuple(vocab.cfg.asset_classes), "asset class", notes)
     indicators = _indicators(raw.severity_indicators, text, vocab, notes)
     spans = _quotes(raw, text, limits, notes)
+    for h in indicators:  # a quoted or keyword-matched indicator is source evidence: it is highlighted like any other quote
+        pos = find_literal(text, h.quote) if h.quote else None
+        if pos and not any(sp.start == pos[0] and sp.end == pos[1] and sp.supports == "severity" for sp in spans):
+            spans.append(EvidenceSpan(quote=text[pos[0]:pos[1]], start=pos[0], end=pos[1], supports="severity"))
+    spans.sort(key=lambda sp: (sp.start, sp.end))
+    ai_rubric = _rubric(raw.rubric, text, notes)
 
     score = round(float(raw.sentiment), 4)
     intensity = raw.sentiment_intensity if raw.sentiment_intensity in {"low", "medium", "high"} else vocab.sentiment_intensity(score)
@@ -53,7 +68,7 @@ def ground(raw: LLMExtraction, text: str, ref: Reference, vocab: Vocab, limits: 
         sentiment=score, sentiment_label=vocab.sentiment_label(score), sentiment_intensity=intensity,
         sentiment_confidence=raw.sentiment_confidence, entities=entities, primary_issuer=primary_issuer(ref), sectors=sectors,
         regions=regions, asset_classes=assets, severity_indicators=indicators, uncertainty=round(float(raw.uncertainty), 4),
-        evidence=spans, rationale=(raw.rationale.strip() or None))
+        ai_rubric=ai_rubric, evidence=spans, rationale=(raw.rationale.strip() or None))
     return reading, notes
 
 
@@ -73,23 +88,57 @@ def _pick(values: list[str], allowed: tuple[str, ...], what: str, notes: list[st
     return out
 
 
-def _indicators(ids: list[str], text: str, vocab: Vocab, notes: list[str]) -> list[IndicatorHit]:
+def _indicators(items: list[LLMIndicator | str], text: str, vocab: Vocab, notes: list[str]) -> list[IndicatorHit]:
+    """Each indicator is QUOTED (the AI's phrase is in the text), KEYWORD (a configured cue phrase for it is in the text) or INFERRED (no phrase shows it).
+
+    An inference is kept, because the AI may understand what a phrase list cannot, but it is labelled as one and is never shown or highlighted as a quote."""
     out: list[IndicatorHit] = []
-    for i in ids:
-        ind = vocab.cfg.indicators.get(i)
+    for raw in items:
+        item = raw if isinstance(raw, LLMIndicator) else LLMIndicator(id=str(raw))
+        ind = vocab.cfg.indicators.get(item.id)
         if ind is None:
-            notes.append(f"Dropped severity indicator {i!r}: not in the vocabulary.")
+            notes.append(f"Dropped severity indicator {item.id!r}: not in the vocabulary.")
             continue
-        if any(h.id == i for h in out):
+        if any(h.id == item.id for h in out):
             continue
-        quote = None
-        for cue in ind.cues:
-            pos = find_cue(text, cue)
-            if pos:
-                quote = text[pos[0]:pos[1]]
-                break
-        out.append(IndicatorHit(id=i, label=ind.label, weight=ind.weight, quote=quote))
+        quote, basis, reason = None, IndicatorBasis.INFERRED, (item.reason.strip() or None)
+        pos = find_literal(text, item.quote) if item.quote and len(item.quote.strip()) >= 4 else None
+        if pos:
+            quote, basis = text[pos[0]:pos[1]], IndicatorBasis.QUOTED
+        else:
+            if item.quote:
+                notes.append(f"The quote offered for {ind.label.lower()} is not in the text, so that indicator is an inference, not evidence.")
+            for cue in ind.cues:
+                kp = find_cue(text, cue)
+                if kp:
+                    quote, basis = text[kp[0]:kp[1]], IndicatorBasis.KEYWORD
+                    break
+        out.append(IndicatorHit(id=item.id, label=ind.label, level=ind.level, polarity=ind.polarity, basis=basis, quote=quote,
+                                reason=reason if basis is IndicatorBasis.INFERRED else None))
     return out
+
+
+def _proposal(fid: str, a: LLMRubricAnswer | None, allowed: tuple[str, ...], text: str, notes: list[str]) -> RubricProposal | None:
+    if a is None:
+        return None
+    value = str(a.value).strip().lower()
+    if value not in allowed:
+        notes.append(f"Ignored the AI's {fid} answer {a.value!r}: not an allowed level.")
+        return None
+    pos = find_literal(text, a.quote) if a.quote and len(a.quote.strip()) >= 4 else None
+    if a.quote and not pos:
+        notes.append(f"The quote offered for the AI's {fid} answer is not in the text, so it does not count as evidence.")
+    return RubricProposal(value=value, reason=a.reason.strip(), quote=text[pos[0]:pos[1]] if pos else None, quote_verified=pos is not None)
+
+
+def _rubric(r: LLMRubric | None, text: str, notes: list[str]) -> AIRubric | None:
+    if r is None:
+        return None
+    return AIRubric(
+        magnitude=_proposal("magnitude", r.magnitude, ("0", "1", "2", "3", "4"), text, notes),
+        reach=_proposal("reach", r.reach, REACH_ORDER, text, notes),
+        certainty=_proposal("certainty", r.certainty, CERTAINTY_ORDER, text, notes),
+        direction=_proposal("direction", r.direction, DIRECTION_ORDER, text, notes))
 
 
 def _entities(raw: LLMExtraction, text: str, ref: Reference, limits: GroundingConfig, notes: list[str]) -> list[AssessedEntity]:

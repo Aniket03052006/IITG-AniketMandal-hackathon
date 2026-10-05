@@ -39,6 +39,7 @@ class LLMRateLimited(LLMError):
 
 class LLMBadOutput(LLMError):
     reason = "the language model returned an answer that does not match the schema"
+    transient = False  # a failed generation (the provider's own validation) is worth one more try; a well-formed but wrong answer is not
 
 
 class LLMRejected(LLMError):
@@ -89,7 +90,9 @@ class _HttpClient:
         for n in range(attempts):
             try:
                 return self._once(body, headers, tool_name)
-            except (LLMRateLimited, LLMTimeout, LLMUnavailable) as exc:
+            except (LLMRateLimited, LLMTimeout, LLMUnavailable, LLMBadOutput) as exc:
+                if isinstance(exc, LLMBadOutput) and not exc.transient:
+                    raise
                 last = exc
                 if exc.permanent:
                     raise
@@ -136,7 +139,11 @@ class _HttpClient:
         code = exc.code
         detail = cls._detail(exc)
         if code == 429:
-            err: LLMError = LLMRateLimited("HTTP 429")
+            err: LLMError = LLMRateLimited(f"HTTP 429{': ' + detail if detail else ''}")
+            low = detail.lower()
+            if "per day" in low or "(tpd)" in low or "(rpd)" in low or "daily" in low:
+                err.permanent = True  # a daily quota does not come back inside this request: retrying only makes the user wait
+                err.args = (f"daily quota exhausted ({detail[:120]})",)
             try:
                 err.retry_after = float(exc.headers.get("retry-after", "")) if exc.headers else None
             except ValueError:
@@ -148,8 +155,10 @@ class _HttpClient:
             return err
         if code in (408, 409) or code >= 500:  # 529 = overloaded
             return LLMUnavailable(f"HTTP {code}")
-        if "tool_use_failed" in detail:  # the model could not produce a valid call: a bad answer, not a bad request
-            return LLMBadOutput(f"HTTP {code}: {detail}")
+        if "tool_use_failed" in detail:  # the model could not produce a valid call: a bad answer, not a bad request; a retry often succeeds
+            bad = LLMBadOutput(f"HTTP {code}: {detail}")
+            bad.transient = True
+            return bad
         return LLMRejected(f"HTTP {code}{': ' + detail if detail else ''}")
 
 
@@ -185,7 +194,10 @@ class GroqClient(_HttpClient):
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "tools": [{"type": "function", "function": {"name": tool_name, "description": "Record the structured reading of the report.",
                                                           "parameters": tool_schema}}],
-            "tool_choice": {"type": "function", "function": {"name": tool_name}}, **self._cfg.request_extra}
+            "tool_choice": {"type": "function", "function": {"name": tool_name}}}
+        for prefix, extra in self._cfg.request_extra.items():  # options only some model families accept
+            if self.model_id.startswith(prefix):
+                body.update(extra)
         # a browser-like User-Agent is not needed; an explicit one avoids Cloudflare rejecting urllib's default on some OpenAI-compatible hosts
         return body, {"content-type": "application/json", "authorization": f"Bearer {self._key}", "user-agent": "eventshock/0.1"}
 

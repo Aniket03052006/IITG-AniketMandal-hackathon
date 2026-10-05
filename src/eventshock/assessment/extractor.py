@@ -16,10 +16,19 @@ from pydantic import ValidationError
 
 from ..domain import EventCategory
 from ..llm.cache import ExtractionCache, cache_key
-from ..llm.client import LLMBadOutput, LLMClient, LLMError, LLMRateLimited
+from ..llm.client import (
+    LLMBadOutput,
+    LLMClient,
+    LLMError,
+    LLMRateLimited,
+    LLMRejected,
+    LLMTimeout,
+    LLMUnavailable,
+)
 from ..llm.config import LLMConfig
 from ..llm.prompt import PROMPT_VERSION, SYSTEM, user_message
 from ..llm.schema import TOOL_NAME, LLMExtraction, tool_schema
+from .config import CERTAINTY_ORDER, DIRECTION_ORDER, REACH_ORDER
 from .grounding import ground
 from .model import ExtractionInfo, ExtractionMode, SemanticReading
 from .reference import Reference
@@ -46,18 +55,27 @@ class ExtractorStats:
 
 class SemanticExtractor:
     def __init__(self, vocab: Vocab, rules: RuleExtractor, cfg: LLMConfig, *, client: LLMClient | None = None,
-                 cache: ExtractionCache | None = None, unavailable_reason: str | None = None) -> None:
+                 cache: ExtractionCache | None = None, unavailable_reason: str | None = None, prompt_version: str | None = None) -> None:
         self.vocab, self._rules, self._cfg = vocab, rules, cfg
         self._client, self._cache = client, cache
+        self._prompt_version = prompt_version or PROMPT_VERSION  # a replay of a recording uses the recording's own prompt version
         self._unavailable = unavailable_reason  # why an enabled LLM has no client (e.g. no key)
         self.stats = ExtractorStats()
         self._calls: deque[float] = deque()  # monotonic times of recent provider calls (the local cost guard)
         self._clock = time.monotonic
         self._guard = threading.Lock()
+        self._paused_until = 0.0  # the circuit breaker: monotonic time before which the provider is not tried
+        self._paused_reason = ""
         subtypes = sorted({s.id for subs in vocab.cfg.subtypes.values() for s in subs} | {"other"})
         self._schema = tool_schema(
             event_types=[*(c.value for c in EventCategory), NO_EVENT], subtypes=subtypes, sectors=list(vocab.sectors),
-            regions=list(vocab.regions), asset_classes=list(vocab.cfg.asset_classes), indicators=list(vocab.cfg.indicators))
+            regions=list(vocab.regions), asset_classes=list(vocab.cfg.asset_classes), indicators=list(vocab.cfg.indicators),
+            reach=list(REACH_ORDER), certainty=list(CERTAINTY_ORDER), direction=list(DIRECTION_ORDER))
+
+    @property
+    def rules(self) -> RuleExtractor:
+        """The deterministic extractor: the fallback, and the baseline the severity rubric starts from even when a model read the text."""
+        return self._rules
 
     # ------------------------------------------------------------------------------------------------------------------ status
     @property
@@ -90,13 +108,16 @@ class SemanticExtractor:
                 info = info.model_copy(update={"fallback_reason": self._unavailable})
             return reading, info
         sent = text[: self._cfg.max_chars_sent]
-        key = cache_key(sent, self._client.model_id, PROMPT_VERSION, self.vocab.cfg.version)
+        key = cache_key(sent, self._client.model_id, self._prompt_version, self.vocab.cfg.version)
         cached = self._cache.get(key) if self._cache is not None else None
         try:
             if cached is not None:
                 raw = LLMExtraction.model_validate(cached)
                 self.stats.bump("cache_hits")
             else:
+                wait = self._paused_until - self._clock()
+                if wait > 0:
+                    raise LLMUnavailable(f"{self._paused_reason}; not retried for another {wait:.0f} s")
                 if not self._allow_call():
                     raise LLMRateLimited(f"local limit of {self._cfg.max_calls_per_minute} calls per minute reached")
                 answer = self._client.extract(system=SYSTEM, user=user_message(sent), tool_name=TOOL_NAME, tool_schema=self._schema)
@@ -109,6 +130,8 @@ class SemanticExtractor:
         except (LLMError, ValidationError) as exc:
             reason = exc.reason if isinstance(exc, LLMError) else LLMBadOutput.reason
             detail = f"{reason} ({exc})" if str(exc) else reason
+            if isinstance(exc, (LLMUnavailable, LLMRateLimited, LLMTimeout, LLMRejected)) and "not retried for another" not in str(exc):
+                self._paused_until, self._paused_reason = self._clock() + self._cfg.cooldown_seconds, f"{reason} ({exc})" if str(exc) else reason
             log.warning("llm extraction fell back to rules: %s", detail)
             self.stats.bump("fallbacks", detail)
             reading, info = self._rules.extract(text, ref)
@@ -117,7 +140,7 @@ class SemanticExtractor:
             self._cache.put(key, raw.model_dump())
         info = ExtractionInfo(
             mode=ExtractionMode.LLM, model_id=self._client.model_id, vocabulary_version=self.vocab.cfg.version,
-            prompt_version=PROMPT_VERSION, cached=cached is not None, notes=notes,
+            prompt_version=self._prompt_version, cached=cached is not None, notes=notes,
             basis=("A language model filled a closed schema from the text alone; every entity and quote was checked against the text. "
                    "It does not score severity: that is computed separately from explicit weights."))
         return reading, info
