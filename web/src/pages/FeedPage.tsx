@@ -12,6 +12,7 @@ import { EventStatusTag } from "../components/EventStatusTag";
 import { StageStrip } from "../components/StageStrip";
 import { LiveBar } from "../components/live/LiveBar";
 import { ChannelTag, RelevanceTag, ScopeTag } from "../components/scope/Tags";
+import { SCOPE_TYPE_LABEL } from "../lib/intelligence";
 import { CHANNEL_LABEL, subjectLine, subjectOfSummary, type ScopeLevel } from "../lib/scope";
 import { ago } from "../lib/format";
 import { FEATURED, pickAlso, pickFeatured } from "../lib/featured";
@@ -72,7 +73,11 @@ function FeedRow({ s, asOf, label, baseline, assessed }: { s: SignalSummary; asO
             {!assessed && s.status === "PARTIAL" && s.event_status === "CLASSIFIED" && (
               <StatusTag tone="warn" icon={<Alert size={12} />}>Partial</StatusTag>
             )}
-            {s.scope_level !== "COMPANY" && <ScopeTag level={s.scope_level as ScopeLevel} sector={s.scope_sector} strength={s.scope_strength} />}
+            {s.scope_level !== "COMPANY" && (s.scope_type ? (
+              <StatusTag tone={s.scope_type === "UNRESOLVED" ? "warn" : "demo"}>{SCOPE_TYPE_LABEL[s.scope_type] ?? s.scope_type}{s.scope_value ? ` · ${s.scope_value}` : ""}</StatusTag>
+            ) : (
+              <ScopeTag level={s.scope_level as ScopeLevel} sector={s.scope_sector} strength={s.scope_strength} />
+            ))}
             <ChannelTag channel={s.channel} />
             {s.relevance_level !== "NONE" && s.event_status !== "NO_EVENT" && <RelevanceTag level={s.relevance_level} share={s.relevance_share} />}
             {isNew && <StatusTag tone="ok">New</StatusTag>}
@@ -224,6 +229,7 @@ export function FeedPage() {
   const scoredOnly = params.get("scored") === "1";
   const channel = params.get("channel") ?? "";
   const scope = params.get("scope") ?? "";
+  const scopeType = params.get("scopetype") ?? "";
   const [shown, setShown] = useState(PAGE);
   const qc = useQueryClient();
 
@@ -234,7 +240,7 @@ export function FeedPage() {
   const assessed = meta?.capabilities.assessment === true; // the headline number is the assessment's severity, not the trained model's impact
   const filters = {
     category: category || undefined, source_type: source || undefined, min_impact: minImpact, q: q || undefined,
-    channel: channel || undefined, scope_level: scope || undefined,
+    channel: channel || undefined, scope_level: scope || undefined, scope_type: scopeType || undefined,
   };
   const { data, error, isLoading, refetch, isFetching } = useSignals(filters);
   const all = useSignals({}); // unfiltered, for the story strip
@@ -269,11 +275,11 @@ export function FeedPage() {
   const threshold = meta?.trigger_threshold ?? 7;
   const everything = all.data?.items ?? [];
   const processed = everything.filter((s) => s.channel !== "MANUAL"); // the strip describes the feed; one pasted text should not move it
-  const filtered = !!(category || source || minImpact || q || scoredOnly || channel || scope);
+  const filtered = !!(category || source || minImpact || q || scoredOnly || channel || scope || scopeType);
   const hasOverlay = everything.some((s) => s.channel !== "REPLAY");
   const newCount = baseline === null ? 0 : everything.filter((s) => (s.updated_seq ?? 0) > baseline).length;
   const nonEvents = everything.filter((s) => (assessed && s.assessed_category ? s.assessed_category === "NO_EVENT" : s.event_status === "NO_EVENT")).length;
-  const moreFilters = !!(category || source || sort !== "newest" || scope);
+  const moreFilters = !!(category || source || sort !== "newest" || scope || scopeType);
 
   return (
     <>
@@ -359,6 +365,15 @@ export function FeedPage() {
                 </button>
               ))}
             </div>
+            {meta?.capabilities.intelligence && (
+              <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by finer scope">
+                {(["INDUSTRY", "GEOGRAPHY", "MACRO", "THEME"] as const).map((t) => (
+                  <button key={t} type="button" className="chip" aria-pressed={scopeType === t} onClick={() => set("scopetype", scopeType === t ? null : t)}>
+                    {SCOPE_TYPE_LABEL[t]}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-1.5" role="group" aria-label="Filter by source">
                 {[["", "All sources"], ["NEWS", "News"], ["SOCIAL", "Social"]].map(([v, l]) => (

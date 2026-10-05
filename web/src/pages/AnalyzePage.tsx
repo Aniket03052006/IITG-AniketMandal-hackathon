@@ -4,6 +4,7 @@ import { useAnalyze, useMeta, useScenarios, useSignalRelevance } from "../api/ho
 import { MiniChain } from "../components/assessment/MiniChain";
 import { ModeChip } from "../components/assessment/ModeChip";
 import { ReferencePanel } from "../components/assessment/ReferencePanel";
+import { IntelligenceSummary } from "../components/intelligence/IntelligencePanel";
 import { OriginChip } from "../components/assessment/OriginChip";
 import { ScaleBar } from "../components/assessment/ScaleBar";
 import { ScoreBuildUp } from "../components/assessment/ScoreBuildUp";
@@ -152,6 +153,7 @@ function AssessedResult({ r, threshold }: { r: AnalyzeResponse; threshold: numbe
         {a.conflict && <p className="mt-3 text-sm text-warn">{a.conflict.note}</p>}
       </div>
 
+      {r.intelligence && <IntelligenceSummary i={r.intelligence} />}
       <ReferencePanel a={a} />
       <div className="flex flex-wrap items-center gap-3">
         <Link className="btn btn-primary" to={`/events/${s.id}`}>
@@ -253,6 +255,8 @@ export function AnalyzePage() {
   const [source, setSource] = useState<"NEWS" | "SOCIAL">("NEWS");
   const [when, setWhen] = useState("");
   const [from, setFrom] = useState("");
+  const [head, setHead] = useState("");
+  const [url, setUrl] = useState("");
   const analyze = useAnalyze();
   const llm = meta?.capabilities.llm;
   const available = meta?.capabilities.analyze ?? true;
@@ -260,7 +264,7 @@ export function AnalyzePage() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
-    analyze.mutate({ text, source_type: source, published_at: when ? new Date(when).toISOString() : undefined, source: from.trim() || undefined });
+    analyze.mutate({ text, source_type: source, published_at: when ? new Date(when).toISOString() : undefined, source: from.trim() || undefined, headline: head.trim() || undefined, url: url.trim() || undefined });
   };
 
   return (
@@ -332,6 +336,17 @@ export function AnalyzePage() {
             <p className="mt-1 max-w-[46ch] text-xs text-muted">
               Left empty, the time you paste it is used. A time you set is taken at your word and marked as such.
             </p>
+          </details>
+          <details className="disclosure">
+            <summary>Add a headline or a link</summary>
+            <label className="mt-2 flex items-center gap-2 text-sm text-muted">
+              Headline
+              <input className="field !w-auto min-w-0 flex-1" type="text" maxLength={240} placeholder="optional: the text above is then read as the article body" value={head} onChange={(e) => setHead(e.target.value)} />
+            </label>
+            <label className="mt-2 flex items-center gap-2 text-sm text-muted">
+              Link
+              <input className="field !w-auto min-w-0 flex-1" type="url" maxLength={2048} placeholder="https://… (used to credit the outlet; never fetched)" value={url} onChange={(e) => setUrl(e.target.value)} />
+            </label>
           </details>
           <button type="submit" className="btn btn-primary ml-auto" disabled={!available || !text.trim() || analyze.isPending}>
             {analyze.isPending ? <Spinner size={14} /> : null} Analyze

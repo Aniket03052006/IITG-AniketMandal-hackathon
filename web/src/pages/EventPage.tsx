@@ -8,6 +8,7 @@ import { EventDrawers } from "../components/event/Drawers";
 import { EventHero } from "../components/event/EventHero";
 import { EvidenceChapter } from "../components/event/EvidenceChapter";
 import { ImpactChapter } from "../components/event/ImpactChapter";
+import { IntelligencePanel } from "../components/intelligence/IntelligencePanel";
 import { StressBridge } from "../components/event/StressBridge";
 import { UnderstandChapter } from "../components/event/UnderstandChapter";
 import { FlowRail, type Stage } from "../components/FlowRail";
@@ -99,6 +100,7 @@ export function EventPage() {
             onGo={(st) => go(st)}
             a={a}
           />
+          <IntelligencePanel signalId={s.id} enabled={meta?.capabilities.intelligence === true} />
           <UnderstandChapter s={s} label={label} a={a} />
           {a ? <SeverityChapter a={a} /> : <ImpactChapter s={s} label={label} />}
           <EvidenceChapter

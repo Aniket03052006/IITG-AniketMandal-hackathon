@@ -401,6 +401,17 @@ describe("Analyze page with the risk assessment", () => {
     expect(JSON.parse(calls.find((c) => c.url.endsWith("/api/analyze"))!.body!)).toMatchObject({ source: "Desk note" });
   });
 
+  it("sends the optional headline and link, and says the link is never fetched", async () => {
+    wrap(<AnalyzePage />, "/analyze");
+    await userEvent.type(await screen.findByRole("textbox", { name: /Text to analyse/ }), TEXT);
+    await userEvent.click(screen.getByText("Add a headline or a link"));
+    await userEvent.type(screen.getByPlaceholderText(/the text above is then read as the article body/), "Quantum Dynamics restructures");
+    await userEvent.type(screen.getByPlaceholderText(/never fetched/), "https://news.example/q");
+    await userEvent.click(screen.getByRole("button", { name: /Analyze/ }));
+    await screen.findByRole("region", { name: "Assessment result" });
+    expect(JSON.parse(calls.find((c) => c.url.endsWith("/api/analyze"))!.body!)).toMatchObject({ headline: "Quantum Dynamics restructures", url: "https://news.example/q" });
+  });
+
   it("offers one example per event class", async () => {
     wrap(<AnalyzePage />, "/analyze");
     await userEvent.click(await screen.findByText("More examples: one per event class"));

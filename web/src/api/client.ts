@@ -1,4 +1,5 @@
 import type {
+  EventIntelligence,
   Meta,
   PipelineReport,
   PortfolioExposure,
@@ -85,6 +86,8 @@ export interface SignalFilters {
   event_status?: string;
   channel?: string;
   scope_level?: string;
+  /** the hierarchical scope: COMPANY | INDUSTRY | SECTOR | GEOGRAPHY | MACRO | MARKET | THEME | UNRESOLVED */
+  scope_type?: string;
   since_seq?: number;
   /** a saved personal portfolio, so each row's relevance reads it; omitted = the synthetic default */
   portfolio_id?: string | null;
@@ -104,6 +107,8 @@ export const api = {
     request<RiskAssessment>(`/signals/${encodeURIComponent(id)}/assessment${refine ? "?refine=true" : ""}`),
   signalEvidence: (id: string) => request<EvidenceView>(`/signals/${encodeURIComponent(id)}/evidence`),
   signalTimeline: (id: string) => request<TimelineView>(`/signals/${encodeURIComponent(id)}/timeline`),
+  signalIntelligence: (id: string, asOf: string | null = null, pf: string | null = null) =>
+    request<EventIntelligence>(`/signals/${encodeURIComponent(id)}/intelligence${qs(asOf ? `as_of=${encodeURIComponent(asOf)}` : "", pfParam(pf))}`),
   outcomeCheck: () => request<OutcomeCheck>("/evidence/outcome-check"),
   signalAnalogues: (id: string) => request<AnalogueSet>(`/signals/${encodeURIComponent(id)}/analogues`),
   scenarioHistoryCheck: (id: string, scale = 1) =>

@@ -28,6 +28,12 @@ export const useSignalEvidence = (id: string | undefined, enabled = true) =>
 export const useSignalTimeline = (id: string | undefined, enabled = true) =>
   useQuery({ queryKey: ["signal-timeline", id], queryFn: () => api.signalTimeline(id as string), enabled: !!id && enabled, staleTime: Infinity, retry: false });
 
+/** Event intelligence: scope, event grouping, evidence, novelty, velocity, contradiction, lifecycle. Absent (404) where the engine is: callers hide the panel. */
+export const useIntelligence = (id: string | undefined, enabled = true, asOf: string | null = null) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["signal-intelligence", id, asOf, pf], queryFn: () => api.signalIntelligence(id as string, asOf, pf), enabled: !!id && enabled, staleTime: 15_000, retry: false });
+};
+
 export const useOutcomeCheck = (enabled: boolean) =>
   useQuery({ queryKey: ["outcome-check"], queryFn: api.outcomeCheck, enabled, staleTime: Infinity, retry: false });
 
