@@ -52,7 +52,7 @@ def select_shocks(
             continue
         if shock.scope is ShockScope.ISSUER and asset.entity_id != signal_entity_id:
             continue
-        if shock.scope is ShockScope.SECTOR and asset.sector != signal_sector:
+        if shock.scope is ShockScope.SECTOR and asset.sector != (shock.sector or signal_sector):
             continue
         current = chosen.get(shock.factor)
         if current is None or SCOPE_SPECIFICITY[shock.scope] > SCOPE_SPECIFICITY[current.scope]:
@@ -178,7 +178,8 @@ def revalue_asset(
         stressed_value=baseline + delta,
         delta=delta,
         delta_pct=pct,
-        shocks=[PositionShock(factor=f, scope=s.scope, value=s.scaled_value) for f, s in chosen.items()],
+        shocks=[PositionShock(factor=f, scope=s.scope, value=s.scaled_value, sector=s.sector)
+                for f, s in chosen.items()],
         by_factor=by_factor,
         formula=formula,
     )

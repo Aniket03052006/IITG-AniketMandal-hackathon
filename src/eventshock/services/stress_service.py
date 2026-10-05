@@ -81,6 +81,10 @@ class StressService:
 
     # ------------------------------------------------------------------ public
 
+    @property
+    def trigger_threshold(self) -> float:
+        return self._cfg.stress.trigger_threshold
+
     def run(
         self,
         signal_id: str,
@@ -104,7 +108,25 @@ class StressService:
             view = self._severity(signal) if self._severity else None
             scenario = self._catalog.default_for(view.category if view else signal.event.category)
 
-        result = self._evaluate(signal, scenario, force, impact_override, portfolio)
+        return self._store(self._evaluate(signal, scenario, force, impact_override, portfolio))
+
+    def run_scenario(
+        self,
+        signal_id: str,
+        scenario: Scenario,
+        *,
+        force: bool = False,
+        impact_override: float | None = None,
+        portfolio: Portfolio | None = None,
+    ) -> StressResult:
+        """Run a scenario that is not in the catalog (a generated one) through the same engine, trigger and scaling. Its id and version are in the run id,
+        and a generated scenario's version is a hash of its shocks, so a different scenario is a different run."""
+        signal = self._signals.get(signal_id)
+        if signal is None:
+            raise SignalNotFound(signal_id)
+        return self._store(self._evaluate(signal, scenario, force, impact_override, portfolio))
+
+    def _store(self, result: StressResult) -> StressResult:
         self._runs.pop(result.run_id, None)
         self._runs[result.run_id] = result
         while len(self._runs) > MAX_RUNS_KEPT:
@@ -223,9 +245,9 @@ class StressService:
         level = ScopeLevel.SECTOR if assessed_sector else scope.level
         applied = []
         for s in scenario.shocks:
-            ok, why = _binds(s.scope, level, entity_known, sector)
+            ok, why = (True, None) if s.sector else _binds(s.scope, level, entity_known, sector)  # a shock that names its sector reaches it whatever the event is about
             applied.append(AppliedShock(
-                factor=s.factor, scope=s.scope, base_value=s.value,
+                factor=s.factor, scope=s.scope, sector=s.sector, base_value=s.value,
                 scaled_value=scaled_shock_value(s.factor, s.value, scale),
                 applicable=ok, not_applicable_reason=why, rationale=s.rationale))
         if not any(a.applicable for a in applied):

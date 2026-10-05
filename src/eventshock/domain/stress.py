@@ -24,6 +24,7 @@ class AppliedShock(ContractModel):
     scope: ShockScope
     base_value: float
     scaled_value: float
+    sector: str | None = Field(default=None, description="the sector a SECTOR shock names explicitly (generated scenarios); null = the event's own sector")
     applicable: bool = Field(description="False when the scope needs an entity the signal lacks")
     not_applicable_reason: str | None = Field(
         default=None, description="why the shock was skipped, in terms of what the event is about")
@@ -34,6 +35,7 @@ class PositionShock(ContractModel):
     factor: RiskFactor
     scope: ShockScope
     value: float
+    sector: str | None = Field(default=None, description="the sector this SECTOR shock named explicitly (generated scenarios), else null")
 
 
 class PositionResult(ContractModel):

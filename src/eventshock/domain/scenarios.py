@@ -15,10 +15,16 @@ class ShockSpec(ContractModel):
     scope: ShockScope
     value: float
     rationale: str = ""
+    sector: str | None = Field(
+        default=None,
+        description="SECTOR scope only: the sector this shock names. Unset, the shock binds to the sector the event is about "
+                    "(every catalog scenario); set, it applies to that sector whatever the event is about (generated scenarios).")
 
     @model_validator(mode="after")
     def _ranges(self) -> ShockSpec:
         v, f = self.value, self.factor
+        if self.sector is not None and self.scope is not ShockScope.SECTOR:
+            raise ValueError("only a SECTOR-scope shock can name a sector")
         if f is RiskFactor.EQUITY and not -1.0 <= v <= 1.0:
             raise ValueError("EQUITY shock must be a fraction in [-1, 1]")
         if f is RiskFactor.PD_MULTIPLIER and v < 0:
@@ -42,7 +48,7 @@ class Scenario(ContractModel):
 
     @model_validator(mode="after")
     def _no_duplicate_shocks(self) -> Scenario:
-        keys = [(s.factor, s.scope) for s in self.shocks]
+        keys = [(s.factor, s.scope, s.sector) for s in self.shocks]
         if len(keys) != len(set(keys)):
-            raise ValueError("duplicate (factor, scope) shock")
+            raise ValueError("duplicate (factor, scope, sector) shock")
         return self

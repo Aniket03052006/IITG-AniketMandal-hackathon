@@ -81,30 +81,31 @@ def build_exposure_chain(result: StressResult, portfolio: Portfolio, signal: Ris
     assets = {a.asset_id: a for a in portfolio.assets}
     base = result.summary.baseline_value
     # (factor, scope) -> positions that took that shock and responded to it
-    groups: dict[tuple[RiskFactor, str], list] = defaultdict(list)
+    groups: dict[tuple[RiskFactor, str, str | None], list] = defaultdict(list)
     for p in result.positions:
         for s in p.shocks:
             if s.factor in p.by_factor:
-                groups[(s.factor, s.scope.value)].append(p)
+                groups[(s.factor, s.scope.value, s.sector)].append(p)
     steps: list[ChainStep] = []
     skipped: list[SkippedShock] = []
     for sh in result.shocks:
         if not sh.applicable:
             skipped.append(SkippedShock(factor_label=FACTOR_LABEL[sh.factor], scope_label=SCOPE_LABEL[sh.scope.value], reason=sh.not_applicable_reason or "does not reach this event"))
             continue
-        pos = groups.get((sh.factor, sh.scope.value), [])
+        pos = groups.get((sh.factor, sh.scope.value, sh.sector), [])
         if not pos:
             continue
         exposed = sum(p.baseline_value for p in pos)
         impact = sum(p.by_factor[sh.factor] for p in pos)
         sens = _sensitivity(sh.factor, sh.scope.value, [assets[p.asset_id] for p in pos if p.asset_id in assets])
         n = len(pos)
-        sentence = (f"{n} position{'s' if n != 1 else ''} ({exposed / base:.1%} of the portfolio, {money(exposed, ccy)}) take the {SCOPE_LABEL[sh.scope.value]} "
+        scope_label = SCOPE_LABEL[sh.scope.value] + (f" ({sh.sector})" if sh.sector else "")  # a generated scenario names its sectors
+        sentence = (f"{n} position{'s' if n != 1 else ''} ({exposed / base:.1%} of the portfolio, {money(exposed, ccy)}) take the {scope_label} "
                     f"{FACTOR_LABEL[sh.factor]} of {shock_text(sh.factor, sh.scaled_value)}; {sens}. Modeled change: {money(impact, ccy, True)} ({impact / base:+.2%} of the portfolio).")
-        steps.append(ChainStep(factor=sh.factor.value, factor_label=FACTOR_LABEL[sh.factor], scope=sh.scope.value, scope_label=SCOPE_LABEL[sh.scope.value],
+        steps.append(ChainStep(factor=sh.factor.value, factor_label=FACTOR_LABEL[sh.factor], scope=sh.scope.value, scope_label=scope_label,
                                applied_shock=sh.scaled_value, unit=UNIT[sh.factor], exposed_value=exposed, exposed_share=exposed / base if base else 0.0,
                                position_count=n, sensitivity=sens, impact=impact, impact_pct=impact / base if base else 0.0, sentence=sentence))
-    steps.sort(key=lambda s: (s.impact, s.factor, s.scope))
+    steps.sort(key=lambda s: (s.impact, s.factor, s.scope, s.scope_label))
     unmoved = [p for p in result.positions if p.delta == 0]
     not_reached = None
     if unmoved:
