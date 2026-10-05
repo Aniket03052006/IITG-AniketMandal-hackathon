@@ -104,5 +104,6 @@ def meta(c: Container = Depends(get_container)) -> Meta:
         impact=c.impact_status,
         capabilities=Capabilities(analyze=c.analyzer is not None, live_enabled=bool(c.live and c.live.source),
                                   assessment=c.assessments is not None, llm=llm_info(c),
-                                  analogues=bool(c.analogues and c.analogues.available), history_check=c.shock_history is not None, intelligence=c.intelligence is not None),
+                                  analogues=bool(c.analogues and c.analogues.available), history_check=c.shock_history is not None, intelligence=c.intelligence is not None,
+                                  propagation=c.propagation is not None, adjustments=c.adjust is not None),
     )

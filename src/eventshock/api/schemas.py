@@ -186,6 +186,8 @@ class Capabilities(ContractModel):
     analogues: bool = Field(default=False, description="historical analogues are served (an index is installed); GET /api/signals/{id}/analogues")
     history_check: bool = Field(default=False, description="scenario shocks can be ranked against history; GET /api/scenarios/{id}/history-check")
     intelligence: bool = Field(default=False, description="event intelligence (multi-scope, grouping, lifecycle, contradiction) is served; GET /api/signals/{id}/intelligence")
+    propagation: bool = Field(default=False, description="event -> portfolio propagation, materiality, generated scenarios, attribution and concentration are served; /api/signals/{id}/propagation")
+    adjustments: bool = Field(default=True, description="the side-cars' thresholds, mapping tables and scenario sizes can be adjusted by hand; /api/adjustments")
     custom_portfolios: bool = Field(default=True, description="optional personal portfolios can be created and used instead of the synthetic default; /api/portfolios")
 
 

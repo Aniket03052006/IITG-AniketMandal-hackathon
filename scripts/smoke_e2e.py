@@ -49,6 +49,12 @@ def post(base: str, path: str, payload: dict):
         return json.loads(r.read())
 
 
+def put(base: str, path: str, payload: dict):
+    req = urllib.request.Request(base + path, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"}, method="PUT")
+    with urllib.request.urlopen(req, timeout=120) as r:  # noqa: S310
+        return json.loads(r.read())
+
+
 def delete(base: str, path: str) -> int:
     req = urllib.request.Request(base + path, method="DELETE")
     with urllib.request.urlopen(req, timeout=60) as r:  # noqa: S310
@@ -175,6 +181,34 @@ def run_checks(base: str) -> None:
     finally:
         check(delete(base, f"/api/portfolios/{pid}") == 204 and pid not in {p["id"] for p in get(base, "/api/portfolios")}, "a saved portfolio can be deleted")
 
+    # Event -> portfolio propagation: mapping, relevance, a generated scenario, attribution that reconciles, concentration, and manual adjustment that resets cleanly.
+    caps = get(base, "/api/meta")["capabilities"]
+    check(caps["propagation"] is True and caps["adjustments"] is True, "/api/meta advertises propagation and adjustments")
+    avail = None
+    for it in get(base, "/api/signals?limit=400")["items"]:
+        flow = get(base, f"/api/signals/{it['id']}/propagation")
+        if flow["scenario"]["availability"] == "AVAILABLE":
+            avail, base_flow = it["id"], flow
+            break
+    check(avail is not None, "some replay event generates a scenario for the default portfolio")
+    g, m, sc = base_flow["graph"], base_flow["materiality"], base_flow["scenario"]
+    check(g["edges"] and all(e["status"] in ("OBSERVED", "SCENARIO_ASSUMPTION", "USER_ASSUMPTION") for e in g["edges"]) and "not causal inference" in " ".join(g["labels"]),
+          "/propagation: every edge says whether it is observed or assumed; the mapping is not called causal")
+    check(m["level"] in ("LOW", "MEDIUM", "HIGH", "CRITICAL") and m["why"] and m["rules"], "/propagation: relevance is a named level with its reasons and the rules that fired")
+    check(sc["label"] == "SCENARIO SIMULATION — NOT A PREDICTION" and sc["scenario"]["id"].startswith("gen_"), "/propagation: the generated scenario is labelled a simulation")
+    auto = post(base, f"/api/signals/{avail}/portfolio-stress", {})
+    pnl = auto["run"]["summary"]["pnl"]
+    check(auto["run"]["status"] == "COMPLETED" and all(abs(sum(r["delta"] for r in t["rows"]) - pnl) < 0.05 for t in [auto["attribution"]["drivers"], *auto["attribution"]["tables"]]),
+          "/portfolio-stress: the generated scenario runs and every attribution table adds up to the total change")
+    check(abs(auto["chain"]["total_impact"] - pnl) < 0.05 and post(base, f"/api/signals/{avail}/portfolio-stress", {})["run"]["run_id"] == auto["run"]["run_id"],
+          "...the exposure chain agrees, and the same request is the same run")
+    check(len(get(base, "/api/concentration")["dimensions"]) == 6 and "clusters" in get(base, "/api/concentration/overlaps"), "/api/concentration: six dimensions and the overlap view")
+    before = get(base, f"/api/signals/{avail}/propagation", raw=True)
+    adj = put(base, "/api/adjustments", {"values": {"propagation.generation.min_severity": 10}})
+    check(adj["count"] == 1 and get(base, f"/api/signals/{avail}/propagation")["adjustments"]["count"] == 1, "/api/adjustments: a change is applied to the running side-cars and labelled on the answer")
+    check(post(base, "/api/adjustments/reset", {})["count"] == 0 and get(base, f"/api/signals/{avail}/propagation", raw=True) == before,
+          "...and a reset puts every byte of the answer back")
+
     index = get(base, "/", raw=True).decode("utf-8", "replace")
     check("<div id=\"root\"" in index or "id=\"root\"" in index, "the built UI is served at /")
 
@@ -197,7 +231,8 @@ def main() -> int:
     env = {**os.environ, "EVENTSHOCK_PROFILE": "replay", "PYTHONPATH": str(ROOT / "src"), "EVENTSHOCK_JOURNAL_PATH": str(journal),
            # the smoke test never calls a language model: rule mode, and a private cache file
            "EVENTSHOCK_LLM": "0", "EVENTSHOCK_LLM_CACHE_PATH": str(journal.parent / "llm_cache.jsonl"),
-           "EVENTSHOCK_PORTFOLIO_STORE_PATH": str(journal.parent / "portfolios")}
+           "EVENTSHOCK_PORTFOLIO_STORE_PATH": str(journal.parent / "portfolios"),
+           "EVENTSHOCK_OVERRIDES_PATH": str(journal.parent / "overrides.json")}
     proc = subprocess.Popen([sys.executable, "-m", "eventshock", "--port", str(port)], cwd=ROOT, env=env)
     base = f"http://127.0.0.1:{port}"
     try:

@@ -14,6 +14,7 @@ from .. import __version__
 from ..config import Settings
 from .deps import build_container
 from .routers import (
+    adjustments,
     analyze,
     evidence,
     live,
@@ -22,6 +23,7 @@ from .routers import (
     pipeline,
     portfolio,
     portfolios,
+    propagation,
     scenarios,
     scope,
     signals,
@@ -70,7 +72,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_headers=["*"],
     )
     for r in (meta.router, pipeline.router, models.router, evidence.router, signals.router, portfolio.router,
-              portfolios.router, scenarios.router, stress.router, analyze.router, live.router, scope.router):
+              portfolios.router, scenarios.router, stress.router, analyze.router, live.router, scope.router,
+              propagation.router, adjustments.router):
         app.include_router(r, prefix="/api")
 
     dist = settings.web_dist_dir

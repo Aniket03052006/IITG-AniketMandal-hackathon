@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+import threading
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
 from fastapi import Request
 
+from ..adjust.service import AdjustmentService, build_effective
+from ..adjust.store import OverridesStore
 from ..assessment.config import load_semantics_config, load_severity_config
 from ..assessment.extractor import SemanticExtractor
 from ..assessment.rubric import RubricDeriver
@@ -30,7 +34,6 @@ from ..config import (
 )
 from ..ingestion.live import CaptureSource, GdeltLiveSource, LiveSource
 from ..ingestion.snapshot import Snapshot, load_snapshot
-from ..intelligence.config import load_intelligence_config
 from ..intelligence.scope import HierarchicalScopeResolver
 from ..intelligence.service import IntelligenceService
 from ..llm.cache import ExtractionCache
@@ -68,6 +71,11 @@ from ..portfolio.resolve import Resolver
 from ..portfolio.service import PortfolioService
 from ..portfolio.store import PortfolioStore
 from ..ports import PortfolioRepository
+from ..propagation.concentration import ConcentrationAnalyzer
+from ..propagation.mapping import PropagationMapper
+from ..propagation.materiality import MaterialityAssessor
+from ..propagation.scenario_gen import ScenarioGenerator
+from ..propagation.service import PropagationService
 from ..retrieval.config import load_retrieval_config, resolve_floor
 from ..retrieval.index import AnalogueIndex
 from ..retrieval.search import SearchParams
@@ -137,6 +145,35 @@ class Container:
     portfolios: PortfolioService | None = None
     # multi-scope event intelligence: hierarchical scope, event grouping, evidence, novelty, velocity, contradiction, lifecycle (a derived side-car)
     intelligence: IntelligenceService | None = None
+    # event -> portfolio propagation, materiality, generated scenarios, attribution, concentration (a derived side-car; replay profile only)
+    propagation: PropagationService | None = None
+    # manual adjustment of the side-cars above (relevance bands, intelligence priors, propagation tables); a rebuild swaps them under `sidecar_lock`
+    adjust: AdjustmentService | None = None
+    scope_resolver: ScopeResolver | None = None
+    sidecar_lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
+
+
+def rebuild_sidecars(c: Container, overrides: Mapping[str, object]) -> None:
+    """(Re)build the derived side-cars from the shipped configs plus the user's overrides and swap them in. Raises ``ConfigError`` for an invalid combination
+    before anything is swapped."""
+    icfg, pcfg, prop_cfg = build_effective(c.settings.config_dir, overrides)
+    relevance = RelevanceService(c.portfolio, c.catalog, band=pcfg.band)
+    intelligence = propagation = None
+    if c.profile == "replay" and c.scope_resolver is not None and c.snapshot is not None:
+        intelligence = IntelligenceService(
+            icfg, c.signals, HierarchicalScopeResolver(icfg, c.scope_resolver, REPO_ROOT / "docs" / "evidence" / "scope_eval.json"),
+            assessments=c.assessments, relevance=relevance, stress=c.stress, catalog=c.catalog, snapshot_id=c.snapshot.manifest.snapshot_id)
+        tickers = {e.entity_id: e.ticker for e in c.portfolio.entities() if e.ticker}
+        mapper = PropagationMapper(prop_cfg, ticker_industry=icfg.scope.ticker_industry, region_names=icfg.scope.region_names,
+                                   entity_tickers=lambda: tickers, overrides=overrides)
+        adjust = c.adjust
+        propagation = PropagationService(
+            prop_cfg, signals=c.signals, intelligence=intelligence, assessments=c.assessments, stress=c.stress, portfolio=c.portfolio, mapper=mapper,
+            assessor=MaterialityAssessor(prop_cfg), generator=ScenarioGenerator(prop_cfg, c.catalog, c.config.stress, c.shock_history),
+            concentration=ConcentrationAnalyzer(prop_cfg, mapper.industry_of, lambda: {e.entity_id: e.name for e in c.portfolio.entities()}),
+            notice=(adjust.notice if adjust is not None else None), adjust_version=(adjust.version if adjust is not None else None))
+    with c.sidecar_lock:
+        c.relevance, c.intelligence, c.propagation = relevance, intelligence, propagation
 
 
 def _build_analogues(settings: Settings, event_model: EventModel, snapshot: Snapshot) -> AnalogueService:
@@ -370,7 +407,6 @@ def build_container(settings: Settings | None = None) -> Container:
     replay = config.data.profile == "replay"
     evidence = build_evidence(REPO_ROOT, card, event_card, impact_card) if replay else None
     pcfg = load_portfolio_config(settings.config_dir)
-    catalog_relevance = RelevanceService(portfolio, catalog, band=pcfg.band)
     betas = IssuerBetas.load(REPO_ROOT) if config.data.profile == "replay" else None
     instruments = InstrumentCatalog.load(REPO_ROOT, portfolio.entities(), betas, pcfg.betas.floor, pcfg.betas.cap)
     store_dir = settings.portfolio_store_path or REPO_ROOT / "data" / "live" / "portfolios"
@@ -392,17 +428,10 @@ def build_container(settings: Settings | None = None) -> Container:
         assert snapshot is not None
         analogues = _build_analogues(settings, event_model, snapshot)
     stress = StressService(signals, portfolio, catalog, config, severity_provider=assessments.severity_view if assessments else None)
-    intelligence = None
-    if replay:
-        assert scope_config is not None
-        intelligence = IntelligenceService(
-            load_intelligence_config(settings.config_dir), signals, HierarchicalScopeResolver(
-                load_intelligence_config(settings.config_dir), scope_resolver, REPO_ROOT / "docs" / "evidence" / "scope_eval.json"),
-            assessments=assessments, relevance=catalog_relevance, stress=stress, catalog=catalog, snapshot_id=snapshot.manifest.snapshot_id)
     history_path = REPO_ROOT / SHOCK_HISTORY_PATH
     if history_path.is_file():
         shock_history = ShockHistory.load(REPO_ROOT)
-    return Container(
+    container = Container(
         settings=settings,
         config=config,
         taxonomy=taxonomy,
@@ -423,7 +452,7 @@ def build_container(settings: Settings | None = None) -> Container:
         calendar=calendar,
         outcomes=outcomes,
         as_of=as_of,
-        relevance=catalog_relevance,
+        relevance=None,
         engine=engine if replay else None,
         analyzer=analyzer,
         live=live,
@@ -435,8 +464,14 @@ def build_container(settings: Settings | None = None) -> Container:
         shock_history=shock_history,
         outcome_check=build_outcome_check(REPO_ROOT) if replay else None,
         portfolios=portfolios,
-        intelligence=intelligence,
+        scope_resolver=scope_resolver if replay else None,
     )
+    # the adjustable side-cars (relevance bands, intelligence, propagation) are built from the shipped configs plus the user's saved adjustments
+    overrides_store = OverridesStore(settings.overrides_path or REPO_ROOT / "data" / "live" / "overrides" / "overrides.json")
+    container.adjust = AdjustmentService(settings.config_dir, overrides_store, scenarios, {c.id: c.default_scenario for c in taxonomy.categories},
+                                         on_change=lambda ov: rebuild_sidecars(container, ov))
+    rebuild_sidecars(container, overrides_store.values())
+    return container
 
 
 def get_container(request: Request) -> Container:
