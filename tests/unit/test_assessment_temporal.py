@@ -19,10 +19,11 @@ def test_later_reports_do_not_change_the_score() -> None:
     a0, a1 = service([s]).assess(s), service([later]).assess(later)
     assert a1.later_reports_excluded == 6 and a1.corroborating_at_event_time == 0
     assert a0.severity.points == a1.severity.points and a0.severity.score == a1.severity.score
-    assert [f.model_dump() for f in a0.severity.factors] == [f.model_dump() for f in a1.severity.factors]
+    assert [st.model_dump() for st in a0.severity.steps] == [st.model_dump() for st in a1.severity.steps]
+    assert a0.severity.reliability == a1.severity.reliability, "later coverage must not even change the reliability line"
 
 
-def test_reports_that_existed_at_the_time_do_count_as_corroboration() -> None:
+def test_reports_that_existed_at_the_time_raise_reliability_but_never_the_severity() -> None:
     s = signal_for(REGULATORY)
     t0 = s.document.published_at
     from eventshock.domain import CorroboratingSource, SourceType
@@ -30,18 +31,17 @@ def test_reports_that_existed_at_the_time_do_count_as_corroboration() -> None:
     before = [CorroboratingSource(source=f"Early{i}", source_type=SourceType.NEWS, published_at=t0 - timedelta(hours=i + 1), headline="h") for i in range(3)]
     ev = s.evidence.model_copy(update={"corroborating": before, "source_count": 4})
     s2 = s.model_copy(update={"evidence": ev})
-    a = service([s2]).assess(s2)
+    a, base = service([s2]).assess(s2), service([s]).assess(s)
     assert a.corroborating_at_event_time == 3
-    cred = next(f for f in a.severity.factors if f.id == "source_credibility")
-    base = next(f for f in service([s]).assess(s).severity.factors if f.id == "source_credibility")
-    assert cred.value > base.value
+    assert a.severity.reliability.score > base.severity.reliability.score
+    assert (a.severity.score, a.severity.points) == (base.severity.score, base.severity.points), "corroboration is reliability, not severity"
 
 
-def test_no_factor_reads_the_future() -> None:
+def test_nothing_that_could_only_be_known_later_is_a_score_input() -> None:
     a = service([signal_for(REGULATORY)]).assess(signal_for(REGULATORY))
-    ids = {f.id for f in a.severity.factors}
-    assert ids == {"category_prior", "severity_indicators", "tone", "novelty", "breadth", "source_credibility", "market_regime"}
-    assert not ({"outcome", "later_coverage", "filings_after", "realised"} & ids)
+    ids = {st.id for st in a.severity.steps} | {o.id for o in a.severity.omitted}
+    assert ids <= {"matrix", "certainty", "direction", "regime", "novelty", "clamp"}
+    assert not ({"outcome", "later_coverage", "filings_after", "realised", "source_count"} & ids)
 
 
 def _ctx(s) -> SignalContext:

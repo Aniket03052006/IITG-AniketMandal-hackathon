@@ -140,7 +140,10 @@ def test_groq_sends_a_forced_function_call_with_bearer_auth_and_reads_its_argume
     assert body["tool_choice"] == {"type": "function", "function": {"name": "record_assessment"}} and body["temperature"] == 0
     assert body["messages"][0] == {"role": "system", "content": "s"} and body["messages"][1] == {"role": "user", "content": "u"}
     assert req.get_header("Authorization") == "Bearer gsk_test" and req.full_url.endswith("/chat/completions")
-    assert body["reasoning_effort"] == "low"  # the provider's configured extra request fields are sent
+    assert body["reasoning_effort"] == "low"  # the configured extra request fields for this model family are sent
+    other = Script(GROQ_OK)
+    call(GroqClient("gsk_test", LLM_CFG.for_provider("groq", "qwen/qwen3.8-27b"), opener=other, sleep=lambda x: None))
+    assert "reasoning_effort" not in json.loads(other.requests[0][0].data)  # ...and not for a family that does not accept them
 
 
 @pytest.mark.parametrize("payload", [{"choices": []}, {"choices": [{"message": {"content": "prose"}}]}, {"nope": 1}, [],
@@ -161,10 +164,14 @@ def test_a_refused_request_says_what_the_provider_said_and_is_not_retried() -> N
     assert "gsk_test" not in str(e.value)
 
 
-def test_a_failed_tool_generation_is_a_bad_answer_not_a_bad_request() -> None:
-    s = Script(err_body(400, {"code": "tool_use_failed", "message": "Failed to call a function."}))
+def test_a_failed_tool_generation_is_retried_within_the_budget_and_is_a_bad_answer_if_it_keeps_failing() -> None:
+    fail = lambda: err_body(400, {"code": "tool_use_failed", "message": "Failed to call a function."})  # noqa: E731
+    s = Script(fail(), GROQ_OK)  # a failed generation often succeeds on the next try
+    assert call(groq(s)) == {"event_type": "X"} and len(s.requests) == 2
+    s2 = Script(*[fail() for _ in range(LLM_CFG.max_retries + 1)])
     with pytest.raises(LLMBadOutput):
-        call(groq(s))
+        call(groq(s2))
+    assert len(s2.requests) == LLM_CFG.max_retries + 1
 
 
 def test_groq_rate_limits_and_a_rejected_key_follow_the_shared_rules() -> None:
@@ -204,3 +211,13 @@ def test_retries_stop_when_another_attempt_could_not_finish_inside_the_total_bud
     with pytest.raises(LLMRateLimited):
         call(c)
     assert len(s.requests) < 6 and now[0] <= 25.0 + 6.0  # gave up early instead of burning six attempts
+
+
+def test_a_daily_quota_is_not_retried_because_waiting_cannot_help() -> None:
+    msg = "Rate limit reached for model `x` on tokens per day (TPD): Limit 200000, Used 199000, Requested 3000. Please try again in 5m."
+    s = Script(err_body(429, {"code": "rate_limit_exceeded", "message": msg}), GROQ_OK)
+    with pytest.raises(LLMRateLimited) as e:
+        call(groq(s, []))
+    assert len(s.requests) == 1 and e.value.permanent and "daily quota exhausted" in str(e.value)
+    # a per-minute limit is still retried
+    assert call(groq(Script(http_error(429, {"retry-after": "1"}), GROQ_OK), [])) == {"event_type": "X"}

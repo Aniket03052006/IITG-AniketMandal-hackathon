@@ -122,10 +122,12 @@ class TestRealSignalsDriveTheStressEngine:
 
     def test_a_scenario_with_no_market_shock_is_not_applicable_not_a_zero(self, replay_client, replay_container):
         """Found while building Stage 6: an unresolved M&A/product/earnings signal used to return COMPLETED with pnl 0 and 100% uncovered."""
+        asm = replay_container.assessments
         for cat in ("MA_CORPORATE_ACTION", "PRODUCT_OPERATIONS", "EARNINGS_FINANCIAL_PERFORMANCE"):
-            s = next((x for x in replay_container.signals.list(min_impact=1)
-                      if x.scope.level.value in {"UNRESOLVED", "MARKET"} and x.event.category.value == cat
-                      and x.event.status.value == "CLASSIFIED"), None)
+            # the assessment may read a sector from the text and bind sector shocks, so pick a signal that neither the scope nor the assessment can place
+            s = next((x for x in replay_container.signals.list()
+                      if x.scope.level.value in {"UNRESOLVED", "MARKET"} and not x.scope.sector
+                      and (a := asm.assess(x)).severity is not None and a.reading.event_type == cat and not a.reading.sectors), None)
             if s is None:
                 continue
             r = replay_client.post("/api/stress-test", json={"signal_id": s.id, "force": True}).json()
@@ -280,7 +282,7 @@ class TestImpactModel:
         for origin in ("MODEL", "PLACEHOLDER"):
             it = next(i for i in items if i["impact_origin"] == origin and i["impact_score"] is not None and i["severity_score"] is not None)
             r = replay_client.post("/api/stress-test", json={"signal_id": it["id"], "force": True}).json()
-            assert r["audit"]["impact_origin"] == "ASSESSMENT" and r["audit"]["severity_basis"] == "TRANSPARENT_HYBRID"
+            assert r["audit"]["impact_origin"] == "ASSESSMENT" and r["audit"]["severity_basis"] == "SCORECARD"
             assert r["audit"]["impact_lifecycle"] is None
             ref = replay_client.get(f"/api/signals/{it['id']}/assessment").json()["reference"]
             assert ref["available"] is True and ref["origin"] == origin and ref["score"] == it["impact_score"]

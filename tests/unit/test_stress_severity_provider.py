@@ -20,7 +20,7 @@ SCN = make_scenario(REG, [
 
 
 def view(score: int, sector: str | None = "Fin", category: EventCategory = REG) -> SeverityView:
-    return SeverityView(score=score, category=category, sector=sector, basis="TRANSPARENT_HYBRID", version="hybrid-v1", extraction_mode="RULES")
+    return SeverityView(score=score, category=category, sector=sector, basis="SCORECARD", version="severity-v2", extraction_mode="RULES")
 
 
 def svc(signal, v: SeverityView | None):
@@ -33,7 +33,7 @@ def test_below_the_trigger_the_run_says_severity_and_offers_the_what_if() -> Non
     sig = make_signal(impact=9, entity_id="UNKNOWN_ENTITY", scope=market_scope())  # its own impact is high; the assessment says 3
     r = svc(sig, view(3)).run(sig.id)
     assert r.status is StressStatus.NOT_TRIGGERED and "Severity 3" in r.reason and "what-if" in r.reason
-    assert r.audit.impact_origin == "ASSESSMENT" and r.audit.severity_basis == "TRANSPARENT_HYBRID" and r.audit.extraction_mode == "RULES"
+    assert r.audit.impact_origin == "ASSESSMENT" and r.audit.severity_basis == "SCORECARD" and r.audit.extraction_mode == "RULES"
 
 
 def test_above_the_trigger_the_run_completes_on_the_severity_score() -> None:

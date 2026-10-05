@@ -33,7 +33,7 @@ def test_a_paraphrased_quote_is_not_evidence() -> None:
     a = copy.deepcopy(ANSWER)
     a["evidence"].append(dict(quote="tougher rules on lenders", supports="event_type"))
     r, info = run(a)
-    assert all(s.quote in r.text for s in r.evidence) and len(r.evidence) == 2
+    assert all(r.text[s.start:s.end] == s.quote for s in r.evidence) and "tougher rules on lenders" not in [s.quote for s in r.evidence]
     assert any("not verbatim" in n for n in info.notes)
 
 
@@ -81,7 +81,7 @@ def test_a_provider_failure_degrades_to_the_rules_with_a_reason(err, needle: str
 
 
 def test_a_missing_required_field_is_a_malformed_answer() -> None:
-    bad = {k: v for k, v in ANSWER.items() if k != "sentiment"}
+    bad = {k: v for k, v in ANSWER.items() if k != "event_type"}  # the one field the answer cannot do without (with the rubric)
     r, info = run(bad)
     assert info.mode.value == "RULES" and info.fallback_reason
 
@@ -167,10 +167,29 @@ def test_a_quote_that_is_the_whole_text_is_not_evidence() -> None:
     a = copy.deepcopy(ANSWER)
     a["evidence"] = [dict(quote=REGULATORY, supports="event_type"), dict(quote="stricter capital requirements", supports="event_type")]
     r, info = run(a)
-    assert [s.quote for s in r.evidence] == ["stricter capital requirements"]
+    quotes = [s.quote for s in r.evidence]
+    assert "stricter capital requirements" in quotes and REGULATORY not in quotes
     assert any("cover nearly the whole text" in n for n in info.notes)
     # a short text is exempt: there the whole headline can be the only possible quote
     short = "Bank defaults on bonds"
     b = copy.deepcopy(ANSWER)
     b["evidence"] = [dict(quote=short, supports="event_type")]
     assert len(run(b, short)[0].evidence) == 1
+
+
+def test_after_a_provider_failure_new_text_goes_straight_to_the_rules_until_the_cooldown_ends() -> None:
+    from eventshock.assessment.extractor import SemanticExtractor
+    from tests.assess_helpers import LLM_CFG, RULES, VOCAB
+
+    fake = FakeLLM(error=timeout())
+    ex = SemanticExtractor(VOCAB, RULES, LLM_CFG.model_copy(update={"enabled": True, "cooldown_seconds": 60.0}), client=fake)
+    now = [100.0]
+    ex._clock = lambda: now[0]  # noqa: SLF001
+    first = ex.extract(REGULATORY + " one", Reference())[1]
+    assert fake.calls == 1 and first.mode.value == "RULES" and "timed out" in first.fallback_reason
+    second = ex.extract(REGULATORY + " two", Reference())[1]
+    assert fake.calls == 1, "the provider must not be called during the cooldown"
+    assert second.mode.value == "RULES" and "not retried for another" in second.fallback_reason and "timed out" in second.fallback_reason
+    now[0] += 61.0
+    fake.error, fake.answer = None, ANSWER
+    assert ex.extract(REGULATORY + " three", Reference())[1].mode.value == "LLM" and fake.calls == 2  # the breaker closes by itself

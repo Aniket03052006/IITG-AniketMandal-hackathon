@@ -24,7 +24,7 @@ def test_the_threshold_message_is_explicit_in_both_states() -> None:
 def test_the_stress_view_carries_score_class_and_sector() -> None:
     s = signal_for(REGULATORY)
     v = service([s]).severity_view(s)
-    assert v.category is EventCategory.REGULATORY_LEGAL and v.sector == "Financials" and v.basis == "TRANSPARENT_HYBRID"
+    assert v.category is EventCategory.REGULATORY_LEGAL and v.sector == "Financials" and v.basis == "SCORECARD"
     assert 1 <= v.score <= 10 and v.extraction_mode == "RULES"
 
 
@@ -41,7 +41,7 @@ def test_the_reference_model_is_shown_but_labelled_and_never_drives_the_view() -
     a = service([s]).assess(s)
     assert a.reference.available and a.reference.score == 9 and "does not drive the trigger" in a.reference.note
     assert a.severity.score != 9 or True  # independent by construction: the reference score is not a factor
-    assert not any("reference" in f.id for f in a.severity.factors)
+    assert not any("reference" in st.id for st in a.severity.steps)
 
 
 def test_new_text_uses_the_llm_but_replay_text_uses_the_rules_unless_refined() -> None:
@@ -88,7 +88,7 @@ def test_a_missing_timestamp_origin_or_odd_inputs_do_not_crash() -> None:
 
 def test_a_model_wanted_but_not_available_says_why_on_new_text_only() -> None:
     from eventshock.store import CombinedSignalRepository, InMemorySignalRepository, LiveSignalStore
-    from tests.assess_helpers import SCORER, extractor
+    from tests.assess_helpers import DERIVER, SCORER, extractor
     from tests.helpers import NOW
 
     s = signal_for(REGULATORY)
@@ -98,11 +98,11 @@ def test_a_model_wanted_but_not_available_says_why_on_new_text_only() -> None:
     from eventshock.assessment.service import AssessmentService
     from eventshock.config import StressConfig
 
-    svc = AssessmentService(extractor(None, enabled=True, why="ANTHROPIC_API_KEY is not set"), SCORER, repo, stress=StressConfig(), clock=lambda: NOW)
+    svc = AssessmentService(extractor(None, enabled=True, why="ANTHROPIC_API_KEY is not set"), SCORER, DERIVER, repo, stress=StressConfig(), clock=lambda: NOW)
     a = svc.assess(s)
     assert a.extraction.mode.value == "RULES" and a.extraction.fallback_reason == "ANTHROPIC_API_KEY is not set"
     # replay text never asks for the model, so it never apologises for not having one
     r = signal_for(REGULATORY, "s9")
-    plain = AssessmentService(extractor(None, enabled=True, why="no key"), SCORER, CombinedSignalRepository(InMemorySignalRepository([r], NOW), LiveSignalStore()),
+    plain = AssessmentService(extractor(None, enabled=True, why="no key"), SCORER, DERIVER, CombinedSignalRepository(InMemorySignalRepository([r], NOW), LiveSignalStore()),
                               stress=StressConfig(), clock=lambda: NOW)
     assert plain.assess(r).extraction.fallback_reason is None

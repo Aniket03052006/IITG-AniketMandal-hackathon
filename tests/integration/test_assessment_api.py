@@ -42,7 +42,7 @@ def test_each_required_case_gets_a_full_assessment(app_client, name: str) -> Non
     assert rd["event_type"] == case["event"]
     assert set(case["sectors"]) <= set(rd["sectors"]) and set(case["regions"]) <= set(rd["regions"])
     assert rd["primary_issuer"]["entity_id"] == "UNKNOWN_ENTITY"  # none of the seven names a company in the entity master
-    assert a["extraction"]["mode"] == "RULES" and a["severity"]["basis"] == "TRANSPARENT_HYBRID"
+    assert a["extraction"]["mode"] == "RULES" and a["severity"]["basis"] == "SCORECARD"
     assert 1 <= a["severity"]["score"] <= 10 and a["severity"]["low"] <= a["severity"]["score"] <= a["severity"]["high"]
     assert any("not a forecast" in label.lower() for label in a["labels"])
     for s in rd["evidence"]:
@@ -66,7 +66,7 @@ def test_the_threshold_is_explicit_and_drives_the_stress(app_client) -> None:
     h, c = hot["assessment"]["threshold"], cold["assessment"]["threshold"]
     assert h["crosses"] and h["status"] == "ABOVE_TRIGGER" and not c["crosses"] and c["status"] == "BELOW_TRIGGER"
     ran = app_client.post("/api/stress-test", json={"signal_id": hot["signal_id"]}).json()
-    assert ran["status"] == "COMPLETED" and ran["audit"]["impact_origin"] == "ASSESSMENT" and ran["audit"]["severity_basis"] == "TRANSPARENT_HYBRID"
+    assert ran["status"] == "COMPLETED" and ran["audit"]["impact_origin"] == "ASSESSMENT" and ran["audit"]["severity_basis"] == "SCORECARD"
     assert ran["severity"]["impact_used"] == hot["assessment"]["severity"]["score"] and ran["summary"]["pnl"] < 0
     held = app_client.post("/api/stress-test", json={"signal_id": cold["signal_id"]}).json()
     assert held["status"] == "NOT_TRIGGERED" and "Severity" in held["reason"] and "what-if" in held["reason"]
@@ -152,3 +152,66 @@ def test_odd_but_usable_input_degrades_instead_of_crashing(app_client) -> None:
     assert noise["assessment"]["severity"] is None or noise["assessment"]["reading"]["event_type"] != "NO_EVENT"
     named = analyze(app_client, "Quarterly update from the desk: nothing to report today, markets calm.", source="Desk note")
     assert named["signal"]["source"] == "Desk note"
+
+
+# ------------------------------------------------------------------------------------------------------------ the whole scale, end to end (rule mode)
+SPECTRUM = {  # (text, lowest and highest score the deterministic rules fallback may give it)
+    "routine": ("Company to present at investor conference next month", None, 2),
+    "minor": ("Automaker recalls 3,000 vehicles over a faulty seat sensor", 2, 4),
+    "material": (EARNINGS, 4, 6),
+    "major": ("Regulators finalize rules requiring large banks to hold 25% more capital by 2028", 5, 8),  # rules alone read this as moderate; a model raises it
+    "systemic": ("Bank run spreads as the lender collapses and funding freezes across markets", 9, 10),
+}
+
+
+@pytest.mark.parametrize("name", list(SPECTRUM))
+def test_the_scale_is_used_end_to_end_from_routine_to_systemic(app_client, name: str) -> None:
+    text, lo, hi = SPECTRUM[name]
+    r = analyze(app_client, text)
+    sev = r["assessment"]["severity"]
+    if lo is None:  # a routine item may be unscored (not a market event) or score 1-2
+        assert sev is None or sev["score"] <= hi
+        return
+    assert sev is not None and lo <= sev["score"] <= hi, f"{name}: {sev['score']}"
+    assert r["signal"]["severity_band"] == sev["band"] and r["signal"]["severity_band_label"] == sev["band_label"]
+    if name in ("minor", "systemic"):
+        assert sev["band"] == {"minor": "low", "systemic": "extreme"}[name]
+
+
+def test_scores_rise_from_routine_to_systemic_in_order(app_client) -> None:
+    scores = [(analyze(app_client, SPECTRUM[k][0])["assessment"]["severity"] or {"score": 1})["score"] for k in SPECTRUM]
+    assert scores == sorted(scores) and scores[0] <= 2 and scores[-1] >= 9, scores
+
+
+def test_the_assessment_exposes_rubric_steps_provenance_market_and_reliability(app_client) -> None:
+    a = analyze(app_client, REGULATORY)["assessment"]
+    sev = a["severity"]
+    assert [f["id"] for f in sev["rubric"]] == ["magnitude", "reach", "certainty", "direction"]
+    assert all(f["baseline"] and f["final"] and f["origin"] in ("RULES", "HYBRID") for f in sev["rubric"])
+    assert sev["steps"][0]["id"] == "matrix" and abs(sum(s["effect_points"] for s in sev["steps"]) - sev["points"]) < 0.01
+    assert sev["baseline_score"] == sev["score"] and sev["ai_effect"] == 0, "rule mode has no AI adjustment"
+    assert sev["reliability"]["level"] in ("high", "moderate", "low")
+    parts = {p["part"]: p["origin"] for p in a["provenance"]}
+    assert parts["Market regime"] == "DATA" and parts["Severity matrix and scaling"] == "ASSUMPTION" and parts["Portfolio impact"] == "RULES"
+    assert parts["Rubric answers (magnitude, reach, certainty, direction)"] == "RULES"
+    assert "tone" not in " ".join(s["id"] for s in sev["steps"]), "tone is not a score input"
+
+
+def test_stale_market_data_is_never_used_silently(app_client) -> None:
+    m = analyze(app_client, MONETARY)["assessment"]["severity"]["market"]
+    assert m["max_sessions_behind"] == 1 and m["reason"]
+    # whichever side of the policy the real clock puts the frozen data on, the flag, the lag and the reason must agree
+    assert m["used"] == (m["sessions_behind"] is not None and m["sessions_behind"] <= m["max_sessions_behind"])
+    if not m["used"]:
+        assert "not used" in m["reason"] or "too stale" in m["reason"] or "could not have been known" in m["reason"]
+
+
+def test_a_systemic_headline_runs_the_complete_analyze_risk_stress_flow(app_client) -> None:
+    r = analyze(app_client, SPECTRUM["systemic"][0])
+    sev = r["assessment"]["severity"]
+    assert sev["score"] >= 9 and r["assessment"]["threshold"]["crosses"]
+    run = app_client.post("/api/stress-test", json={"signal_id": r["signal_id"]}).json()
+    assert run["status"] == "COMPLETED" and run["audit"]["impact_origin"] == "ASSESSMENT"
+    assert run["severity"]["impact_used"] == sev["score"] and run["summary"]["pnl"] < 0
+    mild = app_client.post("/api/stress-test", json={"signal_id": analyze(app_client, EARNINGS)["signal_id"], "force": True}).json()
+    assert mild["status"] == "COMPLETED" and abs(run["summary"]["pnl"]) > abs(mild["summary"]["pnl"]) * 0.9  # a systemic scenario is not milder than a single earnings miss

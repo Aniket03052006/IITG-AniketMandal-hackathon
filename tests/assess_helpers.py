@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-from eventshock.assessment.config import load_hybrid_config, load_semantics_config
+from eventshock.assessment.config import load_semantics_config, load_severity_config
 from eventshock.assessment.extractor import SemanticExtractor
-from eventshock.assessment.hybrid import HybridScorer
+from eventshock.assessment.rubric import RubricDeriver
 from eventshock.assessment.rules import RuleExtractor
 from eventshock.assessment.service import AssessmentService
+from eventshock.assessment.severity import SeverityScorer
 from eventshock.assessment.vocab import Vocab
 from eventshock.config import REPO_ROOT, Settings, load_taxonomy
 from eventshock.domain import (
@@ -29,11 +30,12 @@ CONFIG_DIR = REPO_ROOT / "configs"
 SCOPE_CFG = load_scope_config(CONFIG_DIR)
 SCOPE = ScopeResolver(SCOPE_CFG)
 SEM = load_semantics_config(CONFIG_DIR)
-HYBRID = load_hybrid_config(CONFIG_DIR)
+SEVERITY = load_severity_config(CONFIG_DIR)
 LLM_CFG = load_llm_config(CONFIG_DIR)
 VOCAB = Vocab.build(SEM, SCOPE_CFG, {c.id.value: c.label for c in load_taxonomy(Settings(config_dir=CONFIG_DIR)).categories})
 RULES = RuleExtractor(VOCAB, SCOPE)
-SCORER = HybridScorer(HYBRID)
+DERIVER = RubricDeriver(VOCAB, SCOPE, SEVERITY)
+SCORER = SeverityScorer(SEVERITY)
 
 
 def extractor(client=None, *, cache: ExtractionCache | None = None, enabled: bool = True, why: str | None = None) -> SemanticExtractor:
@@ -73,4 +75,4 @@ def service(signals, *, client=None, enabled: bool = False, threshold: float = 7
     from eventshock.config import StressConfig
 
     repo = CombinedSignalRepository(InMemorySignalRepository(list(signals), NOW), LiveSignalStore())
-    return AssessmentService(extractor(client, enabled=enabled), SCORER, repo, stress=StressConfig(trigger_threshold=threshold), clock=lambda: NOW)
+    return AssessmentService(extractor(client, enabled=enabled), SCORER, DERIVER, repo, stress=StressConfig(trigger_threshold=threshold), clock=lambda: NOW)
