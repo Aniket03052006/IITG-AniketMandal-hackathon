@@ -61,3 +61,18 @@ Start `make run` (rule-based mode: nothing leaves the machine; the page says so)
 
 Then, for each, show **How the score is built** (matrix value, signed steps, running total; the AI-adjustment lines say "no language model read this text" in rule mode, or show the AI's answer, its reason, and whether it was within the bound), the origin chips (AI / Data / Rules / Hybrid / Assumption), the market note (the VIX date and how many sessions behind, or why it was excluded), the **Evidence** tab (source evidence vs model inference vs scenario assumption; an *inferred* indicator is never shown as a quote) and the **timeline** (later reports and filings shown, tagged *not used*).
 Also try **Quantum Dynamics announces a major restructuring…**: the company is a mention, issuer `UNKNOWN_ENTITY`, no company data used. Honest framing for judges: the rule fallback is crude (it under-scores unseen wording on the held-out set); the language model is the reader when available, and the arithmetic after it is deterministic either way.
+
+
+## Stage 8 addendum: analogues, the honest scale, and the scenario reality check (about 3 minutes, no network)
+
+1. `make run`, open the Feed, pick a company event (for example a Microsoft data-centre report). On the Event page go to chapter 4, **Historical analogues**: past reports that look like this one, with the move after each, and the line "not distinguishable from an ordinary day" next to the ordinary-day yardstick. Say: precedent is context, never a score input.
+2. Open a report that could not be tied to anything (an unresolved one): **"No reliable historical analogue found"**, with the reason. Say: EventShock refuses rather than pad.
+3. Stress page -> *Scenario assumptions* drawer: **"How large are these shocks by historical standards?"** (for the macro scenario: the +100 bp rate shock is larger than any 21-session move on record; credit shocks are marked not checkable).
+4. Evidence page -> **Outcome check**: the verdict "Heuristic: not calibrated to outcomes", the 2025/2026 intervals that include zero, and why (ordinary news is barely distinguishable from an ordinary day). Say: we tested our own score, wrote the bar first, and report that it failed.
+
+
+## Optional: "what does this do to *my* portfolio?" (about 90 seconds, after the main demo)
+1. Rail -> **Portfolios -> Create a portfolio**. Paste `AAPL 20%`, `JPM 15%`, `MSFT 15%`, `TLT 25%`, `Cash 25%` -> **Read these holdings**. Point at "What EventShock understood": TLT's duration is *looked up*, the Treasury fund takes no credit-spread shock, cash is never stressed. Save (it is used immediately).
+2. **Portfolio Stress** on the Apple patent verdict (company event): the three separate answers (severity 7/10, relevance High 20%, modeled impact -3%), then **Why is my portfolio exposed?** (issuer shock on your 20%, sector, market). Say: "a modeled scenario change, not a forecast".
+3. Switch to an Energy-sector event: relevance **None** (you hold no Energy), only market shocks reach you. Compare with the default book.
+4. **Compare with another portfolio**, then **Use default portfolio** in the rail: one click and everything is the synthetic book again.

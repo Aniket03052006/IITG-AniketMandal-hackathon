@@ -136,10 +136,14 @@ Useful commands:
 | `make run-llm` | like `make run`, with a language model reading new text (set `GROQ_API_KEY`; the pasted text is then sent to the provider, the UI says so; answers are cached; any failure falls back, labelled, to the deterministic rules). Without a key everything works in *rule-based demo mode* |
 | `make run-live` | like `make run` with the live feed on: polls GDELT DOC 2.0 every 5 minutes (network; if it fails the status says so and replay data keeps serving) |
 | `make capture-gdelt` `make run-capture` | capture what GDELT saw recently into `data/live/sample_capture.jsonl` (network, throttled, ~3 min), then replay it as if live (offline, labelled *simulated*) |
+| *Portfolios page in the UI* | optional: describe your own portfolio (`AAPL 20%`, `TLT 25%`, `Cash 25%`) and see how an event affects it; the synthetic book stays the default and one click returns to it ([docs/PORTFOLIOS.md](docs/PORTFOLIOS.md)) |
+| `make portfolio-betas` | rebuild the single-factor betas used for personal portfolios → `data/replay/market/betas.json` (needs the git-ignored prices; then `make freeze-write`) |
 | `make scope-eval` | measure the sector vocabulary on replay documents whose company resolved → `docs/evidence/scope_eval.json` |
 | `make dev` | API with reload on :8000 + Vite on :5173 (open http://localhost:5173) |
 | `make test` | backend pytest + frontend Vitest |
 | `make lint` | ruff + TypeScript typecheck |
+| `make outcome-audit severity-validity` | Stage 8 research (offline, needs the git-ignored prices and impact table): audit the realised-outcome target, then test the severity scale against realised moves -> `docs/evidence/outcome_audit.json`, `severity_validity.json` (`docs/FINANCE_THEORY.md`) |
+| `make analogue-corpus analogue-embed analogue-index analogue-eval shock-history` | Stage 8: build the historical-analogue index (embedding takes ~45 min on CPU) and its evaluation, and the scenario-vs-history distributions (`docs/ANALOGUES.md`) |
 | `make freeze-check` `make smoke` | verify the frozen model/config/data hashes (`docs/freeze_manifest.json`); start the real server and check API, served model ids and artifact hashes, evidence, stress and UI (~2 min) |
 | `make fixtures` | regenerate the deterministic Stage-1 demo data |
 | `make ingest` | run the ingestion pipeline over `data/replay`, export signals / quarantine / report to `data/processed` |

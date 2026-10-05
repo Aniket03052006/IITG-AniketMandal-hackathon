@@ -298,3 +298,25 @@ and indicator levels), `severity.yaml` (anchors, offsets, factors, AI bound, mar
 
 Two decisions worth defending. (1) **Side-car, not a field**: the assessment is derived from the signal, so the replay output digest, the fixtures and the stress goldens stay valid, and the trained stages remain exactly
 what their cards describe. (2) **The LLM reads, code decides**: severity, the trigger and the portfolio arithmetic are explicit and deterministic; the model fills a closed schema whose every claim is checked against the text.
+
+
+## Stage 8: outcome audit, historical analogues, scenario reality check (additive side-cars)
+
+```
+report ─► prepare/dedup/entity ─► reading (LLM -> grounding -> rules fallback) ─► severity-v2 scorecard ─► default scenario ─► deterministic stress   [unchanged]
+              │
+              └─► e5 vector (pinned for replay; optional live encoder) ─► AnalogueIndex (point-in-time, story-collapsed) ─► GET /signals/{id}/analogues   [RETRIEVED, hindsight, display only]
+prices (local, git-ignored) ─► outcome-v2 / outcome-v3 ─► outcome_audit.json, severity_validity.json, analogue_*.json ─► GET /evidence/outcome-check
+scenarios ─► shock_history.json (quantiles only) ─► GET /scenarios/{id}/history-check                                                       [read-only]
+```
+- New code: `modeling/outcome_v3.py`, `outcome_audit.py`, `severity_validity.py`, `evidence_v3.py`; `retrieval/` (`corpus`, `index`, `search`, `relevance_eval`, `outcome_value`, `build`, `config`, `model`); `services/analogues.py`, `services/outcome_check.py`; `stress/history_check.py`; web `AnaloguesPanel`, `HistoryCheck`, `OutcomeCheckTab`.
+- **Nothing existing changed in behaviour:** `RiskSignal`, the replay digests, `GOLDEN_RUN_ID`, the trained artifacts, `severity.yaml`, the stress engine and the scenario catalogue are untouched. The analogue service is never stored on a signal (like the assessment) and has no path into the severity score or the stress trigger (a test asserts the assessment and the signal are identical before and after an analogue request).
+- **Experimental vs production:** the experiments (`make outcome-audit severity-validity analogue-*`) run offline against git-ignored data and write committed evidence; the server only reads the committed pack and evidence. A missing index, unrun floor rule or absent encoder is a labelled `UNAVAILABLE`.
+- **Provenance:** `Origin.RETRIEVED` / `Kind.RETRIEVED` (a past report found by similarity: precedent about other events, never a reading of this one) join AI, DATA, RULES, HYBRID, ASSUMPTION; the realised outcome of an analogue is hindsight and is labelled so.
+- **Why retrieval is not a score input:** the pre-registered test (`docs/ANALOGUES.md` section 5) found no improvement in predicting the realised move; the earlier "runtime RAG is excluded" rule stays true in spirit: nothing generative reads the retrieved text, and retrieval runs over a static, hash-pinned index.
+
+## Stage 9: optional personal portfolios (additive; the synthetic book stays the default)
+- `src/eventshock/portfolio/`: `models` (stored input vs resolved result, issues with levels, field sources), `resolve` (pure input -> engine `Portfolio`; quick-text parser), `store` (one JSON file per portfolio, atomic, git-ignored `data/live/portfolios/`, `EVENTSHOCK_PORTFOLIO_STORE_PATH`), `service` (default + saved, `None`/`"default"` = the synthetic book), `exposure`, `chain` (event -> shock -> exposure -> modeled change, regrouped from a finished run), `compare`, `betas`/`catalog` (single-factor trailing betas, reference instruments).
+- Seam: `StressService.run(..., portfolio=)` and `RelevanceService.assess(..., portfolio=)`; the engine is unchanged except `CASH` / `OTHER` asset classes and a bond `spread_sensitivity` (omitted from serialisation at its default, so the default book's `content_hash` and every run id are unchanged).
+- API: `/api/portfolios` (+ `/parse`, `/validate`, `/compare`, `/{id}`, `/{id}/duplicate`, `/{id}/exposure`), optional `portfolio_id` on `/stress-test`, `/stress-runs`, `/signals`, `/signals/{id}/relevance`, `/portfolio/*`; `GET /stress-runs/{id}/exposure-chain`. Active selection is client state; the server holds none.
+- Full rationale, validation rules, methodology table and limits: `docs/PORTFOLIOS.md`.
