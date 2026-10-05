@@ -81,9 +81,10 @@ def build_evidence(signal: RiskSignal, a: RiskAssessment, catalog: ScenarioCatal
                       detail="sectors, regions and asset classes named or implied by the text"),
     ]
     if a.severity:
-        lines.append(InferenceLine(label="Severity", value=f"{a.severity.score}/10 (range {a.severity.low}-{a.severity.high})", kind=Kind.JUDGEMENT_PRIOR,
-                                   detail=a.severity.formula))
-        lines += [InferenceLine(label=f.label, value=("n/a" if f.value is None else f"{f.value:.2f}"), kind=f.kind, detail=f.detail) for f in a.severity.factors]
+        sv = a.severity
+        lines.append(InferenceLine(label="Severity", value=f"{sv.score}/10, {sv.band_label.lower()} (range {sv.low}-{sv.high})", kind=Kind.JUDGEMENT_PRIOR, detail=sv.formula))
+        lines += [InferenceLine(label=f.label, value=f"{f.final_label}" + (f" (rules said {f.baseline_label})" if f.final != f.baseline else ""),
+                                kind=Kind.EXTRACTION if f.origin.value in ("AI", "HYBRID") else Kind.JUDGEMENT_PRIOR, detail="; ".join(f.baseline_basis)) for f in sv.rubric]
     if a.reference.available:
         lines.append(InferenceLine(label="Reference market-reaction model", value=f"{a.reference.score}/10", kind=Kind.MODEL_REFERENCE, detail=a.reference.note))
     inference = ModelInference(lines=lines, agreement=a.agreement, note="Model inference is not source evidence: it is a reading of the text, and the weights are judgements.")
@@ -107,7 +108,7 @@ def build_evidence(signal: RiskSignal, a: RiskAssessment, catalog: ScenarioCatal
 
 def build_timeline(signal: RiskSignal, a: RiskAssessment, ctx: SignalContext, as_of: datetime) -> TimelineView:
     t0 = signal.document.published_at
-    used_vix = a.severity is not None and any(f.id == "market_regime" and f.available for f in a.severity.factors)
+    used_vix = a.severity is not None and a.severity.market.used
     items: list[TimelineItem] = []
 
     audit = signal.provenance.impact if signal.provenance else None

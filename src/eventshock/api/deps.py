@@ -9,11 +9,12 @@ from pathlib import Path
 
 from fastapi import Request
 
-from ..assessment.config import load_hybrid_config, load_semantics_config
+from ..assessment.config import load_semantics_config, load_severity_config
 from ..assessment.extractor import SemanticExtractor
-from ..assessment.hybrid import HybridScorer
+from ..assessment.rubric import RubricDeriver
 from ..assessment.rules import RuleExtractor
 from ..assessment.service import AssessmentService
+from ..assessment.severity import SeverityScorer
 from ..assessment.vocab import Vocab
 from ..config import (
     REPO_ROOT,
@@ -230,7 +231,7 @@ def _build_assessments(settings: Settings, taxonomy: Taxonomy, scope_config: Sco
     """The risk-assessment layer: closed vocabulary, the language model if (and only if) it is switched on and has a key, the rule extractor
     otherwise, and the hybrid scorer. A missing key is a labelled degradation (rule mode), never a start-up failure."""
     sem = load_semantics_config(settings.config_dir)
-    hybrid = load_hybrid_config(settings.config_dir)
+    severity_cfg = load_severity_config(settings.config_dir)
     llm_cfg = load_llm_config(settings.config_dir)
     llm_cfg = llm_cfg.for_provider(settings.llm_provider or llm_cfg.provider, settings.llm_model)
     enabled = settings.llm if settings.llm is not None else llm_cfg.enabled
@@ -247,7 +248,7 @@ def _build_assessments(settings: Settings, taxonomy: Taxonomy, scope_config: Sco
             client = CLIENTS[llm_cfg.provider](key, llm_cfg)
     cache = ExtractionCache(llm_cfg.cache_path(settings.llm_cache_path), llm_cfg.cache.max_entries)
     extractor = SemanticExtractor(vocab, rules, llm_cfg, client=client, cache=cache, unavailable_reason=why)
-    return AssessmentService(extractor, HybridScorer(hybrid), signals, stress=config.stress)
+    return AssessmentService(extractor, SeverityScorer(severity_cfg), RubricDeriver(vocab, scope_resolver, severity_cfg), signals, stress=config.stress)
 
 
 def build_container(settings: Settings | None = None) -> Container:

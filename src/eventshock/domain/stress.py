@@ -119,7 +119,7 @@ class StressAudit(ContractModel):
         default=None, description="what the signal is about (COMPANY | SECTOR | MARKET | UNRESOLVED), which decides the shocks that bind")
     scope_note: str | None = Field(default=None, description="what that means for which shocks applied")
     severity_basis: str | None = Field(
-        default=None, description="TRANSPARENT_HYBRID when the severity score of the risk assessment drove the trigger (null: the signal's own impact)")
+        default=None, description="SCORECARD when the severity score of the risk assessment drove the trigger (null: the signal's own impact)")
     severity_version: str | None = Field(default=None, description="version of the hybrid weights that produced the score")
     assessed_sector: str | None = Field(
         default=None, description="a sector taken from the assessment (not the vocabulary scope) that sector shocks were bound to")

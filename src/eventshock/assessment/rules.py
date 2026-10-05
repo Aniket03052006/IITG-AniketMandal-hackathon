@@ -24,6 +24,7 @@ from .model import (
     EvidenceSpan,
     ExtractionInfo,
     ExtractionMode,
+    IndicatorBasis,
     IndicatorHit,
     SemanticReading,
 )
@@ -56,7 +57,7 @@ class RuleExtractor:
         ref = ref or Reference()
         notes: list[str] = []
         indicators, ind_spans = self._indicators(text)
-        event_type, subtype, evid_cues, basis = self._event(text, ref, notes)
+        event_type, subtype, evid_cues, basis = self._event(text, ref, notes, indicators)
         entities, ent_spans = self._entities(text, ref)
         sectors, sec_spans = self._sectors(text, ref)
         regions, reg_spans = self._regions(text, ref)
@@ -85,17 +86,23 @@ class RuleExtractor:
         return re.search(rf"(?<![A-Za-z0-9]){re.escape(name)}(?![A-Za-z0-9])", text) is not None
 
     def _indicators(self, text: str) -> tuple[list[IndicatorHit], list[EvidenceSpan]]:
-        hits, spans = [], []
+        found: list[tuple[IndicatorHit, tuple[int, int]]] = []
         for iid, ind in self.vocab.cfg.indicators.items():
+            best: tuple[int, int] | None = None
             for cue in ind.cues:
                 pos = find_cue(text, cue)
-                if pos:
-                    hits.append(IndicatorHit(id=iid, label=ind.label, weight=ind.weight, quote=text[pos[0]:pos[1]]))
-                    spans.append(EvidenceSpan(quote=text[pos[0]:pos[1]], start=pos[0], end=pos[1], supports="severity"))
-                    break
-        return hits, spans
+                if pos and (best is None or pos[1] - pos[0] > best[1] - best[0]):
+                    best = pos  # the longest phrase wins: it is the most specific
+            if best:
+                found.append((IndicatorHit(id=iid, label=ind.label, level=ind.level, polarity=ind.polarity, basis=IndicatorBasis.KEYWORD,
+                                           quote=text[best[0]:best[1]]), best))
+        # a phrase inside a longer phrase of the opposite polarity is part of it ("lowering tariffs" is not a tariff): the longer one stands alone
+        kept = [(h, p) for h, p in found
+                if not any(o.polarity != h.polarity and o.polarity != "neutral" and h.polarity != "neutral" and op[0] <= p[0] and p[1] <= op[1]
+                           and (op[1] - op[0]) > (p[1] - p[0]) for o, op in found)]
+        return [h for h, _ in kept], [EvidenceSpan(quote=text[p[0]:p[1]], start=p[0], end=p[1], supports="severity") for _, p in kept]
 
-    def _event(self, text: str, ref: Reference, notes: list[str]) -> tuple[str, str, list[EvidenceSpan], str]:
+    def _event(self, text: str, ref: Reference, notes: list[str], indicators: list[IndicatorHit]) -> tuple[str, str, list[EvidenceSpan], str]:
         """(event_type, subtype, spans of the cues that decided it, basis sentence)."""
         best: tuple[int, EventCategory, str, list[str]] | None = None
         per_cat: dict[EventCategory, tuple[int, str, list[str]]] = {}
@@ -119,9 +126,21 @@ class RuleExtractor:
                     out.append(EvidenceSpan(quote=text[pos[0]:pos[1]], start=pos[0], end=pos[1], supports="event_type"))
             return out
 
-        if ref.event_status == "NO_EVENT" and not (best and best[0] >= _OVERRIDE_WEIGHT):
+        strongest = max(indicators, key=lambda h: h.level, default=None)
+        ind_cat = self.vocab.cfg.indicators[strongest.id].event_class.value if strongest else None
+
+        def from_indicator(why: str) -> tuple[str, str, list[EvidenceSpan], str]:
+            assert strongest is not None and ind_cat is not None
+            pos = find_cue(text, strongest.quote or "") if strongest.quote else None
+            sp = [EvidenceSpan(quote=text[pos[0]:pos[1]], start=pos[0], end=pos[1], supports="event_type")] if pos else []
+            return ind_cat, OTHER, sp, why
+
+        if ref.event_status == "NO_EVENT" and not (best and best[0] >= _OVERRIDE_WEIGHT) and not (strongest and strongest.level >= 3):
             return NO_EVENT, OTHER, [], "The trained event model judged this text not to be a market event, and no strong cue phrase disagrees."
         if ref.event_is_finding and ref_cat is not None:
+            if strongest is not None and strongest.level >= 3 and ind_cat is not None and ind_cat != ref_cat.value and not (best and best[1] is ref_cat):
+                notes.append(f"A serious indicator ({strongest.label.lower()}) points to {ind_cat}, not the trained model's {ref_cat.value}: the high-precision phrase was used.")
+                return from_indicator(f"Event class from the severity indicator in the text ({strongest.label.lower()}), which outweighed the trained classifier.")
             if best and best[1] is not ref_cat and best[0] >= _OVERRIDE_WEIGHT:
                 notes.append(f"Cue phrases ({', '.join(best[3])}) point to {best[1].value} with more weight than the trained model's {ref_cat.value}; the cues were used.")
                 return best[1].value, best[2], spans_for(best[3]), "Event class and subtype from cue phrases in the text (they outweighed the trained model)."
@@ -130,6 +149,8 @@ class RuleExtractor:
         if best:
             return best[1].value, best[2], spans_for(best[3]), "Event class and subtype from cue phrases in the text" + (
                 " (the trained model was not confident enough to commit)." if ref_cat else " (no trained reading was available).")
+        if strongest is not None:
+            return from_indicator(f"Event class from the severity indicator in the text ({strongest.label.lower()}): a severity marker is itself evidence of a market event.")
         if ref_cat is not None and ref.event_status == "UNCERTAIN":
             return NO_EVENT, OTHER, [], "The trained event model would not commit to a class and no cue phrase settles it: not called an event."
         return NO_EVENT, OTHER, [], "No cue phrase or trained reading identifies a market event."

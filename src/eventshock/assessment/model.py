@@ -38,6 +38,22 @@ class Kind(StrEnum):
     REALISED = "REALISED"  # what happened afterwards: display only, never an input
 
 
+class Origin(StrEnum):
+    """Where a number or reading comes from. The UI never calls a whole result "AI-generated": each part says which of these it is."""
+
+    AI = "AI"  # a language model's (or a trained classifier's) reading of the text
+    DATA = "DATA"  # an observation: market data, timestamps, source metadata
+    RULES = "RULES"  # deterministic logic: cue phrases, comparison with earlier reports, exposure, scenario mapping, portfolio arithmetic
+    HYBRID = "HYBRID"  # combines more than one of the above (e.g. a rules baseline moved by a bounded AI adjustment)
+    ASSUMPTION = "ASSUMPTION"  # a configured judgement: a matrix anchor, a multiplier, a scenario shock
+
+
+class IndicatorBasis(StrEnum):
+    QUOTED = "QUOTED"  # the report contains a phrase that shows it, and that phrase is cited verbatim
+    KEYWORD = "KEYWORD"  # a configured cue phrase for this indicator appears in the report
+    INFERRED = "INFERRED"  # the AI judged it present with no matching phrase: an inference, never shown as a quote
+
+
 class Phase(StrEnum):
     BEFORE_REPORT = "BEFORE_REPORT"
     AT_REPORT = "AT_REPORT"
@@ -75,8 +91,27 @@ class EvidenceSpan(ContractModel):
 class IndicatorHit(ContractModel):
     id: str
     label: str
-    weight: float = Field(ge=0, le=1, description="the configured judgement prior for this kind of development")
-    quote: str | None = Field(default=None, description="the words that show it, when found in the text")
+    level: int = Field(ge=0, le=4, description="the configured typical materiality level of this kind of development (a judgement prior)")
+    polarity: str = Field(description="adverse | favourable | neutral")
+    basis: IndicatorBasis
+    quote: str | None = Field(default=None, description="the phrase in the report that shows it; null for an inference")
+    reason: str | None = Field(default=None, description="the AI's one-line reason when the indicator is an inference")
+
+
+class RubricProposal(ContractModel):
+    """One answer the AI gave to a rubric question, with its reason and (when it gave one) the verbatim phrase it rests on."""
+
+    value: str
+    reason: str
+    quote: str | None = None
+    quote_verified: bool = False
+
+
+class AIRubric(ContractModel):
+    magnitude: RubricProposal | None = None
+    reach: RubricProposal | None = None
+    certainty: RubricProposal | None = None
+    direction: RubricProposal | None = None
 
 
 class SemanticReading(ContractModel):
@@ -99,6 +134,7 @@ class SemanticReading(ContractModel):
     asset_classes: list[str]
     severity_indicators: list[IndicatorHit]
     uncertainty: float | None = Field(default=None, ge=0, le=1, description="how unsure the reading is; null when it cannot say")
+    ai_rubric: AIRubric | None = Field(default=None, description="the language model's answers to the severity rubric; null in rule mode")
     evidence: list[EvidenceSpan]
     rationale: str | None = Field(default=None, description="the model's one-line reason (LLM mode only); an explanation, not evidence")
 
@@ -128,16 +164,37 @@ class Agreement(ContractModel):
 
 
 # ------------------------------------------------------------------------------------------------------------------------ severity
-class SeverityFactor(ContractModel):
+class RubricField(ContractModel):
+    """One of the four rubric answers: what the deterministic rules said, what the AI proposed, what was used, and why."""
+
+    id: str = Field(description="magnitude | reach | certainty | direction")
+    label: str
+    baseline: str = Field(description="the rules' answer (a level id)")
+    baseline_label: str
+    baseline_basis: list[str] = Field(description="the deterministic reasons for the baseline, in words")
+    baseline_informed: bool = Field(default=True, description="false when the rules found no evidence and the baseline is only a default: the AI is then less tightly bound")
+    ai: str | None = Field(default=None, description="the AI's proposed answer, if one was made")
+    ai_label: str | None = None
+    ai_reason: str | None = None
+    ai_quote: str | None = Field(default=None, description="the verbatim phrase the AI cited, when it cited one that is in the report")
+    final: str = Field(description="the answer used in the score")
+    final_label: str
+    final_says: str
+    origin: Origin
+    adjustment: str = Field(description="NONE | AI_WITHIN_BOUND | AI_QUOTE_BACKED | AI_CLAMPED | AI_IGNORED: what became of the AI's answer")
+    note: str = ""
+
+
+class ScoreStep(ContractModel):
+    """One line of the build-up: starts from the matrix and shows every change on the way to the final score."""
+
     id: str
     label: str
-    kind: Kind
-    available: bool
-    value: float | None = Field(description="the factor on [0, 1]; null when unavailable")
-    raw_weight: float = Field(description="the configured weight")
-    weight: float = Field(description="after renormalising over the available factors; 0 when unavailable")
-    contribution_points: float = Field(description="severity points this factor adds (they sum, with the 1-point floor, to the score before rounding)")
-    detail: str = Field(description="the actual computed value in words")
+    origin: Origin
+    value: str = Field(description="the input in words")
+    effect_points: float = Field(description="change in points (the first step is the starting point)")
+    running: float = Field(description="the score after this step")
+    detail: str
 
 
 class OmittedFactor(ContractModel):
@@ -146,29 +203,44 @@ class OmittedFactor(ContractModel):
     reason: str
 
 
-class RiskDriver(ContractModel):
-    """A plain-language reading of one factor, produced by rule from its computed value (never free text)."""
+class MarketUse(ContractModel):
+    """Whether market data entered the score, and exactly how fresh it was."""
 
-    factor_id: str
-    text: str
-    direction: str = Field(description="UP | DOWN | NEUTRAL: whether the factor pushed severity up, down, or sat near the middle")
-    points: float
+    used: bool
+    vix: float | None = None
+    as_of: str | None = Field(default=None, description="the session the market state is from (ISO date)")
+    report_session: str | None = Field(default=None, description="the last completed session before the report (ISO date)")
+    sessions_behind: int | None = Field(default=None, description="how many sessions the data lags that session by")
+    max_sessions_behind: int
+    reason: str
+
+
+class Reliability(ContractModel):
+    level: str = Field(description="high | moderate | low")
+    score: float
+    basis: str
+    note: str = "Reliability says how far to trust the report. It does not change the severity: severity is how large the event would be if the report is accurate."
 
 
 class SeverityAssessment(ContractModel):
     score: int = Field(ge=1, le=10)
     points: float = Field(ge=1, le=10, description="before rounding")
+    band: str = Field(description="negligible | low | moderate | high | extreme")
+    band_label: str
+    band_says: str
     low: int = Field(ge=1, le=10)
     high: int = Field(ge=1, le=10)
     range_basis: str
-    basis: str = "TRANSPARENT_HYBRID"
+    basis: str = "SCORECARD"
     version: str
-    factors: list[SeverityFactor]
+    rubric: list[RubricField]
+    steps: list[ScoreStep]
+    baseline_score: int = Field(ge=1, le=10, description="the score with the AI's adjustments removed (rules only)")
+    ai_effect: int = Field(description="score minus baseline_score: what the AI's bounded adjustments changed")
     omitted: list[OmittedFactor]
-    drivers: list[RiskDriver]
-    uncertainty: float = Field(ge=0, le=1)
-    uncertainty_stated: bool = Field(description="false when the reading stated no uncertainty and the configured neutral value was assumed")
-    uncertainty_points_removed: float = Field(ge=0)
+    market: MarketUse
+    reliability: Reliability
+    uncertainty: float | None = Field(default=None, ge=0, le=1, description="the reading's own uncertainty, when it states one; it widens the range, never lowers the score")
     formula: str
 
 
@@ -203,6 +275,14 @@ class Conflict(ContractModel):
 
 
 # ------------------------------------------------------------------------------------------------------------------------- assessment
+class ProvenanceLine(ContractModel):
+    """Where one part of the result comes from, in plain words. The UI shows these as small origin chips."""
+
+    part: str
+    origin: Origin
+    detail: str
+
+
 class RiskAssessment(ContractModel):
     signal_id: str
     headline: str
@@ -224,6 +304,7 @@ class RiskAssessment(ContractModel):
     conflict: Conflict | None = None
     corroborating_at_event_time: int = Field(ge=0, description="independent reports that already existed when this one appeared")
     later_reports_excluded: int = Field(ge=0, description="reports about the same story that appeared afterwards: shown, never scored")
+    provenance: list[ProvenanceLine] = Field(default_factory=list, description="which parts are AI, data, rules, hybrid or assumption")
     labels: list[str]
     limitations: list[str]
 

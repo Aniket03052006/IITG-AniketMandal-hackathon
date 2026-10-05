@@ -24,7 +24,8 @@ def summarise(c: Container, s: RiskSignal) -> SignalSummary:
     sev = a.severity if a else None
     return SignalSummary(
         severity_score=sev.score if sev else None, severity_low=sev.low if sev else None, severity_high=sev.high if sev else None,
-        severity_basis=sev.basis if sev else None, assessed_category=a.reading.event_type if a else None,
+        severity_basis=sev.basis if sev else None, severity_band=sev.band if sev else None, severity_band_label=sev.band_label if sev else None,
+        severity_ai_effect=sev.ai_effect if sev else None, assessed_category=a.reading.event_type if a else None,
         assessed_sector=(a.reading.sectors[0] if a and a.reading.sectors else None), extraction_mode=a.extraction.mode.value if a else None,
         above_trigger=a.threshold.crosses if a and a.threshold else None,
         id=s.id,

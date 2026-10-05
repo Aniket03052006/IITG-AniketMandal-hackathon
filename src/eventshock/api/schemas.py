@@ -68,7 +68,10 @@ class SignalSummary(ContractModel):
         default=None, description="the headline score: the transparent hybrid severity (1-10) from the risk assessment; null when the text is not a market event or no assessment ran")
     severity_low: int | None = None
     severity_high: int | None = None
-    severity_basis: str | None = Field(default=None, description="TRANSPARENT_HYBRID: explicit weights, not a trained model, not validated")
+    severity_basis: str | None = Field(default=None, description="SCORECARD: anchored rubric answers and a fixed matrix, not a trained model, not validated")
+    severity_band: str | None = Field(default=None, description="negligible | low | moderate | high | extreme")
+    severity_band_label: str | None = None
+    severity_ai_effect: int | None = Field(default=None, description="score minus the rules-only score: what the AI's bounded adjustments changed")
     assessed_category: str | None = Field(default=None, description="the event class the assessment reads (an EventCategory id or NO_EVENT)")
     assessed_sector: str | None = Field(default=None, description="the first sector the assessment reads from the text")
     extraction_mode: str | None = Field(default=None, description="LLM | RULES: what read the text")

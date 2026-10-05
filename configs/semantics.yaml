@@ -52,109 +52,254 @@ not_organisations: [Markets, Market, Stocks, Shares, Investors, Analysts, Trader
                     Economists, Officials, Regulators, Lawmakers, Governments, Government, Companies, Firms, Europe, Asia, China,
                     Chinese, India, Japan, Russia, Ukraine, Israel, Iran, Gulf, Washington, Brussels, London, Beijing, Tokyo, Moscow]
 
-# Severity indicators: what makes an event serious for a financial book. `weight` in [0, 1] is a judgement prior; `assets` are the asset
-# classes it typically touches; `cues` find it in text (rule mode). The LLM may only choose ids from this table.
+# Severity indicators: kinds of development with a TYPICAL MATERIALITY LEVEL for a financial book. `level` is the rubric's magnitude scale
+# (0 none .. 4 systemic) a development of this kind usually reaches *for one issuer*; it is the deterministic baseline of the severity rubric
+# (assessment/rubric.py) and a judgement prior, not a statistic. `polarity` is who it is good or bad for: adverse | favourable | neutral
+# (an event that is material but not directional, e.g. a merger). `event_class` is the taxonomy class it implies when no trained classifier or class cue
+# says otherwise: finding a severity marker in a text is itself evidence that it describes a market event. `cues` find it in text (rule mode); the LLM may only choose ids from this table.
 indicators:
+  systemic_stress:
+    label: Systemic stress
+    level: 4
+    polarity: adverse
+    event_class: CREDIT_FUNDING
+    assets: [BOND, LOAN, EQUITY, DERIVATIVE, FX]
+    cues: [systemic, systemically, contagion, bank run, bank runs, run on the bank, financial crisis, credit crunch, funding markets seize, markets seize up, seize up, freeze lending, freezes lending, frozen markets, emergency liquidity, emergency rescue, emergency lending, circuit breaker, circuit breakers, breaks the buck, break the buck, clearing house defaults, market crash, stock market crash, collapse in confidence]
   default_or_insolvency:
     label: Default / insolvency
-    weight: 1.00
+    level: 3
+    polarity: adverse
+    event_class: CREDIT_FUNDING
     assets: [BOND, LOAN, EQUITY]
-    cues: [default, defaults, insolvency, insolvent, bankruptcy, bankrupt, chapter 11, missed payment, missed payments, wind down]
+    cues: [default, defaults, defaulted, insolvency, insolvent, bankruptcy, bankrupt, chapter 11, collapse, collapses, collapsed, missed payment, missed payments, misses a debt payment, missed a debt payment, wind down, wound down]
   liquidity_stress:
     label: Liquidity / funding stress
-    weight: 0.80
+    level: 3
+    polarity: adverse
+    event_class: CREDIT_FUNDING
     assets: [BOND, LOAN]
-    cues: [liquidity crunch, liquidity stress, funding stress, funding strain, bank run, margin call, margin calls, credit crunch]
+    cues: [liquidity crunch, liquidity stress, funding stress, funding strain, margin call, margin calls, hoard cash, hoarding cash, rush to redeem, redemptions halted, funding dries up, credit lines pulled]
+  sovereign_stress:
+    label: Sovereign stress
+    level: 3
+    polarity: adverse
+    event_class: CREDIT_FUNDING
+    assets: [BOND, FX]
+    cues: [sovereign debt crisis, fails to roll over, failed to roll over, debt restructuring, sovereign default, capital controls, currency collapse]
+  supervisory_intervention:
+    label: Supervisory intervention
+    level: 3
+    polarity: adverse
+    event_class: REGULATORY_LEGAL
+    assets: [EQUITY, BOND, LOAN]
+    cues: [halt dividend payments, dividend ban, cease and desist, regulators step in, takes control of, receivership, nationalised, nationalized, bailout, bail-out, rescue, capital review, placed under administration]
+  armed_conflict:
+    label: Armed conflict / escalation
+    level: 3
+    polarity: adverse
+    event_class: GEOPOLITICAL
+    assets: [EQUITY, COMMODITY, FX]
+    cues: [escalation, military strike, invasion, airstrike, missile, missile fire, armed conflict, military conflict, hostilities, war, conflict erupts, ceasefire collapse]
+  supply_disruption:
+    label: Supply disruption
+    level: 3
+    polarity: adverse
+    event_class: GEOPOLITICAL
+    assets: [COMMODITY, EQUITY]
+    cues: [blockade, supply routes, supply route, supply disruption, supply chain disruption, shipping disruption, pipeline outage, supply shortage, strait]
+  market_selloff:
+    label: Market sell-off
+    level: 2
+    polarity: adverse
+    event_class: MARKET_VALUATION
+    assets: [EQUITY, DERIVATIVE]
+    cues: [sell-off, selloff, plunge, plunges, plummets, tumble, tumbles, rout, volatility spike]
   rating_downgrade:
     label: Rating downgrade
-    weight: 0.70
+    level: 2
+    polarity: adverse
+    event_class: CREDIT_FUNDING
     assets: [BOND, LOAN, EQUITY]
-    cues: [downgrade, downgrades, downgraded, cut to junk, outlook negative, negative outlook]
+    cues: [downgrade, downgrades, downgraded, cut to junk, to junk, junk status]
   funding_cost_increase:
     label: Higher funding costs
-    weight: 0.55
+    level: 2
+    polarity: adverse
+    event_class: CREDIT_FUNDING
     assets: [BOND, LOAN]
-    cues: [funding costs, higher borrowing costs, borrowing costs, cost of funding, cost of capital, widening spreads, spreads widen]
+    cues: [funding costs, higher borrowing costs, borrowing costs, cost of funding, cost of capital, widening spreads, spreads widen, yields spike]
   capital_requirement_change:
     label: Capital requirement change
-    weight: 0.55
+    level: 2
+    polarity: adverse
+    event_class: REGULATORY_LEGAL
     assets: [EQUITY, BOND, LOAN]
-    cues: [capital requirements, capital requirement, capital rules, capital buffer, capital buffers, capital ratio, leverage ratio, basel, stress capital buffer]
+    cues: [capital requirements, capital requirement, capital rules, capital buffer, capital buffers, capital ratio, leverage ratio, basel, stress capital buffer, hold more capital]
+  policy_tightening:
+    label: Monetary tightening
+    level: 2
+    polarity: adverse
+    event_class: MACROECONOMIC
+    assets: [BOND, EQUITY, DERIVATIVE]
+    cues: [raises its policy rate, raises policy rate, rate hike, rate hikes, raises interest rates, higher for longer, remain elevated, rates elevated, tightening]
+  inflation_persistence:
+    label: Persistent inflation
+    level: 2
+    polarity: adverse
+    event_class: MACROECONOMIC
+    assets: [BOND, EQUITY]
+    cues: [inflation remains, persistent inflation, inflation persistent, sticky inflation, inflation surprise, hotter than expected, inflation pressure, inflation pressures]
+  sanctions_trade_restriction:
+    label: Sanctions / trade restriction
+    level: 2
+    polarity: adverse
+    event_class: GEOPOLITICAL
+    assets: [EQUITY, COMMODITY, FX]
+    cues: [sanctions, sanctioned, embargo, export ban, export controls, tariff, tariffs, trade restrictions, trade war]
+  commodity_price_spike:
+    label: Commodity price spike
+    level: 2
+    polarity: adverse
+    event_class: MARKET_VALUATION
+    assets: [COMMODITY, EQUITY, DERIVATIVE]
+    cues: [crude prices, oil prices surge, prices sharply higher, price spike, soars, surges, natural gas prices]
+  cyber_incident:
+    label: Cyber incident
+    level: 2
+    polarity: adverse
+    event_class: PRODUCT_OPERATIONS
+    assets: [EQUITY]
+    cues: [cyberattack, cyber attack, ransomware, data breach, hacked]
+  guidance_cut:
+    label: Guidance cut / earnings miss
+    level: 2
+    polarity: adverse
+    event_class: EARNINGS_FINANCIAL_PERFORMANCE
+    assets: [EQUITY]
+    cues: [cuts revenue outlook, cuts its revenue outlook, cuts outlook, lowers guidance, lowers its guidance, lowered guidance, cuts guidance, cuts full-year, cuts forecast, slashes forecast, revenue forecast, profit warning, weaker demand, weaker than expected, weaker-than-expected, misses estimates, earnings miss, suspends its buyback, suspends buyback, profit hit]
+  restructuring:
+    label: Restructuring / job cuts
+    level: 2
+    polarity: adverse
+    event_class: MA_CORPORATE_ACTION
+    assets: [EQUITY, BOND]
+    cues: [restructuring, restructure, layoffs, job cuts, cut jobs, close stores, closes stores, spin off, spin-off, divestiture, write down, write-down, impairment, reserve charge, takes a charge]
+  trial_or_approval_failure:
+    label: Trial / approval failure
+    level: 2
+    polarity: adverse
+    event_class: PRODUCT_OPERATIONS
+    assets: [EQUITY]
+    cues: [trial fails, trial failed, late-stage trial, rejects approval, complete response letter, approval denied]
+  litigation_loss:
+    label: Litigation / legal loss
+    level: 2
+    polarity: adverse
+    event_class: REGULATORY_LEGAL
+    assets: [EQUITY]
+    cues: [rules against, landmark ruling, landmark case, antitrust lawsuit, damages of]
+  new_regulation:
+    label: New regulation / legislation
+    level: 2
+    polarity: adverse
+    event_class: REGULATORY_LEGAL
+    assets: [EQUITY, BOND, LOAN]
+    cues: [new rules, finalize rules, finalizes rules, passes a law, passes law, caps the, cap on, ban on, bans, ordered to, mandates, legislation]
+  outlook_negative:
+    label: Negative rating outlook
+    level: 1
+    polarity: adverse
+    event_class: CREDIT_FUNDING
+    assets: [BOND]
+    cues: [outlook negative, negative outlook, outlook to negative, outlook revised to negative, on watch negative, credit watch]
   regulatory_enforcement:
     label: Enforcement / fine
-    weight: 0.55
+    level: 1
+    polarity: adverse
+    event_class: REGULATORY_LEGAL
     assets: [EQUITY]
     cues: [fined, fine of, penalty, penalties, enforcement action, consent order, probe, investigation, subpoena, charged]
   litigation:
     label: Litigation
-    weight: 0.50
+    level: 1
+    polarity: adverse
+    event_class: REGULATORY_LEGAL
     assets: [EQUITY]
     cues: [lawsuit, sued, sues, class action, antitrust, court ruled, jury, settlement]
-  policy_rate_path:
-    label: Policy-rate path
-    weight: 0.55
-    assets: [BOND, EQUITY, DERIVATIVE]
-    cues: [interest rates, rate hike, rate hikes, rate cut, rate cuts, higher for longer, remain elevated, rates elevated, tightening, policy rate]
-  inflation_persistence:
-    label: Persistent inflation
-    weight: 0.50
-    assets: [BOND, EQUITY]
-    cues: [inflation remains, persistent inflation, inflation persistent, sticky inflation, inflation surprise, hotter than expected]
-  armed_conflict:
-    label: Armed conflict / escalation
-    weight: 0.85
-    assets: [EQUITY, COMMODITY, FX]
-    cues: [escalation, military strike, invasion, airstrike, missile, armed conflict, war, ceasefire collapse]
-  geopolitical_tension:
-    label: Geopolitical tension
-    weight: 0.60
-    assets: [EQUITY, COMMODITY, FX]
-    cues: [escalating tensions, rising tensions, tensions escalate, geopolitical tensions, heightened tensions]
-  sanctions_trade_restriction:
-    label: Sanctions / trade restriction
-    weight: 0.65
-    assets: [EQUITY, COMMODITY, FX]
-    cues: [sanctions, sanctioned, embargo, export ban, export controls, tariff, tariffs, trade restrictions]
-  supply_disruption:
-    label: Supply disruption
-    weight: 0.75
-    assets: [COMMODITY, EQUITY]
-    cues: [supply routes, supply route, supply disruption, supply chain disruption, shipping disruption, blockade, strait, pipeline outage, supply shortage]
-  commodity_price_spike:
-    label: Commodity price spike
-    weight: 0.60
-    assets: [COMMODITY, EQUITY, DERIVATIVE]
-    cues: [crude prices, oil prices, prices sharply higher, price spike, soars, surges, crude oil, natural gas prices]
-  guidance_cut:
-    label: Guidance cut
-    weight: 0.60
-    assets: [EQUITY]
-    cues: [cuts revenue outlook, cuts outlook, lowers guidance, lowered guidance, cuts guidance, slashes forecast, revenue outlook, profit warning, weaker demand, weaker than expected, weaker-than-expected, misses estimates, earnings miss]
-  restructuring:
-    label: Restructuring
-    weight: 0.60
-    assets: [EQUITY, BOND]
-    cues: [restructuring, restructure, layoffs, job cuts, spin off, spin-off, divestiture, write down, write-down, impairment]
-  large_transaction:
-    label: Large transaction
-    weight: 0.50
-    assets: [EQUITY, BOND]
-    cues: [multibillion, multi-billion, billion transaction, billion deal, billion acquisition, takeover, hostile bid, agrees to acquire, to acquire, merger]
-  market_selloff:
-    label: Market sell-off
-    weight: 0.70
-    assets: [EQUITY, DERIVATIVE]
-    cues: [sell-off, selloff, plunge, plunges, tumble, tumbles, rout, volatility spike, circuit breaker, crash]
   operational_failure:
     label: Operational failure
-    weight: 0.55
+    level: 1
+    polarity: adverse
+    event_class: PRODUCT_OPERATIONS
     assets: [EQUITY]
-    cues: [outage, recall, recalled, cyberattack, cyber attack, data breach, plant fire, explosion, halted production, trial failed]
-  large_scale:
-    label: Large scale
-    weight: 0.40
-    assets: []
-    cues: [major, sharply, significant, multibillion, record, massive, systemic, worldwide, global]
+    cues: [outage, recall, recalls, recalled, explosion, halted production, service disruption, disruption]
+  geopolitical_tension:
+    label: Geopolitical tension
+    level: 1
+    polarity: adverse
+    event_class: GEOPOLITICAL
+    assets: [EQUITY, COMMODITY, FX]
+    cues: [escalating tensions, rising tensions, tensions escalate, geopolitical tensions, heightened tensions, raises tensions, border skirmish, skirmish, standoff, diplomatic row]
+  large_transaction:
+    label: Large transaction
+    level: 2
+    polarity: neutral
+    event_class: MA_CORPORATE_ACTION
+    assets: [EQUITY, BOND]
+    cues: [multibillion, multi-billion, billion transaction, billion deal, billion acquisition, takeover, hostile bid, agrees to acquire, agrees to buy, to acquire, merger]
+  earnings_beat:
+    label: Earnings / guidance beat
+    level: 1
+    polarity: favourable
+    event_class: EARNINGS_FINANCIAL_PERFORMANCE
+    assets: [EQUITY]
+    cues: [beats estimates, raises guidance, raises full-year guidance, raises its dividend, record profit, strong demand, raises forecast, upbeat outlook]
+  rating_upgrade:
+    label: Rating upgrade
+    level: 1
+    polarity: favourable
+    event_class: CREDIT_FUNDING
+    assets: [BOND, EQUITY]
+    cues: [upgrade, upgrades, upgraded, outlook positive, positive outlook]
+  policy_easing:
+    label: Monetary / fiscal easing
+    level: 2
+    polarity: favourable
+    event_class: MACROECONOMIC
+    assets: [BOND, EQUITY, DERIVATIVE]
+    cues: [cuts its policy rate, cuts policy rate, rate cut, rate cuts, cuts interest rates, stimulus package, stimulus, quantitative easing, lowers rates]
+  trade_liberalisation:
+    label: Trade liberalisation
+    level: 2
+    polarity: favourable
+    event_class: MACROECONOMIC
+    assets: [EQUITY, COMMODITY, FX]
+    cues: [lowering tariffs, removes tariffs, removing tariffs, tariff cuts, trade agreement, trade deal, free trade]
+
+# Words that change the SCALE of whatever happened, regardless of which indicator it is. Applied deterministically in the rules baseline: one step
+# up (at most one in total) for escalators, one step down (at most one) for de-escalators. They never create an event by themselves.
+scale_up:
+  [in decades, in a generation, since the financial crisis, steepest, largest increase, largest rise, largest in decades, largest in a decade, biggest since, highest since, lowest since, record, unprecedented, historic, sweeping, wide-ranging, nuclear, emergency, sharply]
+scale_down:
+  [minor, small, slight, slightly, modest, marginal, routine, in line with expectations, in line with the previous, as expected, reaffirms, reaffirmed, reiterates, affirms, unchanged, brief, briefly, no change, no impact, local, limited]
+
+# Where an event reaches. The broadest level a cue supports (a named company or nothing = firm). Sector comes from the sector vocabulary
+# (configs/scope.yaml, plural / sector-wide terms only: "a retailer" is one firm, "retailers" is a sector).
+reach:
+  global_cues: [global markets, global market, global economy, global financial, global equity, global equities, global stocks, global sell-off, global recession, worldwide, globally, world markets, international markets, around the world, across several countries, across countries, coordinated]
+  market_cues: [markets, market-wide, stock market, stock markets, equity futures, bond market, bond markets, interbank, banking system, financial system, economy, economies, central bank, central banks, policy rate, interest rates, yields, clearing house, money market, commercial paper, funding markets, sovereign, trade route, shipping lanes, currency]
+  generic_firm_pattern: '^(?:(?:a|an|the)\s+)?(?:(?:large|major|mid-sized|small|regional|global|leading|biggest|largest|listed|us|u\.s\.)\s+)*(?:[a-z-]+\s+){0,2}(?:company|firm|bank|lender|retailer|insurer|maker|producer|manufacturer|developer|carrier|operator|fund|group|brand|utility|chipmaker|drugmaker|automaker|airline|provider|refinery|hedge fund|lender)\b'
+
+# Whether the event has happened. First match wins, in this order.
+certainty:
+  speculative_cues: [rumour, rumours, rumoured, reportedly, sources say, sources said, in talks, talks to, could, may, might, possible, potentially, considering, weighs, mulls, exploring, speculation, fears of]
+  proposed_cues: [propose, proposes, proposed, proposal, plans to, planning to, draft, seeks to, would, consultation, expected to, set to, to be announced, pending]
+
+# A monetary amount is a plain, checkable proxy for scale: the largest "$N million|billion|trillion" figure in the text sets a FLOOR under the rules
+# baseline magnitude (it never lowers it).
+amount_floor:
+  - {min_usd: 1.0e9, level: 2}
+  - {min_usd: 1.0e11, level: 3}
 
 # Event subtypes under each of the eight taxonomy classes. A subtype is a finer reading of the SAME class, never a new class. Rule mode picks
 # the subtype with the most distinct cue hits; the LLM may only choose one of these ids (or `other`).

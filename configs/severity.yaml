@@ -1,0 +1,106 @@
+# Severity scorecard (severity-v2).
+#
+# WHAT THIS IS: a severity TRIAGE score on 1-10: how materially an event could affect financial markets, given what the report says and what was knowable
+# when it appeared. It is NOT a forecast of a price move, NOT a probability of loss, NOT supervised and NOT validated: no outcome labels are used anywhere in
+# it. (The repository's own study shows market-reaction magnitude is not predictable from text, so none is claimed.)
+#
+# HOW IT IS BUILT (assessment/severity.py):
+#   1. Four ANCHORED ORDINAL ANSWERS describe the event: magnitude (intensity, 0-4), reach (firm / sector / market / global), certainty (confirmed / proposed /
+#      speculative) and direction (adverse / mixed / neutral / favourable). Each is first derived by DETERMINISTIC RULES from the text (the baseline,
+#      assessment/rubric.py). A language model, if one is available, may then adjust each answer by at most one step, always with a stated reason. Where the
+#      model and the rules disagree, both are shown, and the score without the AI's adjustments is reported beside the final score.
+#   2. A fixed SEVERITY MATRIX turns magnitude and reach into points: the five magnitude anchors are the middle of the five semantic bands, the reach
+#      offsets move within the band.
+#   3. Certainty and direction scale the distance above 1 point (a proposal is worth less than a decision; a favourable surprise carries less downside).
+#   4. Two DATA adjustments, each bounded and each omitted (with the reason) when its input is missing or stale: the volatility regime at the report's time,
+#      and novelty against earlier reports of the same issuer.
+#   5. Round, clamp to [1, 10].
+# Source reliability, corroboration, tone and the model's own confidence are NOT inputs: they say how far to trust the report or the reading, not how big the event
+# is. Reliability is reported next to the score; uncertainty widens the range but never lowers the score.
+#
+# WHERE THE NUMBERS COME FROM: every anchor, offset and multiplier below is a documented JUDGEMENT, fixed before the first run of the benchmark
+# (data/benchmarks/README.md) and not changed afterwards to improve a result. They are configurable on purpose and the UI shows them.
+version: "severity-v2"
+
+bands:
+  - {id: negligible, label: Negligible, low: 1, high: 2, says: "routine; no market consequence"}
+  - {id: low,        label: Low,        low: 3, high: 4, says: "minor, contained, or a small favourable move"}
+  - {id: moderate,   label: Moderate,   low: 5, high: 6, says: "material to one issuer or one narrow segment"}
+  - {id: high,       label: High,       low: 7, high: 8, says: "sector- or market-wide consequence, or a serious credit or geopolitical event"}
+  - {id: extreme,    label: Extreme,    low: 9, high: 10, says: "threatens the stability of the financial system or global markets"}
+
+# Magnitude (INTENSITY): how severe the development itself is for those DIRECTLY affected, whoever and however many they are. How many are affected is the separate
+# reach answer below, so breadth must not be counted in both. `anchor` is the matrix's starting point: the middle of the matching band.
+magnitude:
+  0: {label: Routine, anchor: 1.2, says: "no consequence for those affected: a notice, a schedule, a minor personnel or product item"}
+  1: {label: Minor, anchor: 3.4, says: "a small, contained consequence for those affected: a small fine, recall or outage, an analyst rating change, an expected policy move"}
+  2: {label: Significant, anchor: 5.4, says: "a clear, material consequence for those affected: an earnings or guidance miss, a large deal, a restructuring, a notable regulatory proposal, a sizeable loss or downgrade"}
+  3: {label: Severe, anchor: 7.4, says: "a serious blow or disruption to those affected: the default or failure of an ordinary institution, a surprise or outsized policy shock, armed conflict, loss of a key supply or of market access, a collapse in valuation"}
+  4: {label: Critical, anchor: 9.2, says: "a threat to the stability of the financial system or the functioning of a core market: the failure, default or rescue of a systemically important institution, clearing house or sovereign; a freeze or run in a core funding market; emergency coordinated official intervention; market-wide trading halts or a worldwide market collapse"}
+
+# Reach: how far it spreads. The offset moves the score within the magnitude's band.
+reach:
+  firm:   {label: One issuer, offset: -0.6, says: "one named company, or nothing broader can be established"}
+  sector: {label: A sector, offset: 0.0, says: "a sector or segment of the market"}
+  market: {label: A market, offset: 0.5, says: "a national market, an asset class or the banking system"}
+  global: {label: Global, offset: 1.0, says: "global markets or several economies"}
+
+# Certainty: has it happened? Multiplies (points - 1).
+certainty:
+  confirmed:   {label: Confirmed, factor: 1.00, says: "it has happened or been decided"}
+  proposed:    {label: Proposed, factor: 0.85, says: "proposed, planned or pending: it may not happen in this form"}
+  speculative: {label: Speculative, factor: 0.70, says: "rumoured, reported without confirmation, or hedged with may / could"}
+
+# Direction: who it hurts. A risk engine weights downside fully; a favourable surprise still moves markets but carries less downside. Multiplies (points - 1).
+direction:
+  adverse:     {label: Adverse, factor: 1.00, says: "bad for the affected parties or markets"}
+  mixed:       {label: Mixed, factor: 0.95, says: "both good and bad for the affected parties"}
+  neutral:     {label: Neutral, factor: 0.90, says: "material but not directional (e.g. a merger)"}
+  favourable:  {label: Favourable, factor: 0.75, says: "good for the affected parties or markets"}
+
+# Volatility regime at the report's time (VIX level, linear between points), added to the score. The same event does more harm in a stressed market.
+regime:
+  vix_points: [[12, -0.6], [16, -0.25], [20, 0.0], [28, 0.5], [40, 1.0]]   # level -> points; held flat outside the range
+  max_sessions_behind: 1     # market data may lag the last completed session by at most this many sessions, else it is excluded (stated, never silent)
+  session_close_utc_hour: 21 # a report after this hour on a weekday counts that day's session as completed (weekends/holidays: weekday calendar only)
+
+# Novelty against earlier reports of the same issuer (only when measured), added to the score: new information moves markets, a restatement does not.
+novelty:
+  neutral_point: 0.5
+  strength: 0.8              # points = (novelty - neutral_point) * strength, i.e. within +-0.4
+
+# The deterministic baseline of the rubric (assessment/rubric.py).
+baseline:
+  compounding: {min_indicators: 3, min_level: 2, steps: 1}   # three or more distinct serious indicators together are one step worse than the worst alone
+  event_without_indicator_level: 1    # a market event with no severity marker at all is at least minor
+  scale_step: 1                        # at most this many steps up for escalator words, and this many down for de-escalators
+
+# What the language model may do to the baseline. One step where the rules have evidence: on the recorded real-model answers (docs/evidence/severity_ai_bound_ablation.json) a tighter
+# bound scored better than letting a verbatim quote lift it (strict rho 0.905, quote-lifted 0.849, unbounded 0.833). Where the rules have NO evidence the bound is meaningless (an
+# unseen phrasing would cap a correct model answer at the default), so a verbatim quote lets the answer stand there. Caveat: measured on the development set, where the rule
+# baseline was also developed; the held-out comparison is still to be run.
+ai_adjustment:
+  free_steps: 1                  # any answer may move this far from the baseline with just a stated reason
+  require_reason: true           # an answer without a reason (>= min_reason_chars) is ignored
+  min_reason_chars: 12
+  uninformed_baseline_accepts_quoted_answer: true  # where the rules found NO evidence (their answer is only a default), a verbatim quote lets the AI's answer stand beyond free_steps
+
+# Report reliability: shown next to the score, NOT a severity input.
+reliability:
+  type_prior: {NEWS: 0.7, SOCIAL: 0.35}
+  type_share: 0.6                # share from the source type; the rest from independent reports that existed at the report's own time
+  corroboration_cap: 4
+  high_from: 0.70
+  moderate_from: 0.40
+
+# Assumption sensitivity: the range around the score. Each judgement parameter is changed in turn (anchors by +-anchor_shift, certainty and direction
+# factors by +-factor_delta, the data adjustments by x0 and x1.5), and the score without the AI adjustments is included. Not a statistical interval.
+sensitivity:
+  anchor_shift: 0.5
+  factor_delta: 0.10
+  adjustment_scales: [0.0, 1.5]
+
+# Conflicting reports: same issuer, within this window, opposite tone, both strong.
+conflict:
+  window_hours: 48
+  min_abs_sentiment: 0.30

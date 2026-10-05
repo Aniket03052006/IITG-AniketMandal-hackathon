@@ -17,46 +17,55 @@ from ..domain import EventCategory, RiskSignal
 from ..services.stress_service import SeverityView
 from ..store import CHANNEL_REPLAY, CombinedSignalRepository
 from .extractor import SemanticExtractor
-from .hybrid import HybridInputs, HybridScorer
+from .freshness import assess_market, previous_weekday
 from .model import (
     Agreement,
     Conflict,
+    ExtractionMode,
+    IndicatorBasis,
+    Origin,
+    ProvenanceLine,
     ReferenceReading,
     RiskAssessment,
     SemanticReading,
+    SeverityAssessment,
     ThresholdState,
 )
 from .reference import Reference, analysed_text
+from .rubric import RubricDeriver
+from .severity import SeverityInputs, SeverityScorer
 from .vocab import NO_EVENT, build_summary
 
-BASIS = "TRANSPARENT_HYBRID"
+BASIS = "SCORECARD"
 LABELS = [
-    "AI-assisted assessment: a reading of the text plus explicit, configurable weights. Not validated, not a forecast.",
-    "The severity score is a triage of how serious this kind of development usually is for a financial book, not a predicted price move.",
+    "A scorecard: four anchored answers about the event, a fixed severity matrix and two bounded data adjustments. Not validated, not a forecast.",
+    "The severity score is a triage of how materially this kind of event could affect financial markets, not a predicted price move.",
 ]
 LIMITATIONS = [
-    "Weights and priors are documented judgements (configs/impact_hybrid.yaml), not fitted to outcomes: no outcome labels are used.",
-    "The range shows sensitivity to those weights, not a statistical interval.",
+    "Matrix anchors, certainty and direction factors and the data adjustments are documented judgements (configs/severity.yaml), fixed before the benchmark and not fitted to outcomes: no outcome labels are used.",
+    "The rubric answers are the least certain part: the rules baseline is crude and a language model's judgement is only as good as the model. Both are shown, and the AI's effect is bounded.",
+    "The range shows sensitivity to the judgement parameters, not a statistical interval.",
     "A name in the text that the entity master does not hold is kept as a mention, never as an issuer.",
 ]
 
 
-def _market(signal: RiskSignal) -> tuple[float | None, str | None, int | None]:
-    """(VIX level, the session it is from, calendar days before the report), from the market state the pipeline recorded at event time.
+def _market_state(signal: RiskSignal) -> tuple[float | None, str | None]:
+    """(VIX level, the session its close is from), from the market state the pipeline recorded at event time.
 
-    For a report after the last frozen session the state is that last session's: its age is stated so a stale reading can be refused."""
+    The pipeline's features are the state strictly before the reaction session, so for a report with a reaction date that is the weekday before it; for a
+    report after the end of the frozen pack the state is the pack's last session."""
     audit = signal.provenance.impact if signal.provenance else None
     if audit is None:
-        return None, None, None
+        return None, None
     level = next((float(v) for k in ("f_vix_level", "m_vix_level") if (v := audit.inputs.get(k)) is not None and math.isfinite(v)), None)
     if level is None:
-        return None, None, None
-    as_of = audit.market_context_as_of if audit.session == "NEXT" else audit.session
+        return None, None
+    if audit.session == "NEXT":
+        return level, audit.market_context_as_of
     try:
-        age = max(0, (signal.document.published_at.date() - date.fromisoformat(as_of)).days)
+        return level, previous_weekday(date.fromisoformat(audit.session)).isoformat()
     except ValueError:
-        return level, as_of, None
-    return level, as_of, age
+        return level, None
 
 
 def reference_reading(signal: RiskSignal) -> ReferenceReading:
@@ -93,9 +102,9 @@ def _agreement(r: SemanticReading, ref: Reference) -> Agreement:
 
 
 class AssessmentService:
-    def __init__(self, extractor: SemanticExtractor, scorer: HybridScorer, signals: CombinedSignalRepository, *,
+    def __init__(self, extractor: SemanticExtractor, scorer: SeverityScorer, deriver: RubricDeriver, signals: CombinedSignalRepository, *,
                  stress: StressConfig, clock: Callable[[], datetime] | None = None) -> None:
-        self.extractor, self.scorer, self._signals, self._stress = extractor, scorer, signals, stress
+        self.extractor, self.scorer, self.deriver, self._signals, self._stress = extractor, scorer, deriver, signals, stress
         self._clock = clock or (lambda: datetime.now(UTC))
         self._memo: dict[str, tuple[tuple, RiskAssessment]] = {}
         self._lock = threading.RLock()
@@ -132,25 +141,27 @@ class AssessmentService:
         doc = signal.document
         text = analysed_text(doc.headline, doc.body)
         reading, info = self.extractor.extract(text, ref, use_llm=use_llm)
+        # the rubric's deterministic baseline always comes from the rule extractor, even when a model read the text: the model then adjusts it within a bound
+        rules_reading = reading if info.mode is ExtractionMode.RULES else self.extractor.rules.extract(text, ref)[0]
+        rubric = self.deriver.combine(text, rules_reading, reading.ai_rubric)
         t0 = doc.published_at
         corro = [c for c in signal.evidence.corroborating if c.published_at <= t0]
         later = [c for c in signal.evidence.corroborating if c.published_at > t0]
-        vix, m_as_of, m_age = _market(signal)
-        inputs = HybridInputs(
-            reading=reading, source_type=doc.source_type.value,
-            novelty=signal.evidence.novelty_score if signal.evidence.novelty_measured else None,
-            corroborating_at_event_time=len({c.source for c in corro}), vix_level=vix, market_as_of=m_as_of, market_age_days=m_age)
-        severity = self.scorer.score(inputs)
+        vix, m_as_of = _market_state(signal)
+        market = assess_market(t0, m_as_of, vix, self.scorer.cfg.regime)
+        severity = self.scorer.score(SeverityInputs(
+            reading=reading, rubric=rubric, market=market, novelty=signal.evidence.novelty_score if signal.evidence.novelty_measured else None,
+            source_type=doc.source_type.value, corroborating_at_event_time=len({c.source for c in corro})))
         threshold = None
         severity_note = None
         if severity is None:
             severity_note = "The text does not describe a market event, so nothing is scored for it."
         else:
             crosses = severity.score >= self.threshold
-            msg = (f"Severity {severity.score}/10 meets the automatic trigger ({self.threshold:g}): the default scenario is suggested and can run "
-                   "now. This is a triage score, not a forecast."
+            msg = (f"Severity {severity.score}/10 ({severity.band_label.lower()}) meets the automatic trigger ({self.threshold:g}): the default scenario is suggested "
+                   "and can run now. This is a triage score, not a forecast."
                    if crosses else
-                   f"Severity {severity.score}/10 is below the automatic trigger ({self.threshold:g}): no stress runs automatically. "
+                   f"Severity {severity.score}/10 ({severity.band_label.lower()}) is below the automatic trigger ({self.threshold:g}): no stress runs automatically. "
                    "You can still run it as a what-if. This is a triage score, not a forecast.")
             threshold = ThresholdState(threshold=self.threshold, score=severity.score, crosses=crosses,
                                        status="ABOVE_TRIGGER" if crosses else "BELOW_TRIGGER", message=msg)
@@ -161,7 +172,43 @@ class AssessmentService:
             timestamp_origin=prov.timestamp_origin.value if prov else "UNKNOWN", summary=build_summary(reading), extraction=info,
             reading=reading, agreement=_agreement(reading, ref), severity=severity, severity_note=severity_note, threshold=threshold,
             reference=reference_reading(signal), conflict=None, corroborating_at_event_time=len({c.source for c in corro}),
-            later_reports_excluded=len(later), labels=LABELS, limitations=LIMITATIONS)
+            later_reports_excluded=len(later), provenance=self._provenance(reading, info, ref, severity), labels=LABELS, limitations=LIMITATIONS)
+
+    # ----------------------------------------------------------------------------------------------------------- provenance
+    def _provenance(self, r: SemanticReading, info, ref: Reference, sev: SeverityAssessment | None) -> list[ProvenanceLine]:
+        llm = info.mode is ExtractionMode.LLM
+        who = f"language model {info.model_id}" if llm else "deterministic cue phrases and the trained classifiers"
+        trained_event = not llm and ref.event_is_finding and ref.event_category == r.event_type
+        ind = r.severity_indicators
+        counts = {b: sum(1 for h in ind if h.basis is b) for b in IndicatorBasis}
+        lines = [
+            ProvenanceLine(part="Event class and subtype", origin=Origin.AI if (llm or trained_event) else Origin.RULES,
+                           detail=(f"read by the {who}" if llm else "the trained event classifier (experimental)" if trained_event else "cue phrases in the text")),
+            ProvenanceLine(part="Tone", origin=Origin.AI, detail=("read by the language model" if llm else "the trained sentiment classifier (experimental)")),
+            ProvenanceLine(part="Entities", origin=Origin.HYBRID if llm else Origin.RULES,
+                           detail=("named by the model, then checked against the text and the entity master; only the master can make an issuer" if llm
+                                   else "the entity master and institution list; a company-looking name stays a mention")),
+            ProvenanceLine(part="Severity indicators", origin=Origin.HYBRID if counts[IndicatorBasis.INFERRED] else (Origin.AI if llm else Origin.RULES),
+                           detail=f"{counts[IndicatorBasis.QUOTED]} quoted, {counts[IndicatorBasis.KEYWORD]} matched by a configured phrase, "
+                                  f"{counts[IndicatorBasis.INFERRED]} inferred by the AI (an inference is never shown as a quote)"),
+        ]
+        if sev is not None:
+            ai_moves = [f.label.lower() for f in sev.rubric if f.adjustment in ("AI_WITHIN_BOUND", "AI_QUOTE_BACKED")]
+            lines += [
+                ProvenanceLine(part="Rubric answers (magnitude, reach, certainty, direction)", origin=Origin.HYBRID if any(f.origin is Origin.HYBRID for f in sev.rubric) else Origin.RULES,
+                               detail=("deterministic rules, then the AI may move each answer one step (more only with a verbatim quote)" if any(f.origin is Origin.HYBRID for f in sev.rubric)
+                                       else "deterministic rules only: no language model answered the rubric") + (f"; the AI moved: {', '.join(ai_moves)}" if ai_moves else "")),
+                ProvenanceLine(part="Severity matrix and scaling", origin=Origin.ASSUMPTION, detail="configured anchors and factors: judgements fixed before the benchmark, not fitted"),
+                ProvenanceLine(part="Market regime", origin=Origin.DATA, detail=sev.market.reason),
+                ProvenanceLine(part="Novelty", origin=Origin.RULES if not any(o.id == "novelty" for o in sev.omitted) else Origin.RULES,
+                               detail=("compared with earlier reports of the same issuer" if not any(o.id == "novelty" for o in sev.omitted) else "not measurable: no issuer to compare against")),
+                ProvenanceLine(part="Report reliability", origin=Origin.DATA, detail=sev.reliability.basis),
+            ]
+        lines += [
+            ProvenanceLine(part="Scenario", origin=Origin.ASSUMPTION, detail="configured shocks, labelled illustrative"),
+            ProvenanceLine(part="Portfolio impact", origin=Origin.RULES, detail="the deterministic stress engine: no model, no randomness"),
+        ]
+        return lines
 
     # -------------------------------------------------------------------------------------------------------- stress hook
     def severity_view(self, signal: RiskSignal) -> SeverityView | None:
