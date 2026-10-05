@@ -68,14 +68,17 @@ export function segments(text: string, spans: { start: number; end: number; supp
   return out;
 }
 
-/** One sentence naming the factors that pushed the severity up, from the computed drivers (never free text). */
-export function driversLede(sev: { drivers: { text: string; direction: string }[] }): string {
-  const up = sev.drivers.filter((d) => d.direction === "UP").slice(0, 3).map((d) => d.text.replace(/ \(.*\)$/, ""));
-  const down = sev.drivers.filter((d) => d.direction === "DOWN").slice(0, 2).map((d) => d.text.replace(/ \(.*\)$/, ""));
-  // lower-case the first letter of an ordinary word, but leave an acronym ("M&A", "VIX") alone
-  const lower = (t: string) => (/^[A-Z][a-z]/.test(t) ? t.charAt(0).toLowerCase() + t.slice(1) : t);
-  const parts: string[] = [];
-  if (up.length) parts.push(`Raised by ${up.map(lower).join("; ")}.`);
-  if (down.length) parts.push(`Held down by ${down.map(lower).join("; ")}.`);
-  return parts.join(" ") || "Every factor sits near the middle of its range.";
+/** Plain sentence for a points change: "+1.2" / "−0.6" (a true minus sign). */
+export const pts = (v: number) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(2)}`;
+
+/** One sentence naming the four answers behind the score, e.g. "Severe intensity at market reach, confirmed and adverse." */
+export function severityLede(sev: { rubric: { id: string; final_label: string; origin: string }[]; band_label: string; ai_effect: number; baseline_score: number }): string {
+  const f = Object.fromEntries(sev.rubric.map((r) => [r.id, r.final_label.toLowerCase()]));
+  const hasAI = sev.rubric.some((r) => r.origin === "HYBRID");
+  const ai = !hasAI
+    ? "Deterministic rules only: no language model answered the rubric."
+    : sev.ai_effect === 0
+      ? "The AI's adjustments did not change the score."
+      : `The AI's bounded adjustments moved it ${sev.ai_effect > 0 ? "up" : "down"} ${Math.abs(sev.ai_effect)} from the rules-only score of ${sev.baseline_score}.`;
+  return `${(f.magnitude ?? "").replace(/^./, (c) => c.toUpperCase())} intensity at ${f.reach} reach, ${f.certainty} and ${f.direction}: ${sev.band_label.toLowerCase()} severity. ${ai}`;
 }

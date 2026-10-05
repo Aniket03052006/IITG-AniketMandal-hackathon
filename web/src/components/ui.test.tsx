@@ -4,7 +4,7 @@ import { ImpactMeter, SentimentBar } from "./ui";
 describe("ImpactMeter", () => {
   it("exposes score and band to assistive tech, not just colour", () => {
     render(<ImpactMeter score={9} />);
-    expect(screen.getByRole("img", { name: "Impact 9 of 10, Critical" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Impact 9 of 10, Extreme" })).toBeInTheDocument();
   });
   it("fills exactly `score` segments", () => {
     const { container } = render(<ImpactMeter score={7} />);

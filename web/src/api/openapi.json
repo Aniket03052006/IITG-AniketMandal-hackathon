@@ -1,6 +1,67 @@
 {
   "components": {
     "schemas": {
+      "AIRubric": {
+        "properties": {
+          "certainty": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RubricProposal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "channels": {
+            "description": "transmission channels the AI sees (credit, liquidity, rates, equity valuation, commodity supply, FX, counterparty, regulation, operations)",
+            "items": {
+              "type": "string"
+            },
+            "title": "Channels",
+            "type": "array"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RubricProposal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "magnitude": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RubricProposal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reach": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RubricProposal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "magnitude",
+          "reach",
+          "certainty",
+          "direction",
+          "channels"
+        ],
+        "title": "AIRubric",
+        "type": "object"
+      },
       "AblationRow": {
         "additionalProperties": false,
         "properties": {
@@ -3959,14 +4020,38 @@
         "title": "Increment",
         "type": "object"
       },
+      "IndicatorBasis": {
+        "enum": [
+          "QUOTED",
+          "KEYWORD",
+          "INFERRED"
+        ],
+        "title": "IndicatorBasis",
+        "type": "string"
+      },
       "IndicatorHit": {
         "properties": {
+          "basis": {
+            "$ref": "#/components/schemas/IndicatorBasis"
+          },
           "id": {
             "title": "Id",
             "type": "string"
           },
           "label": {
             "title": "Label",
+            "type": "string"
+          },
+          "level": {
+            "description": "the configured typical materiality level of this kind of development (a judgement prior)",
+            "maximum": 4.0,
+            "minimum": 0.0,
+            "title": "Level",
+            "type": "integer"
+          },
+          "polarity": {
+            "description": "adverse | favourable | neutral",
+            "title": "Polarity",
             "type": "string"
           },
           "quote": {
@@ -3978,22 +4063,30 @@
                 "type": "null"
               }
             ],
-            "description": "the words that show it, when found in the text",
+            "description": "the phrase in the report that shows it; null for an inference",
             "title": "Quote"
           },
-          "weight": {
-            "description": "the configured judgement prior for this kind of development",
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Weight",
-            "type": "number"
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the AI's one-line reason when the indicator is an inference",
+            "title": "Reason"
           }
         },
         "required": [
           "id",
           "label",
-          "weight",
-          "quote"
+          "level",
+          "polarity",
+          "basis",
+          "quote",
+          "reason"
         ],
         "title": "IndicatorHit",
         "type": "object"
@@ -4397,6 +4490,81 @@
         "title": "LiveStatus",
         "type": "object"
       },
+      "MarketUse": {
+        "description": "Whether market data entered the score, and exactly how fresh it was.",
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the session the market state is from (ISO date)",
+            "title": "As Of"
+          },
+          "max_sessions_behind": {
+            "title": "Max Sessions Behind",
+            "type": "integer"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "report_session": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the last completed session before the report (ISO date)",
+            "title": "Report Session"
+          },
+          "sessions_behind": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "how many sessions the data lags that session by",
+            "title": "Sessions Behind"
+          },
+          "used": {
+            "title": "Used",
+            "type": "boolean"
+          },
+          "vix": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vix"
+          }
+        },
+        "required": [
+          "used",
+          "vix",
+          "as_of",
+          "report_session",
+          "sessions_behind",
+          "max_sessions_behind",
+          "reason"
+        ],
+        "title": "MarketUse",
+        "type": "object"
+      },
       "Meta": {
         "properties": {
           "app": {
@@ -4660,6 +4828,18 @@
         ],
         "title": "OmittedFactor",
         "type": "object"
+      },
+      "Origin": {
+        "description": "Where a number or reading comes from. The UI never calls a whole result \"AI-generated\": each part says which of these it is.",
+        "enum": [
+          "AI",
+          "DATA",
+          "RULES",
+          "HYBRID",
+          "ASSUMPTION"
+        ],
+        "title": "Origin",
+        "type": "string"
       },
       "Phase": {
         "enum": [
@@ -5487,6 +5667,29 @@
         "title": "ProtocolRun",
         "type": "object"
       },
+      "ProvenanceLine": {
+        "description": "Where one part of the result comes from, in plain words. The UI shows these as small origin chips.",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Origin"
+          },
+          "part": {
+            "title": "Part",
+            "type": "string"
+          }
+        },
+        "required": [
+          "part",
+          "origin",
+          "detail"
+        ],
+        "title": "ProvenanceLine",
+        "type": "object"
+      },
       "QuarantinedRecord": {
         "properties": {
           "code": {
@@ -5810,6 +6013,36 @@
         "title": "RelevanceLevel",
         "type": "string"
       },
+      "Reliability": {
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "level": {
+            "description": "high | moderate | low",
+            "title": "Level",
+            "type": "string"
+          },
+          "note": {
+            "default": "Reliability says how far to trust the report. It does not change the severity: severity is how large the event would be if the report is accurate.",
+            "title": "Note",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "level",
+          "score",
+          "basis",
+          "note"
+        ],
+        "title": "Reliability",
+        "type": "object"
+      },
       "ReliabilityBin": {
         "additionalProperties": false,
         "properties": {
@@ -6039,6 +6272,14 @@
             "title": "Limitations",
             "type": "array"
           },
+          "provenance": {
+            "description": "which parts are AI, data, rules, hybrid or assumption",
+            "items": {
+              "$ref": "#/components/schemas/ProvenanceLine"
+            },
+            "title": "Provenance",
+            "type": "array"
+          },
           "published_at": {
             "format": "date-time",
             "title": "Published At",
@@ -6124,40 +6365,11 @@
           "conflict",
           "corroborating_at_event_time",
           "later_reports_excluded",
+          "provenance",
           "labels",
           "limitations"
         ],
         "title": "RiskAssessment",
-        "type": "object"
-      },
-      "RiskDriver": {
-        "description": "A plain-language reading of one factor, produced by rule from its computed value (never free text).",
-        "properties": {
-          "direction": {
-            "description": "UP | DOWN | NEUTRAL: whether the factor pushed severity up, down, or sat near the middle",
-            "title": "Direction",
-            "type": "string"
-          },
-          "factor_id": {
-            "title": "Factor Id",
-            "type": "string"
-          },
-          "points": {
-            "title": "Points",
-            "type": "number"
-          },
-          "text": {
-            "title": "Text",
-            "type": "string"
-          }
-        },
-        "required": [
-          "factor_id",
-          "text",
-          "direction",
-          "points"
-        ],
-        "title": "RiskDriver",
         "type": "object"
       },
       "RiskFactor": {
@@ -6263,6 +6475,165 @@
           "provenance"
         ],
         "title": "RiskSignal",
+        "type": "object"
+      },
+      "RubricField": {
+        "description": "One of the four rubric answers: what the deterministic rules said, what the AI proposed, what was used, and why.",
+        "properties": {
+          "adjustment": {
+            "description": "NONE | AI_WITHIN_BOUND | AI_QUOTE_BACKED | AI_CLAMPED | AI_IGNORED: what became of the AI's answer",
+            "title": "Adjustment",
+            "type": "string"
+          },
+          "ai": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the AI's proposed answer, if one was made",
+            "title": "Ai"
+          },
+          "ai_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Label"
+          },
+          "ai_quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the verbatim phrase the AI cited, when it cited one that is in the report",
+            "title": "Ai Quote"
+          },
+          "ai_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Reason"
+          },
+          "baseline": {
+            "description": "the rules' answer (a level id)",
+            "title": "Baseline",
+            "type": "string"
+          },
+          "baseline_basis": {
+            "description": "the deterministic reasons for the baseline, in words",
+            "items": {
+              "type": "string"
+            },
+            "title": "Baseline Basis",
+            "type": "array"
+          },
+          "baseline_label": {
+            "title": "Baseline Label",
+            "type": "string"
+          },
+          "final": {
+            "description": "the answer used in the score",
+            "title": "Final",
+            "type": "string"
+          },
+          "final_label": {
+            "title": "Final Label",
+            "type": "string"
+          },
+          "final_says": {
+            "title": "Final Says",
+            "type": "string"
+          },
+          "id": {
+            "description": "magnitude | reach | certainty | direction",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Origin"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "baseline",
+          "baseline_label",
+          "baseline_basis",
+          "ai",
+          "ai_label",
+          "ai_reason",
+          "ai_quote",
+          "final",
+          "final_label",
+          "final_says",
+          "origin",
+          "adjustment",
+          "note"
+        ],
+        "title": "RubricField",
+        "type": "object"
+      },
+      "RubricProposal": {
+        "description": "One answer the AI gave to a rubric question, with its reason and (when it gave one) the verbatim phrase it rests on.",
+        "properties": {
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote"
+          },
+          "quote_verified": {
+            "default": false,
+            "title": "Quote Verified",
+            "type": "boolean"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "reason",
+          "quote",
+          "quote_verified"
+        ],
+        "title": "RubricProposal",
         "type": "object"
       },
       "RunMode": {
@@ -6814,6 +7185,52 @@
         "title": "ScopeStrength",
         "type": "string"
       },
+      "ScoreStep": {
+        "description": "One line of the build-up: starts from the matrix and shows every change on the way to the final score.",
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "effect_points": {
+            "description": "change in points (the first step is the starting point)",
+            "title": "Effect Points",
+            "type": "number"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Origin"
+          },
+          "running": {
+            "description": "the score after this step",
+            "title": "Running",
+            "type": "number"
+          },
+          "value": {
+            "description": "the input in words",
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "origin",
+          "value",
+          "effect_points",
+          "running",
+          "detail"
+        ],
+        "title": "ScoreStep",
+        "type": "object"
+      },
       "SectorResult": {
         "properties": {
           "documents": {
@@ -6853,6 +7270,17 @@
       },
       "SemanticReading": {
         "properties": {
+          "ai_rubric": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AIRubric"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the language model's answers to the severity rubric; null in rule mode"
+          },
           "asset_classes": {
             "items": {
               "type": "string"
@@ -7008,6 +7436,7 @@
           "asset_classes",
           "severity_indicators",
           "uncertainty",
+          "ai_rubric",
           "evidence",
           "rationale"
         ],
@@ -7319,24 +7748,35 @@
       },
       "SeverityAssessment": {
         "properties": {
-          "basis": {
-            "default": "TRANSPARENT_HYBRID",
-            "title": "Basis",
+          "ai_effect": {
+            "description": "score minus baseline_score: what the AI's bounded adjustments changed",
+            "title": "Ai Effect",
+            "type": "integer"
+          },
+          "band": {
+            "description": "negligible | low | moderate | high | extreme",
+            "title": "Band",
             "type": "string"
           },
-          "drivers": {
-            "items": {
-              "$ref": "#/components/schemas/RiskDriver"
-            },
-            "title": "Drivers",
-            "type": "array"
+          "band_label": {
+            "title": "Band Label",
+            "type": "string"
           },
-          "factors": {
-            "items": {
-              "$ref": "#/components/schemas/SeverityFactor"
-            },
-            "title": "Factors",
-            "type": "array"
+          "band_says": {
+            "title": "Band Says",
+            "type": "string"
+          },
+          "baseline_score": {
+            "description": "the score with the AI's adjustments removed (rules only)",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Baseline Score",
+            "type": "integer"
+          },
+          "basis": {
+            "default": "SCORECARD",
+            "title": "Basis",
+            "type": "string"
           },
           "formula": {
             "title": "Formula",
@@ -7353,6 +7793,9 @@
             "minimum": 1.0,
             "title": "Low",
             "type": "integer"
+          },
+          "market": {
+            "$ref": "#/components/schemas/MarketUse"
           },
           "omitted": {
             "items": {
@@ -7372,27 +7815,42 @@
             "title": "Range Basis",
             "type": "string"
           },
+          "reliability": {
+            "$ref": "#/components/schemas/Reliability"
+          },
+          "rubric": {
+            "items": {
+              "$ref": "#/components/schemas/RubricField"
+            },
+            "title": "Rubric",
+            "type": "array"
+          },
           "score": {
             "maximum": 10.0,
             "minimum": 1.0,
             "title": "Score",
             "type": "integer"
           },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreStep"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
           "uncertainty": {
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Uncertainty",
-            "type": "number"
-          },
-          "uncertainty_points_removed": {
-            "minimum": 0.0,
-            "title": "Uncertainty Points Removed",
-            "type": "number"
-          },
-          "uncertainty_stated": {
-            "description": "false when the reading stated no uncertainty and the configured neutral value was assumed",
-            "title": "Uncertainty Stated",
-            "type": "boolean"
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the reading's own uncertainty, when it states one; it widens the range, never lowers the score",
+            "title": "Uncertainty"
           },
           "version": {
             "title": "Version",
@@ -7402,84 +7860,25 @@
         "required": [
           "score",
           "points",
+          "band",
+          "band_label",
+          "band_says",
           "low",
           "high",
           "range_basis",
           "basis",
           "version",
-          "factors",
+          "rubric",
+          "steps",
+          "baseline_score",
+          "ai_effect",
           "omitted",
-          "drivers",
+          "market",
+          "reliability",
           "uncertainty",
-          "uncertainty_stated",
-          "uncertainty_points_removed",
           "formula"
         ],
         "title": "SeverityAssessment",
-        "type": "object"
-      },
-      "SeverityFactor": {
-        "properties": {
-          "available": {
-            "title": "Available",
-            "type": "boolean"
-          },
-          "contribution_points": {
-            "description": "severity points this factor adds (they sum, with the 1-point floor, to the score before rounding)",
-            "title": "Contribution Points",
-            "type": "number"
-          },
-          "detail": {
-            "description": "the actual computed value in words",
-            "title": "Detail",
-            "type": "string"
-          },
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "kind": {
-            "$ref": "#/components/schemas/Kind"
-          },
-          "label": {
-            "title": "Label",
-            "type": "string"
-          },
-          "raw_weight": {
-            "description": "the configured weight",
-            "title": "Raw Weight",
-            "type": "number"
-          },
-          "value": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "the factor on [0, 1]; null when unavailable",
-            "title": "Value"
-          },
-          "weight": {
-            "description": "after renormalising over the available factors; 0 when unavailable",
-            "title": "Weight",
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "label",
-          "kind",
-          "available",
-          "value",
-          "raw_weight",
-          "weight",
-          "contribution_points",
-          "detail"
-        ],
-        "title": "SeverityFactor",
         "type": "object"
       },
       "SeverityScaling": {
@@ -8126,6 +8525,41 @@
             "title": "Sentiment Score",
             "type": "number"
           },
+          "severity_ai_effect": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "score minus the rules-only score: what the AI's bounded adjustments changed",
+            "title": "Severity Ai Effect"
+          },
+          "severity_band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "negligible | low | moderate | high | extreme",
+            "title": "Severity Band"
+          },
+          "severity_band_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity Band Label"
+          },
           "severity_basis": {
             "anyOf": [
               {
@@ -8135,7 +8569,7 @@
                 "type": "null"
               }
             ],
-            "description": "TRANSPARENT_HYBRID: explicit weights, not a trained model, not validated",
+            "description": "SCORECARD: anchored rubric answers and a fixed matrix, not a trained model, not validated",
             "title": "Severity Basis"
           },
           "severity_high": {
@@ -8245,6 +8679,9 @@
           "severity_low",
           "severity_high",
           "severity_basis",
+          "severity_band",
+          "severity_band_label",
+          "severity_ai_effect",
           "assessed_category",
           "assessed_sector",
           "extraction_mode",
@@ -8647,7 +9084,7 @@
                 "type": "null"
               }
             ],
-            "description": "TRANSPARENT_HYBRID when the severity score of the risk assessment drove the trigger (null: the signal's own impact)",
+            "description": "SCORECARD when the severity score of the risk assessment drove the trigger (null: the signal's own impact)",
             "title": "Severity Basis"
           },
           "severity_version": {

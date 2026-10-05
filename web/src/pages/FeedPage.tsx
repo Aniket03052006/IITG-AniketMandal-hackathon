@@ -37,7 +37,7 @@ function FeedRow({ s, asOf, label, baseline, assessed }: { s: SignalSummary; asO
           {assessed ? (
             <span className="flex flex-col gap-0.5">
               <ImpactMeter score={s.severity_score ?? null} noun="Severity" range={s.severity_low != null && s.severity_high != null && s.severity_low !== s.severity_high ? [s.severity_low, s.severity_high] : null} />
-              {s.severity_score != null && <span className="text-2xs text-muted">severity · {s.extraction_mode === "LLM" ? "AI-assisted" : "rule-based"}</span>}
+              {s.severity_score != null && <span className="text-2xs text-muted">{s.severity_band_label} · {s.extraction_mode === "LLM" ? "AI-assisted" : "rule-based"}</span>}
             </span>
           ) : (
             <ImpactMeter

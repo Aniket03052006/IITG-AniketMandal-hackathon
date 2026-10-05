@@ -509,6 +509,18 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AIRubric */
+        AIRubric: {
+            certainty: components["schemas"]["RubricProposal"] | null;
+            /**
+             * Channels
+             * @description transmission channels the AI sees (credit, liquidity, rates, equity valuation, commodity supply, FX, counterparty, regulation, operations)
+             */
+            channels: string[];
+            direction: components["schemas"]["RubricProposal"] | null;
+            magnitude: components["schemas"]["RubricProposal"] | null;
+            reach: components["schemas"]["RubricProposal"] | null;
+        };
         /** AblationRow */
         AblationRow: {
             /** Block */
@@ -2117,22 +2129,38 @@ export interface components {
             /** Where */
             where: string;
         };
+        /**
+         * IndicatorBasis
+         * @enum {string}
+         */
+        IndicatorBasis: "QUOTED" | "KEYWORD" | "INFERRED";
         /** IndicatorHit */
         IndicatorHit: {
+            basis: components["schemas"]["IndicatorBasis"];
             /** Id */
             id: string;
             /** Label */
             label: string;
             /**
+             * Level
+             * @description the configured typical materiality level of this kind of development (a judgement prior)
+             */
+            level: number;
+            /**
+             * Polarity
+             * @description adverse | favourable | neutral
+             */
+            polarity: string;
+            /**
              * Quote
-             * @description the words that show it, when found in the text
+             * @description the phrase in the report that shows it; null for an inference
              */
             quote: string | null;
             /**
-             * Weight
-             * @description the configured judgement prior for this kind of development
+             * Reason
+             * @description the AI's one-line reason when the indicator is an inference
              */
-            weight: number;
+            reason: string | null;
         };
         /** InferenceLine */
         InferenceLine: {
@@ -2294,6 +2322,35 @@ export interface components {
             /** Updated Total */
             updated_total: number;
         };
+        /**
+         * MarketUse
+         * @description Whether market data entered the score, and exactly how fresh it was.
+         */
+        MarketUse: {
+            /**
+             * As Of
+             * @description the session the market state is from (ISO date)
+             */
+            as_of: string | null;
+            /** Max Sessions Behind */
+            max_sessions_behind: number;
+            /** Reason */
+            reason: string;
+            /**
+             * Report Session
+             * @description the last completed session before the report (ISO date)
+             */
+            report_session: string | null;
+            /**
+             * Sessions Behind
+             * @description how many sessions the data lags that session by
+             */
+            sessions_behind: number | null;
+            /** Used */
+            used: boolean;
+            /** Vix */
+            vix: number | null;
+        };
         /** Meta */
         Meta: {
             /** App */
@@ -2388,6 +2445,12 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /**
+         * Origin
+         * @description Where a number or reading comes from. The UI never calls a whole result "AI-generated": each part says which of these it is.
+         * @enum {string}
+         */
+        Origin: "AI" | "DATA" | "RULES" | "HYBRID" | "ASSUMPTION";
         /**
          * Phase
          * @enum {string}
@@ -2729,6 +2792,17 @@ export interface components {
             /** Years Helpful */
             years_helpful: string | null;
         };
+        /**
+         * ProvenanceLine
+         * @description Where one part of the result comes from, in plain words. The UI shows these as small origin chips.
+         */
+        ProvenanceLine: {
+            /** Detail */
+            detail: string;
+            origin: components["schemas"]["Origin"];
+            /** Part */
+            part: string;
+        };
         /** QuarantinedRecord */
         QuarantinedRecord: {
             /** Code */
@@ -2869,6 +2943,23 @@ export interface components {
          * @enum {string}
          */
         RelevanceLevel: "DIRECT" | "SECTOR" | "MARKET_WIDE" | "NONE" | "UNDETERMINED";
+        /** Reliability */
+        Reliability: {
+            /** Basis */
+            basis: string;
+            /**
+             * Level
+             * @description high | moderate | low
+             */
+            level: string;
+            /**
+             * Note
+             * @default Reliability says how far to trust the report. It does not change the severity: severity is how large the event would be if the report is accurate.
+             */
+            note: string;
+            /** Score */
+            score: number;
+        };
         /** ReliabilityBin */
         ReliabilityBin: {
             /** Accuracy */
@@ -2988,6 +3079,11 @@ export interface components {
             /** Limitations */
             limitations: string[];
             /**
+             * Provenance
+             * @description which parts are AI, data, rules, hybrid or assumption
+             */
+            provenance: components["schemas"]["ProvenanceLine"][];
+            /**
              * Published At
              * Format: date-time
              */
@@ -3012,23 +3108,6 @@ export interface components {
             threshold: components["schemas"]["ThresholdState"] | null;
             /** Timestamp Origin */
             timestamp_origin: string;
-        };
-        /**
-         * RiskDriver
-         * @description A plain-language reading of one factor, produced by rule from its computed value (never free text).
-         */
-        RiskDriver: {
-            /**
-             * Direction
-             * @description UP | DOWN | NEUTRAL: whether the factor pushed severity up, down, or sat near the middle
-             */
-            direction: string;
-            /** Factor Id */
-            factor_id: string;
-            /** Points */
-            points: number;
-            /** Text */
-            text: string;
         };
         /**
          * RiskFactor
@@ -3063,6 +3142,82 @@ export interface components {
             status: components["schemas"]["SignalStatus"];
             /** Status Reason */
             status_reason: string | null;
+        };
+        /**
+         * RubricField
+         * @description One of the four rubric answers: what the deterministic rules said, what the AI proposed, what was used, and why.
+         */
+        RubricField: {
+            /**
+             * Adjustment
+             * @description NONE | AI_WITHIN_BOUND | AI_QUOTE_BACKED | AI_CLAMPED | AI_IGNORED: what became of the AI's answer
+             */
+            adjustment: string;
+            /**
+             * Ai
+             * @description the AI's proposed answer, if one was made
+             */
+            ai: string | null;
+            /** Ai Label */
+            ai_label: string | null;
+            /**
+             * Ai Quote
+             * @description the verbatim phrase the AI cited, when it cited one that is in the report
+             */
+            ai_quote: string | null;
+            /** Ai Reason */
+            ai_reason: string | null;
+            /**
+             * Baseline
+             * @description the rules' answer (a level id)
+             */
+            baseline: string;
+            /**
+             * Baseline Basis
+             * @description the deterministic reasons for the baseline, in words
+             */
+            baseline_basis: string[];
+            /** Baseline Label */
+            baseline_label: string;
+            /**
+             * Final
+             * @description the answer used in the score
+             */
+            final: string;
+            /** Final Label */
+            final_label: string;
+            /** Final Says */
+            final_says: string;
+            /**
+             * Id
+             * @description magnitude | reach | certainty | direction
+             */
+            id: string;
+            /** Label */
+            label: string;
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            origin: components["schemas"]["Origin"];
+        };
+        /**
+         * RubricProposal
+         * @description One answer the AI gave to a rubric question, with its reason and (when it gave one) the verbatim phrase it rests on.
+         */
+        RubricProposal: {
+            /** Quote */
+            quote: string | null;
+            /**
+             * Quote Verified
+             * @default false
+             */
+            quote_verified: boolean;
+            /** Reason */
+            reason: string;
+            /** Value */
+            value: string;
         };
         /**
          * RunMode
@@ -3268,6 +3423,34 @@ export interface components {
          * @enum {string}
          */
         ScopeStrength: "STRONG" | "WEAK";
+        /**
+         * ScoreStep
+         * @description One line of the build-up: starts from the matrix and shows every change on the way to the final score.
+         */
+        ScoreStep: {
+            /** Detail */
+            detail: string;
+            /**
+             * Effect Points
+             * @description change in points (the first step is the starting point)
+             */
+            effect_points: number;
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            origin: components["schemas"]["Origin"];
+            /**
+             * Running
+             * @description the score after this step
+             */
+            running: number;
+            /**
+             * Value
+             * @description the input in words
+             */
+            value: string;
+        };
         /** SectorResult */
         SectorResult: {
             /** Documents */
@@ -3279,6 +3462,8 @@ export interface components {
         };
         /** SemanticReading */
         SemanticReading: {
+            /** @description the language model's answers to the severity rubric; null in rule mode */
+            ai_rubric: components["schemas"]["AIRubric"] | null;
             /** Asset Classes */
             asset_classes: string[];
             /** Entities */
@@ -3478,20 +3663,36 @@ export interface components {
         /** SeverityAssessment */
         SeverityAssessment: {
             /**
+             * Ai Effect
+             * @description score minus baseline_score: what the AI's bounded adjustments changed
+             */
+            ai_effect: number;
+            /**
+             * Band
+             * @description negligible | low | moderate | high | extreme
+             */
+            band: string;
+            /** Band Label */
+            band_label: string;
+            /** Band Says */
+            band_says: string;
+            /**
+             * Baseline Score
+             * @description the score with the AI's adjustments removed (rules only)
+             */
+            baseline_score: number;
+            /**
              * Basis
-             * @default TRANSPARENT_HYBRID
+             * @default SCORECARD
              */
             basis: string;
-            /** Drivers */
-            drivers: components["schemas"]["RiskDriver"][];
-            /** Factors */
-            factors: components["schemas"]["SeverityFactor"][];
             /** Formula */
             formula: string;
             /** High */
             high: number;
             /** Low */
             low: number;
+            market: components["schemas"]["MarketUse"];
             /** Omitted */
             omitted: components["schemas"]["OmittedFactor"][];
             /**
@@ -3501,54 +3702,20 @@ export interface components {
             points: number;
             /** Range Basis */
             range_basis: string;
+            reliability: components["schemas"]["Reliability"];
+            /** Rubric */
+            rubric: components["schemas"]["RubricField"][];
             /** Score */
             score: number;
-            /** Uncertainty */
-            uncertainty: number;
-            /** Uncertainty Points Removed */
-            uncertainty_points_removed: number;
+            /** Steps */
+            steps: components["schemas"]["ScoreStep"][];
             /**
-             * Uncertainty Stated
-             * @description false when the reading stated no uncertainty and the configured neutral value was assumed
+             * Uncertainty
+             * @description the reading's own uncertainty, when it states one; it widens the range, never lowers the score
              */
-            uncertainty_stated: boolean;
+            uncertainty: number | null;
             /** Version */
             version: string;
-        };
-        /** SeverityFactor */
-        SeverityFactor: {
-            /** Available */
-            available: boolean;
-            /**
-             * Contribution Points
-             * @description severity points this factor adds (they sum, with the 1-point floor, to the score before rounding)
-             */
-            contribution_points: number;
-            /**
-             * Detail
-             * @description the actual computed value in words
-             */
-            detail: string;
-            /** Id */
-            id: string;
-            kind: components["schemas"]["Kind"];
-            /** Label */
-            label: string;
-            /**
-             * Raw Weight
-             * @description the configured weight
-             */
-            raw_weight: number;
-            /**
-             * Value
-             * @description the factor on [0, 1]; null when unavailable
-             */
-            value: number | null;
-            /**
-             * Weight
-             * @description after renormalising over the available factors; 0 when unavailable
-             */
-            weight: number;
         };
         /** SeverityScaling */
         SeverityScaling: {
@@ -3829,8 +3996,20 @@ export interface components {
             /** Sentiment Score */
             sentiment_score: number;
             /**
+             * Severity Ai Effect
+             * @description score minus the rules-only score: what the AI's bounded adjustments changed
+             */
+            severity_ai_effect: number | null;
+            /**
+             * Severity Band
+             * @description negligible | low | moderate | high | extreme
+             */
+            severity_band: string | null;
+            /** Severity Band Label */
+            severity_band_label: string | null;
+            /**
              * Severity Basis
-             * @description TRANSPARENT_HYBRID: explicit weights, not a trained model, not validated
+             * @description SCORECARD: anchored rubric answers and a fixed matrix, not a trained model, not validated
              */
             severity_basis: string | null;
             /** Severity High */
@@ -4016,7 +4195,7 @@ export interface components {
             scope_note: string | null;
             /**
              * Severity Basis
-             * @description TRANSPARENT_HYBRID when the severity score of the risk assessment drove the trigger (null: the signal's own impact)
+             * @description SCORECARD when the severity score of the risk assessment drove the trigger (null: the signal's own impact)
              */
             severity_basis: string | null;
             /**

@@ -14,7 +14,9 @@ import { Drawer, DrawerSection, useOpenDrawer } from "../Drawer";
 import { Formula } from "../Math";
 import { Skeleton } from "../ui";
 import { AssessedInputs } from "../assessment/AssessedInputs";
-import { RiskDrivers } from "../assessment/SeverityBreakdown";
+import { OriginChip } from "../assessment/OriginChip";
+import { ScoreBuildUp } from "../assessment/ScoreBuildUp";
+import { severityLede } from "../../lib/assessment";
 import { DriverBars } from "./DriverBars";
 
 const pc = (p: number) => `${Math.round(p * 100)}%`;
@@ -411,18 +413,18 @@ function SeverityWhyBody({ a }: { a: RiskAssessment }) {
     <>
       <DrawerSection title="In one line">
         <p className="text-ink-2">
-          {a.summary} Severity {sev.score}/10 comes from {sev.factors.filter((f) => f.available).length} explicit factors
-          {sev.omitted.length ? `; ${sev.omitted.length} could not be computed from what was known at the time and were left out` : ""}.
+          {a.summary} {severityLede(sev)}
+          {sev.omitted.length ? ` ${sev.omitted.length} input${sev.omitted.length > 1 ? "s" : ""} could not be used from what was known at the time and ${sev.omitted.length > 1 ? "were" : "was"} left out, with the reason.` : ""}
         </p>
       </DrawerSection>
-      <DrawerSection title="Risk drivers" note="Each line is one factor's computed value for this report, turned into words by rule. The points add up to the score.">
-        <RiskDrivers sev={sev} />
+      <DrawerSection title="How the score is built" note="Every line says where it comes from. The matrix is the starting point; the rest are bounded changes.">
+        <ScoreBuildUp steps={sev.steps} score={sev.score} points={sev.points} />
       </DrawerSection>
-      <DrawerSection title="Where the weights come from">
-        <p className="text-sm text-ink-2">
-          Every weight and prior is a documented judgement in <span className="num">configs/impact_hybrid.yaml</span>, chosen before looking at any result and
-          configurable. No outcome labels are used, so the score is not supervised and not validated. If any single weight were off by 30%, the score would be
-          between {sev.low} and {sev.high}.
+      <DrawerSection title="Where the numbers come from">
+        <p className="flex flex-wrap items-center gap-2 text-sm text-ink-2">
+          <OriginChip origin="ASSUMPTION" /> The matrix anchors, the certainty and direction factors and the data adjustments are documented judgements in{" "}
+          <span className="num">configs/severity.yaml</span>, fixed before the benchmark and not fitted to outcomes. No outcome labels are used, so the score is not supervised
+          and not validated. Changing the judgement parameters moves it between {sev.low} and {sev.high}.
         </p>
       </DrawerSection>
       <DrawerSection title="What this score does not tell you">

@@ -10,15 +10,16 @@ import { ModeChip } from "../components/assessment/ModeChip";
 import { SeverityBreakdown } from "../components/assessment/SeverityBreakdown";
 import { ThresholdNotice } from "../components/assessment/ThresholdNotice";
 import { UnderstandingCard } from "../components/assessment/UnderstandingCard";
-import { driversLede, segments } from "../lib/assessment";
+import { severityLede, segments } from "../lib/assessment";
+import { ScoreBuildUp } from "../components/assessment/ScoreBuildUp";
+import { RubricTable } from "../components/assessment/RubricTable";
+import { ProvenanceStrip } from "../components/assessment/ProvenanceStrip";
+import { ScaleBar } from "../components/assessment/ScaleBar";
+import { MarketNote } from "../components/assessment/MarketNote";
 import { AnalyzePage } from "./AnalyzePage";
 
 const AS_OF = "2026-10-01T12:00:00Z";
 const TEXT = "Quantum Dynamics announces a major restructuring following weaker-than-expected demand.";
-
-const factor = (id: string, label: string, kind: string, value: number | null, weight: number, points: number, detail: string) => ({
-  id, label, kind, available: value !== null, value, raw_weight: weight, weight: value === null ? 0 : weight, contribution_points: points, detail,
-});
 
 const assessment = (over: Partial<RiskAssessment> = {}): RiskAssessment =>
   ({
@@ -38,31 +39,43 @@ const assessment = (over: Partial<RiskAssessment> = {}): RiskAssessment =>
       entities: [{ name: "Quantum Dynamics", kind: "COMPANY", role: "subject", resolved: false, entity_id: null, ticker: null, sector: null }],
       primary_issuer: { entity_id: "UNKNOWN_ENTITY", name: null, ticker: null, resolved: false, note: "No company in the entity master was identified; exposure is assessed at sector / market level where the text supports it." },
       sectors: [], regions: [], asset_classes: ["EQUITY", "BOND"],
-      severity_indicators: [{ id: "restructuring", label: "Restructuring", weight: 0.6, quote: "restructuring" }],
+      severity_indicators: [
+        { id: "restructuring", label: "Restructuring / job cuts", level: 2, polarity: "adverse", basis: "QUOTED", quote: "restructuring", reason: null },
+        { id: "inflation_persistence", label: "Persistent inflation", level: 2, polarity: "adverse", basis: "INFERRED", quote: null, reason: "price pressure suggests inflation is not fading" },
+      ],
+      ai_rubric: null,
       uncertainty: null,
       evidence: [{ quote: "a major restructuring", start: 27, end: 48, supports: "event_type" }],
       rationale: null,
     },
     agreement: { reference_event_type: "MA_CORPORATE_ACTION", reference_event_status: "UNCERTAIN", reference_event_confidence: null, event_type_agrees: null, reference_sentiment: -0.5, sentiment_direction_agrees: true, note: "The assessment and the trained models agree (or the trained models made no firm call)." },
     severity: {
-      score: 5, points: 5.45, low: 5, high: 6, range_basis: "Assumption sensitivity, not a statistical interval: the lowest and highest score when any single weight is changed by 30% (all other weights unchanged).",
-      basis: "TRANSPARENT_HYBRID", version: "hybrid-v1",
-      factors: [
-        factor("category_prior", "Event class", "JUDGEMENT_PRIOR", 0.45, 0.2, 0.85, "M&A / Corporate Action: configured prior 0.45"),
-        factor("severity_indicators", "Severity indicators in the text", "EXTRACTION", 0.9, 0.3, 2.56, "1 found: restructuring (0.60) -> 0.90"),
-        factor("novelty", "Novelty", "SOURCE", null, 0.1, 0, "no issuer was resolved, so there is nothing to compare against"),
-        factor("market_regime", "Market regime", "MARKET_STATE", null, 0.08, 0, "no market data at the report's time"),
+      score: 5, points: 5.2, band: "moderate", band_label: "Moderate", band_says: "material to one issuer or one narrow segment", low: 4, high: 6,
+      range_basis: "Assumption sensitivity, not a statistical interval: the lowest and highest score when each judgement parameter is changed in turn.",
+      basis: "SCORECARD", version: "severity-v2",
+      rubric: [
+        { id: "magnitude", label: "Event intensity", baseline: "1", baseline_label: "Minor", baseline_basis: ["strongest indicator: restructuring (typical level 2)"], ai: "2", ai_label: "Significant",
+          ai_reason: "a restructuring is a clear consequence for the firm", ai_quote: "a major restructuring", final: "2", final_label: "Significant", final_says: "a clear, material consequence for those affected",
+          origin: "HYBRID", adjustment: "AI_WITHIN_BOUND", note: "The AI moved this 1 step up from the rules, with a stated reason." },
+        { id: "reach", label: "Reach", baseline: "firm", baseline_label: "One issuer", baseline_basis: ["a named company is the subject"], ai: null, ai_label: null, ai_reason: null, ai_quote: null,
+          final: "firm", final_label: "One issuer", final_says: "one named company", origin: "RULES", adjustment: "NONE", note: "" },
+        { id: "certainty", label: "Certainty", baseline: "confirmed", baseline_label: "Confirmed", baseline_basis: ["stated as having happened"], ai: null, ai_label: null, ai_reason: null, ai_quote: null,
+          final: "confirmed", final_label: "Confirmed", final_says: "it has happened", origin: "RULES", adjustment: "NONE", note: "" },
+        { id: "direction", label: "Direction", baseline: "adverse", baseline_label: "Adverse", baseline_basis: ["adverse indicators (restructuring / job cuts)"], ai: null, ai_label: null, ai_reason: null, ai_quote: null,
+          final: "adverse", final_label: "Adverse", final_says: "bad for the affected parties", origin: "RULES", adjustment: "NONE", note: "" },
       ],
-      omitted: [
-        { id: "novelty", label: "Novelty", reason: "no issuer was resolved, so there is nothing to compare against" },
-        { id: "market_regime", label: "Market regime", reason: "no market data at the report's time" },
+      steps: [
+        { id: "matrix", label: "Severity matrix", origin: "HYBRID", value: "Significant × one issuer", effect_points: 4.8, running: 4.8, detail: "Magnitude 'Significant' starts at 5.4; reach 'one issuer' moves it -0.6." },
+        { id: "certainty", label: "Certainty", origin: "RULES", value: "Confirmed", effect_points: 0, running: 4.8, detail: "Scales the distance above 1 by 1." },
+        { id: "direction", label: "Direction", origin: "RULES", value: "Adverse", effect_points: 0, running: 4.8, detail: "Scales the distance above 1 by 1." },
+        { id: "regime", label: "Market regime", origin: "DATA", value: "VIX 20.0", effect_points: 0.4, running: 5.2, detail: "VIX 20.0 from the 2026-10-01 close (1 session behind)." },
       ],
-      drivers: [
-        { factor_id: "severity_indicators", text: "Markers of seriousness: restructuring", direction: "UP", points: 2.56 },
-        { factor_id: "category_prior", text: "M&A / Corporate Action event (a class that tends to stay contained)", direction: "DOWN", points: 0.85 },
-        { factor_id: "source_credibility", text: "Limited corroboration: a single source at the time", direction: "DOWN", points: 0.2 },
-      ],
-      uncertainty: 0.5, uncertainty_stated: false, uncertainty_points_removed: 0.6, formula: "severity = 1 + 9 x sum(weight x factor) x (1 - 0.2 x uncertainty) = 5.45",
+      baseline_score: 4, ai_effect: 1,
+      omitted: [{ id: "novelty", label: "Novelty", reason: "No issuer was resolved, so there is no earlier report of the same issuer to compare with." }],
+      market: { used: true, vix: 20.0, as_of: "2026-10-01", report_session: "2026-10-02", sessions_behind: 1, max_sessions_behind: 1, reason: "VIX 20.0 from the 2026-10-01 close (1 session behind; the last completed session before the report is 2026-10-02)." },
+      reliability: { level: "moderate", score: 0.42, basis: "news source (0.70) and 0 independent report(s) that already existed at the time", note: "Reliability says how far to trust the report. It does not change the severity." },
+      uncertainty: 0.5,
+      formula: "raw = anchor[Significant] 5.4 + offset[One issuer] -0.6; 1 + (raw - 1) x 1 x 1; +0.40 regime; = 5.20 -> 5",
     },
     severity_note: null,
     threshold: { threshold: 7, score: 5, crosses: false, status: "BELOW_TRIGGER", message: "m", can_run_what_if: true },
@@ -70,6 +83,13 @@ const assessment = (over: Partial<RiskAssessment> = {}): RiskAssessment =>
     conflict: null,
     corroborating_at_event_time: 0,
     later_reports_excluded: 0,
+    provenance: [
+      { part: "Event class and subtype", origin: "RULES", detail: "cue phrases in the text" },
+      { part: "Severity indicators", origin: "RULES", detail: "1 quoted, 0 matched by a configured phrase, 0 inferred by the AI (an inference is never shown as a quote)" },
+      { part: "Rubric answers (magnitude, reach, certainty, direction)", origin: "HYBRID", detail: "deterministic rules, then the AI may move each answer one step" },
+      { part: "Market regime", origin: "DATA", detail: "VIX 20.0 from the 2026-10-01 close" },
+      { part: "Scenario", origin: "ASSUMPTION", detail: "configured shocks, labelled illustrative" },
+    ],
     labels: ["AI-assisted assessment: not validated, not a forecast."],
     limitations: ["Weights and priors are documented judgements."],
     ...over,
@@ -163,21 +183,32 @@ describe("the threshold notice", () => {
 });
 
 describe("the severity breakdown", () => {
-  it("shows real drivers with their points, what was left out and why, and the honest range", async () => {
+  it("shows the four answers (rules vs AI vs used), the build-up, the market note, what was left out, reliability and the honest range", () => {
     wrap(<SeverityBreakdown a={assessment()} />);
-    expect(screen.getByText(/Markers of seriousness: restructuring/)).toBeInTheDocument();
-    expect(screen.getByText("+2.56 pts")).toBeInTheDocument();
-    expect(screen.getByText(/Limited corroboration: a single source at the time/)).toBeInTheDocument();
-    expect(screen.getByText("Left out, not guessed")).toBeInTheDocument();
-    expect(screen.getAllByText(/no issuer was resolved, so there is nothing to compare against/).length).toBeGreaterThan(0);
+    const rubric = within(screen.getByRole("list", { name: "The four rubric answers" }));
+    expect(rubric.getAllByRole("listitem")).toHaveLength(4);
+    expect(rubric.getByText("The AI moved this 1 step up from the rules, with a stated reason.", { exact: false })).toBeInTheDocument();
+    expect(rubric.getByText(/Quoted: “a major restructuring”/)).toBeInTheDocument();
+    expect(rubric.getAllByText(/No language model read this text/).length).toBeGreaterThan(0); // the three answers the AI did not give
+    const table = within(screen.getByRole("table", { name: "How the severity score is built" }));
+    expect(table.getByText("Severity matrix")).toBeInTheDocument();
+    expect(table.getByText("+0.40")).toBeInTheDocument();
+    expect(screen.getByText(/rounds to/)).toBeInTheDocument();
+    expect(screen.getByText("Market data used")).toBeInTheDocument();
+    expect(screen.getAllByText(/1 session behind/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Novelty not used:/)).toBeInTheDocument();
+    expect(screen.getByText(/does not change the severity/)).toBeInTheDocument();
     expect(screen.getByText(/not a statistical interval/)).toBeInTheDocument();
-    expect(screen.getByText("5–6")).toBeInTheDocument();
-    // an uncertainty the reading did not state is said to be assumed, not presented as the reading's own
-    expect(screen.getByText(/states no uncertainty \(no calibrated confidence\), so a neutral 50% is assumed/)).toBeInTheDocument();
-    await userEvent.click(screen.getByText("The full calculation"));
-    expect(screen.getByRole("table", { name: "How the severity score is built" })).toBeInTheDocument();
-    expect(screen.getAllByText("left out").length).toBe(2);
-    expect(screen.getByText(/severity = 1 \+ 9 x sum/)).toBeInTheDocument();
+    expect(screen.getByText("4–6")).toBeInTheDocument();
+    expect(screen.getByText(/never lowers the score/)).toBeInTheDocument();
+  });
+
+  it("says plainly when market data was excluded as too stale", () => {
+    const a = assessment();
+    a.severity!.market = { used: false, vix: 16.4, as_of: "2026-10-01", report_session: "2026-10-05", sessions_behind: 2, max_sessions_behind: 1, reason: "The market data held ends 2026-10-01, 2 sessions before the last completed session (2026-10-05); the policy allows at most 1. It is too stale to be the market at the time, so it is not used." };
+    wrap(<MarketNote m={a.severity!.market} />);
+    expect(screen.getByText("Market data not used")).toBeInTheDocument();
+    expect(screen.getByText(/too stale to be the market at the time/)).toBeInTheDocument();
   });
 
   it("flags a conflicting report rather than hiding it", () => {
@@ -187,8 +218,63 @@ describe("the severity breakdown", () => {
     expect(screen.getByText(/Both are kept; neither is discounted/)).toBeInTheDocument();
   });
 
-  it("writes the lede from the computed drivers", () => {
-    expect(driversLede(assessment().severity!)).toBe("Raised by markers of seriousness: restructuring. Held down by M&A / Corporate Action event; limited corroboration: a single source at the time.");
+  it("writes the lede from the four answers and says what the AI changed", () => {
+    expect(severityLede(assessment().severity!)).toBe(
+      "Significant intensity at one issuer reach, confirmed and adverse: moderate severity. The AI's bounded adjustments moved it up 1 from the rules-only score of 4.",
+    );
+  });
+});
+
+describe("the score build-up", () => {
+  it("starts at the matrix, shows signed changes with a running total, and states the rounded result", () => {
+    wrap(<ScoreBuildUp steps={assessment().severity!.steps} score={5} points={5.2} />);
+    const rows = screen.getAllByRole("row");
+    expect(rows).toHaveLength(4);
+    expect(within(rows[0]!).getAllByText("4.80").length).toBeGreaterThan(0); // the matrix value and the running total start equal
+    expect(within(rows[3]!).getByText("+0.40")).toBeInTheDocument();
+    expect(within(rows[3]!).getByText("Data")).toBeInTheDocument(); // the regime step is tagged as data
+    expect(screen.getAllByText(/5.20/).length).toBeGreaterThanOrEqual(2); // the last running total and the stated result
+  });
+});
+
+describe("rubric answers when no model read the text", () => {
+  it("shows the rules answer and says no AI answer exists, rather than inventing one", () => {
+    wrap(<RubricTable rubric={assessment().severity!.rubric} mode="RULES" />);
+    expect(screen.getAllByText("No language model read this text (rule-based mode).").length).toBe(3);
+  });
+});
+
+describe("provenance", () => {
+  it("counts the origins at a glance and lists each part with its origin and detail", async () => {
+    wrap(<ProvenanceStrip lines={assessment().provenance} />);
+    await userEvent.click(screen.getByText("Where each part comes from"));
+    const list = within(screen.getByRole("list", { name: "Provenance of each part" }));
+    expect(list.getByText("Market regime")).toBeInTheDocument();
+    expect(list.getAllByText("Data").length).toBeGreaterThan(0);
+    expect(list.getByText("Assumption")).toBeInTheDocument();
+    expect(list.getByText("Hybrid")).toBeInTheDocument();
+  });
+});
+
+describe("the scale", () => {
+  it("shows five labelled bands and marks the score in its band", () => {
+    wrap(<ScaleBar score={7} />);
+    const items = screen.getAllByRole("listitem");
+    expect(items.map((i) => i.textContent?.replace(/\d+–\d+/, ""))).toEqual(["Negligible", "Low", "Moderate", "High", "Extreme"]);
+    expect(items[3]).toHaveAttribute("data-on", "true");
+    expect(items.filter((i) => i.getAttribute("data-on") === "true")).toHaveLength(1);
+  });
+});
+
+describe("evidence classes in the understanding card", () => {
+  it("separates what the report shows from what the AI inferred, and never presents an inference as a quote", () => {
+    wrap(<UnderstandingCard a={assessment()} />);
+    expect(screen.getByText("Shown by the report itself")).toBeInTheDocument();
+    expect(screen.getByText(/AI inference: no phrase in the report shows these, so they are not quotes/)).toBeInTheDocument();
+    expect(screen.getByText("inferred")).toBeInTheDocument();
+    expect(screen.getByText(/The AI's reason: price pressure suggests inflation is not fading/)).toBeInTheDocument();
+    // the inferred indicator is never highlighted: only the one verbatim span is marked in the text
+    expect(document.querySelectorAll("mark.hl")).toHaveLength(1);
   });
 });
 

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import type { RiskAssessment } from "../../api/types";
+import type { Origin, RiskAssessment } from "../../api/types";
 import { ASSET_LABEL, ENTITY_KIND_LABEL, modeLabel, pc, signed } from "../../lib/assessment";
 import { REGION_LABEL } from "../../lib/scope";
 import { SentimentBar } from "../ui";
@@ -7,11 +7,15 @@ import { StateNotice } from "../StateNotice";
 import { AssessmentKind } from "./AssessmentKind";
 import { HighlightedText } from "./HighlightedText";
 import { ModeChip } from "./ModeChip";
+import { OriginChip } from "./OriginChip";
 
-function Row({ k, children }: { k: string; children: React.ReactNode }) {
+function Row({ k, origin, children }: { k: string; origin?: Origin; children: React.ReactNode }) {
   return (
     <div className="reading">
-      <p className="eyebrow">{k}</p>
+      <p className="flex flex-wrap items-center gap-2">
+        <span className="eyebrow">{k}</span>
+        {origin && <OriginChip origin={origin} />}
+      </p>
       <div className="mt-1">{children}</div>
     </div>
   );
@@ -38,6 +42,9 @@ export function UnderstandingCard({ a }: { a: RiskAssessment }) {
   const r = a.reading;
   const e = a.extraction;
   const issuer = r.primary_issuer;
+  const origin = (part: string): Origin | undefined => a.provenance.find((l) => l.part === part)?.origin;
+  const quoted = r.severity_indicators.filter((h) => h.basis !== "INFERRED");
+  const inferred = r.severity_indicators.filter((h) => h.basis === "INFERRED");
   return (
     <div className="space-y-5" aria-label="AI understanding">
       <div className="flex flex-wrap items-center gap-2">
@@ -72,7 +79,7 @@ export function UnderstandingCard({ a }: { a: RiskAssessment }) {
         </div>
         <div className="understand-arrow" aria-hidden="true" />
         <div className="understand-out">
-          <Row k="Event">
+          <Row k="Event" origin={origin("Event class and subtype")}>
             {r.event_type === "NO_EVENT" ? (
               <p className="reading-value text-ink-2">Not a market event</p>
             ) : (
@@ -94,7 +101,7 @@ export function UnderstandingCard({ a }: { a: RiskAssessment }) {
               </>
             )}
           </Row>
-          <Row k="Tone">
+          <Row k="Tone" origin={origin("Tone")}>
             <p className="reading-value">
               <span className={clsx(r.sentiment_label === "negative" ? "text-neg" : r.sentiment_label === "positive" ? "text-pos" : "text-ink-2")}>
                 {r.sentiment_label[0]!.toUpperCase() + r.sentiment_label.slice(1)}
@@ -108,7 +115,7 @@ export function UnderstandingCard({ a }: { a: RiskAssessment }) {
               {r.sentiment_intensity} intensity. Tone is not impact: a calm notice can matter more than a loud opinion.
             </p>
           </Row>
-          <Row k="Who">
+          <Row k="Who" origin={origin("Entities")}>
             <p className="reading-value num">{issuer.resolved ? `${issuer.name} (${issuer.ticker})` : issuer.entity_id}</p>
             <p className="mt-1 text-xs text-muted">{issuer.note}</p>
             {r.entities.length > 0 && (
@@ -133,18 +140,38 @@ export function UnderstandingCard({ a }: { a: RiskAssessment }) {
             <p className="mt-2 text-xs text-muted">Asset classes</p>
             <Tags items={r.asset_classes.map((x) => ASSET_LABEL[x] ?? x)} empty="No asset class identified" />
           </Row>
-          <Row k="Severity indicators">
-            {r.severity_indicators.length ? (
-              <ul className="space-y-1">
-                {r.severity_indicators.map((h) => (
-                  <li key={h.id} className="text-sm text-ink-2">
-                    <span className="font-medium text-ink">{h.label}</span>
-                    {h.quote ? <span className="text-muted"> · “{h.quote}”</span> : <span className="text-muted"> · inferred, no matching phrase</span>}
-                  </li>
-                ))}
-              </ul>
-            ) : (
+          <Row k="Severity indicators" origin={origin("Severity indicators")}>
+            {r.severity_indicators.length === 0 ? (
               <p className="text-sm text-muted">None found in the text</p>
+            ) : (
+              <div className="space-y-3">
+                {quoted.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted">Shown by the report itself</p>
+                    <ul className="mt-1 space-y-1">
+                      {quoted.map((h) => (
+                        <li key={h.id} className="text-sm text-ink-2">
+                          <span className="font-medium text-ink">{h.label}</span> · <span className="text-muted">“{h.quote}”</span>
+                          <span className="ml-1 text-2xs text-faint">{h.basis === "QUOTED" ? "quoted by the AI" : "matched phrase"}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {inferred.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted">AI inference: no phrase in the report shows these, so they are not quotes</p>
+                    <ul className="mt-1 space-y-1">
+                      {inferred.map((h) => (
+                        <li key={h.id} className="text-sm text-ink-2">
+                          <span className="font-medium text-ink">{h.label}</span> <span className="tag">inferred</span>
+                          {h.reason && <span className="block text-xs text-muted">The AI's reason: {h.reason}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             )}
           </Row>
         </div>

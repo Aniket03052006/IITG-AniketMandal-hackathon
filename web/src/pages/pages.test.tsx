@@ -419,7 +419,7 @@ describe("Risk Feed", () => {
     renderAt("/");
     expect(await screen.findAllByText("Meridian flags funding gap")).not.toHaveLength(0);
     expect(screen.getByText("Kestrel launches jet")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Impact 9 of 10, Critical" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Impact 9 of 10, Extreme" })).toBeInTheDocument();
     expect(screen.getByText("2 of 2 signals shown", { exact: false })).toBeInTheDocument();
   });
 

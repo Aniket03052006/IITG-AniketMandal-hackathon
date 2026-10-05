@@ -157,7 +157,6 @@ function AssessedChain({
   const r = a.reading;
   const sev = a.severity;
   const band = sev ? severityBand(sev.score) : null;
-  const used = sev?.factors.filter((f) => f.available) ?? [];
   const crosses = !!sev && sev.score >= threshold;
   const eventText = r.event_type === "NO_EVENT" ? "Not a market event" : label(r.event_type);
   const toneWord = r.sentiment_label[0]!.toUpperCase() + r.sentiment_label.slice(1);
@@ -186,11 +185,11 @@ function AssessedChain({
         <Node i={2} n={3} title="Risk signal" onGo={() => onGo("impact")}>
           {sev && band ? (
             <>
-              <p className="chain-k">computed from {used.length} factors</p>
+              <p className="chain-k">four answers + data</p>
               <ul className="chain-chips">
-                {used.map((f) => (
+                {sev.rubric.map((f) => (
                   <li key={f.id} className="chain-chip">
-                    {f.label} {Math.round(f.weight * 100)}%
+                    {f.final_label}
                   </li>
                 ))}
               </ul>
@@ -198,7 +197,9 @@ function AssessedChain({
                 {sev.score}
                 <span className="text-base text-muted"> / 10</span>
               </p>
-              <p className="chain-sub">Transparent weights · not validated</p>
+              <p className="chain-sub">
+                {sev.band_label} · scorecard, not validated
+              </p>
             </>
           ) : (
             <p className="chain-sub">Not scored: not a market event</p>
@@ -222,8 +223,7 @@ function AssessedChain({
         </Node>
       </ol>
       <p className="chain-note">
-        Tone is one input among {used.length || "several"}, with the weight shown, not the whole story. The trained market-reaction model is kept as a reference and does not
-        drive the trigger.
+        Tone and confidence are not inputs: severity is the event's own scale. The trained market-reaction model is kept as a reference and does not drive the trigger.
       </p>
     </div>
   );

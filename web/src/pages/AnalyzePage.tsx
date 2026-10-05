@@ -4,10 +4,13 @@ import { useAnalyze, useMeta, useScenarios, useSignalRelevance } from "../api/ho
 import { MiniChain } from "../components/assessment/MiniChain";
 import { ModeChip } from "../components/assessment/ModeChip";
 import { ReferencePanel } from "../components/assessment/ReferencePanel";
-import { RiskDrivers } from "../components/assessment/SeverityBreakdown";
+import { OriginChip } from "../components/assessment/OriginChip";
+import { ScaleBar } from "../components/assessment/ScaleBar";
+import { ScoreBuildUp } from "../components/assessment/ScoreBuildUp";
+import { MarketNote } from "../components/assessment/MarketNote";
 import { ThresholdNotice } from "../components/assessment/ThresholdNotice";
 import { UnderstandingCard } from "../components/assessment/UnderstandingCard";
-import { driversLede } from "../lib/assessment";
+import { severityLede } from "../lib/assessment";
 import type { AnalyzeResponse, SignalSummary } from "../api/types";
 import { ArrowRight, Spinner } from "../components/icons";
 import { EventStatusTag } from "../components/EventStatusTag";
@@ -119,13 +122,25 @@ function AssessedResult({ r, threshold }: { r: AnalyzeResponse; threshold: numbe
           <div className="mt-3 space-y-4">
             <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="num text-4xl font-semibold">{sev.score}</span>
-              <span className="text-lg text-muted">/ 10 severity</span>
-              <span className="text-sm text-muted">
-                {sev.low !== sev.high ? `${sev.low}–${sev.high} if any one weight were off by 30%` : "stable under weight changes"}
-              </span>
+              <span className="text-lg text-muted">/ 10 · {sev.band_label.toLowerCase()}</span>
+              <OriginChip origin={sev.rubric.some((r) => r.origin === "HYBRID") ? "HYBRID" : "RULES"} />
             </p>
-            <p className="max-w-[70ch] text-sm text-ink-2">{driversLede(sev)}</p>
-            <RiskDrivers sev={sev} />
+            <ScaleBar score={sev.score} />
+            <p className="max-w-[70ch] text-sm text-ink-2">{severityLede(sev)}</p>
+            <ul className="flex flex-wrap gap-1.5" aria-label="The four answers behind the score">
+              {sev.rubric.map((f) => (
+                <li key={f.id} className="tag" title={f.final_says}>
+                  <span className="text-muted">{f.label}:</span> {f.final_label}
+                </li>
+              ))}
+            </ul>
+            <MarketNote m={sev.market} />
+            <details className="disclosure">
+              <summary>How the score is built</summary>
+              <div className="mt-3">
+                <ScoreBuildUp steps={sev.steps} score={sev.score} points={sev.points} />
+              </div>
+            </details>
             <ThresholdNotice score={sev.score} threshold={threshold} signalId={s.id} />
           </div>
         ) : (

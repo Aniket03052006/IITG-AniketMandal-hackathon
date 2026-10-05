@@ -21,9 +21,7 @@ export function AssessedInputs({ a, tl }: { a: RiskAssessment; tl: TimelineView 
   const [, setOpen] = useOpenDrawer();
   const r = a.reading;
   const sev = a.severity;
-  const factor = (id: string) => sev?.factors.find((f) => f.id === id);
-  const nov = factor("novelty");
-  const mk = factor("market_regime");
+  const omitted = (id: string) => sev?.omitted.find((o) => o.id === id);
   const filings = tl?.items.filter((i) => i.kind === "FILING") ?? [];
   return (
     <>
@@ -38,12 +36,15 @@ export function AssessedInputs({ a, tl }: { a: RiskAssessment; tl: TimelineView 
             kind="SOURCE" note={r.primary_issuer.resolved ? undefined : "Issuer: UNKNOWN_ENTITY. A name outside the entity master is never given company data."} />
           <Line k="Asset classes" v={r.asset_classes.length ? r.asset_classes.map((x) => ASSET_LABEL[x] ?? x).join(", ") : "None identified"} kind="EXTRACTION" />
           <Line k="Severity indicators" v={r.severity_indicators.length ? r.severity_indicators.map((h) => h.label).join(", ") : "None found"} kind="EXTRACTION" />
-          <Line k="Novelty" v={nov?.available && nov.value != null ? nov.value.toFixed(2) : "Not measurable"} kind="SOURCE" note={nov?.detail} />
+          <Line k="Novelty" v={omitted("novelty") ? "Not measurable" : "Measured against earlier reports of the same issuer"} kind="SOURCE" note={omitted("novelty")?.reason} />
+          {sev?.rubric.map((f) => (
+            <Line key={f.id} k={f.label} v={f.final_label} kind="EXTRACTION" note={`Rules: ${f.baseline_label}${f.ai_label ? `; AI: ${f.ai_label}` : ""}. ${f.note}`} />
+          ))}
         </dl>
       </DrawerSection>
       <DrawerSection title="Market state" note="Observations of the market from before the report. Left out when none existed at the report's time.">
         <dl>
-          <Line k="Volatility regime" v={mk?.available ? mk.detail : "Not used"} kind="MARKET_STATE" note={mk?.available ? undefined : mk?.detail} />
+          <Line k="Volatility regime" v={sev?.market.used ? `VIX ${sev.market.vix?.toFixed(1)}` : "Not used"} kind="MARKET_STATE" note={sev?.market.reason} />
         </dl>
         <p className="mt-2 text-xs text-muted">
           Prices, yields and index returns beyond the VIX level are read only by the trained reference model.{" "}

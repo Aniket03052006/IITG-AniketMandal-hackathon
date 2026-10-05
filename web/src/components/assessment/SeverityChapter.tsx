@@ -1,13 +1,14 @@
 import type { RiskAssessment } from "../../api/types";
-import { driversLede } from "../../lib/assessment";
+import { severityLede } from "../../lib/assessment";
 import { ASSESSED_INPUTS, ExplainBar, SEVERITY_WHY, TECH } from "../event/ExplainBar";
 import { Chapter } from "../event/Chapter";
 import { StateNotice } from "../StateNotice";
-import { AssessmentKind } from "./AssessmentKind";
+import { OriginChip } from "./OriginChip";
+import { ProvenanceStrip } from "./ProvenanceStrip";
 import { ReferencePanel } from "./ReferencePanel";
 import { SeverityBreakdown } from "./SeverityBreakdown";
 
-/** Chapter 3 when a risk assessment exists: how serious it is, and why, from the factors that were computed (not from a model's attribution). */
+/** Chapter 3 when a risk assessment exists: how serious it is and why, from four answers and a fixed matrix, with every part's origin stated. */
 export function SeverityChapter({ a }: { a: RiskAssessment }) {
   const sev = a.severity;
   return (
@@ -15,14 +16,17 @@ export function SeverityChapter({ a }: { a: RiskAssessment }) {
       id="impact"
       eyebrow="Severity"
       title="How serious it is, and why"
-      lede={sev ? driversLede(sev) : "There is no severity to explain: the text is not a market event."}
-      badge={<AssessmentKind kind="JUDGEMENT_PRIOR" />}
+      lede={sev ? severityLede(sev) : "There is no severity to explain: the text is not a market event."}
+      badge={<OriginChip origin={sev?.rubric.some((r) => r.origin === "HYBRID") ? "HYBRID" : "RULES"} />}
     >
       {sev ? (
         <SeverityBreakdown a={a} />
       ) : (
         <StateNotice tone="info" what="Nothing is scored" why={a.severity_note ?? "EventShock never substitutes a default score."} />
       )}
+      <div className="mt-8">
+        <ProvenanceStrip lines={a.provenance} />
+      </div>
       <div className="mt-8">
         <ReferencePanel a={a} />
       </div>
