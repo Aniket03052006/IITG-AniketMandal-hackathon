@@ -135,6 +135,19 @@ def run_checks(base: str) -> None:
     hc = get(base, "/api/scenarios/scn_macro_rates_shock/history-check")
     check(any(c["factor"] == "PD_MULTIPLIER" and not c["checkable"] for c in hc["checks"]) and any(c["checkable"] for c in hc["checks"]),
           "/api/scenarios/{id}/history-check ranks what history can speak to and says what it cannot")
+    # Stage 10: multi-scope event intelligence (a derived side-car: it must not change what a signal is)
+    check(caps.get("intelligence") is True, "/api/meta: event intelligence is on")
+    intel = get(base, f"/api/signals/{items[0]['id']}/intelligence")
+    check(intel["scope"]["scope_type"] in ("COMPANY", "INDUSTRY", "SECTOR", "GEOGRAPHY", "MACRO", "MARKET", "THEME", "UNRESOLVED") and intel["group"]["report_count"] >= 1
+          and intel["evidence"]["evidence_strength"]["tier"] in ("STRONG", "MODERATE", "WEAK", "INSUFFICIENT") and intel["labels"] and intel["limitations"],
+          "/api/signals/{id}/intelligence: scope, event group, evidence tier, labels and limits")
+    nameless = post(base, "/api/analyze", {"text": "Local festival draws record crowds to the lakeside this weekend, organisers say"})
+    if nameless["intelligence"] is not None:
+        ni = nameless["intelligence"]
+        check(ni["scope"]["scope_type"] == "UNRESOLVED" and {a["field"] for a in ni["abstentions"]} >= {"company", "scope"}, "/api/analyze: text with no subject is UNRESOLVED and abstains by field")
+    macro = post(base, "/api/analyze", {"text": "The Federal Reserve holds interest rates steady as inflation cools, signalling cuts later this year"})
+    check(macro["intelligence"]["scope"]["scope_type"] == "MACRO" and macro["intelligence"]["scope"]["scope_path"][-1]["type"] == "MARKET",
+          "/api/analyze: a rates story resolves to a MACRO scope with the market as its root")
     live = get(base, "/api/live/status")
     check(live["state"] == "OFF" and live["enabled"] is False, "/api/live/status: live is off by default (replay data only)")
     scope = get(base, "/api/scope")

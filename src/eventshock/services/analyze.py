@@ -17,6 +17,7 @@ from datetime import UTC, datetime, timedelta
 from ..domain import RawDocument, RiskSignal, SourceType, TimestampOrigin
 from ..pipeline.config import ValidationConfig
 from ..pipeline.engine import IngestOutcome, Outcome, RiskEngine
+from ..pipeline.normalize import canonical_url, domain_of
 from ..store import CHANNEL_MANUAL, CombinedSignalRepository
 from .live import Journal
 
@@ -76,25 +77,42 @@ class Analyzer:
         self._clock = clock or (lambda: datetime.now(UTC))
 
     def analyze(self, text: str, *, source_type: SourceType = SourceType.NEWS,
-                published_at: datetime | None = None, source: str | None = None) -> AnalysisResult:
+                published_at: datetime | None = None, source: str | None = None,
+                headline: str | None = None, url: str | None = None) -> AnalysisResult:
+        """``headline`` (optional) is taken as the headline and ``text`` as the article body; without it the paste is split as before.
+
+        ``url`` (optional) is kept as the report's address, so its outlet counts as a source for corroboration and independence. It is **never
+        fetched**: the server makes no outbound request for pasted text (only the opt-in live feed calls out, through ``ingestion/fetch.py``).
+        """
         if not text or not text.strip():
             raise AnalysisInputError("nothing to analyse: the text is empty")
+        clean_url: str | None = None
+        if url is not None and url.strip():
+            clean_url = canonical_url(url)
+            if clean_url is None:
+                raise AnalysisInputError("url must be an http(s) address (it is used to attribute the source and is never fetched)")
         now = self._clock()
         if published_at is not None:
             if published_at.tzinfo is None or published_at.utcoffset() is None:
                 raise AnalysisInputError("published_at must include a time zone")
             if published_at > now + FUTURE_SKEW:
                 raise AnalysisInputError("published_at is in the future")
-        headline, body, truncated = split_paste(text, self._limit)
+        if headline is not None and headline.strip():
+            head = " ".join(headline.split())[:HEADLINE_MAX]
+            flat = " ".join(line.strip() for line in text.strip().splitlines() if line.strip())
+            room = max(0, self._limit - len(head) - 1)
+            headline, body, truncated = head, (flat[:room].rstrip() if len(flat) > room else flat), len(flat) > room
+        else:
+            headline, body, truncated = split_paste(text, self._limit)
         stamped = published_at.astimezone(UTC) if published_at else now
         digest = hashlib.sha256(f"{headline}\n{body}".encode()).hexdigest()
         doc_id = f"manual-{digest[:12]}"
         doc = RawDocument(
             id=doc_id, source=(source or "").strip() or "manual paste", source_type=source_type, published_at=stamped, ingested_at=max(now, stamped),
-            headline=headline, body=body, url=None, language="en",
+            headline=headline, body=body, url=clean_url, language="en",
             raw_metadata={"adapter": "manual-paste", "record_ref": f"manual:{doc_id}", "content_sha256": digest,
                           "timestamp_origin": (TimestampOrigin.USER_ASSERTED if published_at else TimestampOrigin.ANALYSIS_TIME).value,
-                          "domain": None})
+                          "domain": domain_of(clean_url)})
         outcome = self._engine.ingest([doc], channel=CHANNEL_MANUAL, now=max(now, stamped))[0]
         signal = self._signals.get(outcome.signal_id) if outcome.signal_id else None
         notes = self._notes(outcome, signal, truncated, published_at is not None)

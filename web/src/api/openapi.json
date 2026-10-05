@@ -106,6 +106,180 @@
         "title": "AblationRow",
         "type": "object"
       },
+      "Abstention": {
+        "properties": {
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "state": {
+            "description": "UNKNOWN | UNAVAILABLE | NOT_APPLICABLE | NOT_TRIGGERED | ABSTAINED",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "state",
+          "reason"
+        ],
+        "title": "Abstention",
+        "type": "object"
+      },
+      "AffectedEntity": {
+        "properties": {
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "origin": {
+            "description": "RULES | AI | DATA: who identified it",
+            "title": "Origin",
+            "type": "string"
+          },
+          "resolved": {
+            "title": "Resolved",
+            "type": "boolean"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "role",
+          "resolved",
+          "entity_id",
+          "ticker",
+          "origin"
+        ],
+        "title": "AffectedEntity",
+        "type": "object"
+      },
+      "AffectedRiskFactor": {
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "factor": {
+            "title": "Factor",
+            "type": "string"
+          },
+          "origin": {
+            "description": "VOCABULARY (a theme the text names) | SCENARIO (a shock the default scenario applies): an assumption, never a measured exposure",
+            "title": "Origin",
+            "type": "string"
+          }
+        },
+        "required": [
+          "factor",
+          "origin",
+          "basis"
+        ],
+        "title": "AffectedRiskFactor",
+        "type": "object"
+      },
+      "AffectedSector": {
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sector",
+          "origin",
+          "basis"
+        ],
+        "title": "AffectedSector",
+        "type": "object"
+      },
+      "AffectedView": {
+        "properties": {
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/AffectedEntity"
+            },
+            "title": "Entities",
+            "type": "array"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "regions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Regions",
+            "type": "array"
+          },
+          "risk_factors": {
+            "items": {
+              "$ref": "#/components/schemas/AffectedRiskFactor"
+            },
+            "title": "Risk Factors",
+            "type": "array"
+          },
+          "sectors": {
+            "items": {
+              "$ref": "#/components/schemas/AffectedSector"
+            },
+            "title": "Sectors",
+            "type": "array"
+          }
+        },
+        "required": [
+          "entities",
+          "sectors",
+          "regions",
+          "risk_factors",
+          "note"
+        ],
+        "title": "AffectedView",
+        "type": "object"
+      },
       "Agreement": {
         "description": "The extraction against what the trained pipeline already said about the same text. Shown, not hidden.",
         "properties": {
@@ -545,6 +719,19 @@
       },
       "AnalyzeRequest": {
         "properties": {
+          "headline": {
+            "anyOf": [
+              {
+                "maxLength": 240,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the headline, when it is separate from the article text; omitted = the first line or sentence of `text`",
+            "title": "Headline"
+          },
           "published_at": {
             "anyOf": [
               {
@@ -581,6 +768,19 @@
             "minLength": 1,
             "title": "Text",
             "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "where the article lives. Used only to attribute the source (its outlet counts for corroboration); it is NOT fetched",
+            "title": "Url"
           }
         },
         "required": [
@@ -610,6 +810,17 @@
             "description": "the part of the text read as the headline",
             "title": "Headline",
             "type": "string"
+          },
+          "intelligence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EventIntelligence"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "scope, event grouping, evidence, novelty, velocity, contradiction, lifecycle, portfolio relevance and stress, each able to abstain; null when quarantined or the layer is off"
           },
           "notes": {
             "items": {
@@ -668,7 +879,8 @@
           "analysed_chars",
           "truncated",
           "notes",
-          "assessment"
+          "assessment",
+          "intelligence"
         ],
         "title": "AnalyzeResponse",
         "type": "object"
@@ -1003,6 +1215,16 @@
         ],
         "title": "AuditSummary",
         "type": "object"
+      },
+      "Availability": {
+        "enum": [
+          "AVAILABLE",
+          "PARTIAL",
+          "ABSTAINED",
+          "UNAVAILABLE"
+        ],
+        "title": "Availability",
+        "type": "string"
       },
       "BandRow": {
         "properties": {
@@ -1470,6 +1692,12 @@
             "title": "History Check",
             "type": "boolean"
           },
+          "intelligence": {
+            "default": false,
+            "description": "event intelligence (multi-scope, grouping, lifecycle, contradiction) is served; GET /api/signals/{id}/intelligence",
+            "title": "Intelligence",
+            "type": "boolean"
+          },
           "live_enabled": {
             "description": "a live source is configured and polling",
             "title": "Live Enabled",
@@ -1494,6 +1722,7 @@
           "llm",
           "analogues",
           "history_check",
+          "intelligence",
           "custom_portfolios"
         ],
         "title": "Capabilities",
@@ -1617,6 +1846,186 @@
           "detail"
         ],
         "title": "CheckRow",
+        "type": "object"
+      },
+      "Claim": {
+        "properties": {
+          "attributed": {
+            "description": "hedged or second-hand ('reportedly', 'according to')",
+            "title": "Attributed",
+            "type": "boolean"
+          },
+          "axis": {
+            "title": "Axis",
+            "type": "string"
+          },
+          "evidence_span": {
+            "$ref": "#/components/schemas/EvidenceQuote"
+          },
+          "full_text": {
+            "description": "true when read from the report's headline and body; false when only its headline was kept",
+            "title": "Full Text",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "object": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Object"
+          },
+          "polarity": {
+            "description": "the pole asserted, e.g. 'confirmed' or 'denied'",
+            "title": "Polarity",
+            "type": "string"
+          },
+          "predicate": {
+            "description": "the axis this claim is about (confirmation, status, deal, operations, guidance, approval)",
+            "title": "Predicate",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "report_id": {
+            "title": "Report Id",
+            "type": "string"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "verb": {
+            "description": "the cue as written",
+            "title": "Verb",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "report_id",
+          "signal_id",
+          "source",
+          "published_at",
+          "axis",
+          "predicate",
+          "verb",
+          "polarity",
+          "subject",
+          "object",
+          "attributed",
+          "evidence_span",
+          "full_text"
+        ],
+        "title": "Claim",
+        "type": "object"
+      },
+      "ClaimConflict": {
+        "properties": {
+          "axis": {
+            "title": "Axis",
+            "type": "string"
+          },
+          "axis_label": {
+            "title": "Axis Label",
+            "type": "string"
+          },
+          "hours_apart": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hours Apart"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Claim"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shared_topic": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Shared Topic",
+            "type": "array"
+          },
+          "side_a": {
+            "$ref": "#/components/schemas/Claim"
+          },
+          "side_b": {
+            "$ref": "#/components/schemas/Claim"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ConflictState"
+          }
+        },
+        "required": [
+          "id",
+          "axis",
+          "axis_label",
+          "state",
+          "side_a",
+          "side_b",
+          "shared_topic",
+          "hours_apart",
+          "reason",
+          "resolved_by",
+          "resolution"
+        ],
+        "title": "ClaimConflict",
         "type": "object"
       },
       "ClassMetrics": {
@@ -1754,6 +2163,16 @@
         "title": "CompareRequest",
         "type": "object"
       },
+      "ConfidenceTier": {
+        "enum": [
+          "HIGH",
+          "MEDIUM",
+          "LOW",
+          "NONE"
+        ],
+        "title": "ConfidenceTier",
+        "type": "string"
+      },
       "ConfidentError": {
         "additionalProperties": false,
         "properties": {
@@ -1825,6 +2244,16 @@
         ],
         "title": "Conflict",
         "type": "object"
+      },
+      "ConflictState": {
+        "enum": [
+          "NO_CONFLICT",
+          "POSSIBLE_CONFLICT",
+          "CONFLICTED",
+          "RESOLVED_CONFLICT"
+        ],
+        "title": "ConflictState",
+        "type": "string"
       },
       "ConsistencyInfo": {
         "additionalProperties": false,
@@ -1912,6 +2341,73 @@
           "value"
         ],
         "title": "ContextInput",
+        "type": "object"
+      },
+      "ContradictionView": {
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "claims_extracted": {
+            "title": "Claims Extracted",
+            "type": "integer"
+          },
+          "conflicts": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimConflict"
+            },
+            "title": "Conflicts",
+            "type": "array"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "sequential_changes": {
+            "description": "opposite claims too far apart to contradict: a change of state over time",
+            "items": {
+              "$ref": "#/components/schemas/ClaimConflict"
+            },
+            "title": "Sequential Changes",
+            "type": "array"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ConflictState"
+          },
+          "tone_divergence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Conflict"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "a report on the same issuer with the opposite tone: shown for context, NOT a contradiction"
+          }
+        },
+        "required": [
+          "availability",
+          "reason",
+          "state",
+          "claims_extracted",
+          "conflicts",
+          "sequential_changes",
+          "tone_divergence",
+          "method"
+        ],
+        "title": "ContradictionView",
         "type": "object"
       },
       "ContrastRow": {
@@ -3439,6 +3935,331 @@
         "title": "EventEvalSet",
         "type": "object"
       },
+      "EventGroup": {
+        "properties": {
+          "anchor_signal_id": {
+            "description": "the earliest report's signal: the event is anchored to it",
+            "title": "Anchor Signal Id",
+            "type": "string"
+          },
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "first_seen": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Seen"
+          },
+          "grouping_note": {
+            "title": "Grouping Note",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "independent_sources": {
+            "title": "Independent Sources",
+            "type": "integer"
+          },
+          "last_seen": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen"
+          },
+          "report_count": {
+            "description": "distinct reports, copies included",
+            "title": "Report Count",
+            "type": "integer"
+          },
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/ReportRef"
+            },
+            "title": "Reports",
+            "type": "array"
+          },
+          "signal_ids": {
+            "description": "the report clusters (signals) grouped into this event",
+            "items": {
+              "type": "string"
+            },
+            "title": "Signal Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "event_id",
+          "anchor_signal_id",
+          "signal_ids",
+          "headline",
+          "report_count",
+          "independent_sources",
+          "first_seen",
+          "last_seen",
+          "reports",
+          "grouping_note"
+        ],
+        "title": "EventGroup",
+        "type": "object"
+      },
+      "EventHeadline": {
+        "properties": {
+          "event_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Label"
+          },
+          "event_status": {
+            "title": "Event Status",
+            "type": "string"
+          },
+          "event_subtype_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Subtype Label"
+          },
+          "event_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the assessed event class id (or NO_EVENT); the trained model's class when no assessment ran",
+            "title": "Event Type"
+          },
+          "extraction_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extraction Mode"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "impact_origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Origin"
+          },
+          "impact_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the trained/placeholder impact stage's score, a separate quantity from severity",
+            "title": "Impact Score"
+          },
+          "sentiment": {
+            "title": "Sentiment",
+            "type": "number"
+          },
+          "sentiment_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sentiment Label"
+          },
+          "severity_band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity Band"
+          },
+          "severity_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity Score"
+          }
+        },
+        "required": [
+          "headline",
+          "event_type",
+          "event_label",
+          "event_subtype_label",
+          "event_status",
+          "sentiment",
+          "sentiment_label",
+          "severity_score",
+          "severity_band",
+          "impact_score",
+          "impact_origin",
+          "extraction_mode"
+        ],
+        "title": "EventHeadline",
+        "type": "object"
+      },
+      "EventIntelligence": {
+        "properties": {
+          "abstentions": {
+            "items": {
+              "$ref": "#/components/schemas/Abstention"
+            },
+            "title": "Abstentions",
+            "type": "array"
+          },
+          "affected": {
+            "$ref": "#/components/schemas/AffectedView"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "as_of_basis": {
+            "title": "As Of Basis",
+            "type": "string"
+          },
+          "contradiction": {
+            "$ref": "#/components/schemas/ContradictionView"
+          },
+          "event": {
+            "$ref": "#/components/schemas/EventHeadline"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/EvidenceProfile"
+          },
+          "group": {
+            "$ref": "#/components/schemas/EventGroup"
+          },
+          "labels": {
+            "description": "what kind of number or statement each section is",
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "lifecycle": {
+            "$ref": "#/components/schemas/LifecycleView"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "novelty": {
+            "$ref": "#/components/schemas/NoveltyAssessment"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/IntelligenceProvenance"
+          },
+          "relevance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PortfolioRelevance"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scope": {
+            "$ref": "#/components/schemas/EventScope"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "stress": {
+            "$ref": "#/components/schemas/StressPreview"
+          },
+          "velocity": {
+            "$ref": "#/components/schemas/VelocityView"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "version",
+          "as_of",
+          "as_of_basis",
+          "event",
+          "group",
+          "provenance",
+          "scope",
+          "evidence",
+          "novelty",
+          "velocity",
+          "contradiction",
+          "lifecycle",
+          "affected",
+          "relevance",
+          "stress",
+          "abstentions",
+          "labels",
+          "limitations"
+        ],
+        "title": "EventIntelligence",
+        "type": "object"
+      },
       "EventModelCard": {
         "additionalProperties": false,
         "properties": {
@@ -3575,6 +4396,86 @@
           "limitations"
         ],
         "title": "EventModelCard",
+        "type": "object"
+      },
+      "EventScope": {
+        "properties": {
+          "candidates": {
+            "description": "the tied subjects, when AMBIGUOUS",
+            "items": {
+              "type": "string"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "reason": {
+            "description": "in plain words why the scope is what it is; always set when it is not RESOLVED",
+            "title": "Reason",
+            "type": "string"
+          },
+          "resolution_status": {
+            "$ref": "#/components/schemas/ResolutionStatus"
+          },
+          "resolver_version": {
+            "title": "Resolver Version",
+            "type": "string"
+          },
+          "scope_confidence": {
+            "$ref": "#/components/schemas/ScopeConfidence",
+            "description": "a rule tier, not a probability"
+          },
+          "scope_evidence": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeEvidenceSpan"
+            },
+            "title": "Scope Evidence",
+            "type": "array"
+          },
+          "scope_path": {
+            "description": "the hierarchy, most specific first, ending at MARKET. A level without evidence is omitted, never filled.",
+            "items": {
+              "$ref": "#/components/schemas/ScopeNode"
+            },
+            "title": "Scope Path",
+            "type": "array"
+          },
+          "scope_type": {
+            "$ref": "#/components/schemas/ScopeType"
+          },
+          "scope_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the name of the subject; null when UNRESOLVED",
+            "title": "Scope Value"
+          },
+          "secondary": {
+            "description": "other subjects the text also points to (regions, themes)",
+            "items": {
+              "$ref": "#/components/schemas/ScopeNode"
+            },
+            "title": "Secondary",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scope_type",
+          "scope_value",
+          "scope_path",
+          "scope_confidence",
+          "scope_evidence",
+          "resolution_status",
+          "candidates",
+          "secondary",
+          "reason",
+          "resolver_version"
+        ],
+        "title": "EventScope",
         "type": "object"
       },
       "EventStatus": {
@@ -3796,6 +4697,180 @@
         "title": "EvidenceBundle",
         "type": "object"
       },
+      "EvidenceProfile": {
+        "properties": {
+          "authoritative_domains": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authoritative Domains",
+            "type": "array"
+          },
+          "authoritative_sources": {
+            "title": "Authoritative Sources",
+            "type": "integer"
+          },
+          "authoritative_supported": {
+            "description": "false when no source of the event is on the known-authoritative list (so 0 is 'not known', not 'none')",
+            "title": "Authoritative Supported",
+            "type": "boolean"
+          },
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "entity_basis": {
+            "title": "Entity Basis",
+            "type": "string"
+          },
+          "entity_confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the entity resolver's link confidence; null with no company",
+            "title": "Entity Confidence"
+          },
+          "evidence_strength": {
+            "$ref": "#/components/schemas/EvidenceStrength"
+          },
+          "first_observed": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Observed"
+          },
+          "independent_sources": {
+            "title": "Independent Sources",
+            "type": "integer"
+          },
+          "latest_observed": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Observed"
+          },
+          "model_confidence": {
+            "items": {
+              "$ref": "#/components/schemas/ModelConfidenceItem"
+            },
+            "title": "Model Confidence",
+            "type": "array"
+          },
+          "note": {
+            "default": "Evidence strength says how well the event is corroborated. Model confidence says how sure a model is of its own output. They are different questions and are never combined.",
+            "title": "Note",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "scope_confidence": {
+            "$ref": "#/components/schemas/ConfidenceTier"
+          },
+          "source_count": {
+            "description": "reports, copies included",
+            "title": "Source Count",
+            "type": "integer"
+          },
+          "source_disagreement": {
+            "description": "NONE | POSSIBLE | CONFLICTED | RESOLVED: from claim contradiction, never from sentiment spread",
+            "title": "Source Disagreement",
+            "type": "string"
+          },
+          "source_diversity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "independent sources / reports; null with no reports",
+            "title": "Source Diversity"
+          },
+          "syndicated_copies": {
+            "title": "Syndicated Copies",
+            "type": "integer"
+          },
+          "unique_domains": {
+            "title": "Unique Domains",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "availability",
+          "reason",
+          "source_count",
+          "independent_sources",
+          "unique_domains",
+          "source_diversity",
+          "syndicated_copies",
+          "authoritative_sources",
+          "authoritative_supported",
+          "authoritative_domains",
+          "first_observed",
+          "latest_observed",
+          "entity_confidence",
+          "entity_basis",
+          "scope_confidence",
+          "model_confidence",
+          "evidence_strength",
+          "source_disagreement",
+          "note"
+        ],
+        "title": "EvidenceProfile",
+        "type": "object"
+      },
+      "EvidenceQuote": {
+        "properties": {
+          "end": {
+            "minimum": 0.0,
+            "title": "End",
+            "type": "integer"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          },
+          "start": {
+            "minimum": 0.0,
+            "title": "Start",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "quote",
+          "start",
+          "end"
+        ],
+        "title": "EvidenceQuote",
+        "type": "object"
+      },
       "EvidenceSpan": {
         "properties": {
           "end": {
@@ -3827,6 +4902,58 @@
           "supports"
         ],
         "title": "EvidenceSpan",
+        "type": "object"
+      },
+      "EvidenceStrength": {
+        "properties": {
+          "components": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Components",
+            "type": "object"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "rule": {
+            "description": "the rule that fired",
+            "title": "Rule",
+            "type": "string"
+          },
+          "tier": {
+            "description": "STRONG | MODERATE | WEAK | INSUFFICIENT: how much independent evidence there is that this happened",
+            "title": "Tier",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tier",
+          "rule",
+          "reasons",
+          "components"
+        ],
+        "title": "EvidenceStrength",
         "type": "object"
       },
       "EvidenceView": {
@@ -5402,6 +6529,52 @@
         "title": "InferenceLine",
         "type": "object"
       },
+      "IntelligenceProvenance": {
+        "properties": {
+          "adapter": {
+            "title": "Adapter",
+            "type": "string"
+          },
+          "channel": {
+            "description": "REPLAY | LIVE | MANUAL",
+            "title": "Channel",
+            "type": "string"
+          },
+          "clock_trusted": {
+            "title": "Clock Trusted",
+            "type": "boolean"
+          },
+          "content_sha256": {
+            "title": "Content Sha256",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Id"
+          },
+          "timestamp_origin": {
+            "title": "Timestamp Origin",
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel",
+          "adapter",
+          "timestamp_origin",
+          "clock_trusted",
+          "content_sha256",
+          "snapshot_id"
+        ],
+        "title": "IntelligenceProvenance",
+        "type": "object"
+      },
       "Interval": {
         "properties": {
           "estimate": {
@@ -5705,6 +6878,184 @@
           "verdict"
         ],
         "title": "LadderEntry",
+        "type": "object"
+      },
+      "LifecycleState": {
+        "enum": [
+          "DEVELOPING",
+          "CONFIRMED",
+          "ESCALATING",
+          "STABILIZING",
+          "RESOLVED",
+          "STALE"
+        ],
+        "title": "LifecycleState",
+        "type": "string"
+      },
+      "LifecycleTransition": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "evidence_quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Quote"
+          },
+          "evidence_report_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Report Ids",
+            "type": "array"
+          },
+          "from_state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LifecycleState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rule": {
+            "title": "Rule",
+            "type": "string"
+          },
+          "rule_text": {
+            "title": "Rule Text",
+            "type": "string"
+          },
+          "to_state": {
+            "$ref": "#/components/schemas/LifecycleState"
+          }
+        },
+        "required": [
+          "at",
+          "from_state",
+          "to_state",
+          "rule",
+          "rule_text",
+          "evidence_report_ids",
+          "evidence_quote"
+        ],
+        "title": "LifecycleTransition",
+        "type": "object"
+      },
+      "LifecycleView": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "as_of_basis": {
+            "description": "NOW | LAST_REPORT (replay: the state at the last report, not at the snapshot end) | REQUESTED",
+            "title": "As Of Basis",
+            "type": "string"
+          },
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "first_seen": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Seen"
+          },
+          "last_updated": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated"
+          },
+          "note": {
+            "default": "State follows explicit evidence (independent sources, cue phrases in reports, elapsed time without a report). A fall in news volume is never read as resolution.",
+            "title": "Note",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Since"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LifecycleState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "transitions": {
+            "items": {
+              "$ref": "#/components/schemas/LifecycleTransition"
+            },
+            "title": "Transitions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "availability",
+          "reason",
+          "state",
+          "since",
+          "first_seen",
+          "last_updated",
+          "as_of",
+          "as_of_basis",
+          "transitions",
+          "note"
+        ],
+        "title": "LifecycleView",
         "type": "object"
       },
       "LiveStatus": {
@@ -6115,6 +7466,45 @@
         "title": "Metric",
         "type": "object"
       },
+      "ModelConfidenceItem": {
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "stage": {
+            "description": "event | sentiment | impact",
+            "title": "Stage",
+            "type": "string"
+          },
+          "status": {
+            "description": "what the stage is: a trained model, a placeholder, or abstaining",
+            "title": "Status",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "stage",
+          "value",
+          "basis",
+          "status"
+        ],
+        "title": "ModelConfidenceItem",
+        "type": "object"
+      },
       "ModelInference": {
         "properties": {
           "agreement": {
@@ -6243,6 +7633,100 @@
           "feature_schema"
         ],
         "title": "ModelVersions",
+        "type": "object"
+      },
+      "NoveltyAssessment": {
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "continuation_indicators": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Continuation Indicators",
+            "type": "array"
+          },
+          "label": {
+            "description": "NEW | CONTINUATION | UPDATE | RECURRING | UNKNOWN",
+            "title": "Label",
+            "type": "string"
+          },
+          "narrative_match": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the nearest earlier event is the same narrative (same class, similar wording); null when nothing was comparable",
+            "title": "Narrative Match"
+          },
+          "nearest_prior": {
+            "items": {
+              "$ref": "#/components/schemas/PriorEvent"
+            },
+            "title": "Nearest Prior",
+            "type": "array"
+          },
+          "new_information": {
+            "description": "numbers and names in this event that the nearest earlier event did not carry",
+            "items": {
+              "type": "string"
+            },
+            "title": "New Information",
+            "type": "array"
+          },
+          "novelty_measured": {
+            "title": "Novelty Measured",
+            "type": "boolean"
+          },
+          "novelty_score": {
+            "description": "the pipeline's score (1 / (1 + log2(1 + earlier clusters of the same issuer in 72 h))): unchanged and unrelated to the label",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Novelty Score",
+            "type": "number"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "recurrence_cues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Recurrence Cues",
+            "type": "array"
+          },
+          "rule": {
+            "title": "Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "availability",
+          "reason",
+          "label",
+          "rule",
+          "novelty_score",
+          "novelty_measured",
+          "nearest_prior",
+          "narrative_match",
+          "new_information",
+          "continuation_indicators",
+          "recurrence_cues"
+        ],
+        "title": "NoveltyAssessment",
         "type": "object"
       },
       "OmittedFactor": {
@@ -6800,7 +8284,7 @@
           },
           "spread_sensitivity": {
             "default": 1.0,
-            "description": "share of a credit-spread shock a BOND takes: 1 for corporate credit, 0 for government debt (no credit spread)",
+            "description": "share of a credit-spread shock a BOND takes: 1 corporate credit, 0 government debt",
             "maximum": 3.0,
             "minimum": 0.0,
             "title": "Spread Sensitivity",
@@ -7726,6 +9210,66 @@
         "title": "PrimaryIssuer",
         "type": "object"
       },
+      "PriorEvent": {
+        "properties": {
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "first_seen": {
+            "format": "date-time",
+            "title": "First Seen",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "last_seen": {
+            "format": "date-time",
+            "title": "Last Seen",
+            "type": "string"
+          },
+          "lifecycle_then": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the earlier event's lifecycle state when this one began",
+            "title": "Lifecycle Then"
+          },
+          "same_event_class": {
+            "title": "Same Event Class",
+            "type": "boolean"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "similarity": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Similarity",
+            "type": "number"
+          }
+        },
+        "required": [
+          "event_id",
+          "signal_id",
+          "headline",
+          "first_seen",
+          "last_seen",
+          "similarity",
+          "same_event_class",
+          "lifecycle_then"
+        ],
+        "title": "PriorEvent",
+        "type": "object"
+      },
       "ProbeRow": {
         "additionalProperties": false,
         "properties": {
@@ -8393,6 +9937,87 @@
         "title": "ReplayInfo",
         "type": "object"
       },
+      "ReportRef": {
+        "description": "One report of an event, kept individually beneath the event.",
+        "properties": {
+          "clock_trusted": {
+            "title": "Clock Trusted",
+            "type": "boolean"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "id": {
+            "description": "the document id when known",
+            "title": "Id",
+            "type": "string"
+          },
+          "independent": {
+            "description": "a distinct outlet reporting for itself: a copy of another outlet's text is not",
+            "title": "Independent",
+            "type": "boolean"
+          },
+          "phase": {
+            "description": "BEFORE_REPORT | AT_REPORT | AFTER_REPORT relative to the report this view is about",
+            "title": "Phase",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "relation": {
+            "description": "CANONICAL | SAME_EVENT | NEAR_DUPLICATE | SYNDICATED: how it relates to its cluster's first report",
+            "title": "Relation",
+            "type": "string"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "source_type": {
+            "title": "Source Type",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "id",
+          "signal_id",
+          "source",
+          "source_type",
+          "domain",
+          "url",
+          "published_at",
+          "headline",
+          "relation",
+          "independent",
+          "clock_trusted",
+          "phase"
+        ],
+        "title": "ReportRef",
+        "type": "object"
+      },
       "RepresentationView": {
         "additionalProperties": false,
         "properties": {
@@ -8472,6 +10097,16 @@
         ],
         "title": "RepresentationView",
         "type": "object"
+      },
+      "ResolutionStatus": {
+        "enum": [
+          "RESOLVED",
+          "PARTIAL",
+          "AMBIGUOUS",
+          "UNRESOLVED"
+        ],
+        "title": "ResolutionStatus",
+        "type": "string"
       },
       "ResolvedHolding": {
         "properties": {
@@ -9653,6 +11288,36 @@
         "title": "ScopeCard",
         "type": "object"
       },
+      "ScopeConfidence": {
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "measured": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "what a sector-vocabulary check measured for this tier (docs/evidence/scope_eval.json), if anything was",
+            "title": "Measured"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/ConfidenceTier"
+          }
+        },
+        "required": [
+          "tier",
+          "basis",
+          "measured"
+        ],
+        "title": "ScopeConfidence",
+        "type": "object"
+      },
       "ScopeEvaluation": {
         "properties": {
           "by_strength": {
@@ -9710,6 +11375,65 @@
           "limits"
         ],
         "title": "ScopeEvaluation",
+        "type": "object"
+      },
+      "ScopeEvidenceSpan": {
+        "properties": {
+          "dimension": {
+            "description": "company | industry | sector | theme | region | event_class",
+            "title": "Dimension",
+            "type": "string"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the term as it appears in the text; null when it cannot be located (folded match)",
+            "title": "Quote"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "character offset into the analysed text (headline, then body)",
+            "title": "Start"
+          },
+          "term": {
+            "title": "Term",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dimension",
+          "term",
+          "quote",
+          "start",
+          "end"
+        ],
+        "title": "ScopeEvidenceSpan",
         "type": "object"
       },
       "ScopeInfo": {
@@ -9799,12 +11523,49 @@
         "title": "ScopeLevel",
         "type": "string"
       },
+      "ScopeNode": {
+        "properties": {
+          "basis": {
+            "description": "how this level is known: ENTITY_RESOLVER | ENTITY_MASTER | TICKER_MAP | VOCABULARY | EVENT_MODEL | HIERARCHY_ROOT",
+            "title": "Basis",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ScopeType"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "value",
+          "basis"
+        ],
+        "title": "ScopeNode",
+        "type": "object"
+      },
       "ScopeStrength": {
         "enum": [
           "STRONG",
           "WEAK"
         ],
         "title": "ScopeStrength",
+        "type": "string"
+      },
+      "ScopeType": {
+        "enum": [
+          "COMPANY",
+          "INDUSTRY",
+          "SECTOR",
+          "GEOGRAPHY",
+          "MACRO",
+          "MARKET",
+          "THEME",
+          "UNRESOLVED"
+        ],
+        "title": "ScopeType",
         "type": "string"
       },
       "ScoreStep": {
@@ -11191,6 +12952,30 @@
             "title": "Scope Themes",
             "type": "array"
           },
+          "scope_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "COMPANY | INDUSTRY | SECTOR | GEOGRAPHY | MACRO | MARKET | THEME | UNRESOLVED: the hierarchical scope (event intelligence); null where that layer is not running",
+            "title": "Scope Type"
+          },
+          "scope_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the name of the subject at that scope; null when UNRESOLVED",
+            "title": "Scope Value"
+          },
           "sector": {
             "anyOf": [
               {
@@ -11351,6 +13136,8 @@
           "scope_strength",
           "scope_themes",
           "scope_regions",
+          "scope_type",
+          "scope_value",
           "channel",
           "first_seq",
           "updated_seq",
@@ -11969,6 +13756,157 @@
           "calculation"
         ],
         "title": "StressAudit",
+        "type": "object"
+      },
+      "StressPreview": {
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "baseline_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Value"
+          },
+          "note": {
+            "default": "A modeled outcome under a configured, illustrative scenario: not a forecast.",
+            "title": "Note",
+            "type": "string"
+          },
+          "pnl": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pnl"
+          },
+          "pnl_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pnl Pct"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "scenario_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Name"
+          },
+          "severity_score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity Score"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "a StressStatus: COMPLETED | NOT_TRIGGERED | NO_SCENARIO | UNAVAILABLE | NOT_APPLICABLE",
+            "title": "Status"
+          },
+          "stressed_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stressed Value"
+          },
+          "trigger_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger Threshold"
+          }
+        },
+        "required": [
+          "availability",
+          "status",
+          "reason",
+          "scenario_id",
+          "scenario_name",
+          "severity_score",
+          "trigger_threshold",
+          "baseline_value",
+          "stressed_value",
+          "pnl",
+          "pnl_pct",
+          "run_id",
+          "note"
+        ],
+        "title": "StressPreview",
         "type": "object"
       },
       "StressRequest": {
@@ -12653,6 +14591,159 @@
           "hi"
         ],
         "title": "ValueRow",
+        "type": "object"
+      },
+      "VelocityPoint": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "independent_sources": {
+            "description": "cumulative",
+            "title": "Independent Sources",
+            "type": "integer"
+          },
+          "reports": {
+            "description": "cumulative",
+            "title": "Reports",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "at",
+          "independent_sources",
+          "reports"
+        ],
+        "title": "VelocityPoint",
+        "type": "object"
+      },
+      "VelocityView": {
+        "properties": {
+          "acceleration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "change in that rate between the two halves of the window, per hour; null when the data are too thin",
+            "title": "Acceleration"
+          },
+          "acceleration_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acceleration Reason"
+          },
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "note": {
+            "default": "Velocity is evidence of how a story spreads. It is not an input to the severity score.",
+            "title": "Note",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/VelocityPoint"
+            },
+            "title": "Series",
+            "type": "array"
+          },
+          "source_growth": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "e.g. '2 \u2192 11 independent sources'",
+            "title": "Source Growth"
+          },
+          "velocity_per_hour": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "independent sources added per hour over the window",
+            "title": "Velocity Per Hour"
+          },
+          "window_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window End"
+          },
+          "window_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window Hours"
+          },
+          "window_start": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window Start"
+          }
+        },
+        "required": [
+          "availability",
+          "reason",
+          "series",
+          "window_start",
+          "window_end",
+          "window_hours",
+          "source_growth",
+          "velocity_per_hour",
+          "acceleration",
+          "acceleration_reason",
+          "note"
+        ],
+        "title": "VelocityView",
         "type": "object"
       },
       "YearCount": {
@@ -14143,6 +16234,25 @@
             }
           },
           {
+            "description": "the hierarchical scope (needs event intelligence)",
+            "in": "query",
+            "name": "scope_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^(COMPANY|INDUSTRY|SECTOR|GEOGRAPHY|MACRO|MARKET|THEME|UNRESOLVED)$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "the hierarchical scope (needs event intelligence)",
+              "title": "Scope Type"
+            }
+          },
+          {
             "in": "query",
             "name": "channel",
             "required": false,
@@ -14446,6 +16556,86 @@
           }
         },
         "summary": "Get Signal Evidence",
+        "tags": [
+          "signals"
+        ]
+      }
+    },
+    "/api/signals/{signal_id}/intelligence": {
+      "get": {
+        "description": "Event intelligence: the hierarchical scope (company to market, or UNRESOLVED), the event this report belongs to with every report kept, evidence (independent sources, strength tier, model confidence: kept apart), novelty class, narrative velocity, structured contradiction, lifecycle with its timeline, affected entities/sectors/risk factors, portfolio relevance and stress. Every section can abstain with a reason. Derived: nothing is stored on the signal and nothing here feeds the severity score. `as_of` replays the view as it stood at that time (only reports published by then are read).",
+        "operationId": "get_signal_intelligence_api_signals__signal_id__intelligence_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "signal_id",
+            "required": true,
+            "schema": {
+              "title": "Signal Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "an instant with a time zone; omitted = the event's last report (replay) or now (live, pasted)",
+            "in": "query",
+            "name": "as_of",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "an instant with a time zone; omitted = the event's last report (replay) or now (live, pasted)",
+              "title": "As Of"
+            }
+          },
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventIntelligence"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Signal Intelligence",
         "tags": [
           "signals"
         ]

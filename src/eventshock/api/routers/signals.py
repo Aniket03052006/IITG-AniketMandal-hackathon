@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ...assessment.model import EvidenceView, RiskAssessment, TimelineView
 from ...assessment.views import build_evidence, build_timeline
 from ...domain import EventCategory, EventStatus, RiskSignal, SourceType
+from ...intelligence.model import EventIntelligence
 from ...retrieval.model import AnalogueSet
 from ...services.relevance import PortfolioRelevance, RelevanceLevel
 from ...services.signal_context import build_signal_context
@@ -24,6 +27,7 @@ def summarise(c: Container, s: RiskSignal, pf=None) -> SignalSummary:  # noqa: A
     assert sc is not None
     a = c.assessments.assess(s) if c.assessments else None
     sev = a.severity if a else None
+    isc = c.intelligence.scope_of(s) if c.intelligence else None
     return SignalSummary(
         severity_score=sev.score if sev else None, severity_low=sev.low if sev else None, severity_high=sev.high if sev else None,
         severity_basis=sev.basis if sev else None, severity_band=sev.band if sev else None, severity_band_label=sev.band_label if sev else None,
@@ -57,6 +61,8 @@ def summarise(c: Container, s: RiskSignal, pf=None) -> SignalSummary:  # noqa: A
         scope_strength=sc.strength.value if sc.strength else None,
         scope_themes=sc.themes,
         scope_regions=sc.regions,
+        scope_type=isc.scope_type.value if isc else None,
+        scope_value=isc.scope_value if isc else None,
         channel=c.signals.channel_of(s.id),
         first_seq=meta.first_seq if meta else None,
         updated_seq=meta.updated_seq if meta else None,
@@ -74,6 +80,8 @@ def list_signals(
     q: str | None = Query(default=None, max_length=100),
     event_status: EventStatus | None = None,
     scope_level: str | None = Query(default=None, pattern="^(COMPANY|SECTOR|MARKET|UNRESOLVED)$"),
+    scope_type: str | None = Query(default=None, pattern="^(COMPANY|INDUSTRY|SECTOR|GEOGRAPHY|MACRO|MARKET|THEME|UNRESOLVED)$",
+                                   description="the hierarchical scope (needs event intelligence)"),
     channel: str | None = Query(default=None, pattern="^(REPLAY|LIVE|MANUAL)$"),
     since_seq: int | None = Query(default=None, ge=0, description="only live-overlay signals changed after this counter"),
     portfolio_id: str | None = PID,
@@ -88,6 +96,8 @@ def list_signals(
                            channel=channel, since_seq=since_seq)
     pf = None if c.portfolios is None or c.portfolios.is_default(portfolio_id) else book(c, portfolio_id)  # relevance reads the chosen portfolio
     rows = [summarise(c, s, pf) for s in items]
+    if scope_type is not None and c.intelligence:
+        rows = [r for r in rows if r.scope_type == scope_type]
     if c.assessments and min_impact is not None:
         rows = [r for r in rows if (r.severity_score or 0) >= min_impact]
     if c.assessments and category is not None:
@@ -164,6 +174,23 @@ def get_signal_timeline(signal_id: str, c: Container = Depends(get_container)) -
     as_of = c.as_of or signal.created_at
     ctx = build_signal_context(signal, c.calendar, c.outcomes, as_of)
     return build_timeline(signal, c.assessments.assess(signal), ctx, as_of)
+
+
+@router.get("/{signal_id}/intelligence", response_model=EventIntelligence,
+            description="Event intelligence: the hierarchical scope (company to market, or UNRESOLVED), the event this report belongs to with every report kept, evidence "
+                        "(independent sources, strength tier, model confidence: kept apart), novelty class, narrative velocity, structured contradiction, lifecycle with its "
+                        "timeline, affected entities/sectors/risk factors, portfolio relevance and stress. Every section can abstain with a reason. Derived: nothing is stored on "
+                        "the signal and nothing here feeds the severity score. `as_of` replays the view as it stood at that time (only reports published by then are read).")
+def get_signal_intelligence(signal_id: str, as_of: datetime | None = Query(default=None, description="an instant with a time zone; omitted = the event's last report (replay) or now (live, pasted)"),
+                            portfolio_id: str | None = PID, c: Container = Depends(get_container)) -> EventIntelligence:
+    signal = c.signals.get(signal_id)
+    if signal is None or c.intelligence is None:
+        raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
+    pf = None if c.portfolios is None or c.portfolios.is_default(portfolio_id) else book(c, portfolio_id)
+    try:
+        return c.intelligence.for_signal(signal, as_of=as_of, portfolio=pf)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @router.get("/{signal_id}/analogues", response_model=AnalogueSet,

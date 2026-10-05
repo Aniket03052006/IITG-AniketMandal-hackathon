@@ -18,6 +18,7 @@ from ..domain import (
     SourceType,
 )
 from ..domain.base import ContractModel
+from ..intelligence.model import EventIntelligence
 
 
 class StressRequest(BaseModel):  # request body: defaults stay optional for clients
@@ -61,6 +62,8 @@ class SignalSummary(ContractModel):
     scope_strength: str | None = Field(default=None, description="STRONG | WEAK for a SECTOR scope (a rule tier, not a probability)")
     scope_themes: list[str] = Field(default_factory=list)
     scope_regions: list[str] = Field(default_factory=list)
+    scope_type: str | None = Field(default=None, description="COMPANY | INDUSTRY | SECTOR | GEOGRAPHY | MACRO | MARKET | THEME | UNRESOLVED: the hierarchical scope (event intelligence); null where that layer is not running")
+    scope_value: str | None = Field(default=None, description="the name of the subject at that scope; null when UNRESOLVED")
     channel: str = Field(description="REPLAY | LIVE | MANUAL: which door the signal came through")
     first_seq: int | None = Field(default=None, description="live overlay change counter when it first appeared (null for replay)")
     updated_seq: int | None = Field(default=None, description="…and when it last changed (more reports, rebuilt)")
@@ -94,6 +97,10 @@ class AnalyzeRequest(BaseModel):
         default=None, description="when it was published (with a time zone); omitted = the moment of the request")
     source: str | None = Field(
         default=None, max_length=80, description="where the text came from (an outlet or account name); omitted = 'manual paste'")
+    headline: str | None = Field(
+        default=None, max_length=240, description="the headline, when it is separate from the article text; omitted = the first line or sentence of `text`")
+    url: str | None = Field(
+        default=None, max_length=2048, description="where the article lives. Used only to attribute the source (its outlet counts for corroboration); it is NOT fetched")
 
 
 class Rejection(ContractModel):
@@ -112,6 +119,8 @@ class AnalyzeResponse(ContractModel):
     notes: list[str]
     assessment: RiskAssessment | None = Field(
         default=None, description="the structured reading, severity, threshold state and caveats; null when the text was quarantined")
+    intelligence: EventIntelligence | None = Field(
+        default=None, description="scope, event grouping, evidence, novelty, velocity, contradiction, lifecycle, portfolio relevance and stress, each able to abstain; null when quarantined or the layer is off")
 
 
 class ScenarioWithDefault(ContractModel):
@@ -176,6 +185,7 @@ class Capabilities(ContractModel):
     llm: LLMInfo | None = Field(default=None, description="how new text is read; null where there is no assessment layer")
     analogues: bool = Field(default=False, description="historical analogues are served (an index is installed); GET /api/signals/{id}/analogues")
     history_check: bool = Field(default=False, description="scenario shocks can be ranked against history; GET /api/scenarios/{id}/history-check")
+    intelligence: bool = Field(default=False, description="event intelligence (multi-scope, grouping, lifecycle, contradiction) is served; GET /api/signals/{id}/intelligence")
     custom_portfolios: bool = Field(default=True, description="optional personal portfolios can be created and used instead of the synthetic default; /api/portfolios")
 
 

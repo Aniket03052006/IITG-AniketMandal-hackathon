@@ -604,6 +604,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/signals/{signal_id}/intelligence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Signal Intelligence
+         * @description Event intelligence: the hierarchical scope (company to market, or UNRESOLVED), the event this report belongs to with every report kept, evidence (independent sources, strength tier, model confidence: kept apart), novelty class, narrative velocity, structured contradiction, lifecycle with its timeline, affected entities/sectors/risk factors, portfolio relevance and stress. Every section can abstain with a reason. Derived: nothing is stored on the signal and nothing here feeds the severity score. `as_of` replays the view as it stood at that time (only reports published by then are read).
+         */
+        get: operations["get_signal_intelligence_api_signals__signal_id__intelligence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/signals/{signal_id}/relevance": {
         parameters: {
             query?: never;
@@ -744,6 +764,72 @@ export interface components {
             method: string;
             /** Spearman Lost */
             spearman_lost: number;
+        };
+        /** Abstention */
+        Abstention: {
+            /** Field */
+            field: string;
+            /** Reason */
+            reason: string;
+            /**
+             * State
+             * @description UNKNOWN | UNAVAILABLE | NOT_APPLICABLE | NOT_TRIGGERED | ABSTAINED
+             */
+            state: string;
+        };
+        /** AffectedEntity */
+        AffectedEntity: {
+            /** Entity Id */
+            entity_id: string | null;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /**
+             * Origin
+             * @description RULES | AI | DATA: who identified it
+             */
+            origin: string;
+            /** Resolved */
+            resolved: boolean;
+            /** Role */
+            role: string;
+            /** Ticker */
+            ticker: string | null;
+        };
+        /** AffectedRiskFactor */
+        AffectedRiskFactor: {
+            /** Basis */
+            basis: string;
+            /** Factor */
+            factor: string;
+            /**
+             * Origin
+             * @description VOCABULARY (a theme the text names) | SCENARIO (a shock the default scenario applies): an assumption, never a measured exposure
+             */
+            origin: string;
+        };
+        /** AffectedSector */
+        AffectedSector: {
+            /** Basis */
+            basis: string;
+            /** Origin */
+            origin: string;
+            /** Sector */
+            sector: string;
+        };
+        /** AffectedView */
+        AffectedView: {
+            /** Entities */
+            entities: components["schemas"]["AffectedEntity"][];
+            /** Note */
+            note: string;
+            /** Regions */
+            regions: string[];
+            /** Risk Factors */
+            risk_factors: components["schemas"]["AffectedRiskFactor"][];
+            /** Sectors */
+            sectors: components["schemas"]["AffectedSector"][];
         };
         /**
          * Agreement
@@ -929,6 +1015,11 @@ export interface components {
         /** AnalyzeRequest */
         AnalyzeRequest: {
             /**
+             * Headline
+             * @description the headline, when it is separate from the article text; omitted = the first line or sentence of `text`
+             */
+            headline?: string | null;
+            /**
              * Published At
              * @description when it was published (with a time zone); omitted = the moment of the request
              */
@@ -945,6 +1036,11 @@ export interface components {
              * @description a headline, a short post, or the opening of an article
              */
             text: string;
+            /**
+             * Url
+             * @description where the article lives. Used only to attribute the source (its outlet counts for corroboration); it is NOT fetched
+             */
+            url?: string | null;
         };
         /** AnalyzeResponse */
         AnalyzeResponse: {
@@ -957,6 +1053,8 @@ export interface components {
              * @description the part of the text read as the headline
              */
             headline: string;
+            /** @description scope, event grouping, evidence, novelty, velocity, contradiction, lifecycle, portfolio relevance and stress, each able to abstain; null when quarantined or the layer is off */
+            intelligence: components["schemas"]["EventIntelligence"] | null;
             /** Notes */
             notes: string[];
             /**
@@ -1085,6 +1183,11 @@ export interface components {
             /** Sigma Reading */
             sigma_reading: string;
         };
+        /**
+         * Availability
+         * @enum {string}
+         */
+        Availability: "AVAILABLE" | "PARTIAL" | "ABSTAINED" | "UNAVAILABLE";
         /** BandRow */
         BandRow: {
             /** Band */
@@ -1269,6 +1372,12 @@ export interface components {
              */
             history_check: boolean;
             /**
+             * Intelligence
+             * @description event intelligence (multi-scope, grouping, lifecycle, contradiction) is served; GET /api/signals/{id}/intelligence
+             * @default false
+             */
+            intelligence: boolean;
+            /**
              * Live Enabled
              * @description a live source is configured and polling
              */
@@ -1336,6 +1445,75 @@ export interface components {
             /** Value */
             value: string;
         };
+        /** Claim */
+        Claim: {
+            /**
+             * Attributed
+             * @description hedged or second-hand ('reportedly', 'according to')
+             */
+            attributed: boolean;
+            /** Axis */
+            axis: string;
+            evidence_span: components["schemas"]["EvidenceQuote"];
+            /**
+             * Full Text
+             * @description true when read from the report's headline and body; false when only its headline was kept
+             */
+            full_text: boolean;
+            /** Id */
+            id: string;
+            /** Object */
+            object: string | null;
+            /**
+             * Polarity
+             * @description the pole asserted, e.g. 'confirmed' or 'denied'
+             */
+            polarity: string;
+            /**
+             * Predicate
+             * @description the axis this claim is about (confirmation, status, deal, operations, guidance, approval)
+             */
+            predicate: string;
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+            /** Report Id */
+            report_id: string;
+            /** Signal Id */
+            signal_id: string;
+            /** Source */
+            source: string;
+            /** Subject */
+            subject: string | null;
+            /**
+             * Verb
+             * @description the cue as written
+             */
+            verb: string;
+        };
+        /** ClaimConflict */
+        ClaimConflict: {
+            /** Axis */
+            axis: string;
+            /** Axis Label */
+            axis_label: string;
+            /** Hours Apart */
+            hours_apart: number | null;
+            /** Id */
+            id: string;
+            /** Reason */
+            reason: string;
+            /** Resolution */
+            resolution: string | null;
+            resolved_by: components["schemas"]["Claim"] | null;
+            /** Shared Topic */
+            shared_topic: string[];
+            side_a: components["schemas"]["Claim"];
+            side_b: components["schemas"]["Claim"];
+            state: components["schemas"]["ConflictState"];
+        };
         /** ClassMetrics */
         ClassMetrics: {
             /** F1 */
@@ -1386,6 +1564,11 @@ export interface components {
             /** Signal Id */
             signal_id: string;
         };
+        /**
+         * ConfidenceTier
+         * @enum {string}
+         */
+        ConfidenceTier: "HIGH" | "MEDIUM" | "LOW" | "NONE";
         /** ConfidentError */
         ConfidentError: {
             /** Confidence */
@@ -1414,6 +1597,11 @@ export interface components {
             /** Signal Id */
             signal_id: string;
         };
+        /**
+         * ConflictState
+         * @enum {string}
+         */
+        ConflictState: "NO_CONFLICT" | "POSSIBLE_CONFLICT" | "CONFLICTED" | "RESOLVED_CONFLICT";
         /** ConsistencyInfo */
         ConsistencyInfo: {
             /** Agreement */
@@ -1452,6 +1640,26 @@ export interface components {
             name: string;
             /** Value */
             value: number;
+        };
+        /** ContradictionView */
+        ContradictionView: {
+            availability: components["schemas"]["Availability"];
+            /** Claims Extracted */
+            claims_extracted: number;
+            /** Conflicts */
+            conflicts: components["schemas"]["ClaimConflict"][];
+            /** Method */
+            method: string;
+            /** Reason */
+            reason: string | null;
+            /**
+             * Sequential Changes
+             * @description opposite claims too far apart to contradict: a change of state over time
+             */
+            sequential_changes: components["schemas"]["ClaimConflict"][];
+            state: components["schemas"]["ConflictState"];
+            /** @description a report on the same issuer with the opposite tone: shown for context, NOT a contradiction */
+            tone_divergence: components["schemas"]["Conflict"] | null;
         };
         /** ContrastRow */
         ContrastRow: {
@@ -2044,6 +2252,106 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** EventGroup */
+        EventGroup: {
+            /**
+             * Anchor Signal Id
+             * @description the earliest report's signal: the event is anchored to it
+             */
+            anchor_signal_id: string;
+            /** Event Id */
+            event_id: string;
+            /** First Seen */
+            first_seen: string | null;
+            /** Grouping Note */
+            grouping_note: string;
+            /** Headline */
+            headline: string;
+            /** Independent Sources */
+            independent_sources: number;
+            /** Last Seen */
+            last_seen: string | null;
+            /**
+             * Report Count
+             * @description distinct reports, copies included
+             */
+            report_count: number;
+            /** Reports */
+            reports: components["schemas"]["ReportRef"][];
+            /**
+             * Signal Ids
+             * @description the report clusters (signals) grouped into this event
+             */
+            signal_ids: string[];
+        };
+        /** EventHeadline */
+        EventHeadline: {
+            /** Event Label */
+            event_label: string | null;
+            /** Event Status */
+            event_status: string;
+            /** Event Subtype Label */
+            event_subtype_label: string | null;
+            /**
+             * Event Type
+             * @description the assessed event class id (or NO_EVENT); the trained model's class when no assessment ran
+             */
+            event_type: string | null;
+            /** Extraction Mode */
+            extraction_mode: string | null;
+            /** Headline */
+            headline: string;
+            /** Impact Origin */
+            impact_origin: string | null;
+            /**
+             * Impact Score
+             * @description the trained/placeholder impact stage's score, a separate quantity from severity
+             */
+            impact_score: number | null;
+            /** Sentiment */
+            sentiment: number;
+            /** Sentiment Label */
+            sentiment_label: string | null;
+            /** Severity Band */
+            severity_band: string | null;
+            /** Severity Score */
+            severity_score: number | null;
+        };
+        /** EventIntelligence */
+        EventIntelligence: {
+            /** Abstentions */
+            abstentions: components["schemas"]["Abstention"][];
+            affected: components["schemas"]["AffectedView"];
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** As Of Basis */
+            as_of_basis: string;
+            contradiction: components["schemas"]["ContradictionView"];
+            event: components["schemas"]["EventHeadline"];
+            evidence: components["schemas"]["EvidenceProfile"];
+            group: components["schemas"]["EventGroup"];
+            /**
+             * Labels
+             * @description what kind of number or statement each section is
+             */
+            labels: string[];
+            lifecycle: components["schemas"]["LifecycleView"];
+            /** Limitations */
+            limitations: string[];
+            novelty: components["schemas"]["NoveltyAssessment"];
+            provenance: components["schemas"]["IntelligenceProvenance"];
+            relevance: components["schemas"]["PortfolioRelevance"] | null;
+            scope: components["schemas"]["EventScope"];
+            /** Signal Id */
+            signal_id: string;
+            stress: components["schemas"]["StressPreview"];
+            velocity: components["schemas"]["VelocityView"];
+            /** Version */
+            version: string;
+        };
         /** EventModelCard */
         EventModelCard: {
             /**
@@ -2094,6 +2402,42 @@ export interface components {
             training: components["schemas"]["EventTrainingInfo"];
             /** Version */
             version: string;
+        };
+        /** EventScope */
+        EventScope: {
+            /**
+             * Candidates
+             * @description the tied subjects, when AMBIGUOUS
+             */
+            candidates: string[];
+            /**
+             * Reason
+             * @description in plain words why the scope is what it is; always set when it is not RESOLVED
+             */
+            reason: string;
+            resolution_status: components["schemas"]["ResolutionStatus"];
+            /** Resolver Version */
+            resolver_version: string;
+            /** @description a rule tier, not a probability */
+            scope_confidence: components["schemas"]["ScopeConfidence"];
+            /** Scope Evidence */
+            scope_evidence: components["schemas"]["ScopeEvidenceSpan"][];
+            /**
+             * Scope Path
+             * @description the hierarchy, most specific first, ending at MARKET. A level without evidence is omitted, never filled.
+             */
+            scope_path: components["schemas"]["ScopeNode"][];
+            scope_type: components["schemas"]["ScopeType"];
+            /**
+             * Scope Value
+             * @description the name of the subject; null when UNRESOLVED
+             */
+            scope_value: string | null;
+            /**
+             * Secondary
+             * @description other subjects the text also points to (regions, themes)
+             */
+            secondary: components["schemas"]["ScopeNode"][];
         };
         /**
          * EventStatus
@@ -2195,6 +2539,71 @@ export interface components {
             stages: components["schemas"]["StageStatus"][];
             study: components["schemas"]["StudyView"];
         };
+        /** EvidenceProfile */
+        EvidenceProfile: {
+            /** Authoritative Domains */
+            authoritative_domains: string[];
+            /** Authoritative Sources */
+            authoritative_sources: number;
+            /**
+             * Authoritative Supported
+             * @description false when no source of the event is on the known-authoritative list (so 0 is 'not known', not 'none')
+             */
+            authoritative_supported: boolean;
+            availability: components["schemas"]["Availability"];
+            /** Entity Basis */
+            entity_basis: string;
+            /**
+             * Entity Confidence
+             * @description the entity resolver's link confidence; null with no company
+             */
+            entity_confidence: number | null;
+            evidence_strength: components["schemas"]["EvidenceStrength"];
+            /** First Observed */
+            first_observed: string | null;
+            /** Independent Sources */
+            independent_sources: number;
+            /** Latest Observed */
+            latest_observed: string | null;
+            /** Model Confidence */
+            model_confidence: components["schemas"]["ModelConfidenceItem"][];
+            /**
+             * Note
+             * @default Evidence strength says how well the event is corroborated. Model confidence says how sure a model is of its own output. They are different questions and are never combined.
+             */
+            note: string;
+            /** Reason */
+            reason: string | null;
+            scope_confidence: components["schemas"]["ConfidenceTier"];
+            /**
+             * Source Count
+             * @description reports, copies included
+             */
+            source_count: number;
+            /**
+             * Source Disagreement
+             * @description NONE | POSSIBLE | CONFLICTED | RESOLVED: from claim contradiction, never from sentiment spread
+             */
+            source_disagreement: string;
+            /**
+             * Source Diversity
+             * @description independent sources / reports; null with no reports
+             */
+            source_diversity: number | null;
+            /** Syndicated Copies */
+            syndicated_copies: number;
+            /** Unique Domains */
+            unique_domains: number;
+        };
+        /** EvidenceQuote */
+        EvidenceQuote: {
+            /** End */
+            end: number;
+            /** Quote */
+            quote: string;
+            /** Start */
+            start: number;
+        };
         /** EvidenceSpan */
         EvidenceSpan: {
             /** End */
@@ -2214,6 +2623,25 @@ export interface components {
              * @description event_type | sentiment | entity | sector | region | severity
              */
             supports: string;
+        };
+        /** EvidenceStrength */
+        EvidenceStrength: {
+            /** Components */
+            components: {
+                [key: string]: number | string | boolean | null;
+            };
+            /** Reasons */
+            reasons: string[];
+            /**
+             * Rule
+             * @description the rule that fired
+             */
+            rule: string;
+            /**
+             * Tier
+             * @description STRONG | MODERATE | WEAK | INSUFFICIENT: how much independent evidence there is that this happened
+             */
+            tier: string;
         };
         /** EvidenceView */
         EvidenceView: {
@@ -2871,6 +3299,24 @@ export interface components {
             /** Value */
             value: string;
         };
+        /** IntelligenceProvenance */
+        IntelligenceProvenance: {
+            /** Adapter */
+            adapter: string;
+            /**
+             * Channel
+             * @description REPLAY | LIVE | MANUAL
+             */
+            channel: string;
+            /** Clock Trusted */
+            clock_trusted: boolean;
+            /** Content Sha256 */
+            content_sha256: string;
+            /** Snapshot Id */
+            snapshot_id: string | null;
+            /** Timestamp Origin */
+            timestamp_origin: string;
+        };
         /** Interval */
         Interval: {
             /** Estimate */
@@ -2990,6 +3436,56 @@ export interface components {
             servable: boolean;
             /** Verdict */
             verdict: string;
+        };
+        /**
+         * LifecycleState
+         * @enum {string}
+         */
+        LifecycleState: "DEVELOPING" | "CONFIRMED" | "ESCALATING" | "STABILIZING" | "RESOLVED" | "STALE";
+        /** LifecycleTransition */
+        LifecycleTransition: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Evidence Quote */
+            evidence_quote: string | null;
+            /** Evidence Report Ids */
+            evidence_report_ids: string[];
+            from_state: components["schemas"]["LifecycleState"] | null;
+            /** Rule */
+            rule: string;
+            /** Rule Text */
+            rule_text: string;
+            to_state: components["schemas"]["LifecycleState"];
+        };
+        /** LifecycleView */
+        LifecycleView: {
+            /** As Of */
+            as_of: string | null;
+            /**
+             * As Of Basis
+             * @description NOW | LAST_REPORT (replay: the state at the last report, not at the snapshot end) | REQUESTED
+             */
+            as_of_basis: string;
+            availability: components["schemas"]["Availability"];
+            /** First Seen */
+            first_seen: string | null;
+            /** Last Updated */
+            last_updated: string | null;
+            /**
+             * Note
+             * @default State follows explicit evidence (independent sources, cue phrases in reports, elapsed time without a report). A fall in news volume is never read as resolution.
+             */
+            note: string;
+            /** Reason */
+            reason: string | null;
+            /** Since */
+            since: string | null;
+            state: components["schemas"]["LifecycleState"] | null;
+            /** Transitions */
+            transitions: components["schemas"]["LifecycleTransition"][];
         };
         /** LiveStatus */
         LiveStatus: {
@@ -3137,6 +3633,23 @@ export interface components {
             /** Value */
             value: number | null;
         };
+        /** ModelConfidenceItem */
+        ModelConfidenceItem: {
+            /** Basis */
+            basis: string;
+            /**
+             * Stage
+             * @description event | sentiment | impact
+             */
+            stage: string;
+            /**
+             * Status
+             * @description what the stage is: a trained model, a placeholder, or abstaining
+             */
+            status: string;
+            /** Value */
+            value: number | null;
+        };
         /** ModelInference */
         ModelInference: {
             agreement: components["schemas"]["Agreement"];
@@ -3184,6 +3697,42 @@ export interface components {
             impact: string | null;
             /** Sentiment */
             sentiment: string;
+        };
+        /** NoveltyAssessment */
+        NoveltyAssessment: {
+            availability: components["schemas"]["Availability"];
+            /** Continuation Indicators */
+            continuation_indicators: string[];
+            /**
+             * Label
+             * @description NEW | CONTINUATION | UPDATE | RECURRING | UNKNOWN
+             */
+            label: string;
+            /**
+             * Narrative Match
+             * @description the nearest earlier event is the same narrative (same class, similar wording); null when nothing was comparable
+             */
+            narrative_match: boolean | null;
+            /** Nearest Prior */
+            nearest_prior: components["schemas"]["PriorEvent"][];
+            /**
+             * New Information
+             * @description numbers and names in this event that the nearest earlier event did not carry
+             */
+            new_information: string[];
+            /** Novelty Measured */
+            novelty_measured: boolean;
+            /**
+             * Novelty Score
+             * @description the pipeline's score (1 / (1 + log2(1 + earlier clusters of the same issuer in 72 h))): unchanged and unrelated to the label
+             */
+            novelty_score: number;
+            /** Reason */
+            reason: string | null;
+            /** Recurrence Cues */
+            recurrence_cues: string[];
+            /** Rule */
+            rule: string;
         };
         /** OmittedFactor */
         OmittedFactor: {
@@ -3422,7 +3971,7 @@ export interface components {
             sector: string;
             /**
              * Spread Sensitivity
-             * @description share of a credit-spread shock a BOND takes: 1 for corporate credit, 0 for government debt (no credit spread)
+             * @description share of a credit-spread shock a BOND takes: 1 corporate credit, 0 government debt
              * @default 1
              */
             spread_sensitivity: number;
@@ -3775,6 +4324,34 @@ export interface components {
             /** Ticker */
             ticker: string | null;
         };
+        /** PriorEvent */
+        PriorEvent: {
+            /** Event Id */
+            event_id: string;
+            /**
+             * First Seen
+             * Format: date-time
+             */
+            first_seen: string;
+            /** Headline */
+            headline: string;
+            /**
+             * Last Seen
+             * Format: date-time
+             */
+            last_seen: string;
+            /**
+             * Lifecycle Then
+             * @description the earlier event's lifecycle state when this one began
+             */
+            lifecycle_then: string | null;
+            /** Same Event Class */
+            same_event_class: boolean;
+            /** Signal Id */
+            signal_id: string;
+            /** Similarity */
+            similarity: number;
+        };
         /** ProbeRow */
         ProbeRow: {
             /** Channel */
@@ -4065,6 +4642,51 @@ export interface components {
              */
             window_start: string;
         };
+        /**
+         * ReportRef
+         * @description One report of an event, kept individually beneath the event.
+         */
+        ReportRef: {
+            /** Clock Trusted */
+            clock_trusted: boolean;
+            /** Domain */
+            domain: string;
+            /** Headline */
+            headline: string;
+            /**
+             * Id
+             * @description the document id when known
+             */
+            id: string;
+            /**
+             * Independent
+             * @description a distinct outlet reporting for itself: a copy of another outlet's text is not
+             */
+            independent: boolean;
+            /**
+             * Phase
+             * @description BEFORE_REPORT | AT_REPORT | AFTER_REPORT relative to the report this view is about
+             */
+            phase: string;
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+            /**
+             * Relation
+             * @description CANONICAL | SAME_EVENT | NEAR_DUPLICATE | SYNDICATED: how it relates to its cluster's first report
+             */
+            relation: string;
+            /** Signal Id */
+            signal_id: string;
+            /** Source */
+            source: string;
+            /** Source Type */
+            source_type: string;
+            /** Url */
+            url: string | null;
+        };
         /** RepresentationView */
         RepresentationView: {
             /** Available */
@@ -4109,6 +4731,11 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /**
+         * ResolutionStatus
+         * @enum {string}
+         */
+        ResolutionStatus: "RESOLVED" | "PARTIAL" | "AMBIGUOUS" | "UNRESOLVED";
         /** ResolvedHolding */
         ResolvedHolding: {
             asset_class: components["schemas"]["AssetClass"];
@@ -4533,6 +5160,17 @@ export interface components {
             target: string;
             training: components["schemas"]["eventshock__pipeline__impact_card__TrainingInfo"];
         };
+        /** ScopeConfidence */
+        ScopeConfidence: {
+            /** Basis */
+            basis: string;
+            /**
+             * Measured
+             * @description what a sector-vocabulary check measured for this tier (docs/evidence/scope_eval.json), if anything was
+             */
+            measured: string | null;
+            tier: components["schemas"]["ConfidenceTier"];
+        };
         /** ScopeEvaluation */
         ScopeEvaluation: {
             /** By Strength */
@@ -4553,6 +5191,28 @@ export interface components {
             snapshot_id: string;
             /** Vocabulary Fired */
             vocabulary_fired: number;
+        };
+        /** ScopeEvidenceSpan */
+        ScopeEvidenceSpan: {
+            /**
+             * Dimension
+             * @description company | industry | sector | theme | region | event_class
+             */
+            dimension: string;
+            /** End */
+            end: number | null;
+            /**
+             * Quote
+             * @description the term as it appears in the text; null when it cannot be located (folded match)
+             */
+            quote: string | null;
+            /**
+             * Start
+             * @description character offset into the analysed text (headline, then body)
+             */
+            start: number | null;
+            /** Term */
+            term: string;
         };
         /** ScopeInfo */
         ScopeInfo: {
@@ -4598,11 +5258,27 @@ export interface components {
          * @enum {string}
          */
         ScopeLevel: "COMPANY" | "SECTOR" | "MARKET" | "UNRESOLVED";
+        /** ScopeNode */
+        ScopeNode: {
+            /**
+             * Basis
+             * @description how this level is known: ENTITY_RESOLVER | ENTITY_MASTER | TICKER_MAP | VOCABULARY | EVENT_MODEL | HIERARCHY_ROOT
+             */
+            basis: string;
+            type: components["schemas"]["ScopeType"];
+            /** Value */
+            value: string;
+        };
         /**
          * ScopeStrength
          * @enum {string}
          */
         ScopeStrength: "STRONG" | "WEAK";
+        /**
+         * ScopeType
+         * @enum {string}
+         */
+        ScopeType: "COMPANY" | "INDUSTRY" | "SECTOR" | "GEOGRAPHY" | "MACRO" | "MARKET" | "THEME" | "UNRESOLVED";
         /**
          * ScoreStep
          * @description One line of the build-up: starts from the matrix and shows every change on the way to the final score.
@@ -5199,6 +5875,16 @@ export interface components {
             scope_strength: string | null;
             /** Scope Themes */
             scope_themes: string[];
+            /**
+             * Scope Type
+             * @description COMPANY | INDUSTRY | SECTOR | GEOGRAPHY | MACRO | MARKET | THEME | UNRESOLVED: the hierarchical scope (event intelligence); null where that layer is not running
+             */
+            scope_type: string | null;
+            /**
+             * Scope Value
+             * @description the name of the subject at that scope; null when UNRESOLVED
+             */
+            scope_value: string | null;
             /** Sector */
             sector: string | null;
             /** Sentiment Score */
@@ -5483,6 +6169,40 @@ export interface components {
             /** Threshold */
             threshold: number;
         };
+        /** StressPreview */
+        StressPreview: {
+            availability: components["schemas"]["Availability"];
+            /** Baseline Value */
+            baseline_value: number | null;
+            /**
+             * Note
+             * @default A modeled outcome under a configured, illustrative scenario: not a forecast.
+             */
+            note: string;
+            /** Pnl */
+            pnl: number | null;
+            /** Pnl Pct */
+            pnl_pct: number | null;
+            /** Reason */
+            reason: string | null;
+            /** Run Id */
+            run_id: string | null;
+            /** Scenario Id */
+            scenario_id: string | null;
+            /** Scenario Name */
+            scenario_name: string | null;
+            /** Severity Score */
+            severity_score: number | null;
+            /**
+             * Status
+             * @description a StressStatus: COMPLETED | NOT_TRIGGERED | NO_SCENARIO | UNAVAILABLE | NOT_APPLICABLE
+             */
+            status: string | null;
+            /** Stressed Value */
+            stressed_value: number | null;
+            /** Trigger Threshold */
+            trigger_threshold: number | null;
+        };
         /** StressRequest */
         StressRequest: {
             /**
@@ -5744,6 +6464,60 @@ export interface components {
             lo: number | null;
             /** Split */
             split: string;
+        };
+        /** VelocityPoint */
+        VelocityPoint: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Independent Sources
+             * @description cumulative
+             */
+            independent_sources: number;
+            /**
+             * Reports
+             * @description cumulative
+             */
+            reports: number;
+        };
+        /** VelocityView */
+        VelocityView: {
+            /**
+             * Acceleration
+             * @description change in that rate between the two halves of the window, per hour; null when the data are too thin
+             */
+            acceleration: number | null;
+            /** Acceleration Reason */
+            acceleration_reason: string | null;
+            availability: components["schemas"]["Availability"];
+            /**
+             * Note
+             * @default Velocity is evidence of how a story spreads. It is not an input to the severity score.
+             */
+            note: string;
+            /** Reason */
+            reason: string | null;
+            /** Series */
+            series: components["schemas"]["VelocityPoint"][];
+            /**
+             * Source Growth
+             * @description e.g. '2 → 11 independent sources'
+             */
+            source_growth: string | null;
+            /**
+             * Velocity Per Hour
+             * @description independent sources added per hour over the window
+             */
+            velocity_per_hour: number | null;
+            /** Window End */
+            window_end: string | null;
+            /** Window Hours */
+            window_hours: number | null;
+            /** Window Start */
+            window_start: string | null;
         };
         /** YearCount */
         YearCount: {
@@ -6675,6 +7449,8 @@ export interface operations {
                 q?: string | null;
                 event_status?: components["schemas"]["EventStatus"] | null;
                 scope_level?: string | null;
+                /** @description the hierarchical scope (needs event intelligence) */
+                scope_type?: string | null;
                 channel?: string | null;
                 /** @description only live-overlay signals changed after this counter */
                 since_seq?: number | null;
@@ -6852,6 +7628,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvidenceView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_signal_intelligence_api_signals__signal_id__intelligence_get: {
+        parameters: {
+            query?: {
+                /** @description an instant with a time zone; omitted = the event's last report (replay) or now (live, pasted) */
+                as_of?: string | null;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventIntelligence"];
                 };
             };
             /** @description Validation Error */

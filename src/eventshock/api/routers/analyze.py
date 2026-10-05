@@ -18,11 +18,17 @@ def analyze(req: AnalyzeRequest, c: Container = Depends(get_container)) -> Analy
     if c.analyzer is None:
         raise HTTPException(status_code=503, detail="analysis needs the replay profile (trained models); the demo profile has none")
     try:
-        r = c.analyzer.analyze(req.text, source_type=req.source_type, published_at=req.published_at, source=req.source)
+        r = c.analyzer.analyze(req.text, source_type=req.source_type, published_at=req.published_at, source=req.source, headline=req.headline, url=req.url)
     except AnalysisInputError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     o = r.outcome
     assessment = c.assessments.detail(r.signal) if (c.assessments and r.signal) else None
+    intelligence = None
+    if c.intelligence is not None and r.signal is not None:
+        try:
+            intelligence = c.intelligence.for_signal(r.signal, portfolio=None)
+        except (ValueError, LookupError) as exc:  # a failure here must never hide the analysis itself
+            r.notes.append(f"Event intelligence could not be built for this text: {exc}")
     notes = list(r.notes)
     if assessment is not None:
         ex = assessment.extraction
@@ -32,4 +38,4 @@ def analyze(req: AnalyzeRequest, c: Container = Depends(get_container)) -> Analy
     return AnalyzeResponse(
         outcome=o.outcome.value, signal_id=o.signal_id, signal=summarise(c, r.signal) if r.signal else None,
         rejection=Rejection(code=o.code or "UNKNOWN", detail=o.detail or "") if o.outcome is Outcome.QUARANTINED else None,
-        headline=r.headline, analysed_chars=r.analysed_chars, truncated=r.truncated, notes=notes, assessment=assessment)
+        headline=r.headline, analysed_chars=r.analysed_chars, truncated=r.truncated, notes=notes, assessment=assessment, intelligence=intelligence)

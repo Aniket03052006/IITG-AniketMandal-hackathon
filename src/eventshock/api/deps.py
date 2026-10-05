@@ -30,6 +30,9 @@ from ..config import (
 )
 from ..ingestion.live import CaptureSource, GdeltLiveSource, LiveSource
 from ..ingestion.snapshot import Snapshot, load_snapshot
+from ..intelligence.config import load_intelligence_config
+from ..intelligence.scope import HierarchicalScopeResolver
+from ..intelligence.service import IntelligenceService
 from ..llm.cache import ExtractionCache
 from ..llm.client import CLIENTS, LLMClient
 from ..llm.config import load_llm_config
@@ -132,6 +135,8 @@ class Container:
     outcome_check: OutcomeCheck | None = None
     # optional personal portfolios (the synthetic book above stays the default; a request names a saved one to use it instead)
     portfolios: PortfolioService | None = None
+    # multi-scope event intelligence: hierarchical scope, event grouping, evidence, novelty, velocity, contradiction, lifecycle (a derived side-car)
+    intelligence: IntelligenceService | None = None
 
 
 def _build_analogues(settings: Settings, event_model: EventModel, snapshot: Snapshot) -> AnalogueService:
@@ -386,6 +391,14 @@ def build_container(settings: Settings | None = None) -> Container:
     if replay:
         assert snapshot is not None
         analogues = _build_analogues(settings, event_model, snapshot)
+    stress = StressService(signals, portfolio, catalog, config, severity_provider=assessments.severity_view if assessments else None)
+    intelligence = None
+    if replay:
+        assert scope_config is not None
+        intelligence = IntelligenceService(
+            load_intelligence_config(settings.config_dir), signals, HierarchicalScopeResolver(
+                load_intelligence_config(settings.config_dir), scope_resolver, REPO_ROOT / "docs" / "evidence" / "scope_eval.json"),
+            assessments=assessments, relevance=catalog_relevance, stress=stress, catalog=catalog, snapshot_id=snapshot.manifest.snapshot_id)
     history_path = REPO_ROOT / SHOCK_HISTORY_PATH
     if history_path.is_file():
         shock_history = ShockHistory.load(REPO_ROOT)
@@ -397,8 +410,7 @@ def build_container(settings: Settings | None = None) -> Container:
         catalog=catalog,
         signals=signals,
         portfolio=portfolio,
-        stress=StressService(signals, portfolio, catalog, config,
-                             severity_provider=assessments.severity_view if assessments else None),
+        stress=stress,
         profile=config.data.profile,
         snapshot=snapshot,
         pipeline_report=report,
@@ -423,6 +435,7 @@ def build_container(settings: Settings | None = None) -> Container:
         shock_history=shock_history,
         outcome_check=build_outcome_check(REPO_ROOT) if replay else None,
         portfolios=portfolios,
+        intelligence=intelligence,
     )
 
 
