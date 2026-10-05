@@ -4,6 +4,74 @@
  */
 
 export interface paths {
+    "/api/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Adjustments
+         * @description Every setting of the side-cars that can be adjusted by hand: its shipped default, its value now, its bounds. Adjusted values are the user's own assumptions.
+         */
+        get: operations["get_adjustments_api_adjustments_get"];
+        /**
+         * Put Adjustments
+         * @description Save adjustments (dotted path -> value) and rebuild the side-cars on them. 422 with the issues per path when a value is not allowed; nothing is saved then.
+         */
+        put: operations["put_adjustments_api_adjustments_put"];
+        post?: never;
+        /**
+         * Reset Adjustments
+         * @description Reset one adjusted value to its default (`path`), or every value when no path is given.
+         */
+        delete: operations["reset_adjustments_api_adjustments_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/adjustments/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset All
+         * @description Reset every adjusted value to its shipped default.
+         */
+        post: operations["reset_all_api_adjustments_reset_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/adjustments/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate Adjustments
+         * @description Check a change without saving it: bounds and the cross-field rules of the real configuration.
+         */
+        post: operations["validate_adjustments_api_adjustments_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/analyze": {
         parameters: {
             query?: never;
@@ -19,6 +87,46 @@ export interface paths {
          *     (a text that cannot be scored is ``QUARANTINED`` with the reason, never given a guessed value).
          */
         post: operations["analyze_api_analyze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/concentration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Concentration
+         * @description Concentration of the portfolio by issuer, sector, industry, geography, asset class and risk factor. Only meaningful concentration is flagged.
+         */
+        get: operations["get_concentration_api_concentration_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/concentration/overlaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Overlaps
+         * @description Current events that bear on the same risk factor and the same holdings (concentrated risk). Needs several independent events; one story counts once. With `signal_id`, only the clusters that event belongs to.
+         */
+        get: operations["get_overlaps_api_concentration_overlaps_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -624,6 +732,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/signals/{signal_id}/materiality": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Materiality
+         * @description Why is this event relevant to this portfolio? The lookup, the rules that fired and every input: reach, direct and indirect exposure, severity, concentration, mapping basis.
+         */
+        get: operations["get_materiality_api_signals__signal_id__materiality_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/signals/{signal_id}/portfolio-stress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Portfolio Stress
+         * @description Generate the event's scenario for this portfolio and run it through the unchanged stress engine, with the exposure chain and an attribution that reconciles to the total. When no defensible scenario exists the answer says SCENARIO UNAVAILABLE and why. `force` runs a failed soft gate (severity, relevance, direction) as a what-if. A SIMULATION, not a prediction.
+         */
+        post: operations["post_portfolio_stress_api_signals__signal_id__portfolio_stress_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/signals/{signal_id}/propagation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Propagation
+         * @description Event -> scope -> risk factor -> portfolio exposure -> holdings (every edge says whether it is OBSERVED, a SCENARIO_ASSUMPTION or a USER_ASSUMPTION; this is a mapping, not causal inference), the materiality of the event to this portfolio (LOW/MEDIUM/HIGH/CRITICAL by an explicit lookup, with its decomposition), and the scenario it would generate (or SCENARIO UNAVAILABLE and why). Derived: nothing is stored on the signal and no stress is run by this call.
+         */
+        get: operations["get_propagation_api_signals__signal_id__propagation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/signals/{signal_id}/relevance": {
         parameters: {
             query?: never;
@@ -691,6 +859,26 @@ export interface paths {
         };
         /** Get Stress Run */
         get: operations["get_stress_run_api_stress_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stress-runs/{run_id}/attribution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Attribution
+         * @description Why did the portfolio move? The run's total change regrouped by kind of shock, issuer, sector, industry, market factor, risk factor, asset class and position. Every table adds up to the total. Works for any completed run.
+         */
+        get: operations["get_attribution_api_stress_runs__run_id__attribution_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -776,6 +964,85 @@ export interface components {
              * @description UNKNOWN | UNAVAILABLE | NOT_APPLICABLE | NOT_TRIGGERED | ABSTAINED
              */
             state: string;
+        };
+        /** ActiveRiskFactor */
+        ActiveRiskFactor: {
+            /**
+             * Evidence
+             * @description the phrases or themes that make it active
+             */
+            evidence: string[];
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /**
+             * Modelled
+             * @description ENGINE | PROXY | NOT_MODELLED
+             */
+            modelled: string;
+            /** Note */
+            note: string | null;
+            /**
+             * Origin
+             * @description TEXT (the text uses its vocabulary) | CATEGORY (assumed for this class of event)
+             */
+            origin: string;
+            status: components["schemas"]["Status"];
+        };
+        /**
+         * AddedEdge
+         * @description A transmission edge the user added (it has no shipped default).
+         */
+        AddedEdge: {
+            /** Edge Id */
+            edge_id: string;
+            /** Path */
+            path: string;
+            /** Risk Factor */
+            risk_factor: string;
+            /** Value */
+            value: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * AdjustmentNotice
+         * @description Attached to a side-car answer when any override is in effect (omitted otherwise, so default payloads are unchanged).
+         */
+        AdjustmentNotice: {
+            /** Count */
+            count: number;
+            /**
+             * Note
+             * @default Some values behind this answer were adjusted by you. They are your assumptions, not validated.
+             */
+            note: string;
+            /** Paths */
+            paths: string[];
+        };
+        /** AdjustmentState */
+        AdjustmentState: {
+            /** Added Edges */
+            added_edges: components["schemas"]["AddedEdge"][];
+            /** Count */
+            count: number;
+            /** Knobs */
+            knobs: components["schemas"]["Knob"][];
+            /** Note */
+            note: string;
+            /**
+             * Risk Factors
+             * @description the risk factors a transmission edge can be added to
+             */
+            risk_factors: string[];
+            /** Updated At */
+            updated_at: string | null;
+            /**
+             * Version
+             * @description hash of the overrides in effect; 'default' when none
+             */
+            version: string;
         };
         /** AffectedEntity */
         AffectedEntity: {
@@ -1095,6 +1362,11 @@ export interface components {
             /** Scaled Value */
             scaled_value: number;
             scope: components["schemas"]["ShockScope"];
+            /**
+             * Sector
+             * @description the sector a SECTOR shock names explicitly (generated scenarios); null = the event's own sector
+             */
+            sector: string | null;
         };
         /** AssessedEntity */
         AssessedEntity: {
@@ -1150,6 +1422,52 @@ export interface components {
             /** Units */
             units: string;
         };
+        /** AttributionRow */
+        AttributionRow: {
+            /** Baseline Value */
+            baseline_value: number;
+            /** Delta */
+            delta: number;
+            /** Detail */
+            detail: string | null;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Position Count */
+            position_count: number;
+            /**
+             * Share Of Total
+             * @description delta / total change; null when the total is zero
+             */
+            share_of_total: number | null;
+        };
+        /** AttributionTable */
+        AttributionTable: {
+            /** Dimension */
+            dimension: string;
+            /** Label */
+            label: string;
+            /** Reconciled */
+            reconciled: boolean;
+            /**
+             * Residual
+             * @description total - sum; within tolerance by construction
+             */
+            residual: number;
+            /** Rows */
+            rows: components["schemas"]["AttributionRow"][];
+            /**
+             * Sum
+             * @description the rows added up
+             */
+            sum: number;
+            /**
+             * Total
+             * @description the run's total modeled change
+             */
+            total: number;
+        };
         /** AuditSummary */
         AuditSummary: {
             /** Auc */
@@ -1182,6 +1500,39 @@ export interface components {
             sigma_decision: string;
             /** Sigma Reading */
             sigma_reading: string;
+        };
+        /** AutoStressRequest */
+        AutoStressRequest: {
+            /**
+             * Force
+             * @description run even when a gate fails (a what-if); the failed gates are still reported
+             * @default false
+             */
+            force?: boolean;
+            /** Impact Override */
+            impact_override?: number | null;
+            /** Portfolio Id */
+            portfolio_id?: string | null;
+        };
+        /** AutoStressResult */
+        AutoStressResult: {
+            adjustments: components["schemas"]["AdjustmentNotice"] | null;
+            attribution: components["schemas"]["StressAttribution"] | null;
+            chain: components["schemas"]["ExposureChain"] | null;
+            materiality: components["schemas"]["PortfolioMateriality"];
+            /** Note */
+            note: string | null;
+            /** Portfolio Id */
+            portfolio_id: string;
+            run: components["schemas"]["StressResult"] | null;
+            scenario: components["schemas"]["GeneratedScenario"];
+            /** Signal Id */
+            signal_id: string;
+            /**
+             * Version
+             * @default propagation-v1
+             */
+            version: string;
         };
         /**
          * Availability
@@ -1343,6 +1694,12 @@ export interface components {
         /** Capabilities */
         Capabilities: {
             /**
+             * Adjustments
+             * @description the side-cars' thresholds, mapping tables and scenario sizes can be adjusted by hand; /api/adjustments
+             * @default true
+             */
+            adjustments: boolean;
+            /**
              * Analogues
              * @description historical analogues are served (an index is installed); GET /api/signals/{id}/analogues
              * @default false
@@ -1384,6 +1741,12 @@ export interface components {
             live_enabled: boolean;
             /** @description how new text is read; null where there is no assessment layer */
             llm: components["schemas"]["LLMInfo"] | null;
+            /**
+             * Propagation
+             * @description event -> portfolio propagation, materiality, generated scenarios, attribution and concentration are served; /api/signals/{id}/propagation
+             * @default false
+             */
+            propagation: boolean;
         };
         /** ChainStep */
         ChainStep: {
@@ -1563,6 +1926,45 @@ export interface components {
             scenario_id?: string | null;
             /** Signal Id */
             signal_id: string;
+        };
+        /** ConcentrationRow */
+        ConcentrationRow: {
+            /** Flagged */
+            flagged: boolean;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Position Count */
+            position_count: number;
+            /** Share */
+            share: number;
+            /** Value */
+            value: number;
+        };
+        /** ConcentrationView */
+        ConcentrationView: {
+            adjustments: components["schemas"]["AdjustmentNotice"] | null;
+            /** Dimensions */
+            dimensions: components["schemas"]["DimensionConcentration"][];
+            /**
+             * Flags
+             * @description only the concentration that is meaningful, in words
+             */
+            flags: string[];
+            /** Note */
+            note: string;
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Portfolio Name */
+            portfolio_name: string;
+            /** Total Value */
+            total_value: number;
+            /**
+             * Version
+             * @default propagation-v1
+             */
+            version: string;
         };
         /**
          * ConfidenceTier
@@ -1851,6 +2253,29 @@ export interface components {
             key: string;
             /** Label */
             label: string;
+        };
+        /** DimensionConcentration */
+        DimensionConcentration: {
+            /** Dimension */
+            dimension: string;
+            /** Effective N */
+            effective_n: number;
+            /** Flagged */
+            flagged: boolean;
+            /** Hhi */
+            hhi: number;
+            /** Item Count */
+            item_count: number;
+            /** Label */
+            label: string;
+            /** Note */
+            note: string | null;
+            /** Reason */
+            reason: string | null;
+            /** Rows */
+            rows: components["schemas"]["ConcentrationRow"][];
+            /** Top Share */
+            top_share: number;
         };
         /** DirectionCheck */
         DirectionCheck: {
@@ -2855,6 +3280,57 @@ export interface components {
             /** Role Note */
             role_note: string;
         };
+        /** Gate */
+        Gate: {
+            /** Detail */
+            detail: string;
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Passed */
+            passed: boolean;
+        };
+        /** GeneratedScenario */
+        GeneratedScenario: {
+            adjustments: components["schemas"]["AdjustmentNotice"] | null;
+            availability: components["schemas"]["Availability"];
+            /**
+             * Can Force
+             * @description only soft gates failed (severity, relevance, direction): the scenario below is a preview that can be run as a what-if
+             * @default false
+             */
+            can_force: boolean;
+            /** Gates */
+            gates: components["schemas"]["Gate"][];
+            history_check: components["schemas"]["ScenarioHistoryCheck"] | null;
+            /**
+             * Label
+             * @default SCENARIO SIMULATION — NOT A PREDICTION
+             */
+            label: string;
+            /** Origins */
+            origins: components["schemas"]["ShockOrigin"][];
+            /** Portfolio Id */
+            portfolio_id: string;
+            /**
+             * Reason
+             * @description SCENARIO UNAVAILABLE: why, when it is
+             */
+            reason: string | null;
+            scenario: components["schemas"]["Scenario"] | null;
+            /** Signal Id */
+            signal_id: string;
+            /** Template */
+            template: string | null;
+            /** Template Label */
+            template_label: string | null;
+            /**
+             * Version
+             * @default propagation-v1
+             */
+            version: string;
+        };
         /** GoldSummary */
         GoldSummary: {
             /** Agreed Rows */
@@ -2879,6 +3355,55 @@ export interface components {
             note: string;
             /** Rows */
             rows: number;
+        };
+        /** GraphEdge */
+        GraphEdge: {
+            /**
+             * Basis
+             * @description the quoted evidence, the fact, or the assumption in words
+             */
+            basis: string;
+            /**
+             * Relationship
+             * @description EVIDENCED_BY | MEMBER_OF | ABOUT | SENSITIVE_TO | ASSUMED_TRANSMISSION | HELD_BY | DRIVES
+             */
+            relationship: string;
+            /**
+             * Rule Id
+             * @description the config key or rule that made this edge
+             */
+            rule_id: string;
+            /** Source */
+            source: string;
+            status: components["schemas"]["Status"];
+            /** Target */
+            target: string;
+            /**
+             * Weight
+             * @description a transmission edge's weight (positive hurts, negative benefits)
+             */
+            weight: number | null;
+        };
+        /** GraphNode */
+        GraphNode: {
+            /** Detail */
+            detail: string | null;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @description EVENT | SCOPE | SECTOR | INDUSTRY | GEOGRAPHY | RISK_FACTOR | ASSET_CLASS | PORTFOLIO | POSITION | STRESS_DRIVER
+             */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Share */
+            share: number | null;
+            /**
+             * Value
+             * @description market value of the holdings the node stands for, when it stands for holdings
+             */
+            value: number | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -3357,6 +3882,51 @@ export interface components {
          * @enum {string}
          */
         Kind: "SOURCE" | "EXTRACTION" | "JUDGEMENT_PRIOR" | "MARKET_STATE" | "MODEL_REFERENCE" | "SCENARIO_ASSUMPTION" | "REALISED" | "RETRIEVED";
+        /** Knob */
+        Knob: {
+            /** Adjusted */
+            adjusted: boolean;
+            /** Choices */
+            choices: string[];
+            /**
+             * Default
+             * @description the shipped value (frozen in configs/)
+             */
+            default: unknown;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /**
+             * Group
+             * @description scenario | relevance | mapping | intelligence
+             */
+            group: string;
+            /**
+             * Kind
+             * @description number | integer | boolean | choice | text | text_list
+             */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Max */
+            max: number | null;
+            /** Min */
+            min: number | null;
+            /**
+             * Path
+             * @description dotted path: <config>.<section>...; the first segment is intelligence, portfolio or propagation
+             */
+            path: string;
+            /** Unit */
+            unit: string | null;
+            /**
+             * Value
+             * @description the value in effect
+             */
+            value: unknown;
+        };
         /**
          * LLMInfo
          * @description How new text is read right now. ``mode`` is RULES when no language model is configured or it has no key: the app still works.
@@ -3549,6 +4119,11 @@ export interface components {
             updated_total: number;
         };
         /**
+         * MappingBasis
+         * @enum {string}
+         */
+        MappingBasis: "DIRECT_FACT" | "EVIDENCED_SCOPE" | "ASSUMPTION_ONLY" | "NONE";
+        /**
          * MarketUse
          * @description Whether market data entered the score, and exactly how fresh it was.
          */
@@ -3576,6 +4151,35 @@ export interface components {
             used: boolean;
             /** Vix */
             vix: number | null;
+        };
+        /** MaterialityComponent */
+        MaterialityComponent: {
+            /** Band */
+            band: string | null;
+            /** Detail */
+            detail: string;
+            /** Display */
+            display: string;
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Value */
+            value: number | string | null;
+        };
+        /** MaterialityRule */
+        MaterialityRule: {
+            /** Effect */
+            effect: string;
+            /** Fired */
+            fired: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @description GRID | BUMP | CAP
+             */
+            kind: string;
         };
         /** Meta */
         Meta: {
@@ -3772,6 +4376,63 @@ export interface components {
             retrieval: components["schemas"]["RetrievalSummary"] | null;
             /** Splits */
             splits: components["schemas"]["SplitCheck"][];
+        };
+        /** OverlapCluster */
+        OverlapCluster: {
+            /** Events */
+            events: components["schemas"]["OverlapEvent"][];
+            /** Risk Factor */
+            risk_factor: string;
+            /** Risk Factor Label */
+            risk_factor_label: string;
+            /** Sentence */
+            sentence: string;
+            /** Shared Holdings */
+            shared_holdings: components["schemas"]["ReachedHolding"][];
+            /** Shared Share */
+            shared_share: number;
+            /** Shared Value */
+            shared_value: number;
+        };
+        /** OverlapEvent */
+        OverlapEvent: {
+            /** Event Id */
+            event_id: string;
+            /** Headline */
+            headline: string;
+            /** Materiality */
+            materiality: string;
+            /** Published At */
+            published_at: string | null;
+            /** Severity */
+            severity: number | null;
+            /** Signal Id */
+            signal_id: string;
+        };
+        /** OverlapView */
+        OverlapView: {
+            adjustments: components["schemas"]["AdjustmentNotice"] | null;
+            availability: components["schemas"]["Availability"];
+            /** Clusters */
+            clusters: components["schemas"]["OverlapCluster"][];
+            /**
+             * Considered
+             * @description signals looked at after the window and materiality filters
+             */
+            considered: number;
+            /** Note */
+            note: string;
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Reason */
+            reason: string | null;
+            /**
+             * Version
+             * @default propagation-v1
+             */
+            version: string;
+            /** Window Days */
+            window_days: number;
         };
         /** ParseRequest */
         ParseRequest: {
@@ -4067,6 +4728,29 @@ export interface components {
             /** Total Value */
             total_value: number;
         };
+        /** PortfolioFlow */
+        PortfolioFlow: {
+            adjustments: components["schemas"]["AdjustmentNotice"] | null;
+            /**
+             * Existing Run Id
+             * @description a run of the generated scenario already made for this portfolio, if any
+             */
+            existing_run_id: string | null;
+            graph: components["schemas"]["PropagationGraph"];
+            materiality: components["schemas"]["PortfolioMateriality"];
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Portfolio Name */
+            portfolio_name: string;
+            scenario: components["schemas"]["GeneratedScenario"];
+            /** Signal Id */
+            signal_id: string;
+            /**
+             * Version
+             * @default propagation-v1
+             */
+            version: string;
+        };
         /** PortfolioInput */
         "PortfolioInput-Input": {
             /**
@@ -4148,6 +4832,51 @@ export interface components {
             total_value: number;
             /** Updated At */
             updated_at: string | null;
+        };
+        /** PortfolioMateriality */
+        PortfolioMateriality: {
+            adjustments: components["schemas"]["AdjustmentNotice"] | null;
+            availability: components["schemas"]["Availability"];
+            /** Components */
+            components: components["schemas"]["MaterialityComponent"][];
+            /** Exposure Row */
+            exposure_row: string | null;
+            /** Labels */
+            labels: string[];
+            /**
+             * Level
+             * @description LOW | MEDIUM | HIGH | CRITICAL; NONE when the book holds nothing the event reaches; UNDETERMINED when no defensible mapping exists
+             */
+            level: string;
+            /** Level From Grid */
+            level_from_grid: string | null;
+            mapping_basis: components["schemas"]["MappingBasis"];
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Portfolio Name */
+            portfolio_name: string;
+            /** Reached Share */
+            reached_share: number;
+            /** Reason */
+            reason: string | null;
+            /** Rules */
+            rules: components["schemas"]["MaterialityRule"][];
+            /** Severity Column */
+            severity_column: string | null;
+            /** Signal Id */
+            signal_id: string;
+            /** Summary */
+            summary: string;
+            /**
+             * Version
+             * @default propagation-v1
+             */
+            version: string;
+            /**
+             * Why
+             * @description Why is this event relevant to this portfolio? In order, in words
+             */
+            why: string[];
         };
         /** PortfolioRelevance */
         PortfolioRelevance: {
@@ -4269,6 +4998,11 @@ export interface components {
         PositionShock: {
             factor: components["schemas"]["RiskFactor"];
             scope: components["schemas"]["ShockScope"];
+            /**
+             * Sector
+             * @description the sector this SECTOR shock named explicitly (generated scenarios), else null
+             */
+            sector: string | null;
             /** Value */
             value: number;
         };
@@ -4365,6 +5099,56 @@ export interface components {
             /** Share Correct */
             share_correct: number;
         };
+        /** PropagationGraph */
+        PropagationGraph: {
+            /** Active Factors */
+            active_factors: components["schemas"]["ActiveRiskFactor"][];
+            adjustments: components["schemas"]["AdjustmentNotice"] | null;
+            /** Assumed Share */
+            assumed_share: number;
+            availability: components["schemas"]["Availability"];
+            /** Direct Share */
+            direct_share: number;
+            /** Edges */
+            edges: components["schemas"]["GraphEdge"][];
+            /** Event Category */
+            event_category: string | null;
+            /** Evidenced Share */
+            evidenced_share: number;
+            /** Indirect Share */
+            indirect_share: number;
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            mapping_basis: components["schemas"]["MappingBasis"];
+            /** Nodes */
+            nodes: components["schemas"]["GraphNode"][];
+            /**
+             * Not Reached
+             * @description mapped targets the book holds nothing in, in words
+             */
+            not_reached: string[];
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Portfolio Name */
+            portfolio_name: string;
+            /** Reached */
+            reached: components["schemas"]["ReachedHolding"][];
+            /** Reached Share */
+            reached_share: number;
+            /** Reached Value */
+            reached_value: number;
+            /** Reason */
+            reason: string | null;
+            /** Signal Id */
+            signal_id: string;
+            /**
+             * Version
+             * @default propagation-v1
+             */
+            version: string;
+        };
         /** ProtocolRun */
         ProtocolRun: {
             /**
@@ -4425,6 +5209,13 @@ export interface components {
             /** Part */
             part: string;
         };
+        /** PutRequest */
+        PutRequest: {
+            /** Values */
+            values: {
+                [key: string]: unknown;
+            };
+        };
         /** QuarantinedRecord */
         QuarantinedRecord: {
             /** Code */
@@ -4481,6 +5272,33 @@ export interface components {
             source_type: components["schemas"]["SourceType"];
             /** Url */
             url: string | null;
+        };
+        /** ReachedHolding */
+        ReachedHolding: {
+            /** Asset Id */
+            asset_id: string;
+            /** Asset Type */
+            asset_type: string;
+            basis: components["schemas"]["MappingBasis"];
+            /** Entity Id */
+            entity_id: string;
+            /** Geography */
+            geography: string;
+            /** Industry */
+            industry: string | null;
+            /** Market Value */
+            market_value: number;
+            /** Name */
+            name: string;
+            /**
+             * Routes
+             * @description every rule that reaches it; the holding is counted once however many
+             */
+            routes: string[];
+            /** Sector */
+            sector: string;
+            /** Share */
+            share: number;
         };
         /**
          * RealisedOutcome
@@ -5612,6 +6430,27 @@ export interface components {
             /** Value */
             value: number;
         };
+        /** ShockOrigin */
+        ShockOrigin: {
+            /** Base Value */
+            base_value: number;
+            /** Basis */
+            basis: string;
+            /** Factor */
+            factor: string;
+            /** Risk Factor */
+            risk_factor: string | null;
+            /** Scope */
+            scope: string;
+            /** Sector */
+            sector: string | null;
+            /**
+             * Source
+             * @description CATALOG_BASE (the catalog scenario's own shock) | PROPAGATED (written from a transmission edge) | USER (overridden size)
+             */
+            source: string;
+            status: components["schemas"]["Status"];
+        };
         /**
          * ShockScope
          * @description Who a shock applies to. Most specific applicable scope wins: ISSUER > SECTOR > MARKET.
@@ -5630,6 +6469,11 @@ export interface components {
              */
             rationale: string;
             scope: components["schemas"]["ShockScope"];
+            /**
+             * Sector
+             * @description SECTOR scope only: the sector this shock names. Unset, the shock binds to the sector the event is about (every catalog scenario); set, it applies to that sector whatever the event is about (generated scenarios).
+             */
+            sector: string | null;
             /** Value */
             value: number;
         };
@@ -6042,6 +6886,11 @@ export interface components {
             summary: string;
         };
         /**
+         * Status
+         * @enum {string}
+         */
+        Status: "OBSERVED" | "SCENARIO_ASSUMPTION" | "USER_ASSUMPTION";
+        /**
          * StoredPortfolio
          * @description A saved portfolio: the input plus identity and timestamps.
          */
@@ -6099,6 +6948,37 @@ export interface components {
             spearman: components["schemas"]["Estimate"];
             /** Value */
             value: string;
+        };
+        /** StressAttribution */
+        StressAttribution: {
+            /** Baseline Value */
+            baseline_value: number;
+            drivers: components["schemas"]["AttributionTable"];
+            /** Headline */
+            headline: string;
+            /** Labels */
+            labels: string[];
+            /** Note */
+            note: string;
+            /** Pnl Pct */
+            pnl_pct: number;
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Reconciled */
+            reconciled: boolean;
+            /** Run Id */
+            run_id: string;
+            /** Tables */
+            tables: components["schemas"]["AttributionTable"][];
+            /** Tolerance */
+            tolerance: number;
+            /** Total Pnl */
+            total_pnl: number;
+            /**
+             * Version
+             * @default propagation-v1
+             */
+            version: string;
         };
         /** StressAudit */
         StressAudit: {
@@ -6452,6 +7332,20 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /** ValidationIssue */
+        ValidationIssue: {
+            /** Message */
+            message: string;
+            /** Path */
+            path: string | null;
+        };
+        /** ValidationReport */
+        ValidationReport: {
+            /** Issues */
+            issues: components["schemas"]["ValidationIssue"][];
+            /** Ok */
+            ok: boolean;
+        };
         /** ValueRow */
         ValueRow: {
             /** Candidate */
@@ -6696,6 +7590,143 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_adjustments_api_adjustments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdjustmentState"];
+                };
+            };
+        };
+    };
+    put_adjustments_api_adjustments_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PutRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdjustmentState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_adjustments_api_adjustments_delete: {
+        parameters: {
+            query?: {
+                path?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdjustmentState"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_all_api_adjustments_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdjustmentState"];
+                };
+            };
+        };
+    };
+    validate_adjustments_api_adjustments_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PutRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     analyze_api_analyze_post: {
         parameters: {
             query?: never;
@@ -6716,6 +7747,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnalyzeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_concentration_api_concentration_get: {
+        parameters: {
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConcentrationView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_overlaps_api_concentration_overlaps_get: {
+        parameters: {
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+                signal_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OverlapView"];
                 };
             };
             /** @description Validation Error */
@@ -7677,6 +8773,109 @@ export interface operations {
             };
         };
     };
+    get_materiality_api_signals__signal_id__materiality_get: {
+        parameters: {
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioMateriality"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_portfolio_stress_api_signals__signal_id__portfolio_stress_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AutoStressRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AutoStressResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_propagation_api_signals__signal_id__propagation_get: {
+        parameters: {
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioFlow"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_signal_relevance_api_signals__signal_id__relevance_get: {
         parameters: {
             query?: {
@@ -7794,6 +8993,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StressResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_attribution_api_stress_runs__run_id__attribution_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StressAttribution"];
                 };
             };
             /** @description Validation Error */

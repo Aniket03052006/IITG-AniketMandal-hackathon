@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActivePortfolio } from "../lib/portfolio";
 import { api, type SignalFilters } from "./client";
-import type { CompareRequest, PortfolioInput, StressRequest } from "./types";
+import type { AutoStressRequest, CompareRequest, PortfolioInput, StressRequest } from "./types";
 
 export const useMeta = () => useQuery({ queryKey: ["meta"], queryFn: api.meta, staleTime: Infinity });
 
@@ -125,6 +125,7 @@ export const usePortfolioMutations = () => {
     qc.invalidateQueries({ queryKey: ["pf-exposure-detail"] });
     qc.invalidateQueries({ queryKey: ["signal-relevance"] });
     qc.invalidateQueries({ queryKey: ["signals"] });
+    for (const k of ["propagation", "materiality", "concentration", "overlaps", "signal-intelligence"]) qc.invalidateQueries({ queryKey: [k] });
   };
   return {
     create: useMutation({ mutationFn: api.createPortfolio, onSuccess: done }),
@@ -156,4 +157,64 @@ export const useActivePortfolioItem = () => {
   const item = id ? list.data?.find((p) => p.id === id) : list.data?.find((p) => p.kind === "DEFAULT");
   const stale = !!id && !!list.data && !item;
   return { id: stale ? null : id, item: stale ? list.data?.find((p) => p.kind === "DEFAULT") : item, stale, loading: list.isLoading };
+};
+
+// ---- Stage 11: event -> portfolio propagation (a derived side-car; absent where the replay engine is not running)
+/** Mapping, relevance and the scenario an event would generate, for the ACTIVE portfolio. */
+export const usePropagation = (id: string | undefined, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["propagation", id, pf], queryFn: () => api.propagation(id as string, pf), enabled: !!id && enabled, staleTime: 15_000, retry: false });
+};
+
+export const useMateriality = (id: string | undefined, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["materiality", id, pf], queryFn: () => api.materiality(id as string, pf), enabled: !!id && enabled, staleTime: 15_000, retry: false });
+};
+
+/** Generates the event's scenario for the active portfolio and runs it (the portfolio id is added here so no caller can forget it). */
+export const usePortfolioStress = (signalId: string | undefined) => {
+  const pf = useActivePortfolio();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Omit<AutoStressRequest, "portfolio_id"> = {}) => api.portfolioStress(signalId as string, pf ? { ...body, portfolio_id: pf } : body),
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["propagation", signalId] });
+      if (r.run) qc.setQueryData(["attribution", r.run.run_id], r.attribution ?? undefined);
+    },
+  });
+};
+
+export const useAttribution = (runId: string | undefined, enabled = true) =>
+  useQuery({ queryKey: ["attribution", runId], queryFn: () => api.attribution(runId as string), enabled: !!runId && enabled, staleTime: Infinity, retry: false });
+
+/** Concentration of the ACTIVE portfolio, or of the saved one named by `pfId` (null = the synthetic default). */
+export const useConcentration = (enabled = true, pfId?: string | null) => {
+  const active = useActivePortfolio();
+  const pf = pfId === undefined ? active : pfId;
+  return useQuery({ queryKey: ["concentration", pf], queryFn: () => api.concentration(pf), enabled, staleTime: 15_000, retry: false });
+};
+
+export const useOverlaps = (signalId: string | null = null, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["overlaps", pf, signalId], queryFn: () => api.overlaps(pf, signalId), enabled, staleTime: 15_000, retry: false });
+};
+
+// ---- manual adjustment of the side-cars
+export const useAdjustments = (enabled = true) => useQuery({ queryKey: ["adjustments"], queryFn: api.adjustments, enabled, staleTime: 5_000 });
+
+/** Everything an adjustment can change is refetched: the derived side-cars read the new values on the next request. */
+export const useAdjustmentMutations = () => {
+  const qc = useQueryClient();
+  const done = (state: unknown) => {
+    qc.setQueryData(["adjustments"], state);
+    for (const k of ["signal-intelligence", "signal-relevance", "signals", "propagation", "materiality", "attribution", "concentration", "overlaps", "pf-exposure-detail", "exposure-chain"]) {
+      qc.invalidateQueries({ queryKey: [k] });
+    }
+  };
+  return {
+    validate: useMutation({ mutationFn: api.validateAdjustments }),
+    save: useMutation({ mutationFn: api.putAdjustments, onSuccess: done }),
+    reset: useMutation({ mutationFn: api.resetAdjustment, onSuccess: done }),
+    resetAll: useMutation({ mutationFn: api.resetAdjustments, onSuccess: done }),
+  };
 };

@@ -34,6 +34,15 @@ import type {
   ExposureChain,
   PortfolioComparison,
   CompareRequest,
+  PortfolioFlow,
+  PortfolioMateriality,
+  AutoStressRequest,
+  AutoStressResult,
+  StressAttribution,
+  ConcentrationView,
+  OverlapView,
+  AdjustmentState,
+  ValidationReport,
 } from "./types";
 import { pfParam } from "../lib/portfolio";
 
@@ -63,6 +72,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       const body = await res.json();
       if (typeof body?.detail === "string") detail = body.detail;
+      else if (Array.isArray(body?.detail?.issues)) detail = body.detail.issues.map((i: { path: string | null; message: string }) => (i.path ? `${i.path}: ` : "") + i.message).join("; ");
       else if (Array.isArray(body?.detail)) detail = body.detail.map((d: { msg: string }) => d.msg).join("; ");
     } catch {
       /* non-JSON error body: keep statusText */
@@ -140,6 +150,20 @@ export const api = {
   portfolioExposureDetail: (id: string) => request<PortfolioExposureDetail>(`/portfolios/${encodeURIComponent(id)}/exposure`),
   exposureChain: (runId: string) => request<ExposureChain>(`/stress-runs/${encodeURIComponent(runId)}/exposure-chain`),
   comparePortfolios: (body: CompareRequest) => request<PortfolioComparison>("/portfolios/compare", { method: "POST", body: JSON.stringify(body) }),
+  propagation: (id: string, pf: string | null = null) => request<PortfolioFlow>(`/signals/${encodeURIComponent(id)}/propagation${qs(pfParam(pf))}`),
+  materiality: (id: string, pf: string | null = null) => request<PortfolioMateriality>(`/signals/${encodeURIComponent(id)}/materiality${qs(pfParam(pf))}`),
+  portfolioStress: (id: string, body: AutoStressRequest) =>
+    request<AutoStressResult>(`/signals/${encodeURIComponent(id)}/portfolio-stress`, { method: "POST", body: JSON.stringify(body) }),
+  attribution: (runId: string) => request<StressAttribution>(`/stress-runs/${encodeURIComponent(runId)}/attribution`),
+  concentration: (pf: string | null = null) => request<ConcentrationView>(`/concentration${qs(pfParam(pf))}`),
+  overlaps: (pf: string | null = null, signalId: string | null = null) =>
+    request<OverlapView>(`/concentration/overlaps${qs(pfParam(pf), signalId ? `signal_id=${encodeURIComponent(signalId)}` : "")}`),
+  adjustments: () => request<AdjustmentState>("/adjustments"),
+  validateAdjustments: (values: Record<string, unknown>) =>
+    request<ValidationReport>("/adjustments/validate", { method: "POST", body: JSON.stringify({ values }) }),
+  putAdjustments: (values: Record<string, unknown>) => request<AdjustmentState>("/adjustments", { method: "PUT", body: JSON.stringify({ values }) }),
+  resetAdjustment: (path: string) => request<AdjustmentState>(`/adjustments?path=${encodeURIComponent(path)}`, { method: "DELETE" }),
+  resetAdjustments: () => request<AdjustmentState>("/adjustments/reset", { method: "POST" }),
   stressTest: (body: StressRequest) =>
     request<StressResult>("/stress-test", { method: "POST", body: JSON.stringify(body) }),
 };

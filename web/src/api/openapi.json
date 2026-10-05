@@ -130,6 +130,180 @@
         "title": "Abstention",
         "type": "object"
       },
+      "ActiveRiskFactor": {
+        "properties": {
+          "evidence": {
+            "description": "the phrases or themes that make it active",
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "modelled": {
+            "description": "ENGINE | PROXY | NOT_MODELLED",
+            "title": "Modelled",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "origin": {
+            "description": "TEXT (the text uses its vocabulary) | CATEGORY (assumed for this class of event)",
+            "title": "Origin",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "modelled",
+          "origin",
+          "status",
+          "evidence",
+          "note"
+        ],
+        "title": "ActiveRiskFactor",
+        "type": "object"
+      },
+      "AddedEdge": {
+        "description": "A transmission edge the user added (it has no shipped default).",
+        "properties": {
+          "edge_id": {
+            "title": "Edge Id",
+            "type": "string"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "risk_factor": {
+            "title": "Risk Factor",
+            "type": "string"
+          },
+          "value": {
+            "additionalProperties": true,
+            "title": "Value",
+            "type": "object"
+          }
+        },
+        "required": [
+          "path",
+          "risk_factor",
+          "edge_id",
+          "value"
+        ],
+        "title": "AddedEdge",
+        "type": "object"
+      },
+      "AdjustmentNotice": {
+        "description": "Attached to a side-car answer when any override is in effect (omitted otherwise, so default payloads are unchanged).",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "note": {
+            "default": "Some values behind this answer were adjusted by you. They are your assumptions, not validated.",
+            "title": "Note",
+            "type": "string"
+          },
+          "paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Paths",
+            "type": "array"
+          }
+        },
+        "required": [
+          "count",
+          "paths",
+          "note"
+        ],
+        "title": "AdjustmentNotice",
+        "type": "object"
+      },
+      "AdjustmentState": {
+        "properties": {
+          "added_edges": {
+            "items": {
+              "$ref": "#/components/schemas/AddedEdge"
+            },
+            "title": "Added Edges",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "knobs": {
+            "items": {
+              "$ref": "#/components/schemas/Knob"
+            },
+            "title": "Knobs",
+            "type": "array"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "risk_factors": {
+            "description": "the risk factors a transmission edge can be added to",
+            "items": {
+              "type": "string"
+            },
+            "title": "Risk Factors",
+            "type": "array"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "version": {
+            "description": "hash of the overrides in effect; 'default' when none",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "count",
+          "updated_at",
+          "knobs",
+          "added_edges",
+          "risk_factors",
+          "note"
+        ],
+        "title": "AdjustmentState",
+        "type": "object"
+      },
       "AffectedEntity": {
         "properties": {
           "entity_id": {
@@ -923,6 +1097,18 @@
           },
           "scope": {
             "$ref": "#/components/schemas/ShockScope"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the sector a SECTOR shock names explicitly (generated scenarios); null = the event's own sector",
+            "title": "Sector"
           }
         },
         "required": [
@@ -930,6 +1116,7 @@
           "scope",
           "base_value",
           "scaled_value",
+          "sector",
           "applicable",
           "not_applicable_reason",
           "rationale"
@@ -1054,6 +1241,113 @@
           "units"
         ],
         "title": "Attribution",
+        "type": "object"
+      },
+      "AttributionRow": {
+        "properties": {
+          "baseline_value": {
+            "title": "Baseline Value",
+            "type": "number"
+          },
+          "delta": {
+            "title": "Delta",
+            "type": "number"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "position_count": {
+            "title": "Position Count",
+            "type": "integer"
+          },
+          "share_of_total": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "delta / total change; null when the total is zero",
+            "title": "Share Of Total"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "delta",
+          "share_of_total",
+          "baseline_value",
+          "position_count",
+          "detail"
+        ],
+        "title": "AttributionRow",
+        "type": "object"
+      },
+      "AttributionTable": {
+        "properties": {
+          "dimension": {
+            "title": "Dimension",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "reconciled": {
+            "title": "Reconciled",
+            "type": "boolean"
+          },
+          "residual": {
+            "description": "total - sum; within tolerance by construction",
+            "title": "Residual",
+            "type": "number"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AttributionRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "sum": {
+            "description": "the rows added up",
+            "title": "Sum",
+            "type": "number"
+          },
+          "total": {
+            "description": "the run's total modeled change",
+            "title": "Total",
+            "type": "number"
+          }
+        },
+        "required": [
+          "dimension",
+          "label",
+          "rows",
+          "total",
+          "sum",
+          "residual",
+          "reconciled"
+        ],
+        "title": "AttributionTable",
         "type": "object"
       },
       "AuditSummary": {
@@ -1214,6 +1508,130 @@
           "sigma_reading"
         ],
         "title": "AuditSummary",
+        "type": "object"
+      },
+      "AutoStressRequest": {
+        "properties": {
+          "force": {
+            "default": false,
+            "description": "run even when a gate fails (a what-if); the failed gates are still reported",
+            "title": "Force",
+            "type": "boolean"
+          },
+          "impact_override": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Override"
+          },
+          "portfolio_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portfolio Id"
+          }
+        },
+        "title": "AutoStressRequest",
+        "type": "object"
+      },
+      "AutoStressResult": {
+        "properties": {
+          "adjustments": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdjustmentNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attribution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StressAttribution"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "chain": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExposureChain"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "materiality": {
+            "$ref": "#/components/schemas/PortfolioMateriality"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StressResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/GeneratedScenario"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "version": {
+            "default": "propagation-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "version",
+          "portfolio_id",
+          "materiality",
+          "scenario",
+          "run",
+          "chain",
+          "attribution",
+          "note",
+          "adjustments"
+        ],
+        "title": "AutoStressResult",
         "type": "object"
       },
       "Availability": {
@@ -1663,6 +2081,12 @@
       },
       "Capabilities": {
         "properties": {
+          "adjustments": {
+            "default": true,
+            "description": "the side-cars' thresholds, mapping tables and scenario sizes can be adjusted by hand; /api/adjustments",
+            "title": "Adjustments",
+            "type": "boolean"
+          },
           "analogues": {
             "default": false,
             "description": "historical analogues are served (an index is installed); GET /api/signals/{id}/analogues",
@@ -1713,6 +2137,12 @@
               }
             ],
             "description": "how new text is read; null where there is no assessment layer"
+          },
+          "propagation": {
+            "default": false,
+            "description": "event -> portfolio propagation, materiality, generated scenarios, attribution and concentration are served; /api/signals/{id}/propagation",
+            "title": "Propagation",
+            "type": "boolean"
           }
         },
         "required": [
@@ -1723,6 +2153,8 @@
           "analogues",
           "history_check",
           "intelligence",
+          "propagation",
+          "adjustments",
           "custom_portfolios"
         ],
         "title": "Capabilities",
@@ -2161,6 +2593,106 @@
           "portfolio_ids"
         ],
         "title": "CompareRequest",
+        "type": "object"
+      },
+      "ConcentrationRow": {
+        "properties": {
+          "flagged": {
+            "title": "Flagged",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "position_count": {
+            "title": "Position Count",
+            "type": "integer"
+          },
+          "share": {
+            "title": "Share",
+            "type": "number"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "value",
+          "share",
+          "position_count",
+          "flagged"
+        ],
+        "title": "ConcentrationRow",
+        "type": "object"
+      },
+      "ConcentrationView": {
+        "properties": {
+          "adjustments": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdjustmentNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dimensions": {
+            "items": {
+              "$ref": "#/components/schemas/DimensionConcentration"
+            },
+            "title": "Dimensions",
+            "type": "array"
+          },
+          "flags": {
+            "description": "only the concentration that is meaningful, in words",
+            "items": {
+              "type": "string"
+            },
+            "title": "Flags",
+            "type": "array"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "portfolio_name": {
+            "title": "Portfolio Name",
+            "type": "string"
+          },
+          "total_value": {
+            "title": "Total Value",
+            "type": "number"
+          },
+          "version": {
+            "default": "propagation-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "portfolio_id",
+          "portfolio_name",
+          "version",
+          "total_value",
+          "dimensions",
+          "flags",
+          "note",
+          "adjustments"
+        ],
+        "title": "ConcentrationView",
         "type": "object"
       },
       "ConfidenceTier": {
@@ -2908,6 +3440,81 @@
           "b_value"
         ],
         "title": "DiffRow",
+        "type": "object"
+      },
+      "DimensionConcentration": {
+        "properties": {
+          "dimension": {
+            "title": "Dimension",
+            "type": "string"
+          },
+          "effective_n": {
+            "title": "Effective N",
+            "type": "number"
+          },
+          "flagged": {
+            "title": "Flagged",
+            "type": "boolean"
+          },
+          "hhi": {
+            "title": "Hhi",
+            "type": "number"
+          },
+          "item_count": {
+            "title": "Item Count",
+            "type": "integer"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ConcentrationRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "top_share": {
+            "title": "Top Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "dimension",
+          "label",
+          "rows",
+          "item_count",
+          "hhi",
+          "effective_n",
+          "top_share",
+          "flagged",
+          "reason",
+          "note"
+        ],
+        "title": "DimensionConcentration",
         "type": "object"
       },
       "DirectionCheck": {
@@ -5413,6 +6020,161 @@
         "title": "FilingMoment",
         "type": "object"
       },
+      "Gate": {
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "passed",
+          "detail"
+        ],
+        "title": "Gate",
+        "type": "object"
+      },
+      "GeneratedScenario": {
+        "properties": {
+          "adjustments": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdjustmentNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "can_force": {
+            "default": false,
+            "description": "only soft gates failed (severity, relevance, direction): the scenario below is a preview that can be run as a what-if",
+            "title": "Can Force",
+            "type": "boolean"
+          },
+          "gates": {
+            "items": {
+              "$ref": "#/components/schemas/Gate"
+            },
+            "title": "Gates",
+            "type": "array"
+          },
+          "history_check": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScenarioHistoryCheck"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "label": {
+            "default": "SCENARIO SIMULATION \u2014 NOT A PREDICTION",
+            "title": "Label",
+            "type": "string"
+          },
+          "origins": {
+            "items": {
+              "$ref": "#/components/schemas/ShockOrigin"
+            },
+            "title": "Origins",
+            "type": "array"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "SCENARIO UNAVAILABLE: why, when it is",
+            "title": "Reason"
+          },
+          "scenario": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Scenario"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "template": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template"
+          },
+          "template_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Label"
+          },
+          "version": {
+            "default": "propagation-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "version",
+          "label",
+          "availability",
+          "reason",
+          "template",
+          "template_label",
+          "gates",
+          "can_force",
+          "scenario",
+          "origins",
+          "history_check",
+          "portfolio_id",
+          "adjustments"
+        ],
+        "title": "GeneratedScenario",
+        "type": "object"
+      },
       "GoldSummary": {
         "additionalProperties": false,
         "properties": {
@@ -5483,6 +6245,120 @@
           "note"
         ],
         "title": "GoldSummary",
+        "type": "object"
+      },
+      "GraphEdge": {
+        "properties": {
+          "basis": {
+            "description": "the quoted evidence, the fact, or the assumption in words",
+            "title": "Basis",
+            "type": "string"
+          },
+          "relationship": {
+            "description": "EVIDENCED_BY | MEMBER_OF | ABOUT | SENSITIVE_TO | ASSUMED_TRANSMISSION | HELD_BY | DRIVES",
+            "title": "Relationship",
+            "type": "string"
+          },
+          "rule_id": {
+            "description": "the config key or rule that made this edge",
+            "title": "Rule Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "a transmission edge's weight (positive hurts, negative benefits)",
+            "title": "Weight"
+          }
+        },
+        "required": [
+          "source",
+          "target",
+          "relationship",
+          "rule_id",
+          "basis",
+          "status",
+          "weight"
+        ],
+        "title": "GraphEdge",
+        "type": "object"
+      },
+      "GraphNode": {
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "description": "EVENT | SCOPE | SECTOR | INDUSTRY | GEOGRAPHY | RISK_FACTOR | ASSET_CLASS | PORTFOLIO | POSITION | STRESS_DRIVER",
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "market value of the holdings the node stands for, when it stands for holdings",
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "label",
+          "detail",
+          "value",
+          "share"
+        ],
+        "title": "GraphNode",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -6696,6 +7572,102 @@
         "title": "Kind",
         "type": "string"
       },
+      "Knob": {
+        "properties": {
+          "adjusted": {
+            "title": "Adjusted",
+            "type": "boolean"
+          },
+          "choices": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Choices",
+            "type": "array"
+          },
+          "default": {
+            "description": "the shipped value (frozen in configs/)",
+            "title": "Default"
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "group": {
+            "description": "scenario | relevance | mapping | intelligence",
+            "title": "Group",
+            "type": "string"
+          },
+          "kind": {
+            "description": "number | integer | boolean | choice | text | text_list",
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          },
+          "path": {
+            "description": "dotted path: <config>.<section>...; the first segment is intelligence, portfolio or propagation",
+            "title": "Path",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "value": {
+            "description": "the value in effect",
+            "title": "Value"
+          }
+        },
+        "required": [
+          "path",
+          "group",
+          "label",
+          "description",
+          "kind",
+          "unit",
+          "min",
+          "max",
+          "choices",
+          "default",
+          "value",
+          "adjusted"
+        ],
+        "title": "Knob",
+        "type": "object"
+      },
       "LLMInfo": {
         "description": "How new text is read right now. ``mode`` is RULES when no language model is configured or it has no key: the app still works.",
         "properties": {
@@ -7231,6 +8203,16 @@
         "title": "LiveStatus",
         "type": "object"
       },
+      "MappingBasis": {
+        "enum": [
+          "DIRECT_FACT",
+          "EVIDENCED_SCOPE",
+          "ASSUMPTION_ONLY",
+          "NONE"
+        ],
+        "title": "MappingBasis",
+        "type": "string"
+      },
       "MarketUse": {
         "description": "Whether market data entered the score, and exactly how fresh it was.",
         "properties": {
@@ -7304,6 +8286,90 @@
           "reason"
         ],
         "title": "MarketUse",
+        "type": "object"
+      },
+      "MaterialityComponent": {
+        "properties": {
+          "band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Band"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "display": {
+            "title": "Display",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "display",
+          "value",
+          "band",
+          "detail"
+        ],
+        "title": "MaterialityComponent",
+        "type": "object"
+      },
+      "MaterialityRule": {
+        "properties": {
+          "effect": {
+            "title": "Effect",
+            "type": "string"
+          },
+          "fired": {
+            "title": "Fired",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "description": "GRID | BUMP | CAP",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "fired",
+          "effect"
+        ],
+        "title": "MaterialityRule",
         "type": "object"
       },
       "Meta": {
@@ -7871,6 +8937,178 @@
           "note"
         ],
         "title": "OutcomeCheck",
+        "type": "object"
+      },
+      "OverlapCluster": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/OverlapEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "risk_factor": {
+            "title": "Risk Factor",
+            "type": "string"
+          },
+          "risk_factor_label": {
+            "title": "Risk Factor Label",
+            "type": "string"
+          },
+          "sentence": {
+            "title": "Sentence",
+            "type": "string"
+          },
+          "shared_holdings": {
+            "items": {
+              "$ref": "#/components/schemas/ReachedHolding"
+            },
+            "title": "Shared Holdings",
+            "type": "array"
+          },
+          "shared_share": {
+            "title": "Shared Share",
+            "type": "number"
+          },
+          "shared_value": {
+            "title": "Shared Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "risk_factor",
+          "risk_factor_label",
+          "events",
+          "shared_holdings",
+          "shared_value",
+          "shared_share",
+          "sentence"
+        ],
+        "title": "OverlapCluster",
+        "type": "object"
+      },
+      "OverlapEvent": {
+        "properties": {
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "materiality": {
+            "title": "Materiality",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "event_id",
+          "headline",
+          "published_at",
+          "materiality",
+          "severity"
+        ],
+        "title": "OverlapEvent",
+        "type": "object"
+      },
+      "OverlapView": {
+        "properties": {
+          "adjustments": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdjustmentNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "clusters": {
+            "items": {
+              "$ref": "#/components/schemas/OverlapCluster"
+            },
+            "title": "Clusters",
+            "type": "array"
+          },
+          "considered": {
+            "description": "signals looked at after the window and materiality filters",
+            "title": "Considered",
+            "type": "integer"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "version": {
+            "default": "propagation-v1",
+            "title": "Version",
+            "type": "string"
+          },
+          "window_days": {
+            "title": "Window Days",
+            "type": "number"
+          }
+        },
+        "required": [
+          "portfolio_id",
+          "version",
+          "availability",
+          "reason",
+          "window_days",
+          "considered",
+          "clusters",
+          "note",
+          "adjustments"
+        ],
+        "title": "OverlapView",
         "type": "object"
       },
       "ParseRequest": {
@@ -8603,6 +9841,71 @@
         "title": "PortfolioExposureDetail",
         "type": "object"
       },
+      "PortfolioFlow": {
+        "properties": {
+          "adjustments": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdjustmentNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "existing_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "a run of the generated scenario already made for this portfolio, if any",
+            "title": "Existing Run Id"
+          },
+          "graph": {
+            "$ref": "#/components/schemas/PropagationGraph"
+          },
+          "materiality": {
+            "$ref": "#/components/schemas/PortfolioMateriality"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "portfolio_name": {
+            "title": "Portfolio Name",
+            "type": "string"
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/GeneratedScenario"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "version": {
+            "default": "propagation-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "version",
+          "portfolio_id",
+          "portfolio_name",
+          "graph",
+          "materiality",
+          "scenario",
+          "existing_run_id",
+          "adjustments"
+        ],
+        "title": "PortfolioFlow",
+        "type": "object"
+      },
       "PortfolioInput-Input": {
         "additionalProperties": false,
         "properties": {
@@ -8780,6 +10083,151 @@
           "updated_at"
         ],
         "title": "PortfolioListItem",
+        "type": "object"
+      },
+      "PortfolioMateriality": {
+        "properties": {
+          "adjustments": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdjustmentNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/MaterialityComponent"
+            },
+            "title": "Components",
+            "type": "array"
+          },
+          "exposure_row": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exposure Row"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "level": {
+            "description": "LOW | MEDIUM | HIGH | CRITICAL; NONE when the book holds nothing the event reaches; UNDETERMINED when no defensible mapping exists",
+            "title": "Level",
+            "type": "string"
+          },
+          "level_from_grid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Level From Grid"
+          },
+          "mapping_basis": {
+            "$ref": "#/components/schemas/MappingBasis"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "portfolio_name": {
+            "title": "Portfolio Name",
+            "type": "string"
+          },
+          "reached_share": {
+            "title": "Reached Share",
+            "type": "number"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/MaterialityRule"
+            },
+            "title": "Rules",
+            "type": "array"
+          },
+          "severity_column": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity Column"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "version": {
+            "default": "propagation-v1",
+            "title": "Version",
+            "type": "string"
+          },
+          "why": {
+            "description": "Why is this event relevant to this portfolio? In order, in words",
+            "items": {
+              "type": "string"
+            },
+            "title": "Why",
+            "type": "array"
+          }
+        },
+        "required": [
+          "signal_id",
+          "version",
+          "portfolio_id",
+          "portfolio_name",
+          "availability",
+          "reason",
+          "level",
+          "level_from_grid",
+          "exposure_row",
+          "severity_column",
+          "components",
+          "rules",
+          "why",
+          "summary",
+          "mapping_basis",
+          "reached_share",
+          "labels",
+          "adjustments"
+        ],
+        "title": "PortfolioMateriality",
         "type": "object"
       },
       "PortfolioRelevance": {
@@ -9064,6 +10512,18 @@
           "scope": {
             "$ref": "#/components/schemas/ShockScope"
           },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the sector this SECTOR shock named explicitly (generated scenarios), else null",
+            "title": "Sector"
+          },
           "value": {
             "title": "Value",
             "type": "number"
@@ -9072,7 +10532,8 @@
         "required": [
           "factor",
           "scope",
-          "value"
+          "value",
+          "sector"
         ],
         "title": "PositionShock",
         "type": "object"
@@ -9304,6 +10765,165 @@
         "title": "ProbeRow",
         "type": "object"
       },
+      "PropagationGraph": {
+        "properties": {
+          "active_factors": {
+            "items": {
+              "$ref": "#/components/schemas/ActiveRiskFactor"
+            },
+            "title": "Active Factors",
+            "type": "array"
+          },
+          "adjustments": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdjustmentNotice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assumed_share": {
+            "title": "Assumed Share",
+            "type": "number"
+          },
+          "availability": {
+            "$ref": "#/components/schemas/Availability"
+          },
+          "direct_share": {
+            "title": "Direct Share",
+            "type": "number"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "event_category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Category"
+          },
+          "evidenced_share": {
+            "title": "Evidenced Share",
+            "type": "number"
+          },
+          "indirect_share": {
+            "title": "Indirect Share",
+            "type": "number"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "mapping_basis": {
+            "$ref": "#/components/schemas/MappingBasis"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "not_reached": {
+            "description": "mapped targets the book holds nothing in, in words",
+            "items": {
+              "type": "string"
+            },
+            "title": "Not Reached",
+            "type": "array"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "portfolio_name": {
+            "title": "Portfolio Name",
+            "type": "string"
+          },
+          "reached": {
+            "items": {
+              "$ref": "#/components/schemas/ReachedHolding"
+            },
+            "title": "Reached",
+            "type": "array"
+          },
+          "reached_share": {
+            "title": "Reached Share",
+            "type": "number"
+          },
+          "reached_value": {
+            "title": "Reached Value",
+            "type": "number"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "version": {
+            "default": "propagation-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "version",
+          "availability",
+          "reason",
+          "portfolio_id",
+          "portfolio_name",
+          "event_category",
+          "nodes",
+          "edges",
+          "active_factors",
+          "reached",
+          "reached_value",
+          "reached_share",
+          "direct_share",
+          "indirect_share",
+          "evidenced_share",
+          "assumed_share",
+          "mapping_basis",
+          "not_reached",
+          "labels",
+          "limitations",
+          "adjustments"
+        ],
+        "title": "PropagationGraph",
+        "type": "object"
+      },
       "ProtocolRun": {
         "additionalProperties": false,
         "properties": {
@@ -9450,6 +11070,20 @@
         "title": "ProvenanceLine",
         "type": "object"
       },
+      "PutRequest": {
+        "properties": {
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "values"
+        ],
+        "title": "PutRequest",
+        "type": "object"
+      },
       "QuarantinedRecord": {
         "properties": {
           "code": {
@@ -9566,6 +11200,79 @@
           "raw_metadata"
         ],
         "title": "RawDocument",
+        "type": "object"
+      },
+      "ReachedHolding": {
+        "properties": {
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "asset_type": {
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "basis": {
+            "$ref": "#/components/schemas/MappingBasis"
+          },
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "geography": {
+            "title": "Geography",
+            "type": "string"
+          },
+          "industry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Industry"
+          },
+          "market_value": {
+            "title": "Market Value",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "routes": {
+            "description": "every rule that reaches it; the holding is counted once however many",
+            "items": {
+              "type": "string"
+            },
+            "title": "Routes",
+            "type": "array"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "share": {
+            "title": "Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "asset_id",
+          "name",
+          "entity_id",
+          "asset_type",
+          "sector",
+          "industry",
+          "geography",
+          "market_value",
+          "share",
+          "basis",
+          "routes"
+        ],
+        "title": "ReachedHolding",
         "type": "object"
       },
       "RealisedOutcome": {
@@ -12360,6 +14067,68 @@
         "title": "ShockCheck",
         "type": "object"
       },
+      "ShockOrigin": {
+        "properties": {
+          "base_value": {
+            "title": "Base Value",
+            "type": "number"
+          },
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "factor": {
+            "title": "Factor",
+            "type": "string"
+          },
+          "risk_factor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Factor"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "source": {
+            "description": "CATALOG_BASE (the catalog scenario's own shock) | PROPAGATED (written from a transmission edge) | USER (overridden size)",
+            "title": "Source",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "required": [
+          "factor",
+          "scope",
+          "sector",
+          "source",
+          "risk_factor",
+          "status",
+          "base_value",
+          "basis"
+        ],
+        "title": "ShockOrigin",
+        "type": "object"
+      },
       "ShockScope": {
         "description": "Who a shock applies to. Most specific applicable scope wins: ISSUER > SECTOR > MARKET.",
         "enum": [
@@ -12384,6 +14153,18 @@
           "scope": {
             "$ref": "#/components/schemas/ShockScope"
           },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "SECTOR scope only: the sector this shock names. Unset, the shock binds to the sector the event is about (every catalog scenario); set, it applies to that sector whatever the event is about (generated scenarios).",
+            "title": "Sector"
+          },
           "value": {
             "title": "Value",
             "type": "number"
@@ -12393,7 +14174,8 @@
           "factor",
           "scope",
           "value",
-          "rationale"
+          "rationale",
+          "sector"
         ],
         "title": "ShockSpec",
         "type": "object"
@@ -13452,6 +15234,15 @@
         "title": "StageStatus",
         "type": "object"
       },
+      "Status": {
+        "enum": [
+          "OBSERVED",
+          "SCENARIO_ASSUMPTION",
+          "USER_ASSUMPTION"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
       "StoredPortfolio": {
         "additionalProperties": false,
         "description": "A saved portfolio: the input plus identity and timestamps.",
@@ -13582,6 +15373,85 @@
           "mae_constant"
         ],
         "title": "Stratum",
+        "type": "object"
+      },
+      "StressAttribution": {
+        "properties": {
+          "baseline_value": {
+            "title": "Baseline Value",
+            "type": "number"
+          },
+          "drivers": {
+            "$ref": "#/components/schemas/AttributionTable"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "pnl_pct": {
+            "title": "Pnl Pct",
+            "type": "number"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "reconciled": {
+            "title": "Reconciled",
+            "type": "boolean"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "tables": {
+            "items": {
+              "$ref": "#/components/schemas/AttributionTable"
+            },
+            "title": "Tables",
+            "type": "array"
+          },
+          "tolerance": {
+            "title": "Tolerance",
+            "type": "number"
+          },
+          "total_pnl": {
+            "title": "Total Pnl",
+            "type": "number"
+          },
+          "version": {
+            "default": "propagation-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "version",
+          "portfolio_id",
+          "total_pnl",
+          "baseline_value",
+          "pnl_pct",
+          "headline",
+          "drivers",
+          "tables",
+          "tolerance",
+          "reconciled",
+          "note",
+          "labels"
+        ],
+        "title": "StressAttribution",
         "type": "object"
       },
       "StressAudit": {
@@ -14539,6 +16409,52 @@
         "title": "ValidationError",
         "type": "object"
       },
+      "ValidationIssue": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          }
+        },
+        "required": [
+          "path",
+          "message"
+        ],
+        "title": "ValidationIssue",
+        "type": "object"
+      },
+      "ValidationReport": {
+        "properties": {
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationIssue"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "ok": {
+            "title": "Ok",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok",
+          "issues"
+        ],
+        "title": "ValidationReport",
+        "type": "object"
+      },
       "ValueRow": {
         "properties": {
           "candidate": {
@@ -15168,6 +17084,180 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/adjustments": {
+      "delete": {
+        "description": "Reset one adjusted value to its default (`path`), or every value when no path is given.",
+        "operationId": "reset_adjustments_api_adjustments_delete",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "path",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Path"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjustmentState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset Adjustments",
+        "tags": [
+          "adjustments"
+        ]
+      },
+      "get": {
+        "description": "Every setting of the side-cars that can be adjusted by hand: its shipped default, its value now, its bounds. Adjusted values are the user's own assumptions.",
+        "operationId": "get_adjustments_api_adjustments_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjustmentState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Adjustments",
+        "tags": [
+          "adjustments"
+        ]
+      },
+      "put": {
+        "description": "Save adjustments (dotted path -> value) and rebuild the side-cars on them. 422 with the issues per path when a value is not allowed; nothing is saved then.",
+        "operationId": "put_adjustments_api_adjustments_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjustmentState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Adjustments",
+        "tags": [
+          "adjustments"
+        ]
+      }
+    },
+    "/api/adjustments/reset": {
+      "post": {
+        "description": "Reset every adjusted value to its shipped default.",
+        "operationId": "reset_all_api_adjustments_reset_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdjustmentState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Reset All",
+        "tags": [
+          "adjustments"
+        ]
+      }
+    },
+    "/api/adjustments/validate": {
+      "post": {
+        "description": "Check a change without saving it: bounds and the cross-field rules of the real configuration.",
+        "operationId": "validate_adjustments_api_adjustments_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Validate Adjustments",
+        "tags": [
+          "adjustments"
+        ]
+      }
+    },
     "/api/analyze": {
       "post": {
         "description": "Analyse pasted text through the same engine as the live feed. Always 200 for a usable request: ``outcome`` says what happened\n(a text that cannot be scored is ``QUARANTINED`` with the reason, never given a guessed value).",
@@ -15207,6 +17297,126 @@
         "summary": "Analyze",
         "tags": [
           "analyze"
+        ]
+      }
+    },
+    "/api/concentration": {
+      "get": {
+        "description": "Concentration of the portfolio by issuer, sector, industry, geography, asset class and risk factor. Only meaningful concentration is flagged.",
+        "operationId": "get_concentration_api_concentration_get",
+        "parameters": [
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConcentrationView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Concentration",
+        "tags": [
+          "propagation"
+        ]
+      }
+    },
+    "/api/concentration/overlaps": {
+      "get": {
+        "description": "Current events that bear on the same risk factor and the same holdings (concentrated risk). Needs several independent events; one story counts once. With `signal_id`, only the clusters that event belongs to.",
+        "operationId": "get_overlaps_api_concentration_overlaps_get",
+        "parameters": [
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "signal_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Signal Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverlapView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Overlaps",
+        "tags": [
+          "propagation"
         ]
       }
     },
@@ -16641,6 +18851,181 @@
         ]
       }
     },
+    "/api/signals/{signal_id}/materiality": {
+      "get": {
+        "description": "Why is this event relevant to this portfolio? The lookup, the rules that fired and every input: reach, direct and indirect exposure, severity, concentration, mapping basis.",
+        "operationId": "get_materiality_api_signals__signal_id__materiality_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "signal_id",
+            "required": true,
+            "schema": {
+              "title": "Signal Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioMateriality"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Materiality",
+        "tags": [
+          "propagation"
+        ]
+      }
+    },
+    "/api/signals/{signal_id}/portfolio-stress": {
+      "post": {
+        "description": "Generate the event's scenario for this portfolio and run it through the unchanged stress engine, with the exposure chain and an attribution that reconciles to the total. When no defensible scenario exists the answer says SCENARIO UNAVAILABLE and why. `force` runs a failed soft gate (severity, relevance, direction) as a what-if. A SIMULATION, not a prediction.",
+        "operationId": "post_portfolio_stress_api_signals__signal_id__portfolio_stress_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "signal_id",
+            "required": true,
+            "schema": {
+              "title": "Signal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutoStressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutoStressResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Portfolio Stress",
+        "tags": [
+          "propagation"
+        ]
+      }
+    },
+    "/api/signals/{signal_id}/propagation": {
+      "get": {
+        "description": "Event -> scope -> risk factor -> portfolio exposure -> holdings (every edge says whether it is OBSERVED, a SCENARIO_ASSUMPTION or a USER_ASSUMPTION; this is a mapping, not causal inference), the materiality of the event to this portfolio (LOW/MEDIUM/HIGH/CRITICAL by an explicit lookup, with its decomposition), and the scenario it would generate (or SCENARIO UNAVAILABLE and why). Derived: nothing is stored on the signal and no stress is run by this call.",
+        "operationId": "get_propagation_api_signals__signal_id__propagation_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "signal_id",
+            "required": true,
+            "schema": {
+              "title": "Signal Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioFlow"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Propagation",
+        "tags": [
+          "propagation"
+        ]
+      }
+    },
     "/api/signals/{signal_id}/relevance": {
       "get": {
         "description": "What the event means for the book: which holdings it reaches, by issuer / sector / region / whole book, and how many of the\ndefault scenario's shocks bind to this kind of event. Exposure is the book's own; nothing here is a forecast.",
@@ -16850,6 +19235,49 @@
         "summary": "Get Stress Run",
         "tags": [
           "stress"
+        ]
+      }
+    },
+    "/api/stress-runs/{run_id}/attribution": {
+      "get": {
+        "description": "Why did the portfolio move? The run's total change regrouped by kind of shock, issuer, sector, industry, market factor, risk factor, asset class and position. Every table adds up to the total. Works for any completed run.",
+        "operationId": "get_attribution_api_stress_runs__run_id__attribution_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StressAttribution"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Attribution",
+        "tags": [
+          "propagation"
         ]
       }
     },
