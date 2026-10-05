@@ -270,7 +270,7 @@ warm and a live session can be replayed through the same engine; a capture file 
 and returns a change counter `seq`; each row carries scope, channel and relevance.
 
 
-## Stage 7: the risk assessment (an additive layer)
+## Stage 7: the risk assessment (an additive layer; severity-v2 scorecard)
 
 ```
  RiskSignal (frozen shape: trained sentiment / event / impact-v2, scope, novelty)         ← unchanged, digests unchanged
@@ -278,16 +278,23 @@ and returns a change counter `seq`; each row carries scope, channel and relevanc
         ▼
  AssessmentService.assess(signal)                                                         ← derived, memoised, never stored on the signal
    SemanticExtractor:  cache → LLM (forced tool call) → grounding ──┐ on any failure
-                                                                    └──────────────► RuleExtractor (labelled, no key needed)
-   HybridScorer:       explicit factors × configured weights → severity 1-10, range, drivers, omitted factors
+     (reads: class, tone, entities, 4 rubric answers + reasons,     └──────────────► RuleExtractor (labelled, no key needed)
+      indicators, quotes)
+   RubricDeriver:      rules baseline for 4 answers (intensity, reach, certainty, direction)  +  AI answer, bounded to ONE step
+                       (a verbatim quote lets it stand only where the rules had no evidence), each answer needs a reason
+   SeverityScorer:     fixed matrix anchor[intensity] + reach offset → certainty × direction scaling
+                       → 2 bounded data adjustments (VIX regime within freshness policy, novelty) → round, clamp → 1-10, band
+                       + rules-only baseline score, ai_effect, sensitivity range, reliability (shown beside, never inside)
+   Provenance:         every part tagged AI / DATA / RULES / HYBRID / ASSUMPTION
    ThresholdState:     score vs the stress trigger, in words
         │
         ├─► GET /signals/{id}/assessment · /evidence · /timeline
         └─► StressService(severity_provider): trigger + scaling + scenario class + sector, then the deterministic engine
 ```
 
-`docs/RISK_ASSESSMENT.md` is the reference: why the headline changed, what the LLM may and may not do, the factors and their temporal rule, the fallback, and the limits. Modules: `llm/` (client, cache, schema, prompt, config),
-`assessment/` (config, vocab, cues, rules, grounding, extractor, hybrid, service, views, model). Configs: `semantics.yaml` (the closed vocabulary), `llm.yaml`, `impact_hybrid.yaml` (all in the freeze manifest).
+`docs/RISK_ASSESSMENT.md` is the reference: why the headline changed (the severity-v1 average compressed the scale), the scorecard, what the AI may and may not do, evidence classes, market freshness, the temporal rule, the fallback, the measured benchmark
+and its limits. Modules: `llm/` (client, cache, schema, prompt, config), `assessment/` (config, vocab, cues, rules, grounding, extractor, rubric, severity, freshness, service, views, model, benchmark). Configs: `semantics.yaml` (the closed vocabulary
+and indicator levels), `severity.yaml` (anchors, offsets, factors, AI bound, market policy), `llm.yaml` (all in the freeze manifest). Benchmark: `data/benchmarks/`, `scripts/severity_benchmark.py`, `scripts/severity_ablation.py`.
 
 Two decisions worth defending. (1) **Side-car, not a field**: the assessment is derived from the signal, so the replay output digest, the fixtures and the stress goldens stay valid, and the trained stages remain exactly
 what their cards describe. (2) **The LLM reads, code decides**: severity, the trigger and the portfolio arithmetic are explicit and deterministic; the model fills a closed schema whose every claim is checked against the text.

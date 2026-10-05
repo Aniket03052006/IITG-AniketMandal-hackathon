@@ -111,8 +111,8 @@ def run_checks(base: str) -> None:
     a = regulatory["assessment"]
     check(a["reading"]["event_type"] == "REGULATORY_LEGAL" and "Financials" in a["reading"]["sectors"] and a["reading"]["primary_issuer"]["entity_id"] == "UNKNOWN_ENTITY",
           "/api/analyze: a regulatory headline is read as Regulatory / Legal, Financials, with no issuer invented")
-    check(a["severity"]["basis"] == "TRANSPARENT_HYBRID" and a["labels"] and 1 <= a["severity"]["score"] <= 10,
-          "...scored by the transparent hybrid severity, labelled not validated / not a forecast")
+    check(a["severity"]["basis"] == "SCORECARD" and a["labels"] and 1 <= a["severity"]["score"] <= 10,
+          "...scored by the severity scorecard, labelled not validated / not a forecast")
     ev = get(base, f"/api/signals/{regulatory['signal_id']}/evidence")
     tl = get(base, f"/api/signals/{regulatory['signal_id']}/timeline")
     check(set(ev) >= {"source_evidence", "model_inference", "scenario_assumptions"} and tl["items"] and tl["excluded"],

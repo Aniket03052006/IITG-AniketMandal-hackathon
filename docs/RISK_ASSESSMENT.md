@@ -1,92 +1,131 @@
-# Risk assessment (Stage 7)
+# Risk assessment
 
-What EventShock does with a piece of unstructured text, how it decides how serious it is, and exactly what is and is not claimed.
+How EventShock turns a piece of unstructured text into a severity assessment, what is AI, what is data, what is deterministic, and exactly what is and is not claimed.
 
 ```
 news text
-  → AI understanding   (event class + subtype, tone, entities, sectors, regions, asset classes, severity indicators, verbatim evidence quotes)
-  → risk signal        (a transparent severity score 1-10 from explicit, configurable weights; a sensitivity range; the factors that built it)
-  → scenario           (the default scenario for the ASSESSED event class; configured shocks, labelled illustrative)
-  → portfolio impact   (the deterministic stress engine: value before / after, contributions)
+  → UNDERSTANDING   event class + subtype, tone, entities, sectors, regions, asset classes, severity indicators, quotes   (AI, with rules as baseline and fallback)
+  → RISK            four anchored answers (intensity, reach, certainty, direction) → fixed severity matrix → two bounded data adjustments → 1-10
+  → SCENARIO        the default scenario for the assessed event class; configured shocks, labelled illustrative
+  → PORTFOLIO       the deterministic stress engine: value before / after, contributions
   + evidence and a "what was known when" timeline
 ```
 
-## Why the headline score changed
+## What was wrong (severity-v1, the first version)
 
-The repository does contain real outcome labels (two-session abnormal returns), and a real trained model, `impact-v2` (`HistGradientBoosting` / Ridge; there is **no** XGBoost anywhere). But the
-model fails its own pre-registered acceptance bar: a placebo window *before* the news scores at least as well as the real window, so its skill is the volatility regime, not the event
-(`docs/FINAL_MODEL_REPORT.md`, `models/impact/impact-v2/model_card.json`). It cannot defensibly be the number that triggers a stress test, and no further labels can legitimately be
-created. So the headline is now a **transparent hybrid severity score**, and the trained model is shown next to it as a labelled *reference* (experimental, "mostly the volatility regime"),
-never as the trigger. The trained models, the frozen replay pack and their digests are untouched.
+The first version computed severity as a **weighted average of seven bounded factors**. Measured on a 64-headline benchmark spanning routine to systemic events
+(`docs/evidence/severity_baseline_v1.json`), it compressed the scale in both modes: with the language model, 30 of 64 items landed in the moderate band, nothing scored above 8,
+and no item was ever extreme; in rule mode, rank agreement with the expected bands was 0.22. The causes were structural, not a tuning problem:
 
-| | what it is | supervised? | validated? |
-|---|---|---|---|
-| **Severity score** (headline, drives the trigger) | `1 + 9 · Σ wᵢ'·fᵢ · (1 − λ·uncertainty)`, explicit factors and weights, in `configs/impact_hybrid.yaml` | no, no labels used | **no**: weights are documented judgements |
-| Reference market-reaction model | the trained `impact-v2` (or the labelled placeholder rule where it cannot score) | yes (real labels) | no: experimental, acceptance bar not met |
-| Scenario shocks | configured assumptions (`configs/scenarios.yaml`), labelled illustrative | n/a | n/a |
-| Portfolio arithmetic | deterministic code | n/a | tested |
+| cause | evidence |
+|---|---|
+| **Averaging bounded factors regresses to the middle.** A score of 9 needed every factor near 1. | the maximum reachable score on the benchmark was 8 (LLM) and 7 (rules) |
+| **Only one factor measured the event's scale.** Event class (range 0.40-0.75) and breadth (0.25-0.85) swung under 1 point each. | per-factor swing: indicators 3.3 points, class prior 0.8, breadth 0.8 |
+| **A constant factor.** Source credibility was 0.42 for every single-source report: it swung 0.0 points and only shifted the whole distribution. | min = max = 0.42 |
+| **Tone counted as severity.** The score partly measured how negative the wording sounded. | tone swing 1.2 points |
+| **An uncertainty discount (x0.9) shrank every score,** making the model's confidence part of how severe an event is. | design |
+| **No notion of systemic scale at all.** | the top of the scale was unreachable by construction |
 
-## The LLM's job, and its limits
+## What it is now: a scorecard
 
-The language model **reads**; it does not score. It fills a closed schema through a forced tool call (`llm/schema.py`): event class (the 8 taxonomy ids, or `NO_EVENT`), subtype,
-confidence, tone and intensity, entities, sectors, regions, asset classes, severity indicators, uncertainty and verbatim quotes. Everything it returns is then checked (`assessment/grounding.py`):
+Severity is a **deterministic function of four anchored ordinal answers and two bounded data adjustments**. No fitted parameters, no outcome labels.
 
-* an **entity** survives only if its name appears in the text; it is `resolved` only if the entity master matched it; it can never become the signal's issuer (that comes from the master alone);
-* an **evidence quote** survives only if it is a verbatim excerpt (found by position, so the UI highlights it);
-* every id (event class, subtype, sector, region, asset class, indicator) must be in the closed vocabulary (`configs/semantics.yaml`), or it is dropped, and what was dropped is shown;
-* an invalid event class is a malformed answer and falls back to the rules.
+1. **Four answers describe the event** (`configs/severity.yaml`):
+   * *intensity* (0-4): how severe the development is for those directly affected (routine, minor, significant, severe, critical). Breadth is *not* counted here;
+   * *reach*: one issuer, a sector, a market, global;
+   * *certainty*: confirmed, proposed, speculative;
+   * *direction*: adverse, mixed, neutral, favourable.
+2. **A fixed severity matrix.** `raw = anchor[intensity] + offset[reach]`. The five intensity anchors are the *middles of the five semantic bands* (1-2 negligible, 3-4 low, 5-6 moderate, 7-8 high,
+   9-10 extreme), so every band is reachable by construction (a test asserts all ten scores are reachable) and reach moves the score within a band.
+3. **Certainty and direction scale** the distance above 1: `1 + (raw - 1) x certainty x direction`. A proposal is worth less than a decision; a favourable surprise carries less downside.
+4. **Two data adjustments**, each bounded and each *omitted with its reason* when its input is missing or stale: the volatility regime at the report's time (VIX, within about +-1 point), and novelty
+   against earlier reports of the same issuer (+-0.4).
+5. Round, clamp to 1-10.
 
-It never outputs an impact number, never decides the trigger, never does portfolio arithmetic. **Off by default.** `EVENTSHOCK_LLM=1` plus the provider's key (`GROQ_API_KEY`, or `ANTHROPIC_API_KEY`) turn it on (`make run-llm`); then the report
-text (capped at 2,000 characters) is sent to the provider, the UI says so, and answers are cached by text + model + prompt version so the same text is never sent twice (also across restarts,
-because the journal re-ingest hits the cache). Providers (`configs/llm.yaml`, `EVENTSHOCK_LLM_PROVIDER`): **Groq** (default; OpenAI-compatible chat completions with a forced function call, `openai/gpt-oss-120b`, `reasoning_effort: low`) and the Anthropic Messages API (`claude-haiku-4-5-20251001`), both over the standard library (`urllib`, no new dependency). Which models a key may use differs per account (`llama-3.3-70b-versatile` was refused for ours), so a refused request is reported with the provider's own words. Bounds: 15 s per attempt, 2 retries, **30 s total** including retries, and a local cap of 30 provider calls per minute; past any of them the rules answer, labelled.
+**What is deliberately not an input:** tone, the model's confidence, the number of outlets, source reliability. They say how far to trust the report or the reading, not how big the event is. Reliability
+is shown next to the score (never inside it); uncertainty widens the range but never lowers the score. Portfolio exposure is also not an input: severity is a property of the event; the relevance and the
+stress engine say what it means for the book.
 
-**Fallback, never a crash.** No key, a timeout, a rate limit (429, retried with back-off and `Retry-After`), a 5xx, a rejected key, a refused request (unknown model) or a malformed answer all end in the deterministic **rule extractor**
-(`assessment/rules.py`): cue phrases from the same vocabulary, anchored to the trained models' readings (the trained event model keeps authority unless cues of weight ≥ 2 disagree; tone is the trained
-model's, unchanged). The result says `mode: RULES`, with the reason in `extraction.fallback_reason`, and the UI shows "Rule-based reading" or "Rules (model unavailable)".
+### How the AI contributes (and why it cannot dictate the score)
 
-## The severity factors
+Each of the four answers is first derived by **deterministic rules** from the text (`assessment/rubric.py`): indicator levels, a monetary-amount floor, escalating and de-escalating words, the sector
+vocabulary, hedge and proposal cues, indicator polarity. This *baseline* is crude but reproducible and needs no model. If a language model read the text it then answers the same four questions, and:
 
-All inputs are available at the report's own time. A factor that cannot be computed from them is **left out and listed**, and the remaining weights are renormalised; nothing is guessed.
+* an answer needs a **stated reason**, or it is ignored;
+* it may move **one step** from the baseline, never more where the rules have evidence: a larger move is clamped and shown as clamped;
+* one exception: where the rules found **no evidence at all** for an answer (their baseline is only a default: an unseen phrasing, no hedge word to find), the bound would cap a correct answer at a guess, so a **verbatim quote** lets the AI's answer stand there. Each field says whether its baseline was informed.
 
-| factor | reads | notes |
-|---|---|---|
-| Event class | the assessed class | a configured prior per class (credit/funding highest) |
-| Severity indicators | indicators found in the text (default, sanctions, guidance cut, capital requirement…) | noisy-OR of their weights; the strongest factor |
-| Tone | −sentiment (adverse counts fully, favourable half) × confidence | a downside-risk tool |
-| Novelty | the report's novelty against earlier reports of the same issuer | only when an issuer was resolved |
-| Breadth | what the text is about: company < sector < market-wide, plus extra sectors / regions / asset classes | |
-| Source credibility | news vs social prior + independent reports **that existed at the time** | later coverage is excluded |
-| Market regime | VIX level recorded at event time | only if the market data is ≤ 5 days old at the report's time |
+So the AI's contribution is structured (four ordinal answers), bounded, inspectable (the rules' answer, the AI's answer, its reason and quote, and the outcome are all shown), reproducible (answers are cached;
+the rest is arithmetic) and labelled (**Hybrid**). The assessment also reports the rules-only score and **what the AI changed** (`ai_effect`). The model never outputs a score and never touches the stress
+arithmetic.
 
-`severity = 1 + 9 · (Σ w'ᵢ fᵢ) · (1 − 0.2 · uncertainty)`, rounded for the trigger. The score is accompanied by an **assumption-sensitivity range** (each weight ±30% in turn): that is a statement about
-how much the weights matter, *not* a statistical interval. Every weight has a one-line rationale in the YAML. The Risk-drivers list is generated from the factors' computed values by rule
-(`hybrid._driver_text`), so it never says more than the numbers do.
+### Evidence classes: a quote is never an inference
+
+Every severity indicator is one of `QUOTED` (the AI's quote is a verbatim phrase of the report), `KEYWORD` (a configured cue phrase for it appears in the report) or `INFERRED` (the AI judges it present with
+**no matching phrase**). An inference is kept, because a model can understand what a phrase list cannot, but it carries the AI's reason, is labelled "inferred", is never highlighted and is never shown as a
+quote. (This is the fix for "inflation pressure builds" having become "persistent inflation" with no matching phrase.) Entities must appear in the text and can never become the issuer (only the entity master
+can); evidence quotes must be verbatim; a quote that covers nearly the whole text is dropped; every id must be in the closed vocabulary.
+
+### Provenance
+
+Each part of the result carries an origin: **AI** (a language model's or trained classifier's reading), **Data** (market data, timestamps, source metadata), **Rules** (deterministic logic), **Hybrid**
+(a rules baseline moved by a bounded AI adjustment) or **Assumption** (a configured judgement: matrix anchors, multipliers, scenario shocks). `RiskAssessment.provenance` lists them; the UI shows them as
+small chips and a "Where each part comes from" list. Nothing is labelled "AI-generated" as a whole.
+
+## Market data freshness
+
+The market state is the close of a trading session. For a report, the relevant session is the **last completed session before it** (weekday calendar; exchange holidays are not modelled, which errs towards
+excluding data). The state may lag that session by **at most one session**; beyond that it is **excluded and the reason is shown**, and a state dated after the report's last completed session is excluded as
+something that could not have been known. Every use shows the date and the lag ("VIX 16.4 from the 2026-10-01 close, 1 session behind"). For replayed reports the state is the weekday before the reaction
+session (the pipeline's features are strictly before it): the first version took the reaction date itself, overstating freshness by a session.
 
 ## Temporal integrity
 
-The score reads only the report, the extraction of its text, the novelty/corroboration that existed at its time and market state before it. It does **not** read later coverage, later filings,
-future outlet counts or any realised return. `tests/unit/test_assessment_temporal.py` pins that: adding six later reports does not change a single factor. `GET /api/signals/{id}/timeline` lists everything
-(before / at / after the report) with a *used in the severity score* / *read by the reference model only* / *not used* tag on each item; items dated after the report are shown for audit and flagged as never used.
+The score reads only the report, the extraction of its text, the novelty and corroboration that existed at its time, and market state before it. It does not read later coverage, later filings, future
+outlet counts or realised returns (`tests/unit/test_assessment_temporal.py`: six later reports change no step, no factor and not even the reliability line). `GET /signals/{id}/timeline` lists everything
+(before, at and after the report) with a *used in the severity score* / *read by the reference model only* / *not used* tag on each item.
 
-## Stress engine hook
+## The trained market-reaction model (reference only)
 
-`StressService` takes an optional `severity_provider`. With one, the trigger and the severity scaling read the hybrid score (audit: `impact_origin: ASSESSMENT`, `severity_basis`, `extraction_mode`), the
-scenario follows the **assessed** event class, and a sector read from the text binds sector shocks where the vocabulary scope found none (never over a resolved company; audited as `assessed_sector`).
-Without a provider (the demo profile) nothing changes, and the run-id formula is unchanged for every run the assessment did not drive.
+The repository does contain real outcome labels and a trained model, `impact-v2` (`HistGradientBoosting` / Ridge; there is **no** XGBoost anywhere). It fails its own pre-registered acceptance bar: a placebo
+window before the news scores at least as well as the real window, so its skill is the volatility regime, not the event. It is shown in a collapsed, labelled *Reference* panel and never drives the trigger. No
+labels were created and none was inferred; no supervised severity model is claimed.
+
+## The language model
+
+Off by default (`EVENTSHOCK_LLM=1` plus the provider's key). Groq (`openai/gpt-oss-120b` by default) or Anthropic, both over `urllib`, forced tool call, closed enums; the report text (at most 2,000
+characters) is sent to the provider, the UI says so, and answers are cached by text, model and prompt version. **No key, a timeout, a rate limit, a daily quota, an outage, a refused request, a malformed answer
+or a local call cap all fall back to the rule extractor, labelled** (`extraction.fallback_reason`; the UI shows "Rules (model unavailable)" and the provider's own words). A daily-quota 429 fails fast (waiting cannot
+help); after any provider failure a 60 s circuit breaker sends new text straight to the rules instead of making each paste wait; a call has a 30 s total budget.
 
 ## API
 
-`POST /api/analyze` (adds `assessment`, optional `source`), `GET /api/signals/{id}/assessment[?refine=true]`, `/evidence` (source evidence · model inference · scenario assumptions, never blended), `/timeline`,
-`GET /api/stress-runs?signal_id=`, `POST /api/stress-test`, `GET /api/stress-runs/{id}`. `GET /api/meta` → `capabilities.llm` says which mode is running. Feed rows gain `severity_*` fields;
-`min_impact` and `category` filters read the assessment so the feed and the detail page agree.
+`POST /api/analyze` (adds `assessment`, optional `source`), `GET /api/signals/{id}/assessment[?refine=true]`, `/evidence` (source evidence, model inference, scenario assumptions: never blended), `/timeline`,
+`GET /api/stress-runs?signal_id=`, `POST /api/stress-test`, `GET /api/stress-runs/{id}`. `GET /api/meta` reports which mode is running. Feed rows carry `severity_*` (score, band, AI effect).
 
-## Known limitations
+## Evidence: what was measured, and what was not
 
-* Weights and priors are judgements, not fitted; the range is sensitivity, not a confidence interval.
-* The trained reference model stays experimental; its measurable skill is mostly the volatility regime.
-* Duplicate detection is the existing token-overlap rule (same issuer, trusted clock, wording overlap): two reports with very different wording may stay separate signals.
-* Pasted text has market data only if the frozen pack is ≤ 5 days old at the report's time; otherwise the regime factor is omitted and says so.
-* Rule mode reads headlines and short posts; mid-sentence company names are not recognised (they are not guessed).
-* Contradiction detection is minimal (same issuer, within 48 h, opposite and strong tone); both reports are kept.
-* With the LLM on, report text goes to a third party. It is capped, cached, and the UI says so. CI never calls a provider (a scripted client and a scripted HTTP opener). The Groq path was exercised live by hand (see the journal); the Anthropic path has only the scripted tests.
-* A language model's quotes and entities are checked, not trusted, but its *judgement* (event subtype, tone, uncertainty) is only as good as the model; the UI shows `AI-assisted` and what was dropped. Startup re-reads the journal of pasted texts through the cache, so a restart costs calls only for texts not yet cached.
+Benchmark: `data/benchmarks/` (pre-registered expected bands and pass criteria in its README; 64 development items, 32 held-out items, seven groups from routine to systemic).
+Results are regenerated by `python scripts/severity_benchmark.py evaluate` into `docs/evidence/severity_benchmark.json` and pinned by a test.
+
+| run | n | min..max | spearman | within 1 band | bands (negl / low / mod / high / extreme) |
+|---|---|---|---|---|---|
+| severity-v1, rules (the compressed formula) | 64 | 1..7 | 0.22 | | see `severity_baseline_v1.json` |
+| severity-v2, rules, **dev** | 64 | 1..10 | 0.923 | 0.984 | 16 / 15 / 17 / 7 / 9 |
+| severity-v2, recorded real-model answers, **dev** (prompt v4, `gpt-oss-20b`) | 64 | 1..8 | 0.899 | 0.984 | 9 / 21 / 19 / 15 / 0 |
+| severity-v2, rules, **held-out** | 32 | 1..7 | 0.391 | 0.594 | 17 / 8 / 4 / 3 / 0 |
+
+How to read it, honestly:
+
+* **The compression is fixed by structure.** All ten scores are reachable by construction, and the rules reach 1 and 10 on the development set with no band holding half the items.
+* **The development rules numbers are optimistic.** The rule vocabulary was written by an author who had seen the development items. The held-out set was not used to write or tune a single cue, and
+  there the rules fallback **does not generalise**: it under-scores unseen wording (17 of 32 read as negligible) and ranks the bands weakly (0.39). The rules are a labelled fallback, not the product;
+  this is exactly why the language model exists. It was deliberately **not** tuned against the held-out set, which would end its independence.
+* **The language-model result is from an earlier prompt.** The recorded answers are from prompt v4, whose level 3 / 4 definitions contradicted each other (the model never answered "critical", hence 0 extreme).
+  The prompt was rewritten (v6) afterwards, but the Groq daily token quota was exhausted before a re-recording could be made, so **there is no live-model result for the shipped prompt, and the held-out set
+  has never been run with a model**. The test that would guard it is written and skips until a recording for the current prompt exists. To produce it (about 90k tokens, so a fresh daily quota):
+  `EVENTSHOCK_LLM_MODEL=openai/gpt-oss-120b python scripts/severity_benchmark.py record dev --fresh && ... record heldout && python scripts/severity_benchmark.py evaluate`.
+* **The AI bound is chosen by evidence, on the dev set only** (`docs/evidence/severity_ai_bound_ablation.json`): on the recorded answers, a one-step bound scored 0.905 against 0.849 for two steps and 0.833 unbounded.
+  The shipped variant (quote lifts the bound only where the rules have no evidence) scores 0.899 there.
+* **No claim of calibration or predictive accuracy.** The benchmark expected bands are the author's judgement of how severe each headline is for the financial system (not realised outcomes); agreement with them
+  measures whether the score is semantically meaningful, not whether it predicts anything.
