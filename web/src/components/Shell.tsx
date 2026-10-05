@@ -1,11 +1,14 @@
 import clsx from "clsx";
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { useMeta, useSignals } from "../api/hooks";
+import { useActivePortfolioItem, useMeta, useSignals } from "../api/hooks";
 import { FEATURED, lastEvent, pickFeatured } from "../lib/featured";
 import { dateTime } from "../lib/format";
 import { profileLabel, profileNote } from "../lib/provenance";
-import { AnalyzeIcon, Database, EventIcon, EvidenceIcon, FeedIcon, StressIcon } from "./icons";
+import { currencySymbol } from "../lib/portfolio";
+import { setDisplayCurrency } from "../lib/format";
+import { PortfolioSwitcher } from "./portfolio/PortfolioSwitcher";
+import { AnalyzeIcon, Database, EventIcon, EvidenceIcon, FeedIcon, PortfolioIcon, StressIcon } from "./icons";
 import { Logo } from "./Logo";
 import { ThemeSwitch } from "./ThemeSwitch";
 
@@ -39,12 +42,16 @@ export function Shell() {
   const all = useSignals({});
   const featured = pickFeatured(all.data?.items ?? [])?.id ?? FEATURED.hero.id;
   const eventTo = `/events/${lastEvent() ?? featured}`;
+  // money() reads the active portfolio's currency; pages remount on a switch so nothing keeps the previous portfolio's numbers
+  const { id: activePf, item: activeItem } = useActivePortfolioItem();
+  setDisplayCurrency(currencySymbol(activeItem?.base_currency));
 
   const nav = [
     { to: "/", label: "Risk Feed", icon: FeedIcon, active: pathname === "/" },
     ...(meta?.capabilities.analyze !== false ? [{ to: "/analyze", label: "Analyze", icon: AnalyzeIcon, active: pathname.startsWith("/analyze") }] : []),
     { to: eventTo, label: "Event Intelligence", icon: EventIcon, active: pathname.startsWith("/events/") },
     { to: "/stress", label: "Portfolio Stress", icon: StressIcon, active: pathname.startsWith("/stress") },
+    { to: "/portfolios", label: "Portfolios", icon: PortfolioIcon, active: pathname.startsWith("/portfolios") },
     ...(meta?.replay ? [{ to: "/evidence", label: "Evidence", icon: EvidenceIcon, active: pathname.startsWith("/evidence") || pathname.startsWith("/pipeline") }] : []),
   ];
 
@@ -69,6 +76,9 @@ export function Shell() {
           </NavLink>
           <ThemeSwitch compact />
         </div>
+        <div className="pb-2">
+          <PortfolioSwitcher compact />
+        </div>
         <nav aria-label="Primary" className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-2">
           {nav.map((n) => (
             <NavLink key={n.label} to={n.to} className={() => link(n.active)}>
@@ -91,6 +101,7 @@ export function Shell() {
           ))}
         </nav>
         <div className="mt-auto flex flex-col gap-3">
+          <PortfolioSwitcher />
           <ModeBadge />
           <ThemeSwitch />
           <a className="px-3 text-xs text-muted underline-offset-2 hover:text-ink hover:underline" href="/api/docs" target="_blank" rel="noreferrer">
@@ -101,7 +112,9 @@ export function Shell() {
 
       <main className="min-w-0 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
         <div className="mx-auto max-w-[78rem]">
-          <Outlet />
+          <div key={activePf ?? "default"}>
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

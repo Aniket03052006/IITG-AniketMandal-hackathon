@@ -13,14 +13,6 @@
               }
             ]
           },
-          "channels": {
-            "description": "transmission channels the AI sees (credit, liquidity, rates, equity valuation, commodity supply, FX, counterparty, regulation, operations)",
-            "items": {
-              "type": "string"
-            },
-            "title": "Channels",
-            "type": "array"
-          },
           "direction": {
             "anyOf": [
               {
@@ -56,8 +48,7 @@
           "magnitude",
           "reach",
           "certainty",
-          "direction",
-          "channels"
+          "direction"
         ],
         "title": "AIRubric",
         "type": "object"
@@ -199,6 +190,357 @@
           "note"
         ],
         "title": "Agreement",
+        "type": "object"
+      },
+      "Analogue": {
+        "additionalProperties": false,
+        "properties": {
+          "abs_z": {
+            "title": "Abs Z",
+            "type": "number"
+          },
+          "car_pct": {
+            "description": "cumulative abnormal return over the reaction window, in percent (signed)",
+            "title": "Car Pct",
+            "type": "number"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "model_event_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the trained event model's label for that old text (noisy; shown for orientation only)",
+            "title": "Model Event Type"
+          },
+          "origin": {
+            "const": "RETRIEVED",
+            "default": "RETRIEVED",
+            "title": "Origin",
+            "type": "string"
+          },
+          "outcome_version": {
+            "title": "Outcome Version",
+            "type": "string"
+          },
+          "published_at": {
+            "title": "Published At",
+            "type": "string"
+          },
+          "reaction_session": {
+            "description": "the first session whose move counts as the reaction (the report's own session, or the next one for an after-close report)",
+            "title": "Reaction Session",
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "ISSUER",
+              "MARKET"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "similarity": {
+            "description": "cosine similarity of the two reports' e5 embeddings, 0-1 (e5 similarities are compressed: unrelated texts typically score 0.70-0.80)",
+            "title": "Similarity",
+            "type": "number"
+          },
+          "ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticker"
+          },
+          "vix_level": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "^VIX close of the session before the reaction, i.e. the regime the move happened in",
+            "title": "Vix Level"
+          },
+          "z": {
+            "description": "that move in units of the issuer's own trailing volatility (signed)",
+            "title": "Z",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "origin",
+          "headline",
+          "published_at",
+          "reaction_session",
+          "scope",
+          "ticker",
+          "sector",
+          "similarity",
+          "car_pct",
+          "z",
+          "abs_z",
+          "vix_level",
+          "outcome_version",
+          "model_event_type"
+        ],
+        "title": "Analogue",
+        "type": "object"
+      },
+      "AnalogueAggregate": {
+        "additionalProperties": false,
+        "properties": {
+          "abs_car_pct_median": {
+            "title": "Abs Car Pct Median",
+            "type": "number"
+          },
+          "car_pct_q10": {
+            "title": "Car Pct Q10",
+            "type": "number"
+          },
+          "car_pct_q50": {
+            "title": "Car Pct Q50",
+            "type": "number"
+          },
+          "car_pct_q90": {
+            "title": "Car Pct Q90",
+            "type": "number"
+          },
+          "distinguishable_from_quiet_day": {
+            "description": "True only if the Wilson interval of the share lies entirely above the quiet-day share",
+            "title": "Distinguishable From Quiet Day",
+            "type": "boolean"
+          },
+          "lift": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "share_move_ge_2sigma / quiet_day_share",
+            "title": "Lift"
+          },
+          "n_episodes": {
+            "description": "distinct past episodes behind the statistics",
+            "title": "N Episodes",
+            "type": "integer"
+          },
+          "n_stories": {
+            "description": "distinct stories after near-duplicate collapse above the similarity floor",
+            "title": "N Stories",
+            "type": "integer"
+          },
+          "n_used": {
+            "description": "how many of them (the most similar, after diversity caps) the statistics below are computed from: the effective sample size",
+            "title": "N Used",
+            "type": "integer"
+          },
+          "quiet_day_share": {
+            "description": "the same share on ordinary days (random sessions with no earnings reaction): the yardstick",
+            "title": "Quiet Day Share",
+            "type": "number"
+          },
+          "reading": {
+            "title": "Reading",
+            "type": "string"
+          },
+          "share_hi": {
+            "title": "Share Hi",
+            "type": "number"
+          },
+          "share_lo": {
+            "title": "Share Lo",
+            "type": "number"
+          },
+          "share_move_ge_2sigma": {
+            "description": "share of the analogues whose |z| was at least 2",
+            "title": "Share Move Ge 2Sigma",
+            "type": "number"
+          }
+        },
+        "required": [
+          "n_episodes",
+          "n_stories",
+          "n_used",
+          "car_pct_q10",
+          "car_pct_q50",
+          "car_pct_q90",
+          "abs_car_pct_median",
+          "share_move_ge_2sigma",
+          "share_lo",
+          "share_hi",
+          "quiet_day_share",
+          "lift",
+          "distinguishable_from_quiet_day",
+          "reading"
+        ],
+        "title": "AnalogueAggregate",
+        "type": "object"
+      },
+      "AnalogueSet": {
+        "additionalProperties": false,
+        "properties": {
+          "above_floor": {
+            "default": 0,
+            "title": "Above Floor",
+            "type": "integer"
+          },
+          "aggregate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnalogueAggregate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "below_bar": {
+            "default": [],
+            "description": "nearest eligible reports when the reliability bar is not met: shown for transparency, never as precedent",
+            "items": {
+              "$ref": "#/components/schemas/Analogue"
+            },
+            "title": "Below Bar",
+            "type": "array"
+          },
+          "caveats": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "eligible": {
+            "default": 0,
+            "description": "past episodes allowed by the point-in-time rule",
+            "title": "Eligible",
+            "type": "integer"
+          },
+          "index_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Index Version"
+          },
+          "items": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Analogue"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "outcome_note": {
+            "default": "The realised move is hindsight about a PAST report: the market-model abnormal return over the reaction window after it (outcome-v3 for a company, the S&P 500's excess move for a market-wide report). It is not a forecast for this report.",
+            "title": "Outcome Note",
+            "type": "string"
+          },
+          "query_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Query Date"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ISSUER",
+                  "MARKET"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope"
+          },
+          "similarity_floor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity Floor"
+          },
+          "status": {
+            "enum": [
+              "OK",
+              "NO_RELIABLE_ANALOGUE",
+              "UNAVAILABLE"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "scope",
+          "query_date",
+          "similarity_floor",
+          "eligible",
+          "above_floor",
+          "items",
+          "aggregate",
+          "below_bar",
+          "caveats",
+          "index_version",
+          "outcome_note"
+        ],
+        "title": "AnalogueSet",
         "type": "object"
       },
       "AnalyzeRequest": {
@@ -456,7 +798,9 @@
           "EQUITY",
           "BOND",
           "LOAN",
-          "DERIVATIVE"
+          "DERIVATIVE",
+          "CASH",
+          "OTHER"
         ],
         "title": "AssetClass",
         "type": "string"
@@ -498,6 +842,220 @@
           "units"
         ],
         "title": "Attribution",
+        "type": "object"
+      },
+      "AuditSummary": {
+        "properties": {
+          "auc": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc"
+          },
+          "auc_hi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc Hi"
+          },
+          "auc_lo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc Lo"
+          },
+          "auc_with_earnings": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc With Earnings"
+          },
+          "auc_without_earnings": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc Without Earnings"
+          },
+          "auc_without_earnings_hi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc Without Earnings Hi"
+          },
+          "auc_without_earnings_lo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc Without Earnings Lo"
+          },
+          "effective_sample": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Sample"
+          },
+          "news_episodes": {
+            "title": "News Episodes",
+            "type": "integer"
+          },
+          "nominal_sample": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nominal Sample"
+          },
+          "quiet_days_sampled": {
+            "title": "Quiet Days Sampled",
+            "type": "integer"
+          },
+          "share_move_news": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Move News"
+          },
+          "share_move_quiet": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Move Quiet"
+          },
+          "sigma_decision": {
+            "title": "Sigma Decision",
+            "type": "string"
+          },
+          "sigma_reading": {
+            "title": "Sigma Reading",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quiet_days_sampled",
+          "news_episodes",
+          "auc",
+          "auc_lo",
+          "auc_hi",
+          "share_move_news",
+          "share_move_quiet",
+          "auc_without_earnings",
+          "auc_without_earnings_lo",
+          "auc_without_earnings_hi",
+          "auc_with_earnings",
+          "effective_sample",
+          "nominal_sample",
+          "sigma_decision",
+          "sigma_reading"
+        ],
+        "title": "AuditSummary",
+        "type": "object"
+      },
+      "BandRow": {
+        "properties": {
+          "band": {
+            "title": "Band",
+            "type": "string"
+          },
+          "hi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hi"
+          },
+          "lo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lo"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "tail_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tail Rate"
+          }
+        },
+        "required": [
+          "band",
+          "n",
+          "tail_rate",
+          "lo",
+          "hi"
+        ],
+        "title": "BandRow",
         "type": "object"
       },
       "BaselineScores": {
@@ -883,6 +1441,12 @@
       },
       "Capabilities": {
         "properties": {
+          "analogues": {
+            "default": false,
+            "description": "historical analogues are served (an index is installed); GET /api/signals/{id}/analogues",
+            "title": "Analogues",
+            "type": "boolean"
+          },
           "analyze": {
             "description": "POST /api/analyze is available (needs the replay profile's models)",
             "title": "Analyze",
@@ -892,6 +1456,18 @@
             "default": false,
             "description": "the risk-assessment endpoints are available (replay profile)",
             "title": "Assessment",
+            "type": "boolean"
+          },
+          "custom_portfolios": {
+            "default": true,
+            "description": "optional personal portfolios can be created and used instead of the synthetic default; /api/portfolios",
+            "title": "Custom Portfolios",
+            "type": "boolean"
+          },
+          "history_check": {
+            "default": false,
+            "description": "scenario shocks can be ranked against history; GET /api/scenarios/{id}/history-check",
+            "title": "History Check",
             "type": "boolean"
           },
           "live_enabled": {
@@ -915,9 +1491,90 @@
           "analyze",
           "live_enabled",
           "assessment",
-          "llm"
+          "llm",
+          "analogues",
+          "history_check",
+          "custom_portfolios"
         ],
         "title": "Capabilities",
+        "type": "object"
+      },
+      "ChainStep": {
+        "properties": {
+          "applied_shock": {
+            "description": "scaled shock value in its own unit",
+            "title": "Applied Shock",
+            "type": "number"
+          },
+          "exposed_share": {
+            "description": "of the portfolio's baseline value",
+            "title": "Exposed Share",
+            "type": "number"
+          },
+          "exposed_value": {
+            "title": "Exposed Value",
+            "type": "number"
+          },
+          "factor": {
+            "title": "Factor",
+            "type": "string"
+          },
+          "factor_label": {
+            "title": "Factor Label",
+            "type": "string"
+          },
+          "impact": {
+            "description": "modeled change in portfolio currency, from the engine's per-factor attribution",
+            "title": "Impact",
+            "type": "number"
+          },
+          "impact_pct": {
+            "description": "as a fraction of the portfolio's baseline value",
+            "title": "Impact Pct",
+            "type": "number"
+          },
+          "position_count": {
+            "title": "Position Count",
+            "type": "integer"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "scope_label": {
+            "title": "Scope Label",
+            "type": "string"
+          },
+          "sensitivity": {
+            "description": "the portfolio's own sensitivity to this factor, e.g. 'weighted beta 1.12' or 'weighted duration 6.4 y'",
+            "title": "Sensitivity",
+            "type": "string"
+          },
+          "sentence": {
+            "title": "Sentence",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "factor",
+          "factor_label",
+          "scope",
+          "scope_label",
+          "applied_shock",
+          "unit",
+          "exposed_value",
+          "exposed_share",
+          "position_count",
+          "sensitivity",
+          "impact",
+          "impact_pct",
+          "sentence"
+        ],
+        "title": "ChainStep",
         "type": "object"
       },
       "CheckRow": {
@@ -1041,6 +1698,60 @@
           "reason"
         ],
         "title": "ClassReliability",
+        "type": "object"
+      },
+      "CompareRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "force": {
+            "default": false,
+            "title": "Force",
+            "type": "boolean"
+          },
+          "impact_override": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Override"
+          },
+          "portfolio_ids": {
+            "description": "two portfolio ids (DEFAULT_ID selects the synthetic book)",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Portfolio Ids",
+            "type": "array"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "portfolio_ids"
+        ],
+        "title": "CompareRequest",
         "type": "object"
       },
       "ConfidentError": {
@@ -1658,6 +2369,51 @@
         "title": "DedupRelation",
         "type": "string"
       },
+      "DiffRow": {
+        "properties": {
+          "a_pct": {
+            "description": "change as a fraction of portfolio A's value",
+            "title": "A Pct",
+            "type": "number"
+          },
+          "a_value": {
+            "title": "A Value",
+            "type": "number"
+          },
+          "b_pct": {
+            "title": "B Pct",
+            "type": "number"
+          },
+          "b_value": {
+            "title": "B Value",
+            "type": "number"
+          },
+          "gap_pct": {
+            "description": "a_pct - b_pct",
+            "title": "Gap Pct",
+            "type": "number"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "a_pct",
+          "b_pct",
+          "gap_pct",
+          "a_value",
+          "b_value"
+        ],
+        "title": "DiffRow",
+        "type": "object"
+      },
       "DirectionCheck": {
         "additionalProperties": false,
         "properties": {
@@ -1844,6 +2600,14 @@
         ],
         "title": "EntityMention",
         "type": "object"
+      },
+      "EntryMode": {
+        "enum": [
+          "WEIGHT",
+          "QUANTITY"
+        ],
+        "title": "EntryMode",
+        "type": "string"
       },
       "Estimate": {
         "additionalProperties": false,
@@ -3090,6 +3854,88 @@
         "title": "EvidenceView",
         "type": "object"
       },
+      "ExposureChain": {
+        "properties": {
+          "event_line": {
+            "description": "what the event is about, from its scope",
+            "title": "Event Line",
+            "type": "string"
+          },
+          "not_reached": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExposureRowV2"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "holdings no applied shock moved (cash, unsupported instruments, unreached equity)"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "portfolio_name": {
+            "title": "Portfolio Name",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "scope_level": {
+            "title": "Scope Level",
+            "type": "string"
+          },
+          "skipped": {
+            "items": {
+              "$ref": "#/components/schemas/SkippedShock"
+            },
+            "title": "Skipped",
+            "type": "array"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/ChainStep"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "total_impact": {
+            "title": "Total Impact",
+            "type": "number"
+          },
+          "total_impact_pct": {
+            "title": "Total Impact Pct",
+            "type": "number"
+          }
+        },
+        "required": [
+          "run_id",
+          "portfolio_id",
+          "portfolio_name",
+          "event_line",
+          "scope_level",
+          "steps",
+          "skipped",
+          "not_reached",
+          "total_impact",
+          "total_impact_pct",
+          "summary",
+          "note"
+        ],
+        "title": "ExposureChain",
+        "type": "object"
+      },
       "ExposureRow": {
         "properties": {
           "asset_count": {
@@ -3121,6 +3967,39 @@
           "asset_count"
         ],
         "title": "ExposureRow",
+        "type": "object"
+      },
+      "ExposureRowV2": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "market_value": {
+            "title": "Market Value",
+            "type": "number"
+          },
+          "position_count": {
+            "title": "Position Count",
+            "type": "integer"
+          },
+          "share": {
+            "title": "Share",
+            "type": "number"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "market_value",
+          "share",
+          "position_count"
+        ],
+        "title": "ExposureRowV2",
         "type": "object"
       },
       "ExposureSlice": {
@@ -3341,6 +4220,16 @@
         "title": "FetchQuery",
         "type": "object"
       },
+      "FieldSource": {
+        "enum": [
+          "USER",
+          "REFERENCE",
+          "DEFAULT_ASSUMPTION",
+          "DERIVED"
+        ],
+        "title": "FieldSource",
+        "type": "string"
+      },
       "FilingMoment": {
         "description": "An SEC 8-K of the signal's issuer, placed relative to the report's own timestamp.",
         "properties": {
@@ -3482,6 +4371,327 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "HoldingInput-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_class": {
+            "anyOf": [
+              {
+                "enum": [
+                  "EQUITY",
+                  "BOND",
+                  "CASH",
+                  "OTHER"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Class"
+          },
+          "beta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "market beta of an equity; overrides the looked-up one",
+            "title": "Beta"
+          },
+          "cost_basis": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "price paid per unit; informational (unrealised P&L), never used by the stress",
+            "title": "Cost Basis"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "maxLength": 3,
+                "minLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "modified duration in years of a bond; required for a bond with no reference",
+            "title": "Duration"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "current price per unit (QUANTITY mode); 1 for cash",
+            "title": "Price"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "units held (QUANTITY mode); for cash, the amount",
+            "title": "Quantity"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "ticker": {
+            "description": "instrument identifier; CASH for cash",
+            "maxLength": 24,
+            "minLength": 1,
+            "title": "Ticker",
+            "type": "string"
+          },
+          "weight_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "share of the portfolio in percent (WEIGHT mode)",
+            "title": "Weight Pct"
+          }
+        },
+        "required": [
+          "ticker"
+        ],
+        "title": "HoldingInput",
+        "type": "object"
+      },
+      "HoldingInput-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_class": {
+            "anyOf": [
+              {
+                "enum": [
+                  "EQUITY",
+                  "BOND",
+                  "CASH",
+                  "OTHER"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asset Class"
+          },
+          "beta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "market beta of an equity; overrides the looked-up one",
+            "title": "Beta"
+          },
+          "cost_basis": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "price paid per unit; informational (unrealised P&L), never used by the stress",
+            "title": "Cost Basis"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "maxLength": 3,
+                "minLength": 3,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "modified duration in years of a bond; required for a bond with no reference",
+            "title": "Duration"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "current price per unit (QUANTITY mode); 1 for cash",
+            "title": "Price"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "units held (QUANTITY mode); for cash, the amount",
+            "title": "Quantity"
+          },
+          "region": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Region"
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sector"
+          },
+          "ticker": {
+            "description": "instrument identifier; CASH for cash",
+            "maxLength": 24,
+            "minLength": 1,
+            "title": "Ticker",
+            "type": "string"
+          },
+          "weight_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "share of the portfolio in percent (WEIGHT mode)",
+            "title": "Weight Pct"
+          }
+        },
+        "required": [
+          "ticker",
+          "name",
+          "weight_pct",
+          "quantity",
+          "price",
+          "cost_basis",
+          "asset_class",
+          "sector",
+          "region",
+          "currency",
+          "beta",
+          "duration"
+        ],
+        "title": "HoldingInput",
+        "type": "object"
+      },
       "HorizonCheck": {
         "additionalProperties": false,
         "properties": {
@@ -3498,6 +4708,79 @@
           "spearman"
         ],
         "title": "HorizonCheck",
+        "type": "object"
+      },
+      "HorizonRank": {
+        "additionalProperties": false,
+        "properties": {
+          "beyond_history": {
+            "default": false,
+            "title": "Beyond History",
+            "type": "boolean"
+          },
+          "direction": {
+            "enum": [
+              "down",
+              "up"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "horizon_sessions": {
+            "title": "Horizon Sessions",
+            "type": "integer"
+          },
+          "independent_windows": {
+            "title": "Independent Windows",
+            "type": "integer"
+          },
+          "median_abs": {
+            "title": "Median Abs",
+            "type": "number"
+          },
+          "n_windows": {
+            "title": "N Windows",
+            "type": "integer"
+          },
+          "one_in": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "One In"
+          },
+          "share_as_extreme": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share As Extreme"
+          },
+          "worst_observed": {
+            "title": "Worst Observed",
+            "type": "number"
+          }
+        },
+        "required": [
+          "horizon_sessions",
+          "direction",
+          "share_as_extreme",
+          "one_in",
+          "beyond_history",
+          "worst_observed",
+          "median_abs",
+          "n_windows",
+          "independent_windows"
+        ],
+        "title": "HorizonRank",
         "type": "object"
       },
       "ImpactAssessment": {
@@ -4119,6 +5402,112 @@
         "title": "InferenceLine",
         "type": "object"
       },
+      "Interval": {
+        "properties": {
+          "estimate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimate"
+          },
+          "hi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hi"
+          },
+          "lo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lo"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "estimate",
+          "lo",
+          "hi"
+        ],
+        "title": "Interval",
+        "type": "object"
+      },
+      "Issue": {
+        "properties": {
+          "code": {
+            "description": "stable machine code, e.g. WEIGHTS_SUM, DUPLICATE_TICKER, UNKNOWN_SECTOR",
+            "title": "Code",
+            "type": "string"
+          },
+          "field": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field"
+          },
+          "holding": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "index of the holding it concerns; null for the whole portfolio",
+            "title": "Holding"
+          },
+          "level": {
+            "$ref": "#/components/schemas/IssueLevel"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "code",
+          "message",
+          "holding",
+          "field"
+        ],
+        "title": "Issue",
+        "type": "object"
+      },
+      "IssueLevel": {
+        "enum": [
+          "ERROR",
+          "WARNING",
+          "INFO"
+        ],
+        "title": "IssueLevel",
+        "type": "string"
+      },
       "Kind": {
         "description": "What sort of statement a number or phrase is. The UI shows these as separate badges and never blends them.",
         "enum": [
@@ -4128,7 +5517,8 @@
           "MARKET_STATE",
           "MODEL_REFERENCE",
           "SCENARIO_ASSUMPTION",
-          "REALISED"
+          "REALISED",
+          "RETRIEVED"
         ],
         "title": "Kind",
         "type": "string"
@@ -4676,6 +6066,55 @@
         "title": "Meta",
         "type": "object"
       },
+      "Metric": {
+        "properties": {
+          "formula": {
+            "description": "how it is computed, in plain words",
+            "title": "Formula",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "unit": {
+            "enum": [
+              "fraction",
+              "years",
+              "ratio",
+              "currency",
+              "count",
+              "bp"
+            ],
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "value",
+          "unit",
+          "formula"
+        ],
+        "title": "Metric",
+        "type": "object"
+      },
       "ModelInference": {
         "properties": {
           "agreement": {
@@ -4836,10 +6275,186 @@
           "DATA",
           "RULES",
           "HYBRID",
-          "ASSUMPTION"
+          "ASSUMPTION",
+          "RETRIEVED"
         ],
         "title": "Origin",
         "type": "string"
+      },
+      "OutcomeCheck": {
+        "properties": {
+          "audit": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuditSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "label_reading": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label Reading"
+          },
+          "market_scope": {
+            "items": {
+              "$ref": "#/components/schemas/SplitCheck"
+            },
+            "title": "Market Scope",
+            "type": "array"
+          },
+          "market_scope_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Scope Note"
+          },
+          "missing": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing",
+            "type": "array"
+          },
+          "note": {
+            "default": "Written before the results were seen (configs/evidence_v3.yaml). An outcome-check result is a statement about the data available here (large-cap company headlines, a sampled news feed, 2014-2026), not about every kind of event.",
+            "title": "Note",
+            "type": "string"
+          },
+          "preregistration_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preregistration Sha256"
+          },
+          "retrieval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RetrievalSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "splits": {
+            "items": {
+              "$ref": "#/components/schemas/SplitCheck"
+            },
+            "title": "Splits",
+            "type": "array"
+          }
+        },
+        "required": [
+          "label",
+          "label_reading",
+          "preregistration_sha256",
+          "splits",
+          "market_scope",
+          "market_scope_note",
+          "audit",
+          "retrieval",
+          "missing",
+          "note"
+        ],
+        "title": "OutcomeCheck",
+        "type": "object"
+      },
+      "ParseRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "base_currency": {
+            "default": "USD",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "name": {
+            "default": "My portfolio",
+            "title": "Name",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 20000,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "ParseRequest",
+        "type": "object"
+      },
+      "ParseResult": {
+        "properties": {
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PortfolioInput-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "issues": {
+            "description": "line-level problems (holding = the line index) and mode conflicts",
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "resolved": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResolvedPortfolio"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the draft resolved, so the user sees weights, sources and issues immediately"
+          }
+        },
+        "required": [
+          "draft",
+          "issues",
+          "resolved"
+        ],
+        "title": "ParseResult",
+        "type": "object"
       },
       "Phase": {
         "enum": [
@@ -5035,6 +6650,50 @@
         "title": "PipelineReport",
         "type": "object"
       },
+      "Portfolio": {
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "assets": {
+            "items": {
+              "$ref": "#/components/schemas/PortfolioAsset"
+            },
+            "title": "Assets",
+            "type": "array"
+          },
+          "base_currency": {
+            "default": "USD",
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "portfolio_id",
+          "name",
+          "as_of",
+          "base_currency",
+          "description",
+          "assets"
+        ],
+        "title": "Portfolio",
+        "type": "object"
+      },
       "PortfolioAsset": {
         "description": "One position. Which fields are required depends on ``asset_type`` (validated below).\n\nConventions\n- ``market_value``: current carrying value in base currency.\n- ``notional``: face (BOND), exposure-at-default (LOAN), underlying notional (DERIVATIVE).\n- LOAN ``market_value`` = EAD - expected loss = ``notional * (1 - pd * lgd)``.",
         "properties": {
@@ -5138,6 +6797,14 @@
           "sector": {
             "title": "Sector",
             "type": "string"
+          },
+          "spread_sensitivity": {
+            "default": 1.0,
+            "description": "share of a credit-spread shock a BOND takes: 1 for corporate credit, 0 for government debt (no credit spread)",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Spread Sensitivity",
+            "type": "number"
           }
         },
         "required": [
@@ -5154,9 +6821,146 @@
           "pd",
           "lgd",
           "default_sensitivity",
-          "delta"
+          "delta",
+          "spread_sensitivity"
         ],
         "title": "PortfolioAsset",
+        "type": "object"
+      },
+      "PortfolioComparison": {
+        "properties": {
+          "a": {
+            "$ref": "#/components/schemas/PortfolioListItem"
+          },
+          "b": {
+            "$ref": "#/components/schemas/PortfolioListItem"
+          },
+          "by_asset_class": {
+            "items": {
+              "$ref": "#/components/schemas/DiffRow"
+            },
+            "title": "By Asset Class",
+            "type": "array"
+          },
+          "by_factor": {
+            "items": {
+              "$ref": "#/components/schemas/DiffRow"
+            },
+            "title": "By Factor",
+            "type": "array"
+          },
+          "by_sector": {
+            "items": {
+              "$ref": "#/components/schemas/DiffRow"
+            },
+            "title": "By Sector",
+            "type": "array"
+          },
+          "difference": {
+            "description": "one sentence, templated from the largest gap in the contributions; no model wrote it",
+            "title": "Difference",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "pnl_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pnl A"
+          },
+          "pnl_b": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pnl B"
+          },
+          "pnl_pct_a": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pnl Pct A"
+          },
+          "pnl_pct_b": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pnl Pct B"
+          },
+          "run_a": {
+            "title": "Run A",
+            "type": "string"
+          },
+          "run_b": {
+            "title": "Run B",
+            "type": "string"
+          },
+          "scenario_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Id"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "status_a": {
+            "title": "Status A",
+            "type": "string"
+          },
+          "status_b": {
+            "title": "Status B",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signal_id",
+          "scenario_id",
+          "a",
+          "b",
+          "run_a",
+          "run_b",
+          "status_a",
+          "status_b",
+          "pnl_pct_a",
+          "pnl_pct_b",
+          "pnl_a",
+          "pnl_b",
+          "by_sector",
+          "by_factor",
+          "by_asset_class",
+          "difference",
+          "note"
+        ],
+        "title": "PortfolioComparison",
         "type": "object"
       },
       "PortfolioExposure": {
@@ -5199,8 +7003,309 @@
         "title": "PortfolioExposure",
         "type": "object"
       },
+      "PortfolioExposureDetail": {
+        "properties": {
+          "base_currency": {
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "by_asset_class": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRowV2"
+            },
+            "title": "By Asset Class",
+            "type": "array"
+          },
+          "by_issuer": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRowV2"
+            },
+            "title": "By Issuer",
+            "type": "array"
+          },
+          "by_region": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRowV2"
+            },
+            "title": "By Region",
+            "type": "array"
+          },
+          "by_sector": {
+            "items": {
+              "$ref": "#/components/schemas/ExposureRowV2"
+            },
+            "title": "By Sector",
+            "type": "array"
+          },
+          "kind": {
+            "enum": [
+              "DEFAULT",
+              "USER"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "largest_positions": {
+            "items": {
+              "$ref": "#/components/schemas/PositionWeight"
+            },
+            "title": "Largest Positions",
+            "type": "array"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/Metric"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "not_stressed": {
+            "description": "value the engine cannot shock at all (OTHER): shown, never counted as safe",
+            "items": {
+              "$ref": "#/components/schemas/ExposureRowV2"
+            },
+            "title": "Not Stressed",
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "portfolio_id": {
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "position_count": {
+            "title": "Position Count",
+            "type": "integer"
+          },
+          "split": {
+            "description": "equity / bonds / cash / other (loans and derivatives)",
+            "items": {
+              "$ref": "#/components/schemas/ExposureRowV2"
+            },
+            "title": "Split",
+            "type": "array"
+          },
+          "total_value": {
+            "title": "Total Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "portfolio_id",
+          "name",
+          "kind",
+          "base_currency",
+          "total_value",
+          "position_count",
+          "by_asset_class",
+          "by_sector",
+          "by_region",
+          "by_issuer",
+          "split",
+          "largest_positions",
+          "metrics",
+          "not_stressed",
+          "notes"
+        ],
+        "title": "PortfolioExposureDetail",
+        "type": "object"
+      },
+      "PortfolioInput-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "base_currency": {
+            "default": "USD",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "holdings": {
+            "items": {
+              "$ref": "#/components/schemas/HoldingInput-Input"
+            },
+            "title": "Holdings",
+            "type": "array"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/EntryMode",
+            "default": "WEIGHT"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Notes",
+            "type": "string"
+          },
+          "remainder_as_cash": {
+            "default": false,
+            "description": "WEIGHT mode: when the weights sum to less than 100%, hold the rest as cash",
+            "title": "Remainder As Cash",
+            "type": "boolean"
+          },
+          "total_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "WEIGHT mode: the portfolio's value in base currency (a default is used when empty)",
+            "title": "Total Value"
+          }
+        },
+        "required": [
+          "name",
+          "holdings"
+        ],
+        "title": "PortfolioInput",
+        "type": "object"
+      },
+      "PortfolioInput-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "base_currency": {
+            "default": "USD",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "holdings": {
+            "items": {
+              "$ref": "#/components/schemas/HoldingInput-Output"
+            },
+            "title": "Holdings",
+            "type": "array"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/EntryMode",
+            "default": "WEIGHT"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Notes",
+            "type": "string"
+          },
+          "remainder_as_cash": {
+            "default": false,
+            "description": "WEIGHT mode: when the weights sum to less than 100%, hold the rest as cash",
+            "title": "Remainder As Cash",
+            "type": "boolean"
+          },
+          "total_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "WEIGHT mode: the portfolio's value in base currency (a default is used when empty)",
+            "title": "Total Value"
+          }
+        },
+        "required": [
+          "name",
+          "base_currency",
+          "mode",
+          "total_value",
+          "remainder_as_cash",
+          "notes",
+          "holdings"
+        ],
+        "title": "PortfolioInput",
+        "type": "object"
+      },
+      "PortfolioListItem": {
+        "properties": {
+          "base_currency": {
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "holding_count": {
+            "title": "Holding Count",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "DEFAULT",
+              "USER"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "total_value": {
+            "title": "Total Value",
+            "type": "number"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "base_currency",
+          "total_value",
+          "holding_count",
+          "description",
+          "updated_at"
+        ],
+        "title": "PortfolioListItem",
+        "type": "object"
+      },
       "PortfolioRelevance": {
         "properties": {
+          "band": {
+            "default": "UNDETERMINED",
+            "description": "NONE | LOW | MEDIUM | HIGH | UNDETERMINED: a display band on `share` (configs/portfolio.yaml), not a score; separate from severity and from the modeled impact",
+            "title": "Band",
+            "type": "string"
+          },
           "level": {
             "$ref": "#/components/schemas/RelevanceLevel"
           },
@@ -5211,6 +7316,16 @@
             },
             "title": "Path",
             "type": "array"
+          },
+          "portfolio_id": {
+            "default": "",
+            "title": "Portfolio Id",
+            "type": "string"
+          },
+          "portfolio_name": {
+            "default": "",
+            "title": "Portfolio Name",
+            "type": "string"
           },
           "reach": {
             "anyOf": [
@@ -5262,7 +7377,10 @@
           "summary",
           "path",
           "slices",
-          "reach"
+          "reach",
+          "band",
+          "portfolio_id",
+          "portfolio_name"
         ],
         "title": "PortfolioRelevance",
         "type": "object"
@@ -5289,6 +7407,12 @@
           "entity_count": {
             "title": "Entity Count",
             "type": "integer"
+          },
+          "kind": {
+            "default": "DEFAULT",
+            "description": "DEFAULT (the synthetic book) | USER (a saved personal portfolio)",
+            "title": "Kind",
+            "type": "string"
           },
           "name": {
             "title": "Name",
@@ -5317,9 +7441,59 @@
           "total_value",
           "asset_count",
           "entity_count",
-          "synthetic"
+          "synthetic",
+          "kind"
         ],
         "title": "PortfolioSummary",
+        "type": "object"
+      },
+      "PortfolioView": {
+        "description": "A stored portfolio together with its resolution (holdings with sources, issues).",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "DEFAULT",
+              "USER"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "list_item": {
+            "$ref": "#/components/schemas/PortfolioListItem"
+          },
+          "resolved": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResolvedPortfolio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stored": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StoredPortfolio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "stored",
+          "resolved",
+          "list_item"
+        ],
+        "title": "PortfolioView",
         "type": "object"
       },
       "PositionResult": {
@@ -5417,6 +7591,48 @@
           "value"
         ],
         "title": "PositionShock",
+        "type": "object"
+      },
+      "PositionWeight": {
+        "properties": {
+          "asset_class": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "market_value": {
+            "title": "Market Value",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "region": {
+            "title": "Region",
+            "type": "string"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "weight": {
+            "title": "Weight",
+            "type": "number"
+          }
+        },
+        "required": [
+          "asset_id",
+          "name",
+          "asset_class",
+          "sector",
+          "region",
+          "market_value",
+          "weight"
+        ],
+        "title": "PositionWeight",
         "type": "object"
       },
       "PreviousComparison": {
@@ -6013,6 +8229,49 @@
         "title": "RelevanceLevel",
         "type": "string"
       },
+      "RelevanceRow": {
+        "properties": {
+          "base_rate": {
+            "title": "Base Rate",
+            "type": "number"
+          },
+          "delta": {
+            "title": "Delta",
+            "type": "number"
+          },
+          "delta_hi": {
+            "title": "Delta Hi",
+            "type": "number"
+          },
+          "delta_lo": {
+            "title": "Delta Lo",
+            "type": "number"
+          },
+          "p_at_5_e5": {
+            "title": "P At 5 E5",
+            "type": "number"
+          },
+          "p_at_5_tfidf": {
+            "title": "P At 5 Tfidf",
+            "type": "number"
+          },
+          "queries": {
+            "title": "Queries",
+            "type": "string"
+          }
+        },
+        "required": [
+          "queries",
+          "base_rate",
+          "p_at_5_e5",
+          "p_at_5_tfidf",
+          "delta",
+          "delta_lo",
+          "delta_hi"
+        ],
+        "title": "RelevanceRow",
+        "type": "object"
+      },
       "Reliability": {
         "properties": {
           "basis": {
@@ -6212,6 +8471,317 @@
           "command"
         ],
         "title": "RepresentationView",
+        "type": "object"
+      },
+      "ResolvedHolding": {
+        "properties": {
+          "asset_class": {
+            "$ref": "#/components/schemas/AssetClass"
+          },
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "string"
+          },
+          "basis": {
+            "description": "plain-words notes on the reference data used",
+            "items": {
+              "type": "string"
+            },
+            "title": "Basis",
+            "type": "array"
+          },
+          "beta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Beta"
+          },
+          "cost_basis": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Basis"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration"
+          },
+          "in_universe": {
+            "description": "True for one of the 34 issuers the event pipeline can name: only then can an issuer-level event reach it",
+            "title": "In Universe",
+            "type": "boolean"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "region": {
+            "title": "Region",
+            "type": "string"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "sources": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FieldSource"
+            },
+            "description": "field -> where its value came from",
+            "title": "Sources",
+            "type": "object"
+          },
+          "spread_sensitivity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spread Sensitivity"
+          },
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          },
+          "unrealised_pnl": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "(price - cost basis) x quantity; informational only",
+            "title": "Unrealised Pnl"
+          },
+          "value": {
+            "description": "market value in base currency",
+            "title": "Value",
+            "type": "number"
+          },
+          "weight": {
+            "description": "share of the portfolio (0-1)",
+            "title": "Weight",
+            "type": "number"
+          }
+        },
+        "required": [
+          "index",
+          "asset_id",
+          "ticker",
+          "name",
+          "asset_class",
+          "sector",
+          "region",
+          "currency",
+          "value",
+          "weight",
+          "quantity",
+          "price",
+          "cost_basis",
+          "unrealised_pnl",
+          "beta",
+          "duration",
+          "spread_sensitivity",
+          "in_universe",
+          "sources",
+          "basis"
+        ],
+        "title": "ResolvedHolding",
+        "type": "object"
+      },
+      "ResolvedPortfolio": {
+        "properties": {
+          "base_currency": {
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "holdings": {
+            "items": {
+              "$ref": "#/components/schemas/ResolvedHolding"
+            },
+            "title": "Holdings",
+            "type": "array"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/Issue"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/EntryMode"
+          },
+          "ok": {
+            "description": "False when any ERROR issue is present; then `portfolio` is null",
+            "title": "Ok",
+            "type": "boolean"
+          },
+          "portfolio": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Portfolio"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Value"
+          }
+        },
+        "required": [
+          "ok",
+          "mode",
+          "total_value",
+          "base_currency",
+          "holdings",
+          "issues",
+          "portfolio"
+        ],
+        "title": "ResolvedPortfolio",
+        "type": "object"
+      },
+      "RetrievalSummary": {
+        "properties": {
+          "decision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "floor_curve": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "title": "Floor Curve",
+            "type": "array"
+          },
+          "relevance": {
+            "items": {
+              "$ref": "#/components/schemas/RelevanceRow"
+            },
+            "title": "Relevance",
+            "type": "array"
+          },
+          "served_retriever": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Served Retriever"
+          },
+          "similarity_floor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Similarity Floor"
+          },
+          "value": {
+            "items": {
+              "$ref": "#/components/schemas/ValueRow"
+            },
+            "title": "Value",
+            "type": "array"
+          }
+        },
+        "required": [
+          "served_retriever",
+          "relevance",
+          "similarity_floor",
+          "floor_curve",
+          "value",
+          "decision"
+        ],
+        "title": "RetrievalSummary",
         "type": "object"
       },
       "RiskAssessment": {
@@ -6544,6 +9114,12 @@
             "title": "Baseline Basis",
             "type": "array"
           },
+          "baseline_informed": {
+            "default": true,
+            "description": "false when the rules found no evidence and the baseline is only a default: the AI is then less tightly bound",
+            "title": "Baseline Informed",
+            "type": "boolean"
+          },
           "baseline_label": {
             "title": "Baseline Label",
             "type": "string"
@@ -6585,6 +9161,7 @@
           "baseline",
           "baseline_label",
           "baseline_basis",
+          "baseline_informed",
           "ai",
           "ai_label",
           "ai_reason",
@@ -6771,6 +9348,51 @@
           "note"
         ],
         "title": "ScenarioAssumptions",
+        "type": "object"
+      },
+      "ScenarioHistoryCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/ShockCheck"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "first_session": {
+            "title": "First Session",
+            "type": "string"
+          },
+          "last_session": {
+            "title": "Last Session",
+            "type": "string"
+          },
+          "scenario_id": {
+            "title": "Scenario Id",
+            "type": "string"
+          },
+          "severity_scale": {
+            "title": "Severity Scale",
+            "type": "number"
+          }
+        },
+        "required": [
+          "scenario_id",
+          "severity_scale",
+          "first_session",
+          "last_session",
+          "checks",
+          "caveats"
+        ],
+        "title": "ScenarioHistoryCheck",
         "type": "object"
       },
       "ScenarioList": {
@@ -7924,6 +10546,59 @@
         "title": "SeverityScaling",
         "type": "object"
       },
+      "ShockCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "checkable": {
+            "title": "Checkable",
+            "type": "boolean"
+          },
+          "factor": {
+            "title": "Factor",
+            "type": "string"
+          },
+          "horizons": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/HorizonRank"
+            },
+            "title": "Horizons",
+            "type": "array"
+          },
+          "reading": {
+            "title": "Reading",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "factor",
+          "scope",
+          "value",
+          "unit",
+          "checkable",
+          "basis",
+          "horizons",
+          "reading"
+        ],
+        "title": "ShockCheck",
+        "type": "object"
+      },
       "ShockScope": {
         "description": "Who a shock applies to. Most specific applicable scope wins: ISSUER > SECTOR > MARKET.",
         "enum": [
@@ -8451,6 +11126,12 @@
             "title": "Published At",
             "type": "string"
           },
+          "relevance_band": {
+            "default": "UNDETERMINED",
+            "description": "NONE | LOW | MEDIUM | HIGH | UNDETERMINED display band on relevance_share; separate from severity",
+            "title": "Relevance Band",
+            "type": "string"
+          },
           "relevance_level": {
             "description": "DIRECT | SECTOR | MARKET_WIDE | NONE | UNDETERMINED: how the book is reached",
             "title": "Relevance Level",
@@ -8675,6 +11356,7 @@
           "updated_seq",
           "relevance_level",
           "relevance_share",
+          "relevance_band",
           "severity_score",
           "severity_low",
           "severity_high",
@@ -8688,6 +11370,29 @@
           "above_trigger"
         ],
         "title": "SignalSummary",
+        "type": "object"
+      },
+      "SkippedShock": {
+        "properties": {
+          "factor_label": {
+            "title": "Factor Label",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "scope_label": {
+            "title": "Scope Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "factor_label",
+          "scope_label",
+          "reason"
+        ],
+        "title": "SkippedShock",
         "type": "object"
       },
       "SourceEvidence": {
@@ -8824,6 +11529,64 @@
         "title": "SourceType",
         "type": "string"
       },
+      "SplitCheck": {
+        "properties": {
+          "abstained_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Abstained Share"
+          },
+          "bands": {
+            "items": {
+              "$ref": "#/components/schemas/BandRow"
+            },
+            "title": "Bands",
+            "type": "array"
+          },
+          "metrics": {
+            "items": {
+              "$ref": "#/components/schemas/Interval"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "split": {
+            "title": "Split",
+            "type": "string"
+          },
+          "tail_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tail Rate"
+          }
+        },
+        "required": [
+          "split",
+          "n",
+          "abstained_share",
+          "tail_rate",
+          "metrics",
+          "bands"
+        ],
+        "title": "SplitCheck",
+        "type": "object"
+      },
       "StageStatus": {
         "additionalProperties": false,
         "description": "What one pipeline stage is, in the product's three words: placeholder rule, experimental model, validated model.",
@@ -8900,6 +11663,86 @@
           "artifact_sha256"
         ],
         "title": "StageStatus",
+        "type": "object"
+      },
+      "StoredPortfolio": {
+        "additionalProperties": false,
+        "description": "A saved portfolio: the input plus identity and timestamps.",
+        "properties": {
+          "base_currency": {
+            "default": "USD",
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Base Currency",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "holdings": {
+            "items": {
+              "$ref": "#/components/schemas/HoldingInput-Output"
+            },
+            "title": "Holdings",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/EntryMode",
+            "default": "WEIGHT"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "notes": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Notes",
+            "type": "string"
+          },
+          "remainder_as_cash": {
+            "default": false,
+            "description": "WEIGHT mode: when the weights sum to less than 100%, hold the rest as cash",
+            "title": "Remainder As Cash",
+            "type": "boolean"
+          },
+          "total_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "WEIGHT mode: the portfolio's value in base currency (a default is used when empty)",
+            "title": "Total Value"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "base_currency",
+          "mode",
+          "total_value",
+          "remainder_as_cash",
+          "notes",
+          "holdings",
+          "id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "StoredPortfolio",
         "type": "object"
       },
       "Stratum": {
@@ -9149,6 +11992,18 @@
             ],
             "description": "what-if impact (requires force=true)",
             "title": "Impact Override"
+          },
+          "portfolio_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "a saved personal portfolio to stress; absent or 'default' = the synthetic wholesale book",
+            "title": "Portfolio Id"
           },
           "scenario_id": {
             "anyOf": [
@@ -9746,6 +12601,60 @@
         "title": "ValidationError",
         "type": "object"
       },
+      "ValueRow": {
+        "properties": {
+          "candidate": {
+            "title": "Candidate",
+            "type": "string"
+          },
+          "delta_mae": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta Mae"
+          },
+          "hi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hi"
+          },
+          "lo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lo"
+          },
+          "split": {
+            "title": "Split",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate",
+          "split",
+          "delta_mae",
+          "lo",
+          "hi"
+        ],
+        "title": "ValueRow",
+        "type": "object"
+      },
       "YearCount": {
         "additionalProperties": false,
         "properties": {
@@ -10232,6 +13141,28 @@
         ]
       }
     },
+    "/api/evidence/outcome-check": {
+      "get": {
+        "description": "Stage 8: whether the severity scale ranks realised moves (it does not, out of sample), what the market does around ordinary news, and what retrieval earned. Built from committed evidence files.",
+        "operationId": "outcome_check_api_evidence_outcome_check_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutcomeCheck"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Outcome Check",
+        "tags": [
+          "evidence"
+        ]
+      }
+    },
     "/api/health": {
       "get": {
         "operationId": "health_api_health_get",
@@ -10413,6 +13344,26 @@
     "/api/portfolio/assets": {
       "get": {
         "operationId": "assets_api_portfolio_assets_get",
+        "parameters": [
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -10427,6 +13378,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Assets",
@@ -10438,6 +13399,26 @@
     "/api/portfolio/exposure": {
       "get": {
         "operationId": "exposure_api_portfolio_exposure_get",
+        "parameters": [
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -10448,6 +13429,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Exposure",
@@ -10459,6 +13450,26 @@
     "/api/portfolio/summary": {
       "get": {
         "operationId": "summary_api_portfolio_summary_get",
+        "parameters": [
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -10469,11 +13480,421 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Summary",
         "tags": [
           "portfolio"
+        ]
+      }
+    },
+    "/api/portfolios": {
+      "get": {
+        "operationId": "list_portfolios_api_portfolios_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PortfolioListItem"
+                  },
+                  "title": "Response List Portfolios Api Portfolios Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Portfolios",
+        "tags": [
+          "portfolios"
+        ]
+      },
+      "post": {
+        "operationId": "create_portfolio_api_portfolios_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortfolioInput-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Portfolio",
+        "tags": [
+          "portfolios"
+        ]
+      }
+    },
+    "/api/portfolios/compare": {
+      "post": {
+        "description": "The same event and scenario on two portfolios. Each side is an ordinary deterministic stress run; this only lines them up.",
+        "operationId": "compare_api_portfolios_compare_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompareRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioComparison"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare",
+        "tags": [
+          "portfolios"
+        ]
+      }
+    },
+    "/api/portfolios/parse": {
+      "post": {
+        "description": "Quick entry: ``AAPL 20%`` lines (or ``AAPL 100 @ 190``) into a draft, resolved so every issue shows. Saves nothing.",
+        "operationId": "parse_quick_api_portfolios_parse_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParseResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Parse Quick",
+        "tags": [
+          "portfolios"
+        ]
+      }
+    },
+    "/api/portfolios/validate": {
+      "post": {
+        "description": "Resolve a draft without saving it: weights, sources of every filled-in field, and every issue (200 even when it has errors).",
+        "operationId": "validate_portfolio_api_portfolios_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortfolioInput-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResolvedPortfolio"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Validate Portfolio",
+        "tags": [
+          "portfolios"
+        ]
+      }
+    },
+    "/api/portfolios/{portfolio_id}": {
+      "delete": {
+        "operationId": "delete_portfolio_api_portfolios__portfolio_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "portfolio_id",
+            "required": true,
+            "schema": {
+              "title": "Portfolio Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Portfolio",
+        "tags": [
+          "portfolios"
+        ]
+      },
+      "get": {
+        "operationId": "get_portfolio_api_portfolios__portfolio_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "portfolio_id",
+            "required": true,
+            "schema": {
+              "title": "Portfolio Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Portfolio",
+        "tags": [
+          "portfolios"
+        ]
+      },
+      "put": {
+        "operationId": "update_portfolio_api_portfolios__portfolio_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "portfolio_id",
+            "required": true,
+            "schema": {
+              "title": "Portfolio Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortfolioInput-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Portfolio",
+        "tags": [
+          "portfolios"
+        ]
+      }
+    },
+    "/api/portfolios/{portfolio_id}/duplicate": {
+      "post": {
+        "operationId": "duplicate_portfolio_api_portfolios__portfolio_id__duplicate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "portfolio_id",
+            "required": true,
+            "schema": {
+              "title": "Portfolio Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Duplicate Portfolio",
+        "tags": [
+          "portfolios"
+        ]
+      }
+    },
+    "/api/portfolios/{portfolio_id}/exposure": {
+      "get": {
+        "description": "What the portfolio is exposed to (asset class, sector, region, issuer, concentration, beta, duration), with the formula of each metric.",
+        "operationId": "portfolio_exposure_api_portfolios__portfolio_id__exposure_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "portfolio_id",
+            "required": true,
+            "schema": {
+              "title": "Portfolio Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortfolioExposureDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Portfolio Exposure",
+        "tags": [
+          "portfolios"
         ]
       }
     },
@@ -10535,6 +13956,61 @@
           }
         },
         "summary": "Get Scenario",
+        "tags": [
+          "scenarios"
+        ]
+      }
+    },
+    "/api/scenarios/{scenario_id}/history-check": {
+      "get": {
+        "description": "Where each shock of the scenario falls in the empirical distribution of 1-, 5- and 21-session moves since 2014 (read-only; a historical frequency, not a probability). `severity_scale` scales the shocks as a stress run would (1.0 = the scenario's reference impact).",
+        "operationId": "history_check_api_scenarios__scenario_id__history_check_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scenario_id",
+            "required": true,
+            "schema": {
+              "title": "Scenario Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "severity_scale",
+            "required": false,
+            "schema": {
+              "default": 1.0,
+              "maximum": 3.0,
+              "minimum": 0.1,
+              "title": "Severity Scale",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioHistoryCheck"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "History Check",
         "tags": [
           "scenarios"
         ]
@@ -10701,6 +14177,24 @@
               "description": "only live-overlay signals changed after this counter",
               "title": "Since Seq"
             }
+          },
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
           }
         ],
         "responses": {
@@ -10768,6 +14262,49 @@
           }
         },
         "summary": "Get Signal",
+        "tags": [
+          "signals"
+        ]
+      }
+    },
+    "/api/signals/{signal_id}/analogues": {
+      "get": {
+        "description": "Past reports that resemble this one and what the market did after them: RETRIEVED evidence, labelled hindsight, never a score input. status NO_RELIABLE_ANALOGUE means the bar was not met and nothing is padded; UNAVAILABLE means the index or encoder is missing.",
+        "operationId": "get_analogues_api_signals__signal_id__analogues_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "signal_id",
+            "required": true,
+            "schema": {
+              "title": "Signal Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalogueSet"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Analogues",
         "tags": [
           "signals"
         ]
@@ -10927,6 +14464,24 @@
               "title": "Signal Id",
               "type": "string"
             }
+          },
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
           }
         ],
         "responses": {
@@ -11014,6 +14569,24 @@
               "title": "Signal Id",
               "type": "string"
             }
+          },
+          {
+            "description": "only runs on this saved portfolio ('default' = the synthetic book)",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "only runs on this saved portfolio ('default' = the synthetic book)",
+              "title": "Portfolio Id"
+            }
           }
         ],
         "responses": {
@@ -11085,6 +14658,49 @@
           }
         },
         "summary": "Get Stress Run",
+        "tags": [
+          "stress"
+        ]
+      }
+    },
+    "/api/stress-runs/{run_id}/exposure-chain": {
+      "get": {
+        "description": "Why is the portfolio exposed? Event -> applied shock -> the holdings that take it -> modeled change, regrouped from this run's own results.",
+        "operationId": "get_exposure_chain_api_stress_runs__run_id__exposure_chain_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExposureChain"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Exposure Chain",
         "tags": [
           "stress"
         ]

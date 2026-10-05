@@ -253,3 +253,14 @@ export const ShieldGlyph = (p: P) => (
     <path d="m5.800 8 1.600 1.600 2.800-3" />
   </Icon>
 );
+export const PortfolioIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="1.75" y="4.5" width="12.5" height="9" rx="1.5" />
+    <path d="M5.5 4.5V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.5M1.75 8.5h12.5" />
+  </Icon>
+);
+export const Plus = (p: P) => (
+  <Icon {...p}>
+    <path d="M8 3v10M3 8h10" />
+  </Icon>
+);

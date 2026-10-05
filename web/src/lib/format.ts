@@ -1,9 +1,15 @@
 export const sigma = (x: number): string => `${x.toFixed(2)}σ`;
 const MINUS = "−";
 
+/** The symbol money() uses when a call names none: the active portfolio's currency (set by the shell), "$" for the synthetic default. */
+let displayCurrency = "$";
+export function setDisplayCurrency(symbol: string): void {
+  displayCurrency = symbol;
+}
+
 /** Compact currency: $558.8M, $12.4K. Negative values use a true minus sign. */
 export function money(value: number, opts: { signed?: boolean; currency?: string; digits?: number } = {}): string {
-  const { signed = false, currency = "$", digits } = opts;
+  const { signed = false, currency = displayCurrency, digits } = opts;
   const abs = Math.abs(value);
   let body: string;
   if (abs >= 1e9) body = `${(abs / 1e9).toFixed(digits ?? 2)}B`;
@@ -14,7 +20,7 @@ export function money(value: number, opts: { signed?: boolean; currency?: string
   return `${sign}${currency}${body}`;
 }
 
-export function moneyFull(value: number, currency = "$"): string {
+export function moneyFull(value: number, currency = displayCurrency): string {
   const sign = value < 0 ? MINUS : "";
   return `${sign}${currency}${Math.abs(Math.round(value)).toLocaleString("en-US")}`;
 }
@@ -66,6 +72,8 @@ export const ASSET_CLASS_LABEL: Record<string, string> = {
   BOND: "Bonds",
   LOAN: "Loans",
   DERIVATIVE: "Derivatives",
+  CASH: "Cash",
+  OTHER: "Not stressed",
 };
 
 /** "3h ago" relative to the replay clock (not wall-clock) so the demo reads the same every time. */

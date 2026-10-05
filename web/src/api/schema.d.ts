@@ -50,6 +50,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/evidence/outcome-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Outcome Check
+         * @description Stage 8: whether the severity scale ranks realised moves (it does not, out of sample), what the market does around ordinary news, and what retrieval earned. Built from committed evidence files.
+         */
+        get: operations["outcome_check_api_evidence_outcome_check_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -255,6 +275,140 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portfolios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Portfolios */
+        get: operations["list_portfolios_api_portfolios_get"];
+        put?: never;
+        /** Create Portfolio */
+        post: operations["create_portfolio_api_portfolios_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolios/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Compare
+         * @description The same event and scenario on two portfolios. Each side is an ordinary deterministic stress run; this only lines them up.
+         */
+        post: operations["compare_api_portfolios_compare_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolios/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Parse Quick
+         * @description Quick entry: ``AAPL 20%`` lines (or ``AAPL 100 @ 190``) into a draft, resolved so every issue shows. Saves nothing.
+         */
+        post: operations["parse_quick_api_portfolios_parse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolios/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate Portfolio
+         * @description Resolve a draft without saving it: weights, sources of every filled-in field, and every issue (200 even when it has errors).
+         */
+        post: operations["validate_portfolio_api_portfolios_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolios/{portfolio_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Portfolio */
+        get: operations["get_portfolio_api_portfolios__portfolio_id__get"];
+        /** Update Portfolio */
+        put: operations["update_portfolio_api_portfolios__portfolio_id__put"];
+        post?: never;
+        /** Delete Portfolio */
+        delete: operations["delete_portfolio_api_portfolios__portfolio_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolios/{portfolio_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate Portfolio */
+        post: operations["duplicate_portfolio_api_portfolios__portfolio_id__duplicate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolios/{portfolio_id}/exposure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Portfolio Exposure
+         * @description What the portfolio is exposed to (asset class, sector, region, issuer, concentration, beta, duration), with the formula of each metric.
+         */
+        get: operations["portfolio_exposure_api_portfolios__portfolio_id__exposure_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scenarios": {
         parameters: {
             query?: never;
@@ -281,6 +435,26 @@ export interface paths {
         };
         /** Get Scenario */
         get: operations["get_scenario_api_scenarios__scenario_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scenarios/{scenario_id}/history-check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * History Check
+         * @description Where each shock of the scenario falls in the empirical distribution of 1-, 5- and 21-session moves since 2014 (read-only; a historical frequency, not a probability). `severity_scale` scales the shocks as a stress run would (1.0 = the scenario's reference impact).
+         */
+        get: operations["history_check_api_scenarios__scenario_id__history_check_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -335,6 +509,26 @@ export interface paths {
         };
         /** Get Signal */
         get: operations["get_signal_api_signals__signal_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/signals/{signal_id}/analogues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Analogues
+         * @description Past reports that resemble this one and what the market did after them: RETRIEVED evidence, labelled hindsight, never a score input. status NO_RELIABLE_ANALOGUE means the bar was not met and nothing is padded; UNAVAILABLE means the index or encoder is missing.
+         */
+        get: operations["get_analogues_api_signals__signal_id__analogues_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -485,6 +679,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/stress-runs/{run_id}/exposure-chain": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Exposure Chain
+         * @description Why is the portfolio exposed? Event -> applied shock -> the holdings that take it -> modeled change, regrouped from this run's own results.
+         */
+        get: operations["get_exposure_chain_api_stress_runs__run_id__exposure_chain_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stress-test": {
         parameters: {
             query?: never;
@@ -512,11 +726,6 @@ export interface components {
         /** AIRubric */
         AIRubric: {
             certainty: components["schemas"]["RubricProposal"] | null;
-            /**
-             * Channels
-             * @description transmission channels the AI sees (credit, liquidity, rates, equity valuation, commodity supply, FX, counterparty, regulation, operations)
-             */
-            channels: string[];
             direction: components["schemas"]["RubricProposal"] | null;
             magnitude: components["schemas"]["RubricProposal"] | null;
             reach: components["schemas"]["RubricProposal"] | null;
@@ -555,6 +764,167 @@ export interface components {
             reference_sentiment: number | null;
             /** Sentiment Direction Agrees */
             sentiment_direction_agrees: boolean | null;
+        };
+        /** Analogue */
+        Analogue: {
+            /** Abs Z */
+            abs_z: number;
+            /**
+             * Car Pct
+             * @description cumulative abnormal return over the reaction window, in percent (signed)
+             */
+            car_pct: number;
+            /** Headline */
+            headline: string;
+            /** Id */
+            id: string;
+            /**
+             * Model Event Type
+             * @description the trained event model's label for that old text (noisy; shown for orientation only)
+             */
+            model_event_type: string | null;
+            /**
+             * Origin
+             * @default RETRIEVED
+             * @constant
+             */
+            origin: "RETRIEVED";
+            /** Outcome Version */
+            outcome_version: string;
+            /** Published At */
+            published_at: string;
+            /**
+             * Reaction Session
+             * @description the first session whose move counts as the reaction (the report's own session, or the next one for an after-close report)
+             */
+            reaction_session: string;
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "ISSUER" | "MARKET";
+            /** Sector */
+            sector: string | null;
+            /**
+             * Similarity
+             * @description cosine similarity of the two reports' e5 embeddings, 0-1 (e5 similarities are compressed: unrelated texts typically score 0.70-0.80)
+             */
+            similarity: number;
+            /** Ticker */
+            ticker: string | null;
+            /**
+             * Vix Level
+             * @description ^VIX close of the session before the reaction, i.e. the regime the move happened in
+             */
+            vix_level: number | null;
+            /**
+             * Z
+             * @description that move in units of the issuer's own trailing volatility (signed)
+             */
+            z: number;
+        };
+        /** AnalogueAggregate */
+        AnalogueAggregate: {
+            /** Abs Car Pct Median */
+            abs_car_pct_median: number;
+            /** Car Pct Q10 */
+            car_pct_q10: number;
+            /** Car Pct Q50 */
+            car_pct_q50: number;
+            /** Car Pct Q90 */
+            car_pct_q90: number;
+            /**
+             * Distinguishable From Quiet Day
+             * @description True only if the Wilson interval of the share lies entirely above the quiet-day share
+             */
+            distinguishable_from_quiet_day: boolean;
+            /**
+             * Lift
+             * @description share_move_ge_2sigma / quiet_day_share
+             */
+            lift: number | null;
+            /**
+             * N Episodes
+             * @description distinct past episodes behind the statistics
+             */
+            n_episodes: number;
+            /**
+             * N Stories
+             * @description distinct stories after near-duplicate collapse above the similarity floor
+             */
+            n_stories: number;
+            /**
+             * N Used
+             * @description how many of them (the most similar, after diversity caps) the statistics below are computed from: the effective sample size
+             */
+            n_used: number;
+            /**
+             * Quiet Day Share
+             * @description the same share on ordinary days (random sessions with no earnings reaction): the yardstick
+             */
+            quiet_day_share: number;
+            /** Reading */
+            reading: string;
+            /** Share Hi */
+            share_hi: number;
+            /** Share Lo */
+            share_lo: number;
+            /**
+             * Share Move Ge 2Sigma
+             * @description share of the analogues whose |z| was at least 2
+             */
+            share_move_ge_2sigma: number;
+        };
+        /** AnalogueSet */
+        AnalogueSet: {
+            /**
+             * Above Floor
+             * @default 0
+             */
+            above_floor: number;
+            aggregate: components["schemas"]["AnalogueAggregate"] | null;
+            /**
+             * Below Bar
+             * @description nearest eligible reports when the reliability bar is not met: shown for transparency, never as precedent
+             * @default []
+             */
+            below_bar: components["schemas"]["Analogue"][];
+            /**
+             * Caveats
+             * @default []
+             */
+            caveats: string[];
+            /**
+             * Eligible
+             * @description past episodes allowed by the point-in-time rule
+             * @default 0
+             */
+            eligible: number;
+            /** Index Version */
+            index_version: string | null;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["Analogue"][];
+            /**
+             * Outcome Note
+             * @default The realised move is hindsight about a PAST report: the market-model abnormal return over the reaction window after it (outcome-v3 for a company, the S&P 500's excess move for a market-wide report). It is not a forecast for this report.
+             */
+            outcome_note: string;
+            /** Query Date */
+            query_date: string | null;
+            /** Reason */
+            reason: string;
+            /** Scope */
+            scope: ("ISSUER" | "MARKET") | null;
+            /** Similarity Floor */
+            similarity_floor: number | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "OK" | "NO_RELIABLE_ANALOGUE" | "UNAVAILABLE";
         };
         /** AnalyzeRequest */
         AnalyzeRequest: {
@@ -661,7 +1031,7 @@ export interface components {
          * AssetClass
          * @enum {string}
          */
-        AssetClass: "EQUITY" | "BOND" | "LOAN" | "DERIVATIVE";
+        AssetClass: "EQUITY" | "BOND" | "LOAN" | "DERIVATIVE" | "CASH" | "OTHER";
         /** Attribution */
         Attribution: {
             /**
@@ -681,6 +1051,52 @@ export interface components {
             max_abs_error: number | null;
             /** Units */
             units: string;
+        };
+        /** AuditSummary */
+        AuditSummary: {
+            /** Auc */
+            auc: number | null;
+            /** Auc Hi */
+            auc_hi: number | null;
+            /** Auc Lo */
+            auc_lo: number | null;
+            /** Auc With Earnings */
+            auc_with_earnings: number | null;
+            /** Auc Without Earnings */
+            auc_without_earnings: number | null;
+            /** Auc Without Earnings Hi */
+            auc_without_earnings_hi: number | null;
+            /** Auc Without Earnings Lo */
+            auc_without_earnings_lo: number | null;
+            /** Effective Sample */
+            effective_sample: number | null;
+            /** News Episodes */
+            news_episodes: number;
+            /** Nominal Sample */
+            nominal_sample: number | null;
+            /** Quiet Days Sampled */
+            quiet_days_sampled: number;
+            /** Share Move News */
+            share_move_news: number | null;
+            /** Share Move Quiet */
+            share_move_quiet: number | null;
+            /** Sigma Decision */
+            sigma_decision: string;
+            /** Sigma Reading */
+            sigma_reading: string;
+        };
+        /** BandRow */
+        BandRow: {
+            /** Band */
+            band: string;
+            /** Hi */
+            hi: number | null;
+            /** Lo */
+            lo: number | null;
+            /** N */
+            n: number;
+            /** Tail Rate */
+            tail_rate: number | null;
         };
         /** BaselineScores */
         BaselineScores: {
@@ -824,6 +1240,12 @@ export interface components {
         /** Capabilities */
         Capabilities: {
             /**
+             * Analogues
+             * @description historical analogues are served (an index is installed); GET /api/signals/{id}/analogues
+             * @default false
+             */
+            analogues: boolean;
+            /**
              * Analyze
              * @description POST /api/analyze is available (needs the replay profile's models)
              */
@@ -835,12 +1257,68 @@ export interface components {
              */
             assessment: boolean;
             /**
+             * Custom Portfolios
+             * @description optional personal portfolios can be created and used instead of the synthetic default; /api/portfolios
+             * @default true
+             */
+            custom_portfolios: boolean;
+            /**
+             * History Check
+             * @description scenario shocks can be ranked against history; GET /api/scenarios/{id}/history-check
+             * @default false
+             */
+            history_check: boolean;
+            /**
              * Live Enabled
              * @description a live source is configured and polling
              */
             live_enabled: boolean;
             /** @description how new text is read; null where there is no assessment layer */
             llm: components["schemas"]["LLMInfo"] | null;
+        };
+        /** ChainStep */
+        ChainStep: {
+            /**
+             * Applied Shock
+             * @description scaled shock value in its own unit
+             */
+            applied_shock: number;
+            /**
+             * Exposed Share
+             * @description of the portfolio's baseline value
+             */
+            exposed_share: number;
+            /** Exposed Value */
+            exposed_value: number;
+            /** Factor */
+            factor: string;
+            /** Factor Label */
+            factor_label: string;
+            /**
+             * Impact
+             * @description modeled change in portfolio currency, from the engine's per-factor attribution
+             */
+            impact: number;
+            /**
+             * Impact Pct
+             * @description as a fraction of the portfolio's baseline value
+             */
+            impact_pct: number;
+            /** Position Count */
+            position_count: number;
+            /** Scope */
+            scope: string;
+            /** Scope Label */
+            scope_label: string;
+            /**
+             * Sensitivity
+             * @description the portfolio's own sensitivity to this factor, e.g. 'weighted beta 1.12' or 'weighted duration 6.4 y'
+             */
+            sensitivity: string;
+            /** Sentence */
+            sentence: string;
+            /** Unit */
+            unit: string;
         };
         /** CheckRow */
         CheckRow: {
@@ -888,6 +1366,25 @@ export interface components {
             status: string;
             /** Train Examples */
             train_examples: number;
+        };
+        /** CompareRequest */
+        CompareRequest: {
+            /**
+             * Force
+             * @default false
+             */
+            force?: boolean;
+            /** Impact Override */
+            impact_override?: number | null;
+            /**
+             * Portfolio Ids
+             * @description two portfolio ids (DEFAULT_ID selects the synthetic book)
+             */
+            portfolio_ids: string[];
+            /** Scenario Id */
+            scenario_id?: string | null;
+            /** Signal Id */
+            signal_id: string;
         };
         /** ConfidentError */
         ConfidentError: {
@@ -1124,6 +1621,29 @@ export interface components {
          * @enum {string}
          */
         DedupRelation: "EXACT_DUPLICATE" | "SYNDICATED" | "NEAR_DUPLICATE" | "SAME_EVENT";
+        /** DiffRow */
+        DiffRow: {
+            /**
+             * A Pct
+             * @description change as a fraction of portfolio A's value
+             */
+            a_pct: number;
+            /** A Value */
+            a_value: number;
+            /** B Pct */
+            b_pct: number;
+            /** B Value */
+            b_value: number;
+            /**
+             * Gap Pct
+             * @description a_pct - b_pct
+             */
+            gap_pct: number;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
         /** DirectionCheck */
         DirectionCheck: {
             /** @description share of confident, non-neutral sentiment calls whose sign matched the realised abnormal return */
@@ -1194,6 +1714,11 @@ export interface components {
             /** Ticker */
             ticker: string | null;
         };
+        /**
+         * EntryMode
+         * @enum {string}
+         */
+        EntryMode: "WEIGHT" | "QUANTITY";
         /**
          * Estimate
          * @description A point estimate with a 95% cluster-bootstrap interval (episodes are resampled, never rows).
@@ -1698,6 +2223,36 @@ export interface components {
             signal_id: string;
             source_evidence: components["schemas"]["SourceEvidence"];
         };
+        /** ExposureChain */
+        ExposureChain: {
+            /**
+             * Event Line
+             * @description what the event is about, from its scope
+             */
+            event_line: string;
+            /** @description holdings no applied shock moved (cash, unsupported instruments, unreached equity) */
+            not_reached: components["schemas"]["ExposureRowV2"] | null;
+            /** Note */
+            note: string;
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Portfolio Name */
+            portfolio_name: string;
+            /** Run Id */
+            run_id: string;
+            /** Scope Level */
+            scope_level: string;
+            /** Skipped */
+            skipped: components["schemas"]["SkippedShock"][];
+            /** Steps */
+            steps: components["schemas"]["ChainStep"][];
+            /** Summary */
+            summary: string;
+            /** Total Impact */
+            total_impact: number;
+            /** Total Impact Pct */
+            total_impact_pct: number;
+        };
         /** ExposureRow */
         ExposureRow: {
             /** Asset Count */
@@ -1708,6 +2263,19 @@ export interface components {
             label: string;
             /** Market Value */
             market_value: number;
+            /** Share */
+            share: number;
+        };
+        /** ExposureRowV2 */
+        ExposureRowV2: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Market Value */
+            market_value: number;
+            /** Position Count */
+            position_count: number;
             /** Share */
             share: number;
         };
@@ -1821,6 +2389,11 @@ export interface components {
             status: string;
         };
         /**
+         * FieldSource
+         * @enum {string}
+         */
+        FieldSource: "USER" | "REFERENCE" | "DEFAULT_ASSUMPTION" | "DERIVED";
+        /**
          * FilingMoment
          * @description An SEC 8-K of the signal's issuer, placed relative to the report's own timestamp.
          */
@@ -1884,11 +2457,134 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** HoldingInput */
+        "HoldingInput-Input": {
+            /** Asset Class */
+            asset_class?: ("EQUITY" | "BOND" | "CASH" | "OTHER") | null;
+            /**
+             * Beta
+             * @description market beta of an equity; overrides the looked-up one
+             */
+            beta?: number | null;
+            /**
+             * Cost Basis
+             * @description price paid per unit; informational (unrealised P&L), never used by the stress
+             */
+            cost_basis?: number | null;
+            /** Currency */
+            currency?: string | null;
+            /**
+             * Duration
+             * @description modified duration in years of a bond; required for a bond with no reference
+             */
+            duration?: number | null;
+            /** Name */
+            name?: string | null;
+            /**
+             * Price
+             * @description current price per unit (QUANTITY mode); 1 for cash
+             */
+            price?: number | null;
+            /**
+             * Quantity
+             * @description units held (QUANTITY mode); for cash, the amount
+             */
+            quantity?: number | null;
+            /** Region */
+            region?: string | null;
+            /** Sector */
+            sector?: string | null;
+            /**
+             * Ticker
+             * @description instrument identifier; CASH for cash
+             */
+            ticker: string;
+            /**
+             * Weight Pct
+             * @description share of the portfolio in percent (WEIGHT mode)
+             */
+            weight_pct?: number | null;
+        };
+        /** HoldingInput */
+        "HoldingInput-Output": {
+            /** Asset Class */
+            asset_class: ("EQUITY" | "BOND" | "CASH" | "OTHER") | null;
+            /**
+             * Beta
+             * @description market beta of an equity; overrides the looked-up one
+             */
+            beta: number | null;
+            /**
+             * Cost Basis
+             * @description price paid per unit; informational (unrealised P&L), never used by the stress
+             */
+            cost_basis: number | null;
+            /** Currency */
+            currency: string | null;
+            /**
+             * Duration
+             * @description modified duration in years of a bond; required for a bond with no reference
+             */
+            duration: number | null;
+            /** Name */
+            name: string | null;
+            /**
+             * Price
+             * @description current price per unit (QUANTITY mode); 1 for cash
+             */
+            price: number | null;
+            /**
+             * Quantity
+             * @description units held (QUANTITY mode); for cash, the amount
+             */
+            quantity: number | null;
+            /** Region */
+            region: string | null;
+            /** Sector */
+            sector: string | null;
+            /**
+             * Ticker
+             * @description instrument identifier; CASH for cash
+             */
+            ticker: string;
+            /**
+             * Weight Pct
+             * @description share of the portfolio in percent (WEIGHT mode)
+             */
+            weight_pct: number | null;
+        };
         /** HorizonCheck */
         HorizonCheck: {
             spearman: components["schemas"]["Estimate"];
             /** Window Sessions */
             window_sessions: number;
+        };
+        /** HorizonRank */
+        HorizonRank: {
+            /**
+             * Beyond History
+             * @default false
+             */
+            beyond_history: boolean;
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "down" | "up";
+            /** Horizon Sessions */
+            horizon_sessions: number;
+            /** Independent Windows */
+            independent_windows: number;
+            /** Median Abs */
+            median_abs: number;
+            /** N Windows */
+            n_windows: number;
+            /** One In */
+            one_in: number | null;
+            /** Share As Extreme */
+            share_as_extreme: number | null;
+            /** Worst Observed */
+            worst_observed: number;
         };
         /**
          * ImpactAssessment
@@ -2175,12 +2871,46 @@ export interface components {
             /** Value */
             value: string;
         };
+        /** Interval */
+        Interval: {
+            /** Estimate */
+            estimate: number | null;
+            /** Hi */
+            hi: number | null;
+            /** Lo */
+            lo: number | null;
+            /** Name */
+            name: string;
+        };
+        /** Issue */
+        Issue: {
+            /**
+             * Code
+             * @description stable machine code, e.g. WEIGHTS_SUM, DUPLICATE_TICKER, UNKNOWN_SECTOR
+             */
+            code: string;
+            /** Field */
+            field: string | null;
+            /**
+             * Holding
+             * @description index of the holding it concerns; null for the whole portfolio
+             */
+            holding: number | null;
+            level: components["schemas"]["IssueLevel"];
+            /** Message */
+            message: string;
+        };
+        /**
+         * IssueLevel
+         * @enum {string}
+         */
+        IssueLevel: "ERROR" | "WARNING" | "INFO";
         /**
          * Kind
          * @description What sort of statement a number or phrase is. The UI shows these as separate badges and never blends them.
          * @enum {string}
          */
-        Kind: "SOURCE" | "EXTRACTION" | "JUDGEMENT_PRIOR" | "MARKET_STATE" | "MODEL_REFERENCE" | "SCENARIO_ASSUMPTION" | "REALISED";
+        Kind: "SOURCE" | "EXTRACTION" | "JUDGEMENT_PRIOR" | "MARKET_STATE" | "MODEL_REFERENCE" | "SCENARIO_ASSUMPTION" | "REALISED" | "RETRIEVED";
         /**
          * LLMInfo
          * @description How new text is read right now. ``mode`` is RULES when no language model is configured or it has no key: the app still works.
@@ -2388,6 +3118,25 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** Metric */
+        Metric: {
+            /**
+             * Formula
+             * @description how it is computed, in plain words
+             */
+            formula: string;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "fraction" | "years" | "ratio" | "currency" | "count" | "bp";
+            /** Value */
+            value: number | null;
+        };
         /** ModelInference */
         ModelInference: {
             agreement: components["schemas"]["Agreement"];
@@ -2450,7 +3199,57 @@ export interface components {
          * @description Where a number or reading comes from. The UI never calls a whole result "AI-generated": each part says which of these it is.
          * @enum {string}
          */
-        Origin: "AI" | "DATA" | "RULES" | "HYBRID" | "ASSUMPTION";
+        Origin: "AI" | "DATA" | "RULES" | "HYBRID" | "ASSUMPTION" | "RETRIEVED";
+        /** OutcomeCheck */
+        OutcomeCheck: {
+            audit: components["schemas"]["AuditSummary"] | null;
+            /** Label */
+            label: string | null;
+            /** Label Reading */
+            label_reading: string | null;
+            /** Market Scope */
+            market_scope: components["schemas"]["SplitCheck"][];
+            /** Market Scope Note */
+            market_scope_note: string | null;
+            /** Missing */
+            missing: string[];
+            /**
+             * Note
+             * @default Written before the results were seen (configs/evidence_v3.yaml). An outcome-check result is a statement about the data available here (large-cap company headlines, a sampled news feed, 2014-2026), not about every kind of event.
+             */
+            note: string;
+            /** Preregistration Sha256 */
+            preregistration_sha256: string | null;
+            retrieval: components["schemas"]["RetrievalSummary"] | null;
+            /** Splits */
+            splits: components["schemas"]["SplitCheck"][];
+        };
+        /** ParseRequest */
+        ParseRequest: {
+            /**
+             * Base Currency
+             * @default USD
+             */
+            base_currency?: string;
+            /**
+             * Name
+             * @default My portfolio
+             */
+            name?: string;
+            /** Text */
+            text: string;
+        };
+        /** ParseResult */
+        ParseResult: {
+            draft: components["schemas"]["PortfolioInput-Output"] | null;
+            /**
+             * Issues
+             * @description line-level problems (holding = the line index) and mode conflicts
+             */
+            issues: components["schemas"]["Issue"][];
+            /** @description the draft resolved, so the user sees weights, sources and issues immediately */
+            resolved: components["schemas"]["ResolvedPortfolio"] | null;
+        };
         /**
          * Phase
          * @enum {string}
@@ -2551,6 +3350,30 @@ export interface components {
              */
             window_start: string;
         };
+        /** Portfolio */
+        Portfolio: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Assets */
+            assets: components["schemas"]["PortfolioAsset"][];
+            /**
+             * Base Currency
+             * @default USD
+             */
+            base_currency: string;
+            /**
+             * Description
+             * @default
+             */
+            description: string;
+            /** Name */
+            name: string;
+            /** Portfolio Id */
+            portfolio_id: string;
+        };
         /**
          * PortfolioAsset
          * @description One position. Which fields are required depends on ``asset_type`` (validated below).
@@ -2597,6 +3420,50 @@ export interface components {
             pd: number | null;
             /** Sector */
             sector: string;
+            /**
+             * Spread Sensitivity
+             * @description share of a credit-spread shock a BOND takes: 1 for corporate credit, 0 for government debt (no credit spread)
+             * @default 1
+             */
+            spread_sensitivity: number;
+        };
+        /** PortfolioComparison */
+        PortfolioComparison: {
+            a: components["schemas"]["PortfolioListItem"];
+            b: components["schemas"]["PortfolioListItem"];
+            /** By Asset Class */
+            by_asset_class: components["schemas"]["DiffRow"][];
+            /** By Factor */
+            by_factor: components["schemas"]["DiffRow"][];
+            /** By Sector */
+            by_sector: components["schemas"]["DiffRow"][];
+            /**
+             * Difference
+             * @description one sentence, templated from the largest gap in the contributions; no model wrote it
+             */
+            difference: string;
+            /** Note */
+            note: string;
+            /** Pnl A */
+            pnl_a: number | null;
+            /** Pnl B */
+            pnl_b: number | null;
+            /** Pnl Pct A */
+            pnl_pct_a: number | null;
+            /** Pnl Pct B */
+            pnl_pct_b: number | null;
+            /** Run A */
+            run_a: string;
+            /** Run B */
+            run_b: string;
+            /** Scenario Id */
+            scenario_id: string | null;
+            /** Signal Id */
+            signal_id: string;
+            /** Status A */
+            status_a: string;
+            /** Status B */
+            status_b: string;
         };
         /** PortfolioExposure */
         PortfolioExposure: {
@@ -2609,14 +3476,154 @@ export interface components {
             /** By Sector */
             by_sector: components["schemas"]["ExposureRow"][];
         };
+        /** PortfolioExposureDetail */
+        PortfolioExposureDetail: {
+            /** Base Currency */
+            base_currency: string;
+            /** By Asset Class */
+            by_asset_class: components["schemas"]["ExposureRowV2"][];
+            /** By Issuer */
+            by_issuer: components["schemas"]["ExposureRowV2"][];
+            /** By Region */
+            by_region: components["schemas"]["ExposureRowV2"][];
+            /** By Sector */
+            by_sector: components["schemas"]["ExposureRowV2"][];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "DEFAULT" | "USER";
+            /** Largest Positions */
+            largest_positions: components["schemas"]["PositionWeight"][];
+            /** Metrics */
+            metrics: components["schemas"]["Metric"][];
+            /** Name */
+            name: string;
+            /**
+             * Not Stressed
+             * @description value the engine cannot shock at all (OTHER): shown, never counted as safe
+             */
+            not_stressed: components["schemas"]["ExposureRowV2"][];
+            /** Notes */
+            notes: string[];
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Position Count */
+            position_count: number;
+            /**
+             * Split
+             * @description equity / bonds / cash / other (loans and derivatives)
+             */
+            split: components["schemas"]["ExposureRowV2"][];
+            /** Total Value */
+            total_value: number;
+        };
+        /** PortfolioInput */
+        "PortfolioInput-Input": {
+            /**
+             * Base Currency
+             * @default USD
+             */
+            base_currency?: string;
+            /** Holdings */
+            holdings: components["schemas"]["HoldingInput-Input"][];
+            /** @default WEIGHT */
+            mode?: components["schemas"]["EntryMode"];
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes?: string;
+            /**
+             * Remainder As Cash
+             * @description WEIGHT mode: when the weights sum to less than 100%, hold the rest as cash
+             * @default false
+             */
+            remainder_as_cash?: boolean;
+            /**
+             * Total Value
+             * @description WEIGHT mode: the portfolio's value in base currency (a default is used when empty)
+             */
+            total_value?: number | null;
+        };
+        /** PortfolioInput */
+        "PortfolioInput-Output": {
+            /**
+             * Base Currency
+             * @default USD
+             */
+            base_currency: string;
+            /** Holdings */
+            holdings: components["schemas"]["HoldingInput-Output"][];
+            /** @default WEIGHT */
+            mode: components["schemas"]["EntryMode"];
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Remainder As Cash
+             * @description WEIGHT mode: when the weights sum to less than 100%, hold the rest as cash
+             * @default false
+             */
+            remainder_as_cash: boolean;
+            /**
+             * Total Value
+             * @description WEIGHT mode: the portfolio's value in base currency (a default is used when empty)
+             */
+            total_value: number | null;
+        };
+        /** PortfolioListItem */
+        PortfolioListItem: {
+            /** Base Currency */
+            base_currency: string;
+            /** Description */
+            description: string;
+            /** Holding Count */
+            holding_count: number;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "DEFAULT" | "USER";
+            /** Name */
+            name: string;
+            /** Total Value */
+            total_value: number;
+            /** Updated At */
+            updated_at: string | null;
+        };
         /** PortfolioRelevance */
         PortfolioRelevance: {
+            /**
+             * Band
+             * @description NONE | LOW | MEDIUM | HIGH | UNDETERMINED: a display band on `share` (configs/portfolio.yaml), not a score; separate from severity and from the modeled impact
+             * @default UNDETERMINED
+             */
+            band: string;
             level: components["schemas"]["RelevanceLevel"];
             /**
              * Path
              * @description the chain from what the event is about to the book, most specific first
              */
             path: string[];
+            /**
+             * Portfolio Id
+             * @default
+             */
+            portfolio_id: string;
+            /**
+             * Portfolio Name
+             * @default
+             */
+            portfolio_name: string;
             reach: components["schemas"]["ScenarioReach"] | null;
             /** Scope Level */
             scope_level: string;
@@ -2647,6 +3654,12 @@ export interface components {
             description: string;
             /** Entity Count */
             entity_count: number;
+            /**
+             * Kind
+             * @description DEFAULT (the synthetic book) | USER (a saved personal portfolio)
+             * @default DEFAULT
+             */
+            kind: string;
             /** Name */
             name: string;
             /** Portfolio Id */
@@ -2658,6 +3671,22 @@ export interface components {
             synthetic: boolean;
             /** Total Value */
             total_value: number;
+        };
+        /**
+         * PortfolioView
+         * @description A stored portfolio together with its resolution (holdings with sources, issues).
+         */
+        PortfolioView: {
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "DEFAULT" | "USER";
+            list_item: components["schemas"]["PortfolioListItem"];
+            resolved: components["schemas"]["ResolvedPortfolio"] | null;
+            stored: components["schemas"]["StoredPortfolio"] | null;
         };
         /** PositionResult */
         PositionResult: {
@@ -2693,6 +3722,22 @@ export interface components {
             scope: components["schemas"]["ShockScope"];
             /** Value */
             value: number;
+        };
+        /** PositionWeight */
+        PositionWeight: {
+            asset_class: components["schemas"]["AssetClass"];
+            /** Asset Id */
+            asset_id: string;
+            /** Market Value */
+            market_value: number;
+            /** Name */
+            name: string;
+            /** Region */
+            region: string;
+            /** Sector */
+            sector: string;
+            /** Weight */
+            weight: number;
         };
         /**
          * PreviousComparison
@@ -2943,6 +3988,23 @@ export interface components {
          * @enum {string}
          */
         RelevanceLevel: "DIRECT" | "SECTOR" | "MARKET_WIDE" | "NONE" | "UNDETERMINED";
+        /** RelevanceRow */
+        RelevanceRow: {
+            /** Base Rate */
+            base_rate: number;
+            /** Delta */
+            delta: number;
+            /** Delta Hi */
+            delta_hi: number;
+            /** Delta Lo */
+            delta_lo: number;
+            /** P At 5 E5 */
+            p_at_5_e5: number;
+            /** P At 5 Tfidf */
+            p_at_5_tfidf: number;
+            /** Queries */
+            queries: string;
+        };
         /** Reliability */
         Reliability: {
             /** Basis */
@@ -3046,6 +4108,103 @@ export interface components {
             sets: {
                 [key: string]: number;
             };
+        };
+        /** ResolvedHolding */
+        ResolvedHolding: {
+            asset_class: components["schemas"]["AssetClass"];
+            /** Asset Id */
+            asset_id: string;
+            /**
+             * Basis
+             * @description plain-words notes on the reference data used
+             */
+            basis: string[];
+            /** Beta */
+            beta: number | null;
+            /** Cost Basis */
+            cost_basis: number | null;
+            /** Currency */
+            currency: string;
+            /** Duration */
+            duration: number | null;
+            /**
+             * In Universe
+             * @description True for one of the 34 issuers the event pipeline can name: only then can an issuer-level event reach it
+             */
+            in_universe: boolean;
+            /** Index */
+            index: number;
+            /** Name */
+            name: string;
+            /** Price */
+            price: number | null;
+            /** Quantity */
+            quantity: number | null;
+            /** Region */
+            region: string;
+            /** Sector */
+            sector: string;
+            /**
+             * Sources
+             * @description field -> where its value came from
+             */
+            sources: {
+                [key: string]: components["schemas"]["FieldSource"];
+            };
+            /** Spread Sensitivity */
+            spread_sensitivity: number | null;
+            /** Ticker */
+            ticker: string;
+            /**
+             * Unrealised Pnl
+             * @description (price - cost basis) x quantity; informational only
+             */
+            unrealised_pnl: number | null;
+            /**
+             * Value
+             * @description market value in base currency
+             */
+            value: number;
+            /**
+             * Weight
+             * @description share of the portfolio (0-1)
+             */
+            weight: number;
+        };
+        /** ResolvedPortfolio */
+        ResolvedPortfolio: {
+            /** Base Currency */
+            base_currency: string;
+            /** Holdings */
+            holdings: components["schemas"]["ResolvedHolding"][];
+            /** Issues */
+            issues: components["schemas"]["Issue"][];
+            mode: components["schemas"]["EntryMode"];
+            /**
+             * Ok
+             * @description False when any ERROR issue is present; then `portfolio` is null
+             */
+            ok: boolean;
+            portfolio: components["schemas"]["Portfolio"] | null;
+            /** Total Value */
+            total_value: number | null;
+        };
+        /** RetrievalSummary */
+        RetrievalSummary: {
+            /** Decision */
+            decision: string | null;
+            /** Floor Curve */
+            floor_curve: {
+                [key: string]: number | boolean | null;
+            }[];
+            /** Relevance */
+            relevance: components["schemas"]["RelevanceRow"][];
+            /** Served Retriever */
+            served_retriever: string | null;
+            /** Similarity Floor */
+            similarity_floor: number | null;
+            /** Value */
+            value: components["schemas"]["ValueRow"][];
         };
         /** RiskAssessment */
         RiskAssessment: {
@@ -3177,6 +4336,12 @@ export interface components {
              * @description the deterministic reasons for the baseline, in words
              */
             baseline_basis: string[];
+            /**
+             * Baseline Informed
+             * @description false when the rules found no evidence and the baseline is only a default: the AI is then less tightly bound
+             * @default true
+             */
+            baseline_informed: boolean;
             /** Baseline Label */
             baseline_label: string;
             /**
@@ -3269,6 +4434,21 @@ export interface components {
             shocks: string[];
             /** Trigger Threshold */
             trigger_threshold: number;
+        };
+        /** ScenarioHistoryCheck */
+        ScenarioHistoryCheck: {
+            /** Caveats */
+            caveats: string[];
+            /** Checks */
+            checks: components["schemas"]["ShockCheck"][];
+            /** First Session */
+            first_session: string;
+            /** Last Session */
+            last_session: string;
+            /** Scenario Id */
+            scenario_id: string;
+            /** Severity Scale */
+            severity_scale: number;
         };
         /** ScenarioList */
         ScenarioList: {
@@ -3734,6 +4914,28 @@ export interface components {
             /** Scale */
             scale: number;
         };
+        /** ShockCheck */
+        ShockCheck: {
+            /** Basis */
+            basis: string;
+            /** Checkable */
+            checkable: boolean;
+            /** Factor */
+            factor: string;
+            /**
+             * Horizons
+             * @default []
+             */
+            horizons: components["schemas"]["HorizonRank"][];
+            /** Reading */
+            reading: string;
+            /** Scope */
+            scope: string;
+            /** Unit */
+            unit: string;
+            /** Value */
+            value: number;
+        };
         /**
          * ShockScope
          * @description Who a shock applies to. Most specific applicable scope wins: ISSUER > SECTOR > MARKET.
@@ -3966,6 +5168,12 @@ export interface components {
              */
             published_at: string;
             /**
+             * Relevance Band
+             * @description NONE | LOW | MEDIUM | HIGH | UNDETERMINED display band on relevance_share; separate from severity
+             * @default UNDETERMINED
+             */
+            relevance_band: string;
+            /**
              * Relevance Level
              * @description DIRECT | SECTOR | MARKET_WIDE | NONE | UNDETERMINED: how the book is reached
              */
@@ -4035,6 +5243,15 @@ export interface components {
              */
             updated_seq: number | null;
         };
+        /** SkippedShock */
+        SkippedShock: {
+            /** Factor Label */
+            factor_label: string;
+            /** Reason */
+            reason: string;
+            /** Scope Label */
+            scope_label: string;
+        };
         /** SourceEvidence */
         SourceEvidence: {
             /**
@@ -4086,6 +5303,21 @@ export interface components {
          * @enum {string}
          */
         SourceType: "NEWS" | "SOCIAL";
+        /** SplitCheck */
+        SplitCheck: {
+            /** Abstained Share */
+            abstained_share: number | null;
+            /** Bands */
+            bands: components["schemas"]["BandRow"][];
+            /** Metrics */
+            metrics: components["schemas"]["Interval"][];
+            /** N */
+            n: number;
+            /** Split */
+            split: string;
+            /** Tail Rate */
+            tail_rate: number | null;
+        };
         /**
          * StageStatus
          * @description What one pipeline stage is, in the product's three words: placeholder rule, experimental model, validated model.
@@ -4122,6 +5354,51 @@ export interface components {
             stage: string;
             /** Summary */
             summary: string;
+        };
+        /**
+         * StoredPortfolio
+         * @description A saved portfolio: the input plus identity and timestamps.
+         */
+        StoredPortfolio: {
+            /**
+             * Base Currency
+             * @default USD
+             */
+            base_currency: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Holdings */
+            holdings: components["schemas"]["HoldingInput-Output"][];
+            /** Id */
+            id: string;
+            /** @default WEIGHT */
+            mode: components["schemas"]["EntryMode"];
+            /** Name */
+            name: string;
+            /**
+             * Notes
+             * @default
+             */
+            notes: string;
+            /**
+             * Remainder As Cash
+             * @description WEIGHT mode: when the weights sum to less than 100%, hold the rest as cash
+             * @default false
+             */
+            remainder_as_cash: boolean;
+            /**
+             * Total Value
+             * @description WEIGHT mode: the portfolio's value in base currency (a default is used when empty)
+             */
+            total_value: number | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** Stratum */
         Stratum: {
@@ -4219,6 +5496,11 @@ export interface components {
              * @description what-if impact (requires force=true)
              */
             impact_override?: number | null;
+            /**
+             * Portfolio Id
+             * @description a saved personal portfolio to stress; absent or 'default' = the synthetic wholesale book
+             */
+            portfolio_id?: string | null;
             /**
              * Scenario Id
              * @description defaults to the category's template
@@ -4450,6 +5732,19 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /** ValueRow */
+        ValueRow: {
+            /** Candidate */
+            candidate: string;
+            /** Delta Mae */
+            delta_mae: number | null;
+            /** Hi */
+            hi: number | null;
+            /** Lo */
+            lo: number | null;
+            /** Split */
+            split: string;
+        };
         /** YearCount */
         YearCount: {
             /**
@@ -4680,6 +5975,26 @@ export interface operations {
             };
         };
     };
+    outcome_check_api_evidence_outcome_check_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutcomeCheck"];
+                };
+            };
+        };
+    };
     health_api_health_get: {
         parameters: {
             query?: never;
@@ -4844,7 +6159,10 @@ export interface operations {
     };
     assets_api_portfolio_assets_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -4860,11 +6178,23 @@ export interface operations {
                     "application/json": components["schemas"]["PortfolioAsset"][];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     exposure_api_portfolio_exposure_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -4880,9 +6210,50 @@ export interface operations {
                     "application/json": components["schemas"]["PortfolioExposure"];
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
     summary_api_portfolio_summary_get: {
+        parameters: {
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_portfolios_api_portfolios_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -4897,7 +6268,296 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PortfolioSummary"];
+                    "application/json": components["schemas"]["PortfolioListItem"][];
+                };
+            };
+        };
+    };
+    create_portfolio_api_portfolios_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortfolioInput-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_api_portfolios_compare_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompareRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioComparison"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    parse_quick_api_portfolios_parse_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParseRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParseResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validate_portfolio_api_portfolios_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortfolioInput-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResolvedPortfolio"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_portfolio_api_portfolios__portfolio_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                portfolio_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_portfolio_api_portfolios__portfolio_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                portfolio_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortfolioInput-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_portfolio_api_portfolios__portfolio_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                portfolio_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    duplicate_portfolio_api_portfolios__portfolio_id__duplicate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                portfolio_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portfolio_exposure_api_portfolios__portfolio_id__exposure_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                portfolio_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioExposureDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -4953,6 +6613,39 @@ export interface operations {
             };
         };
     };
+    history_check_api_scenarios__scenario_id__history_check_get: {
+        parameters: {
+            query?: {
+                severity_scale?: number;
+            };
+            header?: never;
+            path: {
+                scenario_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScenarioHistoryCheck"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     scope_info_api_scope_get: {
         parameters: {
             query?: never;
@@ -4985,6 +6678,8 @@ export interface operations {
                 channel?: string | null;
                 /** @description only live-overlay signals changed after this counter */
                 since_seq?: number | null;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
             };
             header?: never;
             path?: never;
@@ -5030,6 +6725,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RiskSignal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_analogues_api_signals__signal_id__analogues_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                signal_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalogueSet"];
                 };
             };
             /** @description Validation Error */
@@ -5141,7 +6867,10 @@ export interface operations {
     };
     get_signal_relevance_api_signals__signal_id__relevance_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
             header?: never;
             path: {
                 signal_id: string;
@@ -5206,6 +6935,8 @@ export interface operations {
             query: {
                 /** @description runs made for this signal, newest first */
                 signal_id: string;
+                /** @description only runs on this saved portfolio ('default' = the synthetic book) */
+                portfolio_id?: string | null;
             };
             header?: never;
             path?: never;
@@ -5251,6 +6982,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StressResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_exposure_chain_api_stress_runs__run_id__exposure_chain_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExposureChain"];
                 };
             };
             /** @description Validation Error */

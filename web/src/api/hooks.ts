@@ -1,10 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useActivePortfolio } from "../lib/portfolio";
 import { api, type SignalFilters } from "./client";
+import type { CompareRequest, PortfolioInput, StressRequest } from "./types";
 
 export const useMeta = () => useQuery({ queryKey: ["meta"], queryFn: api.meta, staleTime: Infinity });
 
-export const useSignals = (filters: SignalFilters) =>
-  useQuery({ queryKey: ["signals", filters], queryFn: () => api.signals(filters), placeholderData: (prev) => prev });
+/** Relevance on each row reads the active portfolio (null = the synthetic default, so default requests are unchanged). */
+export const useSignals = (filters: SignalFilters) => {
+  const pf = useActivePortfolio();
+  const f = pf ? { ...filters, portfolio_id: pf } : filters;
+  return useQuery({ queryKey: ["signals", f], queryFn: () => api.signals(f), placeholderData: (prev) => prev });
+};
 
 export const useSignal = (id: string | undefined) =>
   useQuery({ queryKey: ["signal", id], queryFn: () => api.signal(id as string), enabled: !!id });
@@ -22,8 +28,19 @@ export const useSignalEvidence = (id: string | undefined, enabled = true) =>
 export const useSignalTimeline = (id: string | undefined, enabled = true) =>
   useQuery({ queryKey: ["signal-timeline", id], queryFn: () => api.signalTimeline(id as string), enabled: !!id && enabled, staleTime: Infinity, retry: false });
 
-export const useSignalRelevance = (id: string | undefined) =>
-  useQuery({ queryKey: ["signal-relevance", id], queryFn: () => api.signalRelevance(id as string), enabled: !!id, staleTime: Infinity });
+export const useOutcomeCheck = (enabled: boolean) =>
+  useQuery({ queryKey: ["outcome-check"], queryFn: api.outcomeCheck, enabled, staleTime: Infinity, retry: false });
+
+export const useSignalAnalogues = (id: string | undefined, enabled = true) =>
+  useQuery({ queryKey: ["signal-analogues", id], queryFn: () => api.signalAnalogues(id as string), enabled: !!id && enabled, staleTime: Infinity, retry: false });
+
+export const useScenarioHistoryCheck = (id: string | undefined, scale = 1, enabled = true) =>
+  useQuery({ queryKey: ["scenario-history", id, scale], queryFn: () => api.scenarioHistoryCheck(id as string, scale), enabled: !!id && enabled, staleTime: Infinity, retry: false });
+
+export const useSignalRelevance = (id: string | undefined) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["signal-relevance", id, pf], queryFn: () => api.signalRelevance(id as string, pf), enabled: !!id, staleTime: Infinity });
+};
 
 export const useAnalyze = () => {
   const qc = useQueryClient();
@@ -57,11 +74,59 @@ export const useScopeInfo = (enabled: boolean) =>
 
 export const useScenarios = () => useQuery({ queryKey: ["scenarios"], queryFn: api.scenarios, staleTime: Infinity });
 
-export const usePortfolioSummary = () => useQuery({ queryKey: ["pf-summary"], queryFn: api.portfolioSummary });
+export const usePortfolioSummary = () => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["pf-summary", pf], queryFn: () => api.portfolioSummary(pf) });
+};
 
-export const usePortfolioExposure = () => useQuery({ queryKey: ["pf-exposure"], queryFn: api.portfolioExposure });
+export const usePortfolioExposure = () => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["pf-exposure", pf], queryFn: () => api.portfolioExposure(pf) });
+};
 
-export const useStressTest = () => useMutation({ mutationFn: api.stressTest });
+/** Stresses the ACTIVE portfolio (the synthetic default when none is chosen): the id is added here so no caller can forget it. */
+export const useStressTest = () => {
+  const pf = useActivePortfolio();
+  return useMutation({ mutationFn: (body: StressRequest) => api.stressTest(pf ? { ...body, portfolio_id: pf } : body) });
+};
+
+// ---- personal portfolios (optional)
+export const usePortfolios = () => useQuery({ queryKey: ["portfolios"], queryFn: api.portfolios, staleTime: 10_000 });
+
+export const usePortfolio = (id: string | undefined) =>
+  useQuery({ queryKey: ["portfolio", id], queryFn: () => api.portfolio(id as string), enabled: !!id });
+
+export const usePortfolioExposureDetail = (id: string | null | undefined) =>
+  useQuery({ queryKey: ["pf-exposure-detail", id ?? "default"], queryFn: () => api.portfolioExposureDetail(id ?? "default") });
+
+export const useExposureChain = (runId: string | undefined) =>
+  useQuery({ queryKey: ["exposure-chain", runId], queryFn: () => api.exposureChain(runId as string), enabled: !!runId, staleTime: Infinity, retry: false });
+
+export const useComparePortfolios = () => useMutation({ mutationFn: (b: CompareRequest) => api.comparePortfolios(b) });
+
+export const useValidatePortfolio = () => useMutation({ mutationFn: (b: PortfolioInput) => api.validatePortfolio(b) });
+
+export const useParsePortfolio = () => useMutation({ mutationFn: api.parsePortfolio });
+
+/** Create / update / delete / duplicate refresh the list and everything keyed by the portfolio. */
+export const usePortfolioMutations = () => {
+  const qc = useQueryClient();
+  const done = () => {
+    qc.invalidateQueries({ queryKey: ["portfolios"] });
+    qc.invalidateQueries({ queryKey: ["portfolio"] });
+    qc.invalidateQueries({ queryKey: ["pf-summary"] });
+    qc.invalidateQueries({ queryKey: ["pf-exposure"] });
+    qc.invalidateQueries({ queryKey: ["pf-exposure-detail"] });
+    qc.invalidateQueries({ queryKey: ["signal-relevance"] });
+    qc.invalidateQueries({ queryKey: ["signals"] });
+  };
+  return {
+    create: useMutation({ mutationFn: api.createPortfolio, onSuccess: done }),
+    update: useMutation({ mutationFn: (a: { id: string; body: PortfolioInput }) => api.updatePortfolio(a.id, a.body), onSuccess: done }),
+    remove: useMutation({ mutationFn: api.deletePortfolio, onSuccess: done }),
+    duplicate: useMutation({ mutationFn: api.duplicatePortfolio, onSuccess: done }),
+  };
+};
 
 export const usePipelineReport = (enabled: boolean) =>
   useQuery({ queryKey: ["pipeline-report"], queryFn: api.pipelineReport, staleTime: Infinity, enabled });
@@ -77,3 +142,12 @@ export const useImpactModel = (enabled: boolean) =>
 
 export const useEvidence = (enabled: boolean) =>
   useQuery({ queryKey: ["evidence"], queryFn: api.evidence, staleTime: Infinity, enabled });
+
+/** The active portfolio as a list item (null = the default). If the chosen id no longer exists (deleted elsewhere) it falls back to the default. */
+export const useActivePortfolioItem = () => {
+  const id = useActivePortfolio();
+  const list = usePortfolios();
+  const item = id ? list.data?.find((p) => p.id === id) : list.data?.find((p) => p.kind === "DEFAULT");
+  const stale = !!id && !!list.data && !item;
+  return { id: stale ? null : id, item: stale ? list.data?.find((p) => p.kind === "DEFAULT") : item, stale, loading: list.isLoading };
+};

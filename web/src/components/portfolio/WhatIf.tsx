@@ -3,6 +3,7 @@ import type { StressResult } from "../../api/types";
 import { money, pct } from "../../lib/format";
 import { useTween } from "../../lib/motion";
 import { KindBadge } from "../ProvenanceKind";
+import { StatusTag } from "../ui";
 
 function Figure({ label, r, tone }: { label: string; r?: StressResult; tone: "base" | "scenario" }) {
   const sum = r?.summary;
@@ -52,7 +53,10 @@ export function WhatIf({
         <h3 id="whatif-h" className="text-lg font-semibold">
           Test a different severity
         </h3>
-        <KindBadge kind="scenario" label="Scenario simulation, not a prediction" />
+        <span className="flex flex-wrap items-center gap-2">
+          <StatusTag tone="warn">What-if assumption, not the assessed severity</StatusTag>
+          <KindBadge kind="scenario" label="Scenario simulation, not a prediction" />
+        </span>
       </div>
       <p className="mb-4 max-w-[64ch] text-sm text-muted">
         Slide the impact score to see how the same scenario would hit the book if the event were milder or more severe. The engine recomputes every position.

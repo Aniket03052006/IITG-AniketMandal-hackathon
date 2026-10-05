@@ -1,12 +1,16 @@
 import { subjectLine, subjectOf, subjectOfSummary } from "../lib/scope";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useAssessment, useMeta, usePortfolioExposure, usePortfolioSummary, useScenarios, useSignal, useSignals, useStressTest } from "../api/hooks";
+import { useActivePortfolioItem, useAssessment, useMeta, usePortfolioExposure, usePortfolioSummary, useScenarios, useSignal, useSignals, useStressTest } from "../api/hooks";
 import type { ExposureRow, StressResult } from "../api/types";
 import { FlowRail } from "../components/FlowRail";
 import { useOpenDrawer } from "../components/Drawer";
 import { ArrowRight, Play, Spinner, Wrench } from "../components/icons";
+import { ComparePanel } from "../components/portfolio/ComparePanel";
 import { ContributionDrill } from "../components/portfolio/ContributionDrill";
+import { DecisionStrip } from "../components/portfolio/DecisionStrip";
+import { ExposureChainPanel } from "../components/portfolio/ExposureChainPanel";
+import { HistoryCheck } from "../components/portfolio/HistoryCheck";
 import { ResultHero } from "../components/portfolio/ResultHero";
 import { StressDrawers } from "../components/portfolio/StressDrawers";
 import { Waterfall } from "../components/portfolio/Waterfall";
@@ -18,6 +22,7 @@ import { ASSET_CLASS_LABEL, money, pct } from "../lib/format";
 import { impactKind, summaryKind } from "../lib/impact";
 import { categoryLabeler } from "../lib/taxonomy";
 import { KindBadge } from "../components/ProvenanceKind";
+import { currencySymbol, setActivePortfolio } from "../lib/portfolio";
 
 function ExposureBars({ rows, labelFn }: { rows: ExposureRow[]; labelFn?: (r: ExposureRow) => string }) {
   const max = Math.max(...rows.map((r) => r.share), 0.0001);
@@ -42,15 +47,27 @@ function PortfolioGlance() {
   if (summary.error) return <ErrorState error={summary.error} retry={() => summary.refetch()} />;
   const s = summary.data;
   const e = exposure.data;
+  const personal = s?.kind === "USER";
   return (
     <section className="glance" aria-label="The portfolio being stressed">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">The portfolio being stressed</h2>
-        <StatusTag tone="demo">Synthetic</StatusTag>
+        <h2 className="text-lg font-semibold">The portfolio being stressed{personal && s ? `: ${s.name}` : ""}</h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <StatusTag tone={personal ? "ok" : "demo"}>{personal ? "Your portfolio" : "Synthetic"}</StatusTag>
+          {personal ? (
+            <button type="button" className="text-sm text-ink underline underline-offset-2 hover:text-accent" onClick={() => setActivePortfolio(null)}>
+              Use default portfolio
+            </button>
+          ) : (
+            <Link className="text-sm text-ink-2 underline underline-offset-2 hover:text-ink" to="/portfolios">
+              Use your own portfolio (optional)
+            </Link>
+          )}
+        </div>
       </div>
       <div className="grid grid-cols-3 gap-4">
-        <Stat label="Total value" value={s ? money(s.total_value) : "–"} sub={s?.base_currency} />
-        <Stat label="Positions" value={s?.asset_count ?? "–"} sub="Equities, bonds, loans, derivatives" />
+        <Stat label="Total value" value={s ? money(s.total_value, { currency: currencySymbol(s.base_currency) }) : "–"} sub={s?.base_currency} />
+        <Stat label="Positions" value={s?.asset_count ?? "–"} sub={personal ? "Your holdings" : "Equities, bonds, loans, derivatives"} />
         <Stat label="Issuers" value={s?.entity_count ?? "–"} />
       </div>
       {s && <p className="mt-3 max-w-[70ch] text-xs text-muted">{s.description}</p>}
@@ -86,6 +103,8 @@ export function StressPage() {
   const main = useStressTest(); // at the event's own impact
   const sim = useStressTest(); // what-if severity
   const [, setOpen] = useOpenDrawer();
+  const { id: activePf, item: pfItem } = useActivePortfolioItem();
+  const personal = !!activePf;
 
   const s = signal.data;
   // with a risk assessment the trigger, the scenario and the what-if slider all follow its severity score (the trained impact is a reference)
@@ -106,9 +125,14 @@ export function StressPage() {
   useEffect(() => {
     main.reset();
     sim.reset();
-    if (eventImpact != null) setSeverity(eventImpact);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signalId, s?.id]);
+
+  // The slider starts at the event's own severity and follows it. The assessment arrives after the signal, so the number can change once:
+  // without this the slider kept the trained model's impact and the page showed a "what-if" the user never chose.
+  useEffect(() => {
+    if (eventImpact != null) setSeverity(eventImpact);
+  }, [signalId, eventImpact]);
 
   const run = (force = false) => {
     if (!signalId) return;
@@ -166,7 +190,24 @@ export function StressPage() {
 
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Portfolio Stress</h1>
-        <p className="mt-1 max-w-[66ch] text-md text-ink-2">What the event's scenario does to a synthetic wholesale-banking book. The shocks are assumptions; the arithmetic is deterministic and shown.</p>
+        <p className="mt-1 max-w-[66ch] text-md text-ink-2">
+          {personal
+            ? "What the event's scenario would do to your portfolio, as a modeled change. The shocks are assumptions, not forecasts; the arithmetic is deterministic and shown."
+            : "What the event's scenario does to a synthetic wholesale-banking book. The shocks are assumptions; the arithmetic is deterministic and shown."}
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm" aria-label="Portfolio in use">
+          <span className="text-muted">Stressing</span>
+          <span className="font-medium text-ink">{personal ? (pfItem?.name ?? "your portfolio") : "the default synthetic book"}</span>
+          <StatusTag tone={personal ? "ok" : "demo"}>{personal ? "Your portfolio" : "Default · synthetic"}</StatusTag>
+          {personal ? (
+            <button type="button" className="text-ink underline underline-offset-2 hover:text-accent" onClick={() => setActivePortfolio(null)}>
+              Use default portfolio
+            </button>
+          ) : null}
+          <Link className="text-ink-2 underline underline-offset-2 hover:text-ink" to="/portfolios">
+            {personal ? "Change" : "Use your own (optional)"}
+          </Link>
+        </div>
       </header>
 
       {/* The event and scenario in play */}
@@ -326,6 +367,8 @@ export function StressPage() {
         <div className="grid gap-12">
           <ResultHero r={shown} s={s} onShowAssumptions={() => setOpen("assumptions")} />
 
+          {s && <DecisionStrip r={shown} signalId={s.id} severity={eventImpact} portfolioName={personal ? pfItem?.name : undefined} />}
+
           {s && s.scope.level !== "COMPANY" && (
             <div className="max-w-[68ch]">
               <StateNotice
@@ -347,6 +390,8 @@ export function StressPage() {
             <ContributionDrill r={shown} entityNames={entityNames} />
           </div>
 
+          <ExposureChainPanel runId={shown.run_id} currency={currencySymbol(pfItem?.base_currency)} />
+
           {eventImpact != null && (
             <WhatIf
               eventImpact={eventImpact}
@@ -358,6 +403,13 @@ export function StressPage() {
               onShowMath={() => setOpen("math")}
             />
           )}
+
+          {s && <ComparePanel signalId={s.id} scenarioId={scenarioParam || undefined} activeId={activePf} force={!!result.audit.forced} />}
+
+          <details className="disclosure">
+            <summary>How large are this scenario's shocks by historical standards?</summary>
+            <HistoryCheck scenarioId={selectedScenario?.id} scale={shown.severity?.scale ?? 1} />
+          </details>
 
           <div className="flex flex-wrap items-center gap-2 border-t border-rule pt-5" role="group" aria-label="Explanations">
             <button type="button" className="btn" aria-haspopup="dialog" onClick={() => setOpen("math")}>

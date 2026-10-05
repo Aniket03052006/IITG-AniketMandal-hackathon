@@ -8,6 +8,8 @@ import { EventPage } from "./pages/EventPage";
 import { EvidencePage } from "./pages/EvidencePage";
 import { FeedPage } from "./pages/FeedPage";
 import { StressPage } from "./pages/StressPage";
+import { PortfolioEditorPage } from "./pages/PortfolioEditorPage";
+import { PortfoliosPage } from "./pages/PortfoliosPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +41,8 @@ export function App() {
             <Route path="pipeline" element={<Navigate to="/evidence?tab=pipeline" replace />} />
             <Route path="evidence" element={<EvidencePage />} />
             <Route path="stress" element={<StressPage />} />
+            <Route path="portfolios" element={<PortfoliosPage />} />
+            <Route path="portfolios/:id" element={<PortfolioEditorPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

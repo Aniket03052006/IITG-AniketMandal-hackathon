@@ -20,7 +20,7 @@ export function StressBridge({ s, scenario, threshold, a }: { s: RiskSignal; sce
       id="stress"
       eyebrow="Stress"
       title="What a scenario does to the portfolio"
-      lede={a ? "The severity score decides whether a mapped scenario is suggested and how hard it is applied to a synthetic wholesale-banking book. The arithmetic is deterministic and shown." : "The impact estimate decides how hard a mapped scenario is applied to a synthetic wholesale-banking book. The arithmetic is deterministic and shown."}
+      lede={a ? "The severity score decides whether a mapped scenario is suggested and how hard it is applied to the portfolio in use (the synthetic wholesale-banking book unless you chose your own). The arithmetic is deterministic and shown." : "The impact estimate decides how hard a mapped scenario is applied to the portfolio in use (the synthetic wholesale-banking book unless you chose your own). The arithmetic is deterministic and shown."}
       badge={<KindBadge kind="scenario" />}
     >
       <div className="bridge">

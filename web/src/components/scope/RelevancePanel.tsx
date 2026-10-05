@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { useSignalRelevance } from "../../api/hooks";
+import { useActivePortfolio } from "../../lib/portfolio";
 import type { ExposureSlice } from "../../api/types";
 import { money, pct } from "../../lib/format";
 import { RELEVANCE_LABEL } from "../../lib/scope";
@@ -27,15 +28,19 @@ function SliceRow({ sl }: { sl: ExposureSlice }) {
 /** What the event means for the book. Exposure is the portfolio's own holdings; the scenario's shock sizes are separate and illustrative. */
 export function RelevancePanel({ signalId }: { signalId: string }) {
   const { data: r, isLoading, error } = useSignalRelevance(signalId);
+  const personal = !!useActivePortfolio();
   if (isLoading) return <Skeleton className="mt-5 h-28 w-full" />;
   if (error || !r) return null;
   return (
     <div className="mt-6 border-t border-rule pt-5" aria-label="Portfolio relevance">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="eyebrow">What it means for this portfolio</p>
-        <KindBadge kind="historical" />
+        <p className="eyebrow">What it means for {r.portfolio_name ? `“${r.portfolio_name}”` : "this portfolio"}</p>
+        <KindBadge kind="historical" label={personal ? "Your holdings" : undefined} />
       </div>
-      <p className="mt-2 font-display text-lg font-semibold">{RELEVANCE_LABEL[r.level] ?? r.level}</p>
+      <p className="mt-2 font-display text-lg font-semibold">
+        {RELEVANCE_LABEL[r.level] ?? r.level}
+        {r.band && r.band !== "UNDETERMINED" && <span className="ml-3 align-middle text-sm font-medium text-muted">Portfolio relevance: {r.band.toLowerCase()}</span>}
+      </p>
       <p className="mt-1 max-w-[66ch] text-ink-2">{r.summary}</p>
       {r.path.length > 0 && (
         <ol className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted" aria-label="Path from the event to the book">

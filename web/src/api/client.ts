@@ -18,10 +18,23 @@ import type {
   LiveStatus,
   PortfolioRelevance,
   ScopeInfo,
+  AnalogueSet,
+  OutcomeCheck,
+  ScenarioHistoryCheck,
   SignalPage,
   StressRequest,
   StressResult,
+  PortfolioInput,
+  PortfolioListItem,
+  PortfolioView,
+  ResolvedPortfolio,
+  ParseResult,
+  PortfolioExposureDetail,
+  ExposureChain,
+  PortfolioComparison,
+  CompareRequest,
 } from "./types";
+import { pfParam } from "../lib/portfolio";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -55,8 +68,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw new ApiError(res.status, detail);
   }
+  if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
+
+const qs = (...parts: string[]): string => {
+  const q = parts.filter(Boolean).join("&");
+  return q ? `?${q}` : "";
+};
 
 export interface SignalFilters {
   category?: string;
@@ -67,13 +86,15 @@ export interface SignalFilters {
   channel?: string;
   scope_level?: string;
   since_seq?: number;
+  /** a saved personal portfolio, so each row's relevance reads it; omitted = the synthetic default */
+  portfolio_id?: string | null;
 }
 
 export const api = {
   meta: () => request<Meta>("/meta"),
   signals: (f: SignalFilters = {}) => {
     const p = new URLSearchParams();
-    for (const [k, v] of Object.entries(f)) if (v !== undefined && v !== "") p.set(k, String(v));
+    for (const [k, v] of Object.entries(f)) if (v !== undefined && v !== null && v !== "") p.set(k, String(v));
     const qs = p.toString();
     return request<SignalPage>(`/signals${qs ? `?${qs}` : ""}`);
   },
@@ -83,7 +104,12 @@ export const api = {
     request<RiskAssessment>(`/signals/${encodeURIComponent(id)}/assessment${refine ? "?refine=true" : ""}`),
   signalEvidence: (id: string) => request<EvidenceView>(`/signals/${encodeURIComponent(id)}/evidence`),
   signalTimeline: (id: string) => request<TimelineView>(`/signals/${encodeURIComponent(id)}/timeline`),
-  signalRelevance: (id: string) => request<PortfolioRelevance>(`/signals/${encodeURIComponent(id)}/relevance`),
+  outcomeCheck: () => request<OutcomeCheck>("/evidence/outcome-check"),
+  signalAnalogues: (id: string) => request<AnalogueSet>(`/signals/${encodeURIComponent(id)}/analogues`),
+  scenarioHistoryCheck: (id: string, scale = 1) =>
+    request<ScenarioHistoryCheck>(`/scenarios/${encodeURIComponent(id)}/history-check?severity_scale=${scale}`),
+  signalRelevance: (id: string, pf: string | null = null) =>
+    request<PortfolioRelevance>(`/signals/${encodeURIComponent(id)}/relevance${qs(pfParam(pf))}`),
   analyze: (body: AnalyzeRequest) => request<AnalyzeResponse>("/analyze", { method: "POST", body: JSON.stringify(body) }),
   liveStatus: () => request<LiveStatus>("/live/status"),
   liveRefresh: () => request<LiveStatus>("/live/refresh", { method: "POST" }),
@@ -94,8 +120,21 @@ export const api = {
   eventModel: () => request<EventModelCard>("/models/event"),
   impactModel: () => request<ImpactModelCard>("/models/impact"),
   evidence: () => request<EvidenceBundle>("/evidence"),
-  portfolioSummary: () => request<PortfolioSummary>("/portfolio/summary"),
-  portfolioExposure: () => request<PortfolioExposure>("/portfolio/exposure"),
+  portfolioSummary: (pf: string | null = null) => request<PortfolioSummary>(`/portfolio/summary${qs(pfParam(pf))}`),
+  portfolioExposure: (pf: string | null = null) => request<PortfolioExposure>(`/portfolio/exposure${qs(pfParam(pf))}`),
+  portfolios: () => request<PortfolioListItem[]>("/portfolios"),
+  portfolio: (id: string) => request<PortfolioView>(`/portfolios/${encodeURIComponent(id)}`),
+  createPortfolio: (body: PortfolioInput) => request<PortfolioView>("/portfolios", { method: "POST", body: JSON.stringify(body) }),
+  updatePortfolio: (id: string, body: PortfolioInput) =>
+    request<PortfolioView>(`/portfolios/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
+  deletePortfolio: (id: string) => request<void>(`/portfolios/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  duplicatePortfolio: (id: string) => request<PortfolioView>(`/portfolios/${encodeURIComponent(id)}/duplicate`, { method: "POST" }),
+  validatePortfolio: (body: PortfolioInput) => request<ResolvedPortfolio>("/portfolios/validate", { method: "POST", body: JSON.stringify(body) }),
+  parsePortfolio: (body: { text: string; base_currency?: string; name?: string }) =>
+    request<ParseResult>("/portfolios/parse", { method: "POST", body: JSON.stringify(body) }),
+  portfolioExposureDetail: (id: string) => request<PortfolioExposureDetail>(`/portfolios/${encodeURIComponent(id)}/exposure`),
+  exposureChain: (runId: string) => request<ExposureChain>(`/stress-runs/${encodeURIComponent(runId)}/exposure-chain`),
+  comparePortfolios: (body: CompareRequest) => request<PortfolioComparison>("/portfolios/compare", { method: "POST", body: JSON.stringify(body) }),
   stressTest: (body: StressRequest) =>
     request<StressResult>("/stress-test", { method: "POST", body: JSON.stringify(body) }),
 };
