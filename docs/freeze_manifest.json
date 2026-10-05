@@ -16,6 +16,7 @@
   "configs/pipeline.yaml": "d221f90cd12f7e0db96ebfac65c1ca33e7af81b6c0cb8425a72dc98dd2a77d48",
   "configs/placeholder_enrichment.yaml": "ed6e8a6490521e7f446e944e7a01add79fc2d0392dafdb4f78cee9ac418ad8f2",
   "configs/portfolio.yaml": "ee319d90f5eb3a383f0bb887829892e2fa4b2d6792e66cb8bb769eab06ebe9f0",
+  "configs/propagation.yaml": "4125db01477a5c6349c0045dc7fab5755b05b272497a2283220fed5a3a735f53",
   "configs/retrieval.yaml": "8ec663dedac9a0d8973cc8d9a2510a93d16984e40340a48cd75de52d4a0df71c",
   "configs/scenarios.yaml": "288b3eca4648515893b079fdc29194fabac075ae462462514c1289cef3db75a9",
   "configs/scope.yaml": "f5f1421648df37aa45533f5b1998be453c5d447548dd2ef1cac6cfc684876e7b",
