@@ -1,0 +1,10 @@
+# Historical analogues, operational settings (retrieval-v1). The DESIGN (point-in-time rule, story collapse, diversity caps, the reliability bar, k) is the
+# pre-registered one in configs/evidence_v3.yaml and is not repeated here. Analogues are retrieved evidence about the past, shown with their realised
+# (hindsight) outcome; they never feed the severity score unless the pre-registered test says so (docs/ANALOGUES.md).
+version: "retrieval-v1"
+enabled: true
+index_dir: data/replay/analogues        # make analogue-corpus analogue-embed analogue-index
+# `rule` = the value the pre-registered floor rule chose on dev data (docs/evidence/analogue_floor.json). It is read from that evidence file, never typed here, so
+# the served floor cannot drift from the evidence. A number may be given only to override it for an experiment.
+similarity_floor: rule
+aggregate_over: 20                      # distinct stories behind the summary statistics (the display shows k = 5)

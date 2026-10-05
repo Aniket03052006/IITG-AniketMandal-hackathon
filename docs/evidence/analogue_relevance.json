@@ -1,0 +1,144 @@
+{
+  "decision": {
+    "adopt_e5": true,
+    "rule": "adopt e5 if the lower bound of delta P@5 (e5 - tfidf, all queries) is above 0.0",
+    "served_retriever": "e5-large"
+  },
+  "evidence_version": "evidence-v3",
+  "inputs": {
+    "embedding_cache_sha256": "5145fd30de32ddbf497b01466dc09a58c549bdc1ce3203fbba4b8e7be33274ea",
+    "event_train_sha256": "fd35b3c9d2fda3fc48950a86045238886f2260735ceb839b728a48ef58647bbc",
+    "gold_v2_sha256": "8f283e48e4bba5192f65d86dc01411d4dad7fb8632a62a34488eae9fb4c58a22",
+    "labelled_corpus": 3270,
+    "queries": 280,
+    "queries_with_near_duplicate_in_corpus": 13
+  },
+  "metrics": {
+    "all_queries": {
+      "base_rate": 0.3065902140672783,
+      "delta_mrr_e5_minus_tfidf": {
+        "estimate": 0.07897969115876015,
+        "hi": 0.11944695185766616,
+        "lo": 0.03768245701544021
+      },
+      "delta_p_at_5_e5_minus_tfidf": {
+        "estimate": 0.060714285714285714,
+        "hi": 0.09285714285714286,
+        "lo": 0.02642857142857143
+      },
+      "e5": {
+        "lift": 1.642490221364093,
+        "mrr": 0.6981496674243246,
+        "p_at_5": 0.5035714285714287
+      },
+      "queries": 280,
+      "tfidf": {
+        "lift": 1.444459485454947,
+        "mrr": 0.6191699762655645,
+        "p_at_5": 0.4428571428571429
+      }
+    },
+    "decontaminated_queries": {
+      "base_rate": 0.30981113058218507,
+      "delta_mrr_e5_minus_tfidf": {
+        "estimate": 0.08032826538496696,
+        "hi": 0.12447317253992733,
+        "lo": 0.037668673888105485
+      },
+      "delta_p_at_5_e5_minus_tfidf": {
+        "estimate": 0.05917602996254682,
+        "hi": 0.09363295880149813,
+        "lo": 0.02696629213483146
+      },
+      "e5": {
+        "lift": 1.6223488223355134,
+        "mrr": 0.6944391019181432,
+        "p_at_5": 0.5026217228464419
+      },
+      "queries": 267,
+      "tfidf": {
+        "lift": 1.4313420310322265,
+        "mrr": 0.6141108365331762,
+        "p_at_5": 0.4434456928838951
+      }
+    },
+    "non_none_queries": {
+      "base_rate": 0.07094185497608932,
+      "delta_mrr_e5_minus_tfidf": {
+        "estimate": 0.15469817322259818,
+        "hi": 0.2167315416614147,
+        "lo": 0.09625830958139224
+      },
+      "delta_p_at_5_e5_minus_tfidf": {
+        "estimate": 0.1342281879194631,
+        "hi": 0.17852348993288591,
+        "lo": 0.09395973154362416
+      },
+      "e5": {
+        "lift": 5.487053377694199,
+        "mrr": 0.5873665849968134,
+        "p_at_5": 0.38926174496644295
+      },
+      "queries": 149,
+      "tfidf": {
+        "lift": 3.59496600607551,
+        "mrr": 0.43266841177421517,
+        "p_at_5": 0.2550335570469799
+      }
+    }
+  },
+  "per_class": {
+    "CREDIT_FUNDING": {
+      "corpus_share": 0.023853211009174313,
+      "e5_p_at_5": 0.21818181818181823,
+      "queries": 11,
+      "tfidf_p_at_5": 0.1818181818181818
+    },
+    "EARNINGS_FINANCIAL_PERFORMANCE": {
+      "corpus_share": 0.025382262996941896,
+      "e5_p_at_5": 0.26875,
+      "queries": 32,
+      "tfidf_p_at_5": 0.19375
+    },
+    "GEOPOLITICAL": {
+      "corpus_share": 0.0345565749235474,
+      "e5_p_at_5": 0.15555555555555556,
+      "queries": 18,
+      "tfidf_p_at_5": 0.08888888888888889
+    },
+    "MACROECONOMIC": {
+      "corpus_share": 0.023547400611620795,
+      "e5_p_at_5": 0.26666666666666666,
+      "queries": 6,
+      "tfidf_p_at_5": 0.09999999999999999
+    },
+    "MARKET_VALUATION": {
+      "corpus_share": 0.06483180428134556,
+      "e5_p_at_5": 0.5555555555555557,
+      "queries": 18,
+      "tfidf_p_at_5": 0.43333333333333335
+    },
+    "MA_CORPORATE_ACTION": {
+      "corpus_share": 0.0345565749235474,
+      "e5_p_at_5": 0.2222222222222222,
+      "queries": 9,
+      "tfidf_p_at_5": 0.13333333333333336
+    },
+    "PRODUCT_OPERATIONS": {
+      "corpus_share": 0.163302752293578,
+      "e5_p_at_5": 0.5743589743589744,
+      "queries": 39,
+      "tfidf_p_at_5": 0.37435897435897436
+    },
+    "REGULATORY_LEGAL": {
+      "corpus_share": 0.055351681957186545,
+      "e5_p_at_5": 0.5125,
+      "queries": 16,
+      "tfidf_p_at_5": 0.25
+    }
+  },
+  "preregistration_sha256": "99c0ff9bf42b068c31a5c7f425e10e72850f10a89337950a1ab71c61b36bde80",
+  "reading": "Relevance means 'carries the same event-type label'; the labels are AI-annotated (gold v2: two blind passes that agree). It measures whether neighbours are about the same kind of event, not whether their market outcomes were alike.",
+  "schema": "analogue-relevance-v1",
+  "seed": 20261105
+}

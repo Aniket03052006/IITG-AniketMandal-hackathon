@@ -1,0 +1,1830 @@
+{
+  "by_split": {
+    "dev": {
+      "abstained_share": 0.7313911247239832,
+      "band_table": [
+        {
+          "band": "abstained",
+          "n": 10268,
+          "rate": 0.06827035449941567,
+          "scores": [
+            0,
+            0
+          ],
+          "tail_events": 701,
+          "wilson_hi": 0.07331194172932731,
+          "wilson_lo": 0.06355169526445188
+        },
+        {
+          "band": "negligible",
+          "n": 389,
+          "rate": 0.12596401028277635,
+          "scores": [
+            1,
+            2
+          ],
+          "tail_events": 49,
+          "wilson_hi": 0.1626371407060254,
+          "wilson_lo": 0.0966062795427466
+        },
+        {
+          "band": "low",
+          "n": 2806,
+          "rate": 0.11297220242337848,
+          "scores": [
+            3,
+            4
+          ],
+          "tail_events": 317,
+          "wilson_hi": 0.1252182490482004,
+          "wilson_lo": 0.10178444035607066
+        },
+        {
+          "band": "moderate",
+          "n": 445,
+          "rate": 0.14831460674157304,
+          "scores": [
+            5,
+            6
+          ],
+          "tail_events": 66,
+          "wilson_hi": 0.18434284569378803,
+          "wilson_lo": 0.11830646310468348
+        },
+        {
+          "band": "high",
+          "n": 116,
+          "rate": 0.11206896551724138,
+          "scores": [
+            7,
+            8
+          ],
+          "tail_events": 13,
+          "wilson_hi": 0.18233582907696805,
+          "wilson_lo": 0.06667286239577594
+        },
+        {
+          "band": "extreme",
+          "n": 15,
+          "rate": 0.13333333333333333,
+          "scores": [
+            9,
+            10
+          ],
+          "tail_events": 2,
+          "wilson_hi": 0.3788249920651624,
+          "wilson_lo": 0.037360469891359285
+        }
+      ],
+      "metrics": {
+        "M1_overall_rank": {
+          "estimate": 0.05351911298381412,
+          "hi": 0.0719645240953971,
+          "lo": 0.03565813590276103,
+          "valid_draws": 2000
+        },
+        "M2_within_regime_rank": {
+          "estimate": 0.05376880742978798,
+          "hi": 0.07444003997204802,
+          "lo": 0.03332116115005853,
+          "valid_draws": 2000
+        },
+        "M3_real_minus_placebo": {
+          "estimate": 0.04003607320773993,
+          "hi": 0.06341089411323622,
+          "lo": 0.01617399741484675,
+          "valid_draws": 2000
+        },
+        "M4_increment_over_regime": {
+          "estimate": 0.04888719339509713,
+          "hi": 0.06720721003789905,
+          "lo": 0.031070810170676165,
+          "valid_draws": 2000
+        },
+        "placebo_rank": {
+          "estimate": 0.01348303977607419,
+          "hi": 0.03046507297921941,
+          "lo": -0.002702875608658554,
+          "valid_draws": 2000
+        }
+      },
+      "monotone": {
+        "bands_used": 4,
+        "spearman": -0.39999999999999997
+      },
+      "n": 14039,
+      "overall_tail_rate": 0.08177220599757817,
+      "score_counts": {
+        "0": 10268,
+        "1": 46,
+        "10": 13,
+        "2": 343,
+        "3": 2319,
+        "4": 487,
+        "5": 394,
+        "6": 51,
+        "7": 110,
+        "8": 6,
+        "9": 2
+      }
+    },
+    "live": {
+      "abstained_share": 0.8203530633437176,
+      "band_table": [
+        {
+          "band": "abstained",
+          "n": 790,
+          "rate": 0.03670886075949367,
+          "scores": [
+            0,
+            0
+          ],
+          "tail_events": 29,
+          "wilson_hi": 0.052222951453858364,
+          "wilson_lo": 0.02567873573411466
+        },
+        {
+          "band": "negligible",
+          "n": 12,
+          "rate": 0.08333333333333333,
+          "scores": [
+            1,
+            2
+          ],
+          "tail_events": 1,
+          "wilson_hi": 0.35388592179859524,
+          "wilson_lo": 0.014864709450773488
+        },
+        {
+          "band": "low",
+          "n": 129,
+          "rate": 0.007751937984496124,
+          "scores": [
+            3,
+            4
+          ],
+          "tail_events": 1,
+          "wilson_hi": 0.04260449142706077,
+          "wilson_lo": 0.0013696853368445083
+        },
+        {
+          "band": "moderate",
+          "n": 23,
+          "rate": 0.17391304347826086,
+          "scores": [
+            5,
+            6
+          ],
+          "tail_events": 4,
+          "wilson_hi": 0.3713805478529566,
+          "wilson_lo": 0.06978540350612772
+        },
+        {
+          "band": "high",
+          "n": 8,
+          "rate": 0.0,
+          "scores": [
+            7,
+            8
+          ],
+          "tail_events": 0,
+          "wilson_hi": 0.3244156195108769,
+          "wilson_lo": 0.0
+        },
+        {
+          "band": "extreme",
+          "n": 1,
+          "rate": 0.0,
+          "scores": [
+            9,
+            10
+          ],
+          "tail_events": 0,
+          "wilson_hi": 0.7934567085261071,
+          "wilson_lo": 0.0
+        }
+      ],
+      "metrics": {
+        "M1_overall_rank": {
+          "estimate": -0.02097112412804063,
+          "hi": 0.03988435631402884,
+          "lo": -0.08560645465944709,
+          "valid_draws": 2000
+        },
+        "M2_within_regime_rank": {
+          "estimate": -0.02071183689713359,
+          "hi": 0.03996172550603846,
+          "lo": -0.08542299010831061,
+          "valid_draws": 2000
+        },
+        "M3_real_minus_placebo": {
+          "estimate": -0.03789430120619846,
+          "hi": 0.05630318934773515,
+          "lo": -0.13106755642292575,
+          "valid_draws": 2000
+        },
+        "M4_increment_over_regime": {
+          "estimate": -0.027482813322797246,
+          "hi": 0.031837758620367466,
+          "lo": -0.08820364109865068,
+          "valid_draws": 2000
+        },
+        "placebo_rank": {
+          "estimate": 0.01692317707815783,
+          "hi": 0.0840464520398412,
+          "lo": -0.04799095292354681,
+          "valid_draws": 2000
+        }
+      },
+      "monotone": {
+        "bands_used": 1,
+        "spearman": null
+      },
+      "n": 963,
+      "overall_tail_rate": 0.036344755970924195,
+      "score_counts": {
+        "0": 790,
+        "1": 3,
+        "10": 1,
+        "2": 9,
+        "3": 113,
+        "4": 16,
+        "5": 20,
+        "6": 3,
+        "7": 8
+      }
+    },
+    "test": {
+      "abstained_share": 0.7681190681622088,
+      "band_table": [
+        {
+          "band": "abstained",
+          "n": 3561,
+          "rate": 0.06823925863521482,
+          "scores": [
+            0,
+            0
+          ],
+          "tail_events": 243,
+          "wilson_hi": 0.07699522223553727,
+          "wilson_lo": 0.060413856473598065
+        },
+        {
+          "band": "negligible",
+          "n": 77,
+          "rate": 0.18181818181818182,
+          "scores": [
+            1,
+            2
+          ],
+          "tail_events": 14,
+          "wilson_hi": 0.2823648999604812,
+          "wilson_lo": 0.1115115201004776
+        },
+        {
+          "band": "low",
+          "n": 817,
+          "rate": 0.08078335373317014,
+          "scores": [
+            3,
+            4
+          ],
+          "tail_events": 66,
+          "wilson_hi": 0.10149043838079744,
+          "wilson_lo": 0.06400019952059549
+        },
+        {
+          "band": "moderate",
+          "n": 155,
+          "rate": 0.12258064516129032,
+          "scores": [
+            5,
+            6
+          ],
+          "tail_events": 19,
+          "wilson_hi": 0.1835211025321852,
+          "wilson_lo": 0.07989603756209734
+        },
+        {
+          "band": "high",
+          "n": 22,
+          "rate": 0.09090909090909091,
+          "scores": [
+            7,
+            8
+          ],
+          "tail_events": 2,
+          "wilson_hi": 0.2781538065838578,
+          "wilson_lo": 0.025294896282837778
+        },
+        {
+          "band": "extreme",
+          "n": 4,
+          "rate": 0.0,
+          "scores": [
+            9,
+            10
+          ],
+          "tail_events": 0,
+          "wilson_hi": 0.48990002040399916,
+          "wilson_lo": 0.0
+        }
+      ],
+      "metrics": {
+        "M1_overall_rank": {
+          "estimate": 0.007299889437286788,
+          "hi": 0.03869418178393072,
+          "lo": -0.025179384657510104,
+          "valid_draws": 2000
+        },
+        "M2_within_regime_rank": {
+          "estimate": 0.00041739304080839573,
+          "hi": 0.12498954963518337,
+          "lo": -0.10599969917715345,
+          "valid_draws": 2000
+        },
+        "M3_real_minus_placebo": {
+          "estimate": 0.028197164326887188,
+          "hi": 0.07028435010694987,
+          "lo": -0.01524361511238177,
+          "valid_draws": 2000
+        },
+        "M4_increment_over_regime": {
+          "estimate": 0.009425527027440607,
+          "hi": 0.04051909756476923,
+          "lo": -0.021818372368019354,
+          "valid_draws": 2000
+        },
+        "placebo_rank": {
+          "estimate": -0.0208972748896004,
+          "hi": 0.009510370946349869,
+          "lo": -0.05170209116776612,
+          "valid_draws": 2000
+        }
+      },
+      "monotone": {
+        "bands_used": 3,
+        "spearman": -0.5
+      },
+      "n": 4636,
+      "overall_tail_rate": 0.07420189818809318,
+      "score_counts": {
+        "0": 3561,
+        "1": 13,
+        "10": 4,
+        "2": 64,
+        "3": 739,
+        "4": 78,
+        "5": 144,
+        "6": 11,
+        "7": 22
+      }
+    },
+    "train": {
+      "abstained_share": 0.696058327637275,
+      "band_table": [
+        {
+          "band": "abstained",
+          "n": 6110,
+          "rate": 0.07037643207855974,
+          "scores": [
+            0,
+            0
+          ],
+          "tail_events": 430,
+          "wilson_hi": 0.07706366047260185,
+          "wilson_lo": 0.06422910707309316
+        },
+        {
+          "band": "negligible",
+          "n": 310,
+          "rate": 0.13548387096774195,
+          "scores": [
+            1,
+            2
+          ],
+          "tail_events": 42,
+          "wilson_hi": 0.17807214814557912,
+          "wilson_lo": 0.10181936400577365
+        },
+        {
+          "band": "low",
+          "n": 1898,
+          "rate": 0.12434141201264488,
+          "scores": [
+            3,
+            4
+          ],
+          "tail_events": 236,
+          "wilson_hi": 0.1399497229769162,
+          "wilson_lo": 0.1102507143255384
+        },
+        {
+          "band": "moderate",
+          "n": 343,
+          "rate": 0.15451895043731778,
+          "scores": [
+            5,
+            6
+          ],
+          "tail_events": 53,
+          "wilson_hi": 0.19657682769333784,
+          "wilson_lo": 0.12011413440578748
+        },
+        {
+          "band": "high",
+          "n": 103,
+          "rate": 0.10679611650485436,
+          "scores": [
+            7,
+            8
+          ],
+          "tail_events": 11,
+          "wilson_hi": 0.1811816225739304,
+          "wilson_lo": 0.060686713355145916
+        },
+        {
+          "band": "extreme",
+          "n": 14,
+          "rate": 0.14285714285714285,
+          "scores": [
+            9,
+            10
+          ],
+          "tail_events": 2,
+          "wilson_hi": 0.399419077638637,
+          "wilson_lo": 0.04009307373792117
+        }
+      ],
+      "metrics": {
+        "M1_overall_rank": {
+          "estimate": 0.057167782480247085,
+          "hi": 0.08033894625916678,
+          "lo": 0.03400996984641873,
+          "valid_draws": 2000
+        },
+        "M2_within_regime_rank": {
+          "estimate": 0.058270258466175055,
+          "hi": 0.08216794040833489,
+          "lo": 0.03242944082005847,
+          "valid_draws": 2000
+        },
+        "M3_real_minus_placebo": {
+          "estimate": 0.04288318482819446,
+          "hi": 0.0723848449930996,
+          "lo": 0.011966210042641461,
+          "valid_draws": 2000
+        },
+        "M4_increment_over_regime": {
+          "estimate": 0.05417498052003193,
+          "hi": 0.0778659348031183,
+          "lo": 0.03122251024374301,
+          "valid_draws": 2000
+        },
+        "placebo_rank": {
+          "estimate": 0.014284597652052622,
+          "hi": 0.035180446783689485,
+          "lo": -0.005929800163813187,
+          "valid_draws": 2000
+        }
+      },
+      "monotone": {
+        "bands_used": 4,
+        "spearman": -0.39999999999999997
+      },
+      "n": 8778,
+      "overall_tail_rate": 0.08817498291182502,
+      "score_counts": {
+        "0": 6110,
+        "1": 38,
+        "10": 12,
+        "2": 272,
+        "3": 1511,
+        "4": 387,
+        "5": 296,
+        "6": 47,
+        "7": 97,
+        "8": 6,
+        "9": 2
+      }
+    },
+    "val": {
+      "abstained_share": 0.7903440410568333,
+      "band_table": [
+        {
+          "band": "abstained",
+          "n": 4158,
+          "rate": 0.06517556517556518,
+          "scores": [
+            0,
+            0
+          ],
+          "tail_events": 271,
+          "wilson_hi": 0.07308696412231099,
+          "wilson_lo": 0.058066898148660596
+        },
+        {
+          "band": "negligible",
+          "n": 79,
+          "rate": 0.08860759493670886,
+          "scores": [
+            1,
+            2
+          ],
+          "tail_events": 7,
+          "wilson_hi": 0.1717853137784739,
+          "wilson_lo": 0.04358474184575353
+        },
+        {
+          "band": "low",
+          "n": 908,
+          "rate": 0.08920704845814978,
+          "scores": [
+            3,
+            4
+          ],
+          "tail_events": 81,
+          "wilson_hi": 0.1095199448640405,
+          "wilson_lo": 0.07235550367877659
+        },
+        {
+          "band": "moderate",
+          "n": 102,
+          "rate": 0.12745098039215685,
+          "scores": [
+            5,
+            6
+          ],
+          "tail_events": 13,
+          "wilson_hi": 0.20592823699343515,
+          "wilson_lo": 0.07601761416527754
+        },
+        {
+          "band": "high",
+          "n": 13,
+          "rate": 0.15384615384615385,
+          "scores": [
+            7,
+            8
+          ],
+          "tail_events": 2,
+          "wilson_hi": 0.4223517050863101,
+          "wilson_lo": 0.04325726318273798
+        },
+        {
+          "band": "extreme",
+          "n": 1,
+          "rate": 0.0,
+          "scores": [
+            9,
+            10
+          ],
+          "tail_events": 0,
+          "wilson_hi": 0.7934567085261071,
+          "wilson_lo": 0.0
+        }
+      ],
+      "metrics": {
+        "M1_overall_rank": {
+          "estimate": 0.042985847628495166,
+          "hi": 0.07039889428748049,
+          "lo": 0.015588609514760567,
+          "valid_draws": 2000
+        },
+        "M2_within_regime_rank": {
+          "estimate": 0.04906609471749276,
+          "hi": 0.0815596336519069,
+          "lo": 0.018020104293730663,
+          "valid_draws": 2000
+        },
+        "M3_real_minus_placebo": {
+          "estimate": 0.02856638784100589,
+          "hi": 0.06670060395264504,
+          "lo": -0.01063385002826223,
+          "valid_draws": 2000
+        },
+        "M4_increment_over_regime": {
+          "estimate": 0.03979407078125223,
+          "hi": 0.06658118352703349,
+          "lo": 0.012588993472454237,
+          "valid_draws": 2000
+        },
+        "placebo_rank": {
+          "estimate": 0.014419459787489278,
+          "hi": 0.03852037037661573,
+          "lo": -0.009798872265678138,
+          "valid_draws": 2000
+        }
+      },
+      "monotone": {
+        "bands_used": 3,
+        "spearman": 1.0
+      },
+      "n": 5261,
+      "overall_tail_rate": 0.07108914655008554,
+      "score_counts": {
+        "0": 4158,
+        "1": 8,
+        "10": 1,
+        "2": 71,
+        "3": 808,
+        "4": 100,
+        "5": 98,
+        "6": 4,
+        "7": 13
+      }
+    }
+  },
+  "evidence_version": "evidence-v3",
+  "inputs": {
+    "dropped_no_outcome": {},
+    "episodes": 19638,
+    "impact_table_sha256": "140c5266d3508630b0af943e22f3561dbbeb3598ef6c22e102ef5fcc30104b14",
+    "limit": 0
+  },
+  "label": {
+    "directional_conditions": {
+      "live:M1_overall_rank": false,
+      "test:M1_overall_rank": false
+    },
+    "label": "HEURISTIC_UNCALIBRATED",
+    "monotone_bands": {
+      "live": false,
+      "test": false
+    },
+    "outcome_validated_conditions": {
+      "live:M2_within_regime_rank": false,
+      "live:M3_real_minus_placebo": false,
+      "live:M4_increment_over_regime": false,
+      "test:M2_within_regime_rank": false,
+      "test:M3_real_minus_placebo": false,
+      "test:M4_increment_over_regime": false
+    }
+  },
+  "outcome_version": "outcome-v3",
+  "posthoc_market_scope": {
+    "by_split": {
+      "dev": {
+        "abstained_share": 0.7114580429328129,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 2552,
+            "rate": 0.054858934169279,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 140,
+            "wilson_hi": 0.06438130451432526,
+            "wilson_lo": 0.04667471711080207
+          },
+          {
+            "band": "negligible",
+            "n": 75,
+            "rate": 0.04,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 3,
+            "wilson_hi": 0.11113168623083758,
+            "wilson_lo": 0.013695816001486477
+          },
+          {
+            "band": "low",
+            "n": 683,
+            "rate": 0.04978038067349927,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 34,
+            "wilson_hi": 0.06875784388250827,
+            "wilson_lo": 0.035839198579683894
+          },
+          {
+            "band": "moderate",
+            "n": 166,
+            "rate": 0.030120481927710843,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 5,
+            "wilson_hi": 0.0685644168214427,
+            "wilson_lo": 0.01293269578230102
+          },
+          {
+            "band": "high",
+            "n": 99,
+            "rate": 0.04040404040404041,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 4,
+            "wilson_hi": 0.09932168323977801,
+            "wilson_lo": 0.015822382974672183
+          },
+          {
+            "band": "extreme",
+            "n": 12,
+            "rate": 0.08333333333333333,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.35388592179859524,
+            "wilson_lo": 0.014864709450773488
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": -0.03916863790839938,
+            "hi": -0.0009005073653217976,
+            "lo": -0.07541781828040585,
+            "valid_draws": 2000
+          },
+          "M2_within_regime_rank": {
+            "estimate": -0.04040617563798322,
+            "hi": -0.0007313097063898743,
+            "lo": -0.07972691248874109,
+            "valid_draws": 2000
+          },
+          "M3_real_minus_placebo": {
+            "estimate": -0.043319816785925086,
+            "hi": 0.009598010613963832,
+            "lo": -0.0964963686655568,
+            "valid_draws": 2000
+          },
+          "M4_increment_over_regime": {
+            "estimate": -0.014255342433140037,
+            "hi": 0.02441735894763999,
+            "lo": -0.05134745332861082,
+            "valid_draws": 2000
+          },
+          "placebo_rank": {
+            "estimate": 0.0041511788775257024,
+            "hi": 0.0429637445727845,
+            "lo": -0.03333941297100874,
+            "valid_draws": 2000
+          }
+        },
+        "monotone": {
+          "bands_used": 4,
+          "spearman": 0.0
+        },
+        "n": 3587,
+        "overall_tail_rate": 0.052132701421800945,
+        "score_counts": {
+          "0": 2552,
+          "1": 15,
+          "10": 11,
+          "2": 60,
+          "3": 502,
+          "4": 181,
+          "5": 118,
+          "6": 48,
+          "7": 87,
+          "8": 12,
+          "9": 1
+        }
+      },
+      "live": {
+        "abstained_share": 0.8296028880866426,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 1149,
+            "rate": 0.0008703220191470844,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.0049134857337156945,
+            "wilson_lo": 0.0001536457785406274
+          },
+          {
+            "band": "negligible",
+            "n": 12,
+            "rate": 0.0,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.2425007574992425,
+            "wilson_lo": 0.0
+          },
+          {
+            "band": "low",
+            "n": 171,
+            "rate": 0.0,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.02197188769720707,
+            "wilson_lo": -1.696608326576936e-18
+          },
+          {
+            "band": "moderate",
+            "n": 27,
+            "rate": 0.0,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.1245590371446358,
+            "wilson_lo": 1.2149183920775522e-17
+          },
+          {
+            "band": "high",
+            "n": 26,
+            "rate": 0.0,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.12873304380462175,
+            "wilson_lo": 0.0
+          },
+          {
+            "band": "extreme",
+            "n": 0,
+            "rate": null,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 0,
+            "wilson_hi": null,
+            "wilson_lo": null
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": 0.020179015211385137,
+            "hi": 0.056300617814020716,
+            "lo": -0.019210303938928038,
+            "valid_draws": 2000
+          },
+          "M2_within_regime_rank": {
+            "estimate": 0.020179015211385137,
+            "hi": 0.056300617814020716,
+            "lo": -0.019210303938928038,
+            "valid_draws": 2000
+          },
+          "M3_real_minus_placebo": {
+            "estimate": 0.010410585588808226,
+            "hi": 0.05727880932799049,
+            "lo": -0.03685888068735776,
+            "valid_draws": 2000
+          },
+          "M4_increment_over_regime": {
+            "estimate": 0.01852790857097783,
+            "hi": 0.05618061816467859,
+            "lo": -0.022641393929977657,
+            "valid_draws": 2000
+          },
+          "placebo_rank": {
+            "estimate": 0.00976842962257691,
+            "hi": 0.0548710884634191,
+            "lo": -0.03313489245498401,
+            "valid_draws": 2000
+          }
+        },
+        "monotone": {
+          "bands_used": 1,
+          "spearman": null
+        },
+        "n": 1385,
+        "overall_tail_rate": 0.0007220216606498195,
+        "score_counts": {
+          "0": 1149,
+          "1": 3,
+          "2": 9,
+          "3": 151,
+          "4": 20,
+          "5": 19,
+          "6": 8,
+          "7": 26
+        }
+      },
+      "test": {
+        "abstained_share": 0.7961075069508804,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 859,
+            "rate": 0.04074505238649592,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 35,
+            "wilson_hi": 0.05613883080162012,
+            "wilson_lo": 0.029440724008903605
+          },
+          {
+            "band": "negligible",
+            "n": 13,
+            "rate": 0.07692307692307693,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.3331453392824736,
+            "wilson_lo": 0.013710066379696325
+          },
+          {
+            "band": "low",
+            "n": 142,
+            "rate": 0.09154929577464789,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 13,
+            "wilson_hi": 0.15033404650840076,
+            "wilson_lo": 0.054282468943980436
+          },
+          {
+            "band": "moderate",
+            "n": 53,
+            "rate": 0.09433962264150944,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 5,
+            "wilson_hi": 0.20253975673701435,
+            "wilson_lo": 0.04097203744189685
+          },
+          {
+            "band": "high",
+            "n": 10,
+            "rate": 0.1,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.4041563854975721,
+            "wilson_lo": 0.01787574951572113
+          },
+          {
+            "band": "extreme",
+            "n": 2,
+            "rate": 0.5,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.905471345199134,
+            "wilson_lo": 0.09452865480086611
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": 0.09780485025019917,
+            "hi": 0.15426587891625648,
+            "lo": 0.040700989428687696,
+            "valid_draws": 2000
+          },
+          "M2_within_regime_rank": {
+            "estimate": 0.08911109360534122,
+            "hi": 0.15197561150367908,
+            "lo": -0.0931090765935826,
+            "valid_draws": 2000
+          },
+          "M3_real_minus_placebo": {
+            "estimate": 0.10070994683046659,
+            "hi": 0.17391681554528626,
+            "lo": 0.02981666798573423,
+            "valid_draws": 2000
+          },
+          "M4_increment_over_regime": {
+            "estimate": 0.07693282117133599,
+            "hi": 0.13528218157134497,
+            "lo": 0.020252530052187034,
+            "valid_draws": 2000
+          },
+          "placebo_rank": {
+            "estimate": -0.0029050965802674277,
+            "hi": 0.05730279875794976,
+            "lo": -0.05867730901209173,
+            "valid_draws": 2000
+          }
+        },
+        "monotone": {
+          "bands_used": 2,
+          "spearman": null
+        },
+        "n": 1079,
+        "overall_tail_rate": 0.051899907321594066,
+        "score_counts": {
+          "0": 859,
+          "1": 4,
+          "10": 2,
+          "2": 9,
+          "3": 117,
+          "4": 25,
+          "5": 47,
+          "6": 6,
+          "7": 10
+        }
+      }
+    },
+    "documents": 6051,
+    "label_if_it_had_been_registered": "HEURISTIC_UNCALIBRATED",
+    "note": "POST-HOC extension, not in the pre-registration: market-scope reports vs the S&P 500's excess move (outcome-v2 market definition); it does not change the label"
+  },
+  "predictor": "text_only_rules_score",
+  "preregistration_sha256": "99c0ff9bf42b068c31a5c7f425e10e72850f10a89337950a1ab71c61b36bde80",
+  "reading": "The label is the strongest pre-registered condition that holds on both test (2025) and live (2026). 'HEURISTIC_UNCALIBRATED' means the score is a transparent scale that has not been shown to rank realised market moves beyond the volatility regime; it is not a claim that it is useless.",
+  "regime_baseline": {
+    "alpha": 1.0,
+    "covariates": [
+      "f_vix_level",
+      "f_resid_vol_5d_ratio",
+      "f_resid_vol_20d_ratio",
+      "f_sigma_60"
+    ],
+    "fit_on": "train"
+  },
+  "schema": "severity-validity-v1",
+  "secondary": {
+    "live": {
+      "no_earnings_in_window": {
+        "abstained_share": 0.8238993710691824,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 786,
+            "rate": 0.03435114503816794,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 27,
+            "wilson_hi": 0.04951811278653244,
+            "wilson_lo": 0.02371378586251315
+          },
+          {
+            "band": "negligible",
+            "n": 12,
+            "rate": 0.08333333333333333,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.35388592179859524,
+            "wilson_lo": 0.014864709450773488
+          },
+          {
+            "band": "low",
+            "n": 126,
+            "rate": 0.0,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.029586819632536874,
+            "wilson_lo": -1.6833985253807541e-18
+          },
+          {
+            "band": "moderate",
+            "n": 21,
+            "rate": 0.14285714285714285,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 3,
+            "wilson_hi": 0.34636494149229496,
+            "wilson_lo": 0.049809217982134925
+          },
+          {
+            "band": "high",
+            "n": 8,
+            "rate": 0.0,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.3244156195108769,
+            "wilson_lo": 0.0
+          },
+          {
+            "band": "extreme",
+            "n": 1,
+            "rate": 0.0,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.7934567085261071,
+            "wilson_lo": 0.0
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": -0.036484912595600334,
+            "hi": 0.027463647842977255,
+            "lo": -0.10052365031653106,
+            "valid_draws": 500
+          },
+          "M2_within_regime_rank": {
+            "estimate": -0.03621894431012487,
+            "hi": 0.027463647842977255,
+            "lo": -0.10026815896275311,
+            "valid_draws": 500
+          },
+          "M3_real_minus_placebo": {
+            "estimate": -0.04732278399492647,
+            "hi": 0.039870765822978105,
+            "lo": -0.13727974050582334,
+            "valid_draws": 500
+          },
+          "M4_increment_over_regime": {
+            "estimate": -0.04337458272592835,
+            "hi": 0.015425719734577145,
+            "lo": -0.1031307227630333,
+            "valid_draws": 500
+          },
+          "placebo_rank": {
+            "estimate": 0.010837871399326137,
+            "hi": 0.08136523383186495,
+            "lo": -0.05508782675107662,
+            "valid_draws": 500
+          }
+        },
+        "monotone": {
+          "bands_used": 1,
+          "spearman": null
+        },
+        "n": 954,
+        "overall_tail_rate": 0.03249475890985325,
+        "score_counts": {
+          "0": 786,
+          "1": 3,
+          "10": 1,
+          "2": 9,
+          "3": 110,
+          "4": 16,
+          "5": 19,
+          "6": 2,
+          "7": 8
+        }
+      },
+      "outcome_v2": {
+        "abstained_share": 0.8203530633437176,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 790,
+            "rate": 0.03670886075949367,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 29,
+            "wilson_hi": 0.052222951453858364,
+            "wilson_lo": 0.02567873573411466
+          },
+          {
+            "band": "negligible",
+            "n": 12,
+            "rate": 0.08333333333333333,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.35388592179859524,
+            "wilson_lo": 0.014864709450773488
+          },
+          {
+            "band": "low",
+            "n": 129,
+            "rate": 0.007751937984496124,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.04260449142706077,
+            "wilson_lo": 0.0013696853368445083
+          },
+          {
+            "band": "moderate",
+            "n": 23,
+            "rate": 0.17391304347826086,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 4,
+            "wilson_hi": 0.3713805478529566,
+            "wilson_lo": 0.06978540350612772
+          },
+          {
+            "band": "high",
+            "n": 8,
+            "rate": 0.0,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.3244156195108769,
+            "wilson_lo": 0.0
+          },
+          {
+            "band": "extreme",
+            "n": 1,
+            "rate": 0.0,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.7934567085261071,
+            "wilson_lo": 0.0
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": -0.02082508771818794,
+            "hi": 0.0387219781504479,
+            "lo": -0.07600005228279501,
+            "valid_draws": 500
+          },
+          "M2_within_regime_rank": {
+            "estimate": -0.020293841547922898,
+            "hi": 0.03878767094588623,
+            "lo": -0.07417724333842808,
+            "valid_draws": 500
+          },
+          "M3_real_minus_placebo": {
+            "estimate": -0.03206166472335312,
+            "hi": 0.056436806603283846,
+            "lo": -0.11628402995776549,
+            "valid_draws": 500
+          },
+          "M4_increment_over_regime": {
+            "estimate": -0.027451405588621226,
+            "hi": 0.029603792060761296,
+            "lo": -0.08132552754296872,
+            "valid_draws": 500
+          },
+          "placebo_rank": {
+            "estimate": 0.011236577005165182,
+            "hi": 0.06901347629728515,
+            "lo": -0.052200766986555465,
+            "valid_draws": 500
+          }
+        },
+        "monotone": {
+          "bands_used": 1,
+          "spearman": null
+        },
+        "n": 963,
+        "overall_tail_rate": 0.036344755970924195,
+        "score_counts": {
+          "0": 790,
+          "1": 3,
+          "10": 1,
+          "2": 9,
+          "3": 113,
+          "4": 16,
+          "5": 20,
+          "6": 3,
+          "7": 8
+        }
+      },
+      "scored_only_score_ge_1": {
+        "abstained_share": 0.0,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 0,
+            "rate": null,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 0,
+            "wilson_hi": null,
+            "wilson_lo": null
+          },
+          {
+            "band": "negligible",
+            "n": 12,
+            "rate": 0.08333333333333333,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.35388592179859524,
+            "wilson_lo": 0.014864709450773488
+          },
+          {
+            "band": "low",
+            "n": 129,
+            "rate": 0.007751937984496124,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 1,
+            "wilson_hi": 0.04260449142706077,
+            "wilson_lo": 0.0013696853368445083
+          },
+          {
+            "band": "moderate",
+            "n": 23,
+            "rate": 0.17391304347826086,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 4,
+            "wilson_hi": 0.3713805478529566,
+            "wilson_lo": 0.06978540350612772
+          },
+          {
+            "band": "high",
+            "n": 8,
+            "rate": 0.0,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.3244156195108769,
+            "wilson_lo": 0.0
+          },
+          {
+            "band": "extreme",
+            "n": 1,
+            "rate": 0.0,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.7934567085261071,
+            "wilson_lo": 0.0
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": 0.02532852853272522,
+            "hi": 0.16520843545201894,
+            "lo": -0.12685496922815656,
+            "valid_draws": 500
+          },
+          "M2_within_regime_rank": {
+            "estimate": 0.02532852853272522,
+            "hi": 0.16520843545201894,
+            "lo": -0.12685496922815656,
+            "valid_draws": 500
+          },
+          "M3_real_minus_placebo": {
+            "estimate": 0.031617603534293964,
+            "hi": 0.23606908372546698,
+            "lo": -0.18549079259758222,
+            "valid_draws": 500
+          },
+          "M4_increment_over_regime": {
+            "estimate": -0.0001968326016574437,
+            "hi": 0.15746926015610288,
+            "lo": -0.17052494646580232,
+            "valid_draws": 500
+          },
+          "placebo_rank": {
+            "estimate": -0.00628907500156874,
+            "hi": 0.11741251395299596,
+            "lo": -0.11819814257047397,
+            "valid_draws": 500
+          }
+        },
+        "monotone": {
+          "bands_used": 1,
+          "spearman": null
+        },
+        "n": 173,
+        "overall_tail_rate": 0.03468208092485549,
+        "score_counts": {
+          "1": 3,
+          "10": 1,
+          "2": 9,
+          "3": 113,
+          "4": 16,
+          "5": 20,
+          "6": 3,
+          "7": 8
+        }
+      }
+    },
+    "test": {
+      "no_earnings_in_window": {
+        "abstained_share": 0.7792295562063528,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 3459,
+            "rate": 0.05724197745013009,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 198,
+            "wilson_hi": 0.06548617657091026,
+            "wilson_lo": 0.04998015027464916
+          },
+          {
+            "band": "negligible",
+            "n": 71,
+            "rate": 0.1267605633802817,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 9,
+            "wilson_hi": 0.22369318874968427,
+            "wilson_lo": 0.06814450579452648
+          },
+          {
+            "band": "low",
+            "n": 749,
+            "rate": 0.04806408544726302,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 36,
+            "wilson_hi": 0.06582310127907398,
+            "wilson_lo": 0.034917346645163994
+          },
+          {
+            "band": "moderate",
+            "n": 135,
+            "rate": 0.05925925925925926,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 8,
+            "wilson_hi": 0.11257818003797558,
+            "wilson_lo": 0.030329997338257482
+          },
+          {
+            "band": "high",
+            "n": 22,
+            "rate": 0.09090909090909091,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 2,
+            "wilson_hi": 0.2781538065838578,
+            "wilson_lo": 0.025294896282837778
+          },
+          {
+            "band": "extreme",
+            "n": 3,
+            "rate": 0.0,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.5615060804490177,
+            "wilson_lo": 0.0
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": -0.019925209312916206,
+            "hi": 0.010801961783206524,
+            "lo": -0.04800459694349581,
+            "valid_draws": 500
+          },
+          "M2_within_regime_rank": {
+            "estimate": -0.01387811256845114,
+            "hi": 0.12546308092350286,
+            "lo": -0.12748627605014287,
+            "valid_draws": 500
+          },
+          "M3_real_minus_placebo": {
+            "estimate": 0.0028482366480819775,
+            "hi": 0.04787996825216277,
+            "lo": -0.04104119224644303,
+            "valid_draws": 500
+          },
+          "M4_increment_over_regime": {
+            "estimate": -0.017393107338344052,
+            "hi": 0.014956268669834752,
+            "lo": -0.04724088299535241,
+            "valid_draws": 500
+          },
+          "placebo_rank": {
+            "estimate": -0.022773445960998184,
+            "hi": 0.0069130016230214905,
+            "lo": -0.0540837294417635,
+            "valid_draws": 500
+          }
+        },
+        "monotone": {
+          "bands_used": 3,
+          "spearman": -0.5
+        },
+        "n": 4439,
+        "overall_tail_rate": 0.05699481865284974,
+        "score_counts": {
+          "0": 3459,
+          "1": 13,
+          "10": 3,
+          "2": 58,
+          "3": 679,
+          "4": 70,
+          "5": 126,
+          "6": 9,
+          "7": 22
+        }
+      },
+      "outcome_v2": {
+        "abstained_share": 0.7681190681622088,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 3561,
+            "rate": 0.06823925863521482,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 243,
+            "wilson_hi": 0.07699522223553727,
+            "wilson_lo": 0.060413856473598065
+          },
+          {
+            "band": "negligible",
+            "n": 77,
+            "rate": 0.18181818181818182,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 14,
+            "wilson_hi": 0.2823648999604812,
+            "wilson_lo": 0.1115115201004776
+          },
+          {
+            "band": "low",
+            "n": 817,
+            "rate": 0.08078335373317014,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 66,
+            "wilson_hi": 0.10149043838079744,
+            "wilson_lo": 0.06400019952059549
+          },
+          {
+            "band": "moderate",
+            "n": 155,
+            "rate": 0.12258064516129032,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 19,
+            "wilson_hi": 0.1835211025321852,
+            "wilson_lo": 0.07989603756209734
+          },
+          {
+            "band": "high",
+            "n": 22,
+            "rate": 0.09090909090909091,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 2,
+            "wilson_hi": 0.2781538065838578,
+            "wilson_lo": 0.025294896282837778
+          },
+          {
+            "band": "extreme",
+            "n": 4,
+            "rate": 0.0,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.48990002040399916,
+            "wilson_lo": 0.0
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": 0.0104388668211062,
+            "hi": 0.04085208607361294,
+            "lo": -0.020441796314774895,
+            "valid_draws": 500
+          },
+          "M2_within_regime_rank": {
+            "estimate": -0.004409193112447416,
+            "hi": 0.12270532613289324,
+            "lo": -0.11109037487622841,
+            "valid_draws": 500
+          },
+          "M3_real_minus_placebo": {
+            "estimate": 0.027875636399460994,
+            "hi": 0.07291979908839395,
+            "lo": -0.015205626925584264,
+            "valid_draws": 500
+          },
+          "M4_increment_over_regime": {
+            "estimate": 0.012552790746766993,
+            "hi": 0.04131025822430623,
+            "lo": -0.01615126829366999,
+            "valid_draws": 500
+          },
+          "placebo_rank": {
+            "estimate": -0.017436769578354796,
+            "hi": 0.010675395487456807,
+            "lo": -0.05065100123776612,
+            "valid_draws": 500
+          }
+        },
+        "monotone": {
+          "bands_used": 3,
+          "spearman": -0.5
+        },
+        "n": 4636,
+        "overall_tail_rate": 0.07420189818809318,
+        "score_counts": {
+          "0": 3561,
+          "1": 13,
+          "10": 4,
+          "2": 64,
+          "3": 739,
+          "4": 78,
+          "5": 144,
+          "6": 11,
+          "7": 22
+        }
+      },
+      "scored_only_score_ge_1": {
+        "abstained_share": 0.0,
+        "band_table": [
+          {
+            "band": "abstained",
+            "n": 0,
+            "rate": null,
+            "scores": [
+              0,
+              0
+            ],
+            "tail_events": 0,
+            "wilson_hi": null,
+            "wilson_lo": null
+          },
+          {
+            "band": "negligible",
+            "n": 77,
+            "rate": 0.18181818181818182,
+            "scores": [
+              1,
+              2
+            ],
+            "tail_events": 14,
+            "wilson_hi": 0.2823648999604812,
+            "wilson_lo": 0.1115115201004776
+          },
+          {
+            "band": "low",
+            "n": 817,
+            "rate": 0.08078335373317014,
+            "scores": [
+              3,
+              4
+            ],
+            "tail_events": 66,
+            "wilson_hi": 0.10149043838079744,
+            "wilson_lo": 0.06400019952059549
+          },
+          {
+            "band": "moderate",
+            "n": 155,
+            "rate": 0.12258064516129032,
+            "scores": [
+              5,
+              6
+            ],
+            "tail_events": 19,
+            "wilson_hi": 0.1835211025321852,
+            "wilson_lo": 0.07989603756209734
+          },
+          {
+            "band": "high",
+            "n": 22,
+            "rate": 0.09090909090909091,
+            "scores": [
+              7,
+              8
+            ],
+            "tail_events": 2,
+            "wilson_hi": 0.2781538065838578,
+            "wilson_lo": 0.025294896282837778
+          },
+          {
+            "band": "extreme",
+            "n": 4,
+            "rate": 0.0,
+            "scores": [
+              9,
+              10
+            ],
+            "tail_events": 0,
+            "wilson_hi": 0.48990002040399916,
+            "wilson_lo": 0.0
+          }
+        ],
+        "metrics": {
+          "M1_overall_rank": {
+            "estimate": 0.012954230730542662,
+            "hi": 0.08064151560575585,
+            "lo": -0.05919061929703965,
+            "valid_draws": 500
+          },
+          "M2_within_regime_rank": {
+            "estimate": 0.031750487748677,
+            "hi": 0.10764933350153505,
+            "lo": -0.051774845015422746,
+            "valid_draws": 500
+          },
+          "M3_real_minus_placebo": {
+            "estimate": 0.0200601784921845,
+            "hi": 0.11671706242717057,
+            "lo": -0.07328793784194682,
+            "valid_draws": 500
+          },
+          "M4_increment_over_regime": {
+            "estimate": 0.013943370071992804,
+            "hi": 0.08391086188395397,
+            "lo": -0.057833960407628164,
+            "valid_draws": 500
+          },
+          "placebo_rank": {
+            "estimate": -0.007105947761641836,
+            "hi": 0.05433663541664832,
+            "lo": -0.07195316058548316,
+            "valid_draws": 500
+          }
+        },
+        "monotone": {
+          "bands_used": 3,
+          "spearman": -0.5
+        },
+        "n": 1075,
+        "overall_tail_rate": 0.09395348837209302,
+        "score_counts": {
+          "1": 13,
+          "10": 4,
+          "2": 64,
+          "3": 739,
+          "4": 78,
+          "5": 144,
+          "6": 11,
+          "7": 22
+        }
+      }
+    }
+  },
+  "seed": 20261105,
+  "vix_tercile_cutpoints": [
+    14.21,
+    20.45
+  ]
+}

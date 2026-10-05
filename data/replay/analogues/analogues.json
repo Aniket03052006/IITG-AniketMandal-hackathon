@@ -1,0 +1,25 @@
+{
+  "baselines": {
+    "ISSUER": {
+      "p_abs_z_ge_2": 0.05136153450933379
+    },
+    "MARKET": {
+      "p_abs_z_ge_2": 0.06
+    }
+  },
+  "bytes": {
+    "rows": 3491385,
+    "vectors": 12312424
+  },
+  "dims": 1024,
+  "encoder": "intfloat/multilingual-e5-large",
+  "first_reaction_session": "2015-09-01",
+  "format": "analogue-index-v1",
+  "last_reaction_session": "2026-09-30",
+  "preregistration_sha256": "99c0ff9bf42b068c31a5c7f425e10e72850f10a89337950a1ab71c61b36bde80",
+  "rows": 6531,
+  "rows_sha256": "80c9ef0f2d61425733bcf8e6542479e9d157384ce643c54194dbd6dbc3bbebe2",
+  "trusted_only": true,
+  "vectors_sha256": "88e87a6d8335bf52360053ba03a2600af1282fa00b4b7770603cadf563b151a4",
+  "version": "analogue-index-v1+intfloat/multilingual-e5-large"
+}

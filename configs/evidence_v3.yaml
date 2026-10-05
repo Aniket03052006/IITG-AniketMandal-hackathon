@@ -1,0 +1,123 @@
+# Stage 8 evidence study: PRE-REGISTRATION. Written before the outcome audit, the severity-validity study, the analogue index or any
+# retrieval metric existed (the first thing run after this file was committed to the working tree is the audit; nothing below was edited
+# after seeing a result). It fixes the audit decision rule, the severity-validity test, the retrieval design and the adoption rules.
+# It is never edited after seeing a result: the git history is the proof, and every evidence file records this file's sha256.
+# Changing anything here is a new `version`, disclosed in docs/ANALOGUES.md and docs/PROJECT_JOURNEY.md.
+version: "evidence-v3"
+seed: 20261105
+
+# ------------------------------------------------------------------------------------------------ shared
+data:
+  impact_table: data/modeling/impact_table_v2.jsonl      # git-ignored; rebuilt by `make impact-table-v2`
+  prices_dir: data/raw/prices                            # git-ignored (Yahoo terms); only derived statistics are ever committed
+  filings: data/events/sec_filings.jsonl
+  gold_v2: data/gold_v2
+  event_train: data/modeling/event_train.jsonl
+# Splits are the Stage 4 protocol P2_extended (configs/evidence_v2.yaml): train through 2023, val 2024, test 2025, live 2026, 5-session embargo.
+# Nothing in this study is fitted on test or live; each is scored once per study.
+split_column: split_P2_extended
+bootstrap: {resamples: 2000, cluster: s0_date, ci: 0.95}     # clustered by reaction date: issuers move together on the same day
+
+# ------------------------------------------------------------------------------------------------ Phase 2: outcome audit
+# Question: is the realised outcome (z = CAR / (sigma * sqrt(2))) a well-normalised, regime-neutral severity? The audit reads outcomes only,
+# never a scorecard result. Diagnostics are reported without a decision rule; ONE decision is pre-registered (the sigma estimator).
+outcome_audit:
+  null_sample:
+    n: 60000
+    first_session_date: "2016-01-04"
+    exclude_within_sessions: 2        # a (ticker, session) is "quiet" if no corpus episode of that ticker is within +-this many sessions
+    tickers: all_with_prices
+  # the COMPLETE list of sigma estimators considered (no grid search over decay factors or windows)
+  sigma_estimators:
+    sigma60: "RMS of the 60 residuals before s0 under the 250-session fit (shipped, outcome-v2)"
+    ewma094: "RiskMetrics EWMA of squared residuals, lambda 0.94, seeded with the 60-session RMS and run over the 60 residuals before s0"
+  regime:
+    variable: vix_level_prev_session          # ^VIX close of the session before s0
+    tercile_cutpoints_from: {first: "2015-01-01", last: "2022-12-31"}   # cut points fixed on the early period, then applied everywhere
+  # Adopt outcome-v3 (EWMA sigma) for the side-car layers ONLY IF all hold on the quiet-day null sample; otherwise outcome-v2 stays.
+  adopt_ewma_if:
+    # A well-normalised z has the same variance in calm and turbulent regimes: |log(Var(z | top tercile) / Var(z | bottom tercile))|
+    regime_log_variance_gap_reduction_at_least: 0.25      # relative to sigma60's gap
+    must_hold_in_both_halves: [["2016-01-04", "2020-12-31"], ["2021-01-01", "2026-12-31"]]
+    overall_null_variance_within: [0.6, 1.6]              # EWMA z must not be wildly mis-scaled overall
+  diagnostics: [normalisation, event_vs_quiet_lift, clock_quality, cross_sectional_clustering, estimation_window_contamination, story_duplication]
+  # frozen definitions used by the diagnostics
+  material_move_abs_z: 2.0
+
+# ------------------------------------------------------------------------------------------------ Phase 3: does the scorecard mean anything?
+# Predictor: the TEXT-ONLY severity-v2 score (rules extractor + rubric + matrix; the VIX-regime and novelty adjustments are excluded because a
+# regime variable would trivially correlate with |z|: that is exactly the baseline this study must beat). NO_EVENT readings (the extractor found
+# no event) score 0 and are kept, reported as the abstention class. The unit is the episode (one row per ticker-session), text = its earliest report.
+severity_validity:
+  corpus: {scope: ISSUER, is_news: true, one_row_per: episode, text: earliest_published_at}
+  predictor: text_only_rules_score
+  outcome: {primary: log1p_abs_z, tail: "abs_z >= 2"}
+  bands: {negligible: [1, 2], low: [3, 4], moderate: [5, 6], high: [7, 8], extreme: [9, 10]}   # the bands of configs/semantics.yaml
+  regime_baseline:
+    covariates: [f_vix_level, f_resid_vol_5d_ratio, f_resid_vol_20d_ratio, f_sigma_60]
+    model: {kind: ridge, alpha: 1.0, fit_on: train}      # fitted on the train split only; residualise log1p|z| on test and live
+  metrics:
+    M1_overall_rank: "spearman(score, log1p|z|)"
+    M2_within_regime_rank: "mean of spearman(score, log1p|z|) within the three VIX terciles (cut points from the audit)"
+    M3_real_minus_placebo: "M1 on the real window minus M1 on the placebo window [s0-3, s0-2] (paired, clustered bootstrap)"
+    M4_increment_over_regime: "spearman(score, residual of log1p|z| after the regime baseline)"
+    M5_band_table: "P(|z| >= 2) per band with Wilson intervals; band index vs band rate Spearman (bands with n >= 30 only)"
+  # Labels the UI and docs may use. The strongest label whose conditions hold on BOTH test (2025) and live (2026) wins.
+  labels:
+    OUTCOME_VALIDATED:        # all three lower 95% bounds above 0, and the top band's tail rate above the overall rate with a lower bound above it
+      require_lower_ci_above_zero: [M2_within_regime_rank, M3_real_minus_placebo, M4_increment_over_regime]
+      require_monotone_bands: {min_bands_with_n30: 4, min_spearman: 0.8}
+    DIRECTIONALLY_INFORMATIVE:   # M1 lower bound above 0, but the regime-neutral checks fail
+      require_lower_ci_above_zero: [M1_overall_rank]
+    HEURISTIC_UNCALIBRATED: {}   # everything else: a transparent scale, not an outcome-calibrated one
+  # Optional LLM arm (never part of CI, never replaces the rules result): stratified by rules band, cached and resumable, a failed call is no row.
+  llm_arm: {sample: 300, split: test, stratify: rules_band, report: [rules, llm, ai_effect]}
+
+# ------------------------------------------------------------------------------------------------ Phase 4/5: analogues
+retrieval:
+  encoder: {model: "intfloat/multilingual-e5-large", prefix: "query: ", max_tokens: 128, dims: 1024, quantize: float16, normalize: l2}
+  corpus:
+    scopes: [ISSUER, MARKET]
+    is_news: true                       # tweets cover 5-6 tickers; they would dominate and mislead (TSLA is 37% of all documents)
+    one_row_per: episode
+    canonical_document: earliest_published_at
+  # Point-in-time rule, enforced in code and in a future-invariance test: a candidate is eligible for a query at reaction session q only if
+  # candidate.s0 + window_sessions + embargo_sessions <= q, so no outcome window of an analogue overlaps the query's own.
+  point_in_time: {window_sessions: 2, embargo_sessions: 5}
+  story_dedup: {cosine_at_least: 0.92, same_ticker: true, within_sessions: 10}
+  diversity: {max_per_ticker: 3, max_per_ticker_month: 2}
+  k: 5
+  reliability:
+    min_distinct_episodes: 5            # fewer after dedup + floor -> status NO_RELIABLE_ANALOGUE, nothing is padded
+    min_distinct_stories: 3
+  # The similarity floor is chosen by RULE on the dev split (train+val), never on test/live: the smallest value on the grid at which the
+  # event-type precision lift over base rate is at least `min_lift` AND at least `min_answerable_share` of dev queries still get an answer.
+  # If no value qualifies, retrieval is NOT_VIABLE for display and is reported as a failed experiment.
+  similarity_floor_rule: {grid: [0.78, 0.80, 0.82, 0.84, 0.86, 0.88, 0.90], min_lift: 1.3, min_answerable_share: 0.30}
+  # Relevance, without inventing labels: queries are the doubly annotated gold-v2 titles, the labelled corpus is event_train (AI-annotated,
+  # disjoint from gold-v2 by construction). Metrics: P@5 against the class label, MRR of the first same-class neighbour. Baseline: TF-IDF cosine.
+  relevance_eval:
+    queries: gold_v2
+    labelled_corpus: event_train
+    adopt_e5_if: {p_at_5_delta_ci_lower_above: 0.0}      # paired bootstrap over queries; otherwise the TF-IDF index is the served retriever
+  # Outcome value: does retrieval add information beyond what the model already has? Paired MAE on log1p|z|, clustered bootstrap.
+  outcome_value:
+    baseline: {features: "impact_features_v2 R2s (market state + timing + structured calendar), issuer scope", model: ridge, alpha_grid: [0.1, 1, 10, 100], select_on: val}
+    candidates:
+      C_knn: ["knn_mean_log1p_absz", "knn_n_eff", "knn_max_sim", "knn_available"]     # similarity-weighted over eligible, deduped neighbours
+      G_reference_class: "mean log1p|z| of the (event class x VIX tercile) cell, shrunk to the global mean with k=20"
+    # An analogue-derived quantity may enter the severity SCORE only if all hold; otherwise it is display evidence and the experiment is reported.
+    enter_score_if:
+      delta_mae_upper_ci_below_zero: [test, live]
+      real_minus_placebo_improves: true
+    # Both the knn features and the baseline use the same rows; knn features for a row are computed only from eligible earlier episodes.
+  ladder: [A_current_scorecard, B_plus_embeddings, C_plus_retrieval, D_plus_outcomes, E_B_plus_C, F_E_plus_llm_keys, G_reference_class]
+
+# ------------------------------------------------------------------------------------------------ Phase 7: stress reality check
+stress_history:
+  index: "^GSPC"
+  rates: "^TNX"
+  horizons_sessions: [1, 5, 21]
+  quantiles: [0.5, 0.9, 0.95, 0.99, 0.999]
+  first_session_date: "2014-01-02"
+  note: "Scenario shocks are instantaneous in the engine; the percentile is read against the stated horizon as an assumption, never as a probability of occurrence."

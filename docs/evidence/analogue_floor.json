@@ -1,0 +1,106 @@
+{
+  "chosen": 0.78,
+  "curve": [
+    {
+      "answerable_share": 0.972,
+      "floor": 0.78,
+      "ok": true,
+      "precision_lift": 4.971378293827459
+    },
+    {
+      "answerable_share": 0.903,
+      "floor": 0.8,
+      "ok": true,
+      "precision_lift": 4.968870598166908
+    },
+    {
+      "answerable_share": 0.69375,
+      "floor": 0.82,
+      "ok": true,
+      "precision_lift": 4.9796598259990565
+    },
+    {
+      "answerable_share": 0.36825,
+      "floor": 0.84,
+      "ok": true,
+      "precision_lift": 5.125908600215905
+    },
+    {
+      "answerable_share": 0.1265,
+      "floor": 0.86,
+      "ok": false,
+      "precision_lift": 5.496103967620255
+    },
+    {
+      "answerable_share": 0.02275,
+      "floor": 0.88,
+      "ok": false,
+      "precision_lift": 6.517518284866916
+    },
+    {
+      "answerable_share": 0.0035,
+      "floor": 0.9,
+      "ok": false,
+      "precision_lift": 9.012808988764045
+    }
+  ],
+  "dev_episodes_sampled": 4000,
+  "dev_queries_labelled": 320,
+  "evidence_version": "evidence-v3",
+  "labelled_corpus": 2305,
+  "precision_detail": {
+    "0.78": {
+      "base_rate": 0.09014099783080258,
+      "lift": 4.971378293827459,
+      "neighbours": 1600,
+      "precision": 0.448125,
+      "queries_with_a_neighbour": 320
+    },
+    "0.8": {
+      "base_rate": 0.09004748343238159,
+      "lift": 4.968870598166908,
+      "neighbours": 1598,
+      "precision": 0.4474342928660826,
+      "queries_with_a_neighbour": 320
+    },
+    "0.82": {
+      "base_rate": 0.08977848731683563,
+      "lift": 4.9796598259990565,
+      "neighbours": 1568,
+      "precision": 0.44706632653061223,
+      "queries_with_a_neighbour": 319
+    },
+    "0.84": {
+      "base_rate": 0.08832526836865232,
+      "lift": 5.125908600215905,
+      "neighbours": 1365,
+      "precision": 0.45274725274725275,
+      "queries_with_a_neighbour": 304
+    },
+    "0.86": {
+      "base_rate": 0.08638495642577157,
+      "lift": 5.496103967620255,
+      "neighbours": 912,
+      "precision": 0.47478070175438597,
+      "queries_with_a_neighbour": 248
+    },
+    "0.88": {
+      "base_rate": 0.0827873926455365,
+      "lift": 6.517518284866916,
+      "neighbours": 417,
+      "precision": 0.539568345323741,
+      "queries_with_a_neighbour": 150
+    },
+    "0.9": {
+      "base_rate": 0.07977626790484216,
+      "lift": 9.012808988764045,
+      "neighbours": 121,
+      "precision": 0.71900826446281,
+      "queries_with_a_neighbour": 70
+    }
+  },
+  "preregistration_sha256": "99c0ff9bf42b068c31a5c7f425e10e72850f10a89337950a1ab71c61b36bde80",
+  "rule": "smallest floor with precision lift >= 1.3 and answerable share >= 0.3",
+  "schema": "analogue-floor-v1",
+  "viable": true
+}

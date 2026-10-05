@@ -1,0 +1,538 @@
+{
+  "decision": "No analogue-derived quantity enters the severity score: retrieval is display evidence only",
+  "enter_score": {
+    "C_knn": {
+      "checks": {
+        "live:mae_improves": false,
+        "live:real_minus_placebo_improves": false,
+        "test:mae_improves": false,
+        "test:real_minus_placebo_improves": false
+      },
+      "may_enter_score": false
+    },
+    "G_reference_class": {
+      "checks": {
+        "live:mae_improves": false,
+        "live:real_minus_placebo_improves": false,
+        "test:mae_improves": true,
+        "test:real_minus_placebo_improves": false
+      },
+      "may_enter_score": false
+    }
+  },
+  "evidence_version": "evidence-v3",
+  "inputs": {
+    "alphas": {
+      "B0": 100.0,
+      "C_knn": 100.0,
+      "G_reference_class": 100.0
+    },
+    "corpus_rows": 25689,
+    "corpus_sha256": "8dd2ce51850880a74656680f118fddc36e4fe7c986fec9f91ba5e52da8e8530b",
+    "embedding_cache_sha256": "5a05bf6c16912d4265674986ddb6ef8101c28a23db496d10bbc3b7e6003a188b",
+    "features": [
+      "f_sigma_60",
+      "f_beta_market",
+      "f_beta_sector",
+      "f_ret_1d",
+      "f_ret_5d",
+      "f_ret_20d",
+      "f_mkt_ret_5d",
+      "f_sector_ret_5d",
+      "f_volume_ratio",
+      "f_resid_vol_5d_ratio",
+      "f_resid_vol_20d_ratio",
+      "f_vix_level",
+      "f_vix_chg_5d",
+      "link_confidence",
+      "novelty",
+      "dow",
+      "local_hour",
+      "is_news",
+      "t_pre_open",
+      "t_in_session",
+      "t_date_only",
+      "t_first_seen",
+      "earn_days_to_expected",
+      "earn_window",
+      "earn_days_since_last",
+      "f8k_hours_since_last",
+      "f8k_count_24h",
+      "f8k_earnings_24h",
+      "f8k_deal_24h",
+      "f8k_distress_24h",
+      "f8k_financing_24h",
+      "f8k_leadership_24h",
+      "fomc_s0",
+      "fomc_s1"
+    ],
+    "index_rows": 6531,
+    "issuer_rows": 19638,
+    "similarity_floor": 0.78,
+    "table_sha256": "140c5266d3508630b0af943e22f3561dbbeb3598ef6c22e102ef5fcc30104b14"
+  },
+  "knn_available_share": {
+    "live": 1.0,
+    "test": 1.0,
+    "train": 0.9943039416723627,
+    "val": 0.9998099220680479
+  },
+  "preregistration_sha256": "99c0ff9bf42b068c31a5c7f425e10e72850f10a89337950a1ab71c61b36bde80",
+  "results": {
+    "live": {
+      "B0": {
+        "mae": {
+          "estimate": 0.2583082926341483,
+          "hi": 0.2701480877531487,
+          "lo": 0.24553677032584612,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": 0.005759253112570676,
+          "hi": 0.0748786099449622,
+          "lo": -0.06718410697563416,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.043188694330742655,
+          "hi": 0.11085283284586331,
+          "lo": -0.023854740400862492,
+          "valid_draws": 2000
+        }
+      },
+      "C_knn": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.001197677170805933,
+          "hi": 0.0018980457988149735,
+          "lo": 0.0004279585579889389,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": -0.009105003055443206,
+          "hi": 0.005108781255966845,
+          "lo": -0.022060201465849222,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.2595059698049542,
+          "hi": 0.27144524897189826,
+          "lo": 0.2469532411648713,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": 0.009598665607507271,
+          "hi": 0.07909879225147047,
+          "lo": -0.06423902072449028,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.03792310377023605,
+          "hi": 0.10605836094278806,
+          "lo": -0.029043835053073445,
+          "valid_draws": 2000
+        }
+      },
+      "G_reference_class": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.0001763032775585205,
+          "hi": 0.0013428972096549696,
+          "lo": -0.0009450916640794671,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": 0.00973628753130052,
+          "hi": 0.03189306956700173,
+          "lo": -0.012404891240633417,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.2584845959117068,
+          "hi": 0.2706462332660882,
+          "lo": 0.24560341915778378,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": -0.0031603056770776942,
+          "hi": 0.06179617012412293,
+          "lo": -0.07110327837978198,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.04400542307239481,
+          "hi": 0.1136387980184845,
+          "lo": -0.023333189729502688,
+          "valid_draws": 2000
+        }
+      },
+      "G_standalone": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.007763223179930445,
+          "hi": 0.012506989720722672,
+          "lo": 0.002934339769275651,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": -0.014648116037404145,
+          "hi": 0.10783249473384253,
+          "lo": -0.1319629379573736,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.26607151581407873,
+          "hi": 0.27860631499106675,
+          "lo": 0.25369087384925426,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": 0.019106593110163383,
+          "hi": 0.08726660711390787,
+          "lo": -0.049560505184402574,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.04188791829093122,
+          "hi": 0.09814347868775299,
+          "lo": -0.01644149309567525,
+          "valid_draws": 2000
+        }
+      },
+      "constant": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.01006986739486787,
+          "hi": 0.015155445355903241,
+          "lo": 0.004953532352126977,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        },
+        "mae": {
+          "estimate": 0.26837816002901616,
+          "hi": 0.2803336897187774,
+          "lo": 0.2565554843078102,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        },
+        "rho_real": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        }
+      },
+      "n": 963
+    },
+    "test": {
+      "B0": {
+        "mae": {
+          "estimate": 0.2945584579954107,
+          "hi": 0.302771332521225,
+          "lo": 0.28703969807690816,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": -0.007445840203648462,
+          "hi": 0.023262652309470264,
+          "lo": -0.03687313916796157,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.1494410321721989,
+          "hi": 0.17971745633029204,
+          "lo": 0.11933872538474734,
+          "valid_draws": 2000
+        }
+      },
+      "C_knn": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.0004966286452333102,
+          "hi": 0.0008643988603855846,
+          "lo": 0.00014528273714847773,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": 0.0032825576039646753,
+          "hi": 0.008615879663559811,
+          "lo": -0.001693677026802981,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.295055086640644,
+          "hi": 0.30319545130508274,
+          "lo": 0.2875785697033264,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": -0.009516605182465864,
+          "hi": 0.020661702437655742,
+          "lo": -0.03846422668796054,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.15065282479734618,
+          "hi": 0.1809159982675366,
+          "lo": 0.12061630970514829,
+          "valid_draws": 2000
+        }
+      },
+      "G_reference_class": {
+        "delta_mae_vs_B0": {
+          "estimate": -0.0006457849577798935,
+          "hi": -0.00010584741053559776,
+          "lo": -0.0011934616992161917,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": 0.00046974352259299135,
+          "hi": 0.009148980901473619,
+          "lo": -0.008535056217906511,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.2939126730376308,
+          "hi": 0.30194598022831587,
+          "lo": 0.2864339290922472,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": -0.006126161492862033,
+          "hi": 0.02471171650167725,
+          "lo": -0.03609291438829415,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.15123045440557834,
+          "hi": 0.18087869406842078,
+          "lo": 0.12114423115735692,
+          "valid_draws": 2000
+        }
+      },
+      "G_standalone": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.004095477661220148,
+          "hi": 0.007553026505651983,
+          "lo": 0.0006578131533790943,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": -0.14839604809934373,
+          "hi": -0.09331034573656631,
+          "lo": -0.20247012471098003,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.29865393565663084,
+          "hi": 0.30723855165436886,
+          "lo": 0.2911266996520073,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": 0.02653831735319108,
+          "hi": 0.061142729711063125,
+          "lo": -0.007029360743187284,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.035029141629694706,
+          "hi": 0.07026764684795685,
+          "lo": 0.002155454992443853,
+          "valid_draws": 2000
+        }
+      },
+      "constant": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.005075352851095838,
+          "hi": 0.008538427296682638,
+          "lo": 0.0016045501367564774,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        },
+        "mae": {
+          "estimate": 0.29963381084650653,
+          "hi": 0.30799537304267505,
+          "lo": 0.29210127082304554,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        },
+        "rho_real": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        }
+      },
+      "n": 4636
+    },
+    "val": {
+      "B0": {
+        "mae": {
+          "estimate": 0.2811743476637421,
+          "hi": 0.2883615950826084,
+          "lo": 0.27401842257747877,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": -0.0008334463776380068,
+          "hi": 0.03148092579631537,
+          "lo": -0.03125363698926411,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.13920371953564906,
+          "hi": 0.16932597746253505,
+          "lo": 0.10799945666797414,
+          "valid_draws": 2000
+        }
+      },
+      "C_knn": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.00033974732323777124,
+          "hi": 0.0006177025199857189,
+          "lo": 8.074847510486372e-05,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": 0.0012157204084198292,
+          "hi": 0.00576791916723976,
+          "lo": -0.003783088376553903,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.2815140949869799,
+          "hi": 0.28864462473919483,
+          "lo": 0.27434220317948105,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": -0.0023034177658044024,
+          "hi": 0.029888189855348708,
+          "lo": -0.03280198981205079,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.1389494685559025,
+          "hi": 0.16879939224088628,
+          "lo": 0.10833653935262945,
+          "valid_draws": 2000
+        }
+      },
+      "G_reference_class": {
+        "delta_mae_vs_B0": {
+          "estimate": -0.000387636982909334,
+          "hi": 5.997364081727907e-05,
+          "lo": -0.0008037775952131065,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": 0.0013085185000334676,
+          "hi": 0.009090336798173629,
+          "lo": -0.006645836354562562,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.2807867106808328,
+          "hi": 0.28781299301874524,
+          "lo": 0.2736089251185433,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": -0.0019098860443773008,
+          "hi": 0.030472453303569836,
+          "lo": -0.03142315011656484,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.13943579836894324,
+          "hi": 0.16925558268008195,
+          "lo": 0.10876044432207309,
+          "valid_draws": 2000
+        }
+      },
+      "G_standalone": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.006802726462877051,
+          "hi": 0.010113536806682977,
+          "lo": 0.003608253534478245,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": -0.1282734842434982,
+          "hi": -0.07279515354347336,
+          "lo": -0.18508640299763815,
+          "valid_draws": 2000
+        },
+        "mae": {
+          "estimate": 0.28797707412661916,
+          "hi": 0.29502561654845183,
+          "lo": 0.28079269225836884,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": -0.0016697775489531474,
+          "hi": 0.026465394968658983,
+          "lo": -0.030698229757125974,
+          "valid_draws": 2000
+        },
+        "rho_real": {
+          "estimate": 0.010093904120835733,
+          "hi": 0.037258393568968894,
+          "lo": -0.01788094180819084,
+          "valid_draws": 2000
+        }
+      },
+      "constant": {
+        "delta_mae_vs_B0": {
+          "estimate": 0.007473017864488951,
+          "hi": 0.011054407137991218,
+          "lo": 0.004150487314988516,
+          "valid_draws": 2000
+        },
+        "delta_real_minus_placebo_vs_B0": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        },
+        "mae": {
+          "estimate": 0.28864736552823106,
+          "hi": 0.2958139769429097,
+          "lo": 0.28148454610621165,
+          "valid_draws": 2000
+        },
+        "rho_placebo": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        },
+        "rho_real": {
+          "estimate": null,
+          "hi": null,
+          "lo": null,
+          "valid_draws": 0
+        }
+      },
+      "n": 5261
+    }
+  },
+  "schema": "analogue-outcome-value-v1",
+  "seed": 20261105
+}
