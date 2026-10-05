@@ -1,0 +1,5998 @@
+{
+ "severity_version": "severity-v2",
+ "vocabulary_version": "semantics-v1",
+ "datasets": {
+  "dev": {
+   "sha256": "656f561f56c38c96322ddf45634680d4c3a73f00fb5bc609dccfbda94144244a",
+   "rules": {
+    "n": 64,
+    "abstained": 11,
+    "min": 1,
+    "max": 10,
+    "mean": 4.66,
+    "median": 5.0,
+    "p10": 1.0,
+    "p25": 2.75,
+    "p75": 6.25,
+    "p90": 10.0,
+    "score_counts": {
+     "1": 15,
+     "2": 1,
+     "3": 10,
+     "4": 5,
+     "5": 13,
+     "6": 4,
+     "7": 4,
+     "8": 3,
+     "10": 9
+    },
+    "band_counts": {
+     "negligible": 16,
+     "low": 15,
+     "moderate": 17,
+     "high": 7,
+     "extreme": 9
+    },
+    "expected_band_counts": {
+     "negligible": 7,
+     "low": 21,
+     "moderate": 13,
+     "high": 14,
+     "extreme": 9
+    },
+    "group_medians": {
+     "A": 1.0,
+     "B": 3.0,
+     "C": 5.0,
+     "D": 5.0,
+     "E": 6.0,
+     "F": 6.5,
+     "G": 10.0,
+     "H": 3.5
+    },
+    "spearman": 0.923,
+    "exact_band": 0.688,
+    "within_one_band": 0.984,
+    "criteria": {
+     "1_rank_agreement": {
+      "value": 0.923,
+      "min": 0.8,
+      "pass": true
+     },
+     "2a_exact_band": {
+      "value": 0.688,
+      "min": 0.7,
+      "pass": false
+     },
+     "2b_within_one_band": {
+      "value": 0.984,
+      "min": 0.9,
+      "pass": true
+     },
+     "3_no_gross_misses": {
+      "value": [],
+      "pass": true
+     },
+     "4_spread": {
+      "value": {
+       "min": 1,
+       "max": 10,
+       "p10": 1.0,
+       "p90": 10.0,
+       "bands_occupied": [
+        "negligible",
+        "low",
+        "moderate",
+        "high",
+        "extreme"
+       ],
+       "min_per_band": 3
+      },
+      "pass": true
+     },
+     "5_monotone_groups": {
+      "value": {
+       "G": 10.0,
+       "E": 6.0,
+       "C": 5.0,
+       "A": 1.0
+      },
+      "pass": true
+     }
+    },
+    "all_criteria_pass": false,
+    "mean_ai_effect": 0,
+    "fallbacks": 0,
+    "items": [
+     {
+      "id": "A1",
+      "group": "A routine / low-impact",
+      "text": "Company to present at investor conference next month",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A2",
+      "group": "A routine / low-impact",
+      "text": "Retailer opens new store in suburban shopping centre",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A3",
+      "group": "A routine / low-impact",
+      "text": "Bank announces routine quarterly dividend in line with the previous quarter",
+      "expected": "negligible",
+      "score": 1,
+      "band": "negligible",
+      "baseline_score": 1,
+      "range": [
+       1,
+       1
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": null,
+        "final": "0",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A4",
+      "group": "A routine / low-impact",
+      "text": "Software firm releases minor update to its mobile app",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A5",
+      "group": "A routine / low-impact",
+      "text": "Airline reschedules a handful of flights because of local weather",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A6",
+      "group": "A routine / low-impact",
+      "text": "Utility reaffirms full-year guidance at its annual meeting",
+      "expected": "negligible",
+      "score": 1,
+      "band": "negligible",
+      "baseline_score": 1,
+      "range": [
+       1,
+       1
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": null,
+        "final": "0",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A7",
+      "group": "A routine / low-impact",
+      "text": "Drugmaker names new head of regional sales",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A8",
+      "group": "A routine / low-impact",
+      "text": "Analyst upgrades consumer goods maker from neutral to buy",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": null,
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B1",
+      "group": "B minor operational",
+      "text": "Automaker recalls 3,000 vehicles over a faulty seat sensor",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B2",
+      "group": "B minor operational",
+      "text": "Online retailer suffers two-hour website outage during off-peak hours",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B3",
+      "group": "B minor operational",
+      "text": "Chipmaker halts one production line for a day after a power glitch",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B4",
+      "group": "B minor operational",
+      "text": "Regional bank fined $2 million over late regulatory filings",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B5",
+      "group": "B minor operational",
+      "text": "Food company recalls one batch of snack bars over a labelling error",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B6",
+      "group": "B minor operational",
+      "text": "Cloud provider reports brief service disruption affecting some customers in one region",
+      "expected": "low",
+      "score": 1,
+      "band": "negligible",
+      "baseline_score": 1,
+      "range": [
+       1,
+       1
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": null,
+        "final": "0",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B7",
+      "group": "B minor operational",
+      "text": "Oil refinery shut for a week after a small fire; output loss under 1% of national capacity",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B8",
+      "group": "B minor operational",
+      "text": "Telecom operator faces class action over billing practices",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C1",
+      "group": "C material corporate",
+      "text": "Technology company cuts full-year revenue forecast by 12% on weaker enterprise demand",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C2",
+      "group": "C material corporate",
+      "text": "Pharmaceutical firm's late-stage trial of its flagship drug fails; shares slump",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C3",
+      "group": "C material corporate",
+      "text": "Retail group to cut 8,000 jobs and close 300 stores in a restructuring",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C4",
+      "group": "C material corporate",
+      "text": "Semiconductor maker agrees to buy a rival in an $18 billion deal",
+      "expected": "moderate",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C5",
+      "group": "C material corporate",
+      "text": "Energy producer misses quarterly profit estimates by a wide margin and suspends its buyback",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C6",
+      "group": "C material corporate",
+      "text": "Car manufacturer announces recall of 1.2 million vehicles over a braking defect",
+      "expected": "moderate",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C7",
+      "group": "C material corporate",
+      "text": "Consumer brand warns of profit hit from rising input costs and lowers guidance",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C8",
+      "group": "C material corporate",
+      "text": "Major insurer takes a $3 billion reserve charge on catastrophe claims",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D1",
+      "group": "D regulatory / policy",
+      "text": "Regulators finalize rules requiring large banks to hold 25% more capital by 2028",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": null,
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D2",
+      "group": "D regulatory / policy",
+      "text": "Central bank raises its policy rate by 75 basis points, the largest increase in decades",
+      "expected": "high",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 8,
+      "range": [
+       7,
+       8
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D3",
+      "group": "D regulatory / policy",
+      "text": "Securities regulator proposes tighter disclosure rules for private funds",
+      "expected": "moderate",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D4",
+      "group": "D regulatory / policy",
+      "text": "Government imposes 25% tariffs on all imported steel and aluminium effective next week",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D5",
+      "group": "D regulatory / policy",
+      "text": "Regulator orders three global banks to halt dividend payments pending a capital review",
+      "expected": "high",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 6,
+      "range": [
+       5,
+       7
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": null,
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "proposed",
+        "ai": null,
+        "final": "proposed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D6",
+      "group": "D regulatory / policy",
+      "text": "Court rules against a chipmaker in a landmark patent case, costing it $2 billion",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D7",
+      "group": "D regulatory / policy",
+      "text": "Parliament passes a law capping the interest income banks can earn on consumer lending",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": null,
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D8",
+      "group": "D regulatory / policy",
+      "text": "Tax authority publishes consultation on minor changes to reporting formats",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E1",
+      "group": "E geopolitical",
+      "text": "Military conflict erupts between two major oil-producing neighbours; tanker traffic suspended in a key strait",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       6,
+       7
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E2",
+      "group": "E geopolitical",
+      "text": "Major economies impose sanctions on a country's central bank and its largest lenders",
+      "expected": "high",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 6,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E3",
+      "group": "E geopolitical",
+      "text": "Border skirmish raises tensions between neighbours, with no change to trade flows",
+      "expected": "low",
+      "score": 1,
+      "band": "negligible",
+      "baseline_score": 1,
+      "range": [
+       1,
+       1
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": null,
+        "final": "0",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E4",
+      "group": "E geopolitical",
+      "text": "Election leaves a mid-sized economy with a coalition government; markets calm",
+      "expected": "low",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E5",
+      "group": "E geopolitical",
+      "text": "Naval blockade halts shipping through a major trade route and freight rates triple",
+      "expected": "high",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 8,
+      "range": [
+       7,
+       8
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E6",
+      "group": "E geopolitical",
+      "text": "Two countries sign a trade agreement lowering tariffs on agricultural goods",
+      "expected": "low",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E7",
+      "group": "E geopolitical",
+      "text": "Cyberattack disables payment networks across several countries for a day",
+      "expected": "high",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 6,
+      "range": [
+       5,
+       7
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": null,
+        "final": "global",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E8",
+      "group": "E geopolitical",
+      "text": "Nuclear-armed neighbours exchange missile fire and global equity futures plunge",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": null,
+        "final": "global",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F1",
+      "group": "F credit",
+      "text": "Rating agency downgrades large retailer to junk and its bonds tumble",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F2",
+      "group": "F credit",
+      "text": "Mid-sized regional bank misses a debt payment and regulators step in",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       6,
+       7
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F3",
+      "group": "F credit",
+      "text": "Property developer defaults on $10 billion of bonds as creditors seek a restructuring",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       6,
+       7
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F4",
+      "group": "F credit",
+      "text": "Sovereign downgraded two notches by all three agencies as yields spike 150 basis points",
+      "expected": "high",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 6,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F5",
+      "group": "F credit",
+      "text": "Rating agency revises an investment-grade industrial firm's outlook to negative",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F6",
+      "group": "F credit",
+      "text": "Hedge fund suffers a $4 billion loss and receives margin calls from its prime brokers",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       6,
+       7
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F7",
+      "group": "F credit",
+      "text": "Corporate bond spreads widen sharply as issuers pull deals and funding markets seize up",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F8",
+      "group": "F credit",
+      "text": "Small lender reports non-performing loans rising to 3.1% from 2.9%",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G1",
+      "group": "G systemic financial",
+      "text": "Global investment bank collapses and counterparties freeze lending across the interbank market",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G2",
+      "group": "G systemic financial",
+      "text": "Central banks announce emergency coordinated liquidity operations as bank runs spread across several countries",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": null,
+        "final": "global",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G3",
+      "group": "G systemic financial",
+      "text": "Major clearing house defaults on its obligations and trading is halted across derivatives markets",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G4",
+      "group": "G systemic financial",
+      "text": "Money market fund breaks the buck as investors rush to redeem and the commercial paper market freezes",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G5",
+      "group": "G systemic financial",
+      "text": "Stock markets hit circuit breakers worldwide after a sudden collapse in confidence",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": null,
+        "final": "global",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G6",
+      "group": "G systemic financial",
+      "text": "Government announces an emergency rescue of the country's largest bank to prevent contagion",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G7",
+      "group": "G systemic financial",
+      "text": "Government fails to roll over maturing bonds and contagion fears hit lenders across the region",
+      "expected": "extreme",
+      "score": 10,
+      "band": "extreme",
+      "baseline_score": 10,
+      "range": [
+       8,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": null,
+        "final": "4",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G8",
+      "group": "G systemic financial",
+      "text": "Interbank lending rates jump as banks hoard cash and the central bank warns of stress",
+      "expected": "high",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 8,
+      "range": [
+       7,
+       8
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H1",
+      "group": "H favourable / mixed",
+      "text": "Central bank cuts its policy rate by 25 basis points, in line with expectations",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H2",
+      "group": "H favourable / mixed",
+      "text": "Chipmaker raises full-year guidance on strong demand",
+      "expected": "low",
+      "score": 2,
+      "band": "negligible",
+      "baseline_score": 2,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H3",
+      "group": "H favourable / mixed",
+      "text": "Government unveils a large stimulus package and equities rally",
+      "expected": "moderate",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H4",
+      "group": "H favourable / mixed",
+      "text": "Bank reports record profit and raises its dividend by 20%",
+      "expected": "low",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H5",
+      "group": "H favourable / mixed",
+      "text": "Two regional banks agree a merger; the combined firm will close 5% of branches",
+      "expected": "low",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": null,
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H6",
+      "group": "H favourable / mixed",
+      "text": "Oil price falls 5% after an unexpected rise in inventories",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H7",
+      "group": "H favourable / mixed",
+      "text": "Rating agency upgrades a sovereign by one notch",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H8",
+      "group": "H favourable / mixed",
+      "text": "Landmark trade deal removes tariffs across the region's largest economies",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     }
+    ]
+   },
+   "llm_recorded": {
+    "n": 64,
+    "abstained": 7,
+    "min": 1,
+    "max": 8,
+    "mean": 4.56,
+    "median": 5.0,
+    "p10": 1.2999999999999998,
+    "p25": 3.0,
+    "p75": 6.0,
+    "p90": 8.0,
+    "score_counts": {
+     "1": 7,
+     "2": 2,
+     "3": 15,
+     "4": 6,
+     "5": 16,
+     "6": 3,
+     "7": 6,
+     "8": 9
+    },
+    "band_counts": {
+     "negligible": 9,
+     "low": 21,
+     "moderate": 19,
+     "high": 15,
+     "extreme": 0
+    },
+    "expected_band_counts": {
+     "negligible": 7,
+     "low": 21,
+     "moderate": 13,
+     "high": 14,
+     "extreme": 9
+    },
+    "group_medians": {
+     "A": 1.0,
+     "B": 3.0,
+     "C": 5.0,
+     "D": 5.0,
+     "E": 7.0,
+     "F": 5.0,
+     "G": 8.0,
+     "H": 3.5
+    },
+    "spearman": 0.899,
+    "exact_band": 0.562,
+    "within_one_band": 0.984,
+    "criteria": {
+     "1_rank_agreement": {
+      "value": 0.899,
+      "min": 0.85,
+      "pass": true
+     },
+     "2a_exact_band": {
+      "value": 0.562,
+      "min": 0.7,
+      "pass": false
+     },
+     "2b_within_one_band": {
+      "value": 0.984,
+      "min": 0.9,
+      "pass": true
+     },
+     "3_no_gross_misses": {
+      "value": [
+       "F7"
+      ],
+      "pass": false
+     },
+     "4_spread": {
+      "value": {
+       "min": 1,
+       "max": 8,
+       "p10": 1.2999999999999998,
+       "p90": 8.0,
+       "bands_occupied": [
+        "negligible",
+        "low",
+        "moderate",
+        "high"
+       ],
+       "min_per_band": 3
+      },
+      "pass": false
+     },
+     "5_monotone_groups": {
+      "value": {
+       "G": 8.0,
+       "E": 7.0,
+       "C": 5.0,
+       "A": 1.0
+      },
+      "pass": true
+     }
+    },
+    "all_criteria_pass": false,
+    "mean_ai_effect": -0.07,
+    "fallbacks": 0,
+    "items": [
+     {
+      "id": "A1",
+      "group": "A routine / low-impact",
+      "text": "Company to present at investor conference next month",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A2",
+      "group": "A routine / low-impact",
+      "text": "Retailer opens new store in suburban shopping centre",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A3",
+      "group": "A routine / low-impact",
+      "text": "Bank announces routine quarterly dividend in line with the previous quarter",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A4",
+      "group": "A routine / low-impact",
+      "text": "Software firm releases minor update to its mobile app",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A5",
+      "group": "A routine / low-impact",
+      "text": "Airline reschedules a handful of flights because of local weather",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A6",
+      "group": "A routine / low-impact",
+      "text": "Utility reaffirms full-year guidance at its annual meeting",
+      "expected": "negligible",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       3
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "neutral",
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A7",
+      "group": "A routine / low-impact",
+      "text": "Drugmaker names new head of regional sales",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A8",
+      "group": "A routine / low-impact",
+      "text": "Analyst upgrades consumer goods maker from neutral to buy",
+      "expected": "low",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": "favourable",
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B1",
+      "group": "B minor operational",
+      "text": "Automaker recalls 3,000 vehicles over a faulty seat sensor",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B2",
+      "group": "B minor operational",
+      "text": "Online retailer suffers two-hour website outage during off-peak hours",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "neutral",
+        "final": "mixed",
+        "adjustment": "AI_CLAMPED"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B3",
+      "group": "B minor operational",
+      "text": "Chipmaker halts one production line for a day after a power glitch",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       4
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "AI_QUOTE_BACKED"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B4",
+      "group": "B minor operational",
+      "text": "Regional bank fined $2 million over late regulatory filings",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B5",
+      "group": "B minor operational",
+      "text": "Food company recalls one batch of snack bars over a labelling error",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "neutral",
+        "final": "mixed",
+        "adjustment": "AI_CLAMPED"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B6",
+      "group": "B minor operational",
+      "text": "Cloud provider reports brief service disruption affecting some customers in one region",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       4
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "market",
+        "final": "sector",
+        "adjustment": "AI_CLAMPED"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B7",
+      "group": "B minor operational",
+      "text": "Oil refinery shut for a week after a small fire; output loss under 1% of national capacity",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "AI_QUOTE_BACKED"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B8",
+      "group": "B minor operational",
+      "text": "Telecom operator faces class action over billing practices",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C1",
+      "group": "C material corporate",
+      "text": "Technology company cuts full-year revenue forecast by 12% on weaker enterprise demand",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C2",
+      "group": "C material corporate",
+      "text": "Pharmaceutical firm's late-stage trial of its flagship drug fails; shares slump",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C3",
+      "group": "C material corporate",
+      "text": "Retail group to cut 8,000 jobs and close 300 stores in a restructuring",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C4",
+      "group": "C material corporate",
+      "text": "Semiconductor maker agrees to buy a rival in an $18 billion deal",
+      "expected": "moderate",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "neutral",
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C5",
+      "group": "C material corporate",
+      "text": "Energy producer misses quarterly profit estimates by a wide margin and suspends its buyback",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C6",
+      "group": "C material corporate",
+      "text": "Car manufacturer announces recall of 1.2 million vehicles over a braking defect",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 3,
+      "range": [
+       3,
+       6
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C7",
+      "group": "C material corporate",
+      "text": "Consumer brand warns of profit hit from rising input costs and lowers guidance",
+      "expected": "moderate",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 5,
+      "range": [
+       3,
+       5
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "proposed",
+        "final": "proposed",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C8",
+      "group": "C material corporate",
+      "text": "Major insurer takes a $3 billion reserve charge on catastrophe claims",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D1",
+      "group": "D regulatory / policy",
+      "text": "Regulators finalize rules requiring large banks to hold 25% more capital by 2028",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D2",
+      "group": "D regulatory / policy",
+      "text": "Central bank raises its policy rate by 75 basis points, the largest increase in decades",
+      "expected": "high",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 8,
+      "range": [
+       7,
+       9
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D3",
+      "group": "D regulatory / policy",
+      "text": "Securities regulator proposes tighter disclosure rules for private funds",
+      "expected": "moderate",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       4
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "proposed",
+        "ai": "proposed",
+        "final": "proposed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "neutral",
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D4",
+      "group": "D regulatory / policy",
+      "text": "Government imposes 25% tariffs on all imported steel and aluminium effective next week",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D5",
+      "group": "D regulatory / policy",
+      "text": "Regulator orders three global banks to halt dividend payments pending a capital review",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 6,
+      "range": [
+       4,
+       6
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "proposed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D6",
+      "group": "D regulatory / policy",
+      "text": "Court rules against a chipmaker in a landmark patent case, costing it $2 billion",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D7",
+      "group": "D regulatory / policy",
+      "text": "Parliament passes a law capping the interest income banks can earn on consumer lending",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D8",
+      "group": "D regulatory / policy",
+      "text": "Tax authority publishes consultation on minor changes to reporting formats",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       4
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "proposed",
+        "ai": "proposed",
+        "final": "proposed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "neutral",
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E1",
+      "group": "E geopolitical",
+      "text": "Military conflict erupts between two major oil-producing neighbours; tanker traffic suspended in a key strait",
+      "expected": "high",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       7,
+       9
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "global",
+        "final": "global",
+        "adjustment": "AI_QUOTE_BACKED"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E2",
+      "group": "E geopolitical",
+      "text": "Major economies impose sanctions on a country's central bank and its largest lenders",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 6,
+      "range": [
+       6,
+       8
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E3",
+      "group": "E geopolitical",
+      "text": "Border skirmish raises tensions between neighbours, with no change to trade flows",
+      "expected": "low",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       4
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "AI_QUOTE_BACKED"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "neutral",
+        "final": "mixed",
+        "adjustment": "AI_CLAMPED"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E4",
+      "group": "E geopolitical",
+      "text": "Election leaves a mid-sized economy with a coalition government; markets calm",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       2,
+       4
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "firm",
+        "final": "sector",
+        "adjustment": "AI_CLAMPED"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "neutral",
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E5",
+      "group": "E geopolitical",
+      "text": "Naval blockade halts shipping through a major trade route and freight rates triple",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 8,
+      "range": [
+       6,
+       8
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E6",
+      "group": "E geopolitical",
+      "text": "Two countries sign a trade agreement lowering tariffs on agricultural goods",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       2,
+       4
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": "neutral",
+        "final": "neutral",
+        "adjustment": "AI_WITHIN_BOUND"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E7",
+      "group": "E geopolitical",
+      "text": "Cyberattack disables payment networks across several countries for a day",
+      "expected": "high",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 6,
+      "range": [
+       6,
+       9
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E8",
+      "group": "E geopolitical",
+      "text": "Nuclear-armed neighbours exchange missile fire and global equity futures plunge",
+      "expected": "extreme",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 10,
+      "range": [
+       7,
+       10
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": "global",
+        "final": "global",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F1",
+      "group": "F credit",
+      "text": "Rating agency downgrades large retailer to junk and its bonds tumble",
+      "expected": "moderate",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       4,
+       5
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F2",
+      "group": "F credit",
+      "text": "Mid-sized regional bank misses a debt payment and regulators step in",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 7,
+      "range": [
+       4,
+       7
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F3",
+      "group": "F credit",
+      "text": "Property developer defaults on $10 billion of bonds as creditors seek a restructuring",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       6,
+       7
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F4",
+      "group": "F credit",
+      "text": "Sovereign downgraded two notches by all three agencies as yields spike 150 basis points",
+      "expected": "high",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 6,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "MARKET_VALUATION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F5",
+      "group": "F credit",
+      "text": "Rating agency revises an investment-grade industrial firm's outlook to negative",
+      "expected": "low",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 3,
+      "range": [
+       3,
+       5
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F6",
+      "group": "F credit",
+      "text": "Hedge fund suffers a $4 billion loss and receives margin calls from its prime brokers",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 7,
+      "range": [
+       4,
+       7
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F7",
+      "group": "F credit",
+      "text": "Corporate bond spreads widen sharply as issuers pull deals and funding markets seize up",
+      "expected": "extreme",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 10,
+      "range": [
+       5,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "2",
+        "final": "3",
+        "adjustment": "AI_CLAMPED"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "speculative",
+        "final": "proposed",
+        "adjustment": "AI_CLAMPED"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F8",
+      "group": "F credit",
+      "text": "Small lender reports non-performing loans rising to 3.1% from 2.9%",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       3
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "AI_QUOTE_BACKED"
+       }
+      },
+      "inferred_indicators": 1
+     },
+     {
+      "id": "G1",
+      "group": "G systemic financial",
+      "text": "Global investment bank collapses and counterparties freeze lending across the interbank market",
+      "expected": "extreme",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 10,
+      "range": [
+       7,
+       10
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G2",
+      "group": "G systemic financial",
+      "text": "Central banks announce emergency coordinated liquidity operations as bank runs spread across several countries",
+      "expected": "extreme",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 10,
+      "range": [
+       7,
+       10
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G3",
+      "group": "G systemic financial",
+      "text": "Major clearing house defaults on its obligations and trading is halted across derivatives markets",
+      "expected": "extreme",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 10,
+      "range": [
+       7,
+       10
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G4",
+      "group": "G systemic financial",
+      "text": "Money market fund breaks the buck as investors rush to redeem and the commercial paper market freezes",
+      "expected": "extreme",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 10,
+      "range": [
+       7,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "2",
+        "final": "3",
+        "adjustment": "AI_CLAMPED"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G5",
+      "group": "G systemic financial",
+      "text": "Stock markets hit circuit breakers worldwide after a sudden collapse in confidence",
+      "expected": "extreme",
+      "score": 8,
+      "band": "high",
+      "baseline_score": 10,
+      "range": [
+       7,
+       10
+      ],
+      "event_type": "MARKET_VALUATION",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": "global",
+        "final": "global",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G6",
+      "group": "G systemic financial",
+      "text": "Government announces an emergency rescue of the country's largest bank to prevent contagion",
+      "expected": "extreme",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 10,
+      "range": [
+       6,
+       10
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "2",
+        "final": "3",
+        "adjustment": "AI_CLAMPED"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "favourable",
+        "final": "mixed",
+        "adjustment": "AI_CLAMPED"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G7",
+      "group": "G systemic financial",
+      "text": "Government fails to roll over maturing bonds and contagion fears hit lenders across the region",
+      "expected": "extreme",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 10,
+      "range": [
+       6,
+       10
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "4",
+        "ai": "2",
+        "final": "3",
+        "adjustment": "AI_CLAMPED"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G8",
+      "group": "G systemic financial",
+      "text": "Interbank lending rates jump as banks hoard cash and the central bank warns of stress",
+      "expected": "high",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 8,
+      "range": [
+       5,
+       8
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H1",
+      "group": "H favourable / mixed",
+      "text": "Central bank cuts its policy rate by 25 basis points, in line with expectations",
+      "expected": "low",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": "neutral",
+        "final": "neutral",
+        "adjustment": "AI_WITHIN_BOUND"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H2",
+      "group": "H favourable / mixed",
+      "text": "Chipmaker raises full-year guidance on strong demand",
+      "expected": "low",
+      "score": 2,
+      "band": "negligible",
+      "baseline_score": 2,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": "favourable",
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H3",
+      "group": "H favourable / mixed",
+      "text": "Government unveils a large stimulus package and equities rally",
+      "expected": "moderate",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "AI_QUOTE_BACKED"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": "favourable",
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 2
+     },
+     {
+      "id": "H4",
+      "group": "H favourable / mixed",
+      "text": "Bank reports record profit and raises its dividend by 20%",
+      "expected": "low",
+      "score": 2,
+      "band": "negligible",
+      "baseline_score": 4,
+      "range": [
+       2,
+       4
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "firm",
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": "favourable",
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H5",
+      "group": "H favourable / mixed",
+      "text": "Two regional banks agree a merger; the combined firm will close 5% of branches",
+      "expected": "low",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "MA_CORPORATE_ACTION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "2",
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": "sector",
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "AI_QUOTE_BACKED"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H6",
+      "group": "H favourable / mixed",
+      "text": "Oil price falls 5% after an unexpected rise in inventories",
+      "expected": "low",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 1,
+      "range": [
+       1,
+       4
+      ],
+      "event_type": "MARKET_VALUATION",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": "market",
+        "final": "market",
+        "adjustment": "AI_QUOTE_BACKED"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": "adverse",
+        "final": "adverse",
+        "adjustment": "AI_QUOTE_BACKED"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H7",
+      "group": "H favourable / mixed",
+      "text": "Rating agency upgrades a sovereign by one notch",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "MARKET_VALUATION",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": "1",
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "firm",
+        "final": "sector",
+        "adjustment": "AI_CLAMPED"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": "favourable",
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H8",
+      "group": "H favourable / mixed",
+      "text": "Landmark trade deal removes tariffs across the region's largest economies",
+      "expected": "moderate",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 5,
+      "range": [
+       5,
+       7
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": "3",
+        "final": "3",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": "global",
+        "final": "global",
+        "adjustment": "AI_WITHIN_BOUND"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": "confirmed",
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": "favourable",
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     }
+    ],
+    "model": "openai/gpt-oss-20b",
+    "prompt_version": "extract-v4",
+    "recorded_for_sha256": "656f561f56c38c96322ddf45634680d4c3a73f00fb5bc609dccfbda94144244a",
+    "n_total": 64,
+    "missing_ids": [],
+    "complete": true
+   }
+  },
+  "heldout": {
+   "sha256": "abac503c2a9ca2ef8b2650834f3a7f6076ffc62c8cf96adf1617b57f72106889",
+   "rules": {
+    "n": 32,
+    "abstained": 15,
+    "min": 1,
+    "max": 7,
+    "mean": 2.75,
+    "median": 1.5,
+    "p10": 1.0,
+    "p25": 1.0,
+    "p75": 4.0,
+    "p90": 6.0,
+    "score_counts": {
+     "1": 16,
+     "2": 1,
+     "3": 5,
+     "4": 3,
+     "5": 2,
+     "6": 2,
+     "7": 3
+    },
+    "band_counts": {
+     "negligible": 17,
+     "low": 8,
+     "moderate": 4,
+     "high": 3,
+     "extreme": 0
+    },
+    "expected_band_counts": {
+     "negligible": 6,
+     "low": 8,
+     "moderate": 5,
+     "high": 9,
+     "extreme": 4
+    },
+    "group_medians": {
+     "A": 1.0,
+     "B": 3.0,
+     "C": 1.0,
+     "D": 4.5,
+     "E": 2.0,
+     "F": 5.0,
+     "G": 1.0,
+     "H": 2.5
+    },
+    "spearman": 0.391,
+    "exact_band": 0.344,
+    "within_one_band": 0.594,
+    "criteria": {
+     "1_rank_agreement": {
+      "value": 0.391,
+      "min": 0.8,
+      "pass": false
+     },
+     "2a_exact_band": {
+      "value": 0.344,
+      "min": 0.7,
+      "pass": false
+     },
+     "2b_within_one_band": {
+      "value": 0.594,
+      "min": 0.9,
+      "pass": false
+     },
+     "3_no_gross_misses": {
+      "value": [
+       "F4",
+       "G1",
+       "G2",
+       "G3"
+      ],
+      "pass": false
+     },
+     "4_spread": {
+      "value": {
+       "min": 1,
+       "max": 7,
+       "p10": 1.0,
+       "p90": 6.0,
+       "bands_occupied": [
+        "negligible",
+        "low",
+        "moderate",
+        "high"
+       ],
+       "min_per_band": 2
+      },
+      "pass": false
+     },
+     "5_monotone_groups": {
+      "value": {
+       "G": 1.0,
+       "E": 2.0,
+       "C": 1.0,
+       "A": 1.0
+      },
+      "pass": false
+     }
+    },
+    "all_criteria_pass": false,
+    "mean_ai_effect": 0,
+    "fallbacks": 0,
+    "items": [
+     {
+      "id": "A1",
+      "group": "A routine / low-impact",
+      "text": "Manufacturer schedules its annual shareholder meeting for the spring",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A2",
+      "group": "A routine / low-impact",
+      "text": "Pharmacy chain extends opening hours at some stores for the holiday season",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A3",
+      "group": "A routine / low-impact",
+      "text": "Technology firm appoints a new chief marketing officer",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "A4",
+      "group": "A routine / low-impact",
+      "text": "Hotel group to rename one of its loyalty programmes",
+      "expected": "negligible",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B1",
+      "group": "B minor operational",
+      "text": "Supermarket chain recalls one brand of frozen pizza over an undeclared allergen",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B2",
+      "group": "B minor operational",
+      "text": "Ride-hailing app suffers a 90-minute outage in two cities",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B3",
+      "group": "B minor operational",
+      "text": "Steelmaker idles a single furnace for maintenance, cutting monthly output by 2%",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "B4",
+      "group": "B minor operational",
+      "text": "Insurer fined $1.5 million for delays in processing claims",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C1",
+      "group": "C material corporate",
+      "text": "Airline issues a profit warning citing sharply higher fuel costs and weaker bookings",
+      "expected": "moderate",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       6,
+       7
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C2",
+      "group": "C material corporate",
+      "text": "Biotech firm's lead cancer drug is rejected by the regulator and its shares halve",
+      "expected": "moderate",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C3",
+      "group": "C material corporate",
+      "text": "Conglomerate announces a plan to split into three listed companies",
+      "expected": "moderate",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "C4",
+      "group": "C material corporate",
+      "text": "Retail bank reports a $2.5 billion loss on bad commercial property loans",
+      "expected": "moderate",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D1",
+      "group": "D regulatory / policy",
+      "text": "Authorities approve new rules forcing all major banks to hold substantially more liquidity",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": null,
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D2",
+      "group": "D regulatory / policy",
+      "text": "Central bank unexpectedly doubles its main interest rate overnight to defend the currency",
+      "expected": "high",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D3",
+      "group": "D regulatory / policy",
+      "text": "Regulator opens a consultation on updating rules for mutual fund fee disclosures",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "D4",
+      "group": "D regulatory / policy",
+      "text": "Government announces a broad ban on short selling of financial stocks",
+      "expected": "high",
+      "score": 5,
+      "band": "moderate",
+      "baseline_score": 5,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "REGULATORY_LEGAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "sector",
+        "ai": null,
+        "final": "sector",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E1",
+      "group": "E geopolitical",
+      "text": "Attack on a major oil exporter's production facilities cuts global crude supply by 5%",
+      "expected": "high",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E2",
+      "group": "E geopolitical",
+      "text": "Two large trading partners impose sweeping retaliatory tariffs on each other's goods",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       6,
+       7
+      ],
+      "event_type": "GEOPOLITICAL",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E3",
+      "group": "E geopolitical",
+      "text": "Diplomats from two countries hold routine talks on border management",
+      "expected": "low",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "E4",
+      "group": "E geopolitical",
+      "text": "Armed forces clash along a disputed border as global stock indices fall sharply and oil jumps",
+      "expected": "high",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F1",
+      "group": "F credit",
+      "text": "Large airline files for bankruptcy protection with $20 billion of debt",
+      "expected": "high",
+      "score": 7,
+      "band": "high",
+      "baseline_score": 7,
+      "range": [
+       6,
+       7
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "3",
+        "ai": null,
+        "final": "3",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F2",
+      "group": "F credit",
+      "text": "Rating agency affirms a utility's credit rating with a stable outlook",
+      "expected": "negligible",
+      "score": 1,
+      "band": "negligible",
+      "baseline_score": 1,
+      "range": [
+       1,
+       1
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "0",
+        "ai": null,
+        "final": "0",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F3",
+      "group": "F credit",
+      "text": "Bank fails to repay a central bank loan and depositors queue outside its branches",
+      "expected": "high",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "F4",
+      "group": "F credit",
+      "text": "Sovereign bond yields surge as investors dump bonds across the euro area and borrowing costs hit crisis levels",
+      "expected": "extreme",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 6,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "MARKET_VALUATION",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "adverse",
+        "ai": null,
+        "final": "adverse",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G1",
+      "group": "G systemic financial",
+      "text": "Interbank markets freeze worldwide as several major banks announce large undisclosed losses",
+      "expected": "extreme",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G2",
+      "group": "G systemic financial",
+      "text": "Regulators close the nation's second-largest bank over a weekend and guarantee all deposits to prevent a panic",
+      "expected": "extreme",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G3",
+      "group": "G systemic financial",
+      "text": "Central banks across the world cut rates and launch emergency asset purchases after global markets crash",
+      "expected": "extreme",
+      "score": 6,
+      "band": "moderate",
+      "baseline_score": 6,
+      "range": [
+       5,
+       6
+      ],
+      "event_type": "PRODUCT_OPERATIONS",
+      "rubric": {
+       "magnitude": {
+        "rules": "2",
+        "ai": null,
+        "final": "2",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "global",
+        "ai": null,
+        "final": "global",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "G4",
+      "group": "G systemic financial",
+      "text": "Major payments system fails for a full day, leaving banks unable to settle trades",
+      "expected": "high",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H1",
+      "group": "H favourable / mixed",
+      "text": "Chipmaker beats earnings estimates and lifts its dividend",
+      "expected": "low",
+      "score": 3,
+      "band": "low",
+      "baseline_score": 3,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "EARNINGS_FINANCIAL_PERFORMANCE",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H2",
+      "group": "H favourable / mixed",
+      "text": "Central bank holds interest rates steady, as widely expected",
+      "expected": "negligible",
+      "score": 4,
+      "band": "low",
+      "baseline_score": 4,
+      "range": [
+       3,
+       4
+      ],
+      "event_type": "MACROECONOMIC",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "market",
+        "ai": null,
+        "final": "market",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "neutral",
+        "ai": null,
+        "final": "neutral",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H3",
+      "group": "H favourable / mixed",
+      "text": "Government agrees a large infrastructure spending package and bond yields edge higher",
+      "expected": "moderate",
+      "score": null,
+      "band": "negligible",
+      "baseline_score": null,
+      "range": null,
+      "event_type": "NO_EVENT",
+      "rubric": null,
+      "inferred_indicators": 0
+     },
+     {
+      "id": "H4",
+      "group": "H favourable / mixed",
+      "text": "Rating agency upgrades a large bank to a higher investment-grade tier",
+      "expected": "low",
+      "score": 2,
+      "band": "negligible",
+      "baseline_score": 2,
+      "range": [
+       2,
+       3
+      ],
+      "event_type": "CREDIT_FUNDING",
+      "rubric": {
+       "magnitude": {
+        "rules": "1",
+        "ai": null,
+        "final": "1",
+        "adjustment": "NONE"
+       },
+       "reach": {
+        "rules": "firm",
+        "ai": null,
+        "final": "firm",
+        "adjustment": "NONE"
+       },
+       "certainty": {
+        "rules": "confirmed",
+        "ai": null,
+        "final": "confirmed",
+        "adjustment": "NONE"
+       },
+       "direction": {
+        "rules": "favourable",
+        "ai": null,
+        "final": "favourable",
+        "adjustment": "NONE"
+       }
+      },
+      "inferred_indicators": 0
+     }
+    ]
+   }
+  }
+ },
+ "baseline_v1_on_dev": {
+  "rules": {
+   "min": 1,
+   "max": 7,
+   "mean": 2.91,
+   "median": 3.0,
+   "p10": 1.0,
+   "p90": 6.0,
+   "band_counts": {
+    "negligible": 31,
+    "low": 18,
+    "moderate": 14,
+    "high": 1
+   },
+   "spearman": 0.218,
+   "exact_band": 0.281,
+   "within_one": 0.688
+  },
+  "llm": {
+   "min": 1,
+   "max": 8,
+   "mean": 5.03,
+   "median": 5.0,
+   "p10": 1.2999999999999998,
+   "p90": 7.700000000000003,
+   "band_counts": {
+    "negligible": 8,
+    "moderate": 30,
+    "low": 11,
+    "high": 15
+   },
+   "spearman": 0.759,
+   "exact_band": 0.5,
+   "within_one": 0.953
+  }
+ }
+}

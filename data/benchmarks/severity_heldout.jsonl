@@ -1,0 +1,32 @@
+{"id": "A1", "group": "A routine / low-impact", "text": "Manufacturer schedules its annual shareholder meeting for the spring", "expected_band": "negligible"}
+{"id": "A2", "group": "A routine / low-impact", "text": "Pharmacy chain extends opening hours at some stores for the holiday season", "expected_band": "negligible"}
+{"id": "A3", "group": "A routine / low-impact", "text": "Technology firm appoints a new chief marketing officer", "expected_band": "negligible"}
+{"id": "A4", "group": "A routine / low-impact", "text": "Hotel group to rename one of its loyalty programmes", "expected_band": "negligible"}
+{"id": "B1", "group": "B minor operational", "text": "Supermarket chain recalls one brand of frozen pizza over an undeclared allergen", "expected_band": "low"}
+{"id": "B2", "group": "B minor operational", "text": "Ride-hailing app suffers a 90-minute outage in two cities", "expected_band": "low"}
+{"id": "B3", "group": "B minor operational", "text": "Steelmaker idles a single furnace for maintenance, cutting monthly output by 2%", "expected_band": "low"}
+{"id": "B4", "group": "B minor operational", "text": "Insurer fined $1.5 million for delays in processing claims", "expected_band": "low"}
+{"id": "C1", "group": "C material corporate", "text": "Airline issues a profit warning citing sharply higher fuel costs and weaker bookings", "expected_band": "moderate"}
+{"id": "C2", "group": "C material corporate", "text": "Biotech firm's lead cancer drug is rejected by the regulator and its shares halve", "expected_band": "moderate"}
+{"id": "C3", "group": "C material corporate", "text": "Conglomerate announces a plan to split into three listed companies", "expected_band": "moderate"}
+{"id": "C4", "group": "C material corporate", "text": "Retail bank reports a $2.5 billion loss on bad commercial property loans", "expected_band": "moderate"}
+{"id": "D1", "group": "D regulatory / policy", "text": "Authorities approve new rules forcing all major banks to hold substantially more liquidity", "expected_band": "high"}
+{"id": "D2", "group": "D regulatory / policy", "text": "Central bank unexpectedly doubles its main interest rate overnight to defend the currency", "expected_band": "high"}
+{"id": "D3", "group": "D regulatory / policy", "text": "Regulator opens a consultation on updating rules for mutual fund fee disclosures", "expected_band": "low"}
+{"id": "D4", "group": "D regulatory / policy", "text": "Government announces a broad ban on short selling of financial stocks", "expected_band": "high"}
+{"id": "E1", "group": "E geopolitical", "text": "Attack on a major oil exporter's production facilities cuts global crude supply by 5%", "expected_band": "high"}
+{"id": "E2", "group": "E geopolitical", "text": "Two large trading partners impose sweeping retaliatory tariffs on each other's goods", "expected_band": "high"}
+{"id": "E3", "group": "E geopolitical", "text": "Diplomats from two countries hold routine talks on border management", "expected_band": "low"}
+{"id": "E4", "group": "E geopolitical", "text": "Armed forces clash along a disputed border as global stock indices fall sharply and oil jumps", "expected_band": "high"}
+{"id": "F1", "group": "F credit", "text": "Large airline files for bankruptcy protection with $20 billion of debt", "expected_band": "high"}
+{"id": "F2", "group": "F credit", "text": "Rating agency affirms a utility's credit rating with a stable outlook", "expected_band": "negligible"}
+{"id": "F3", "group": "F credit", "text": "Bank fails to repay a central bank loan and depositors queue outside its branches", "expected_band": "high"}
+{"id": "F4", "group": "F credit", "text": "Sovereign bond yields surge as investors dump bonds across the euro area and borrowing costs hit crisis levels", "expected_band": "extreme"}
+{"id": "G1", "group": "G systemic financial", "text": "Interbank markets freeze worldwide as several major banks announce large undisclosed losses", "expected_band": "extreme"}
+{"id": "G2", "group": "G systemic financial", "text": "Regulators close the nation's second-largest bank over a weekend and guarantee all deposits to prevent a panic", "expected_band": "extreme"}
+{"id": "G3", "group": "G systemic financial", "text": "Central banks across the world cut rates and launch emergency asset purchases after global markets crash", "expected_band": "extreme"}
+{"id": "G4", "group": "G systemic financial", "text": "Major payments system fails for a full day, leaving banks unable to settle trades", "expected_band": "high"}
+{"id": "H1", "group": "H favourable / mixed", "text": "Chipmaker beats earnings estimates and lifts its dividend", "expected_band": "low"}
+{"id": "H2", "group": "H favourable / mixed", "text": "Central bank holds interest rates steady, as widely expected", "expected_band": "negligible"}
+{"id": "H3", "group": "H favourable / mixed", "text": "Government agrees a large infrastructure spending package and bond yields edge higher", "expected_band": "moderate"}
+{"id": "H4", "group": "H favourable / mixed", "text": "Rating agency upgrades a large bank to a higher investment-grade tier", "expected_band": "low"}

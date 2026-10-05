@@ -1,0 +1,108 @@
+{
+ "recording": {
+  "model": "openai/gpt-oss-20b",
+  "provider": "groq",
+  "prompt_version": "extract-v4",
+  "vocabulary_version": "semantics-v1",
+  "benchmark_sha256": "656f561f56c38c96322ddf45634680d4c3a73f00fb5bc609dccfbda94144244a",
+  "texts": 64,
+  "note": "real model outputs, recorded once; replayed by the tests with zero provider calls"
+ },
+ "policies": {
+  "rules_only": {
+   "n": 64,
+   "min": 1,
+   "max": 10,
+   "mean": 4.66,
+   "p10": 1.0,
+   "p90": 10.0,
+   "band_counts": {
+    "negligible": 16,
+    "low": 15,
+    "moderate": 17,
+    "high": 7,
+    "extreme": 9
+   },
+   "spearman": 0.923,
+   "exact_band": 0.688,
+   "within_one_band": 0.984,
+   "mean_ai_effect": 0
+  },
+  "ai_strict_1_step": {
+   "n": 64,
+   "min": 1,
+   "max": 8,
+   "mean": 4.52,
+   "p10": 1.2999999999999998,
+   "p90": 8.0,
+   "band_counts": {
+    "negligible": 9,
+    "low": 21,
+    "moderate": 19,
+    "high": 15,
+    "extreme": 0
+   },
+   "spearman": 0.905,
+   "exact_band": 0.562,
+   "within_one_band": 0.984,
+   "mean_ai_effect": -0.12
+  },
+  "ai_1_step_quote_lifts_where_rules_have_no_evidence (shipped)": {
+   "n": 64,
+   "min": 1,
+   "max": 8,
+   "mean": 4.56,
+   "p10": 1.2999999999999998,
+   "p90": 8.0,
+   "band_counts": {
+    "negligible": 9,
+    "low": 21,
+    "moderate": 19,
+    "high": 15,
+    "extreme": 0
+   },
+   "spearman": 0.899,
+   "exact_band": 0.562,
+   "within_one_band": 0.984,
+   "mean_ai_effect": -0.07
+  },
+  "ai_2_steps": {
+   "n": 64,
+   "min": 1,
+   "max": 8,
+   "mean": 4.44,
+   "p10": 1.2999999999999998,
+   "p90": 8.0,
+   "band_counts": {
+    "negligible": 10,
+    "low": 21,
+    "moderate": 21,
+    "high": 12,
+    "extreme": 0
+   },
+   "spearman": 0.849,
+   "exact_band": 0.547,
+   "within_one_band": 0.938,
+   "mean_ai_effect": -0.21
+  },
+  "ai_unbounded": {
+   "n": 64,
+   "min": 1,
+   "max": 8,
+   "mean": 4.42,
+   "p10": 1.2999999999999998,
+   "p90": 8.0,
+   "band_counts": {
+    "negligible": 10,
+    "low": 22,
+    "moderate": 20,
+    "high": 12,
+    "extreme": 0
+   },
+   "spearman": 0.833,
+   "exact_band": 0.547,
+   "within_one_band": 0.938,
+   "mean_ai_effect": -0.23
+  }
+ }
+}
