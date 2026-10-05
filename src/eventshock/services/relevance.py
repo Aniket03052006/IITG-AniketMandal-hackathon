@@ -9,12 +9,13 @@ stay labelled illustrative and are not touched here.
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
+from collections.abc import Callable
 from enum import StrEnum
 
 from pydantic import Field
 
-from ..domain import RiskSignal, ScopeLevel
+from ..domain import AssetClass, Portfolio, RiskSignal, ScopeLevel
 from ..domain.base import ContractModel
 from ..ports import PortfolioRepository
 from ..stress.scenarios import ScenarioCatalog
@@ -56,6 +57,9 @@ class PortfolioRelevance(ContractModel):
     path: list[str] = Field(description="the chain from what the event is about to the book, most specific first")
     slices: list[ExposureSlice]
     reach: ScenarioReach | None = None
+    band: str = Field(default="UNDETERMINED", description="NONE | LOW | MEDIUM | HIGH | UNDETERMINED: a display band on `share` (configs/portfolio.yaml), not a score; separate from severity and from the modeled impact")
+    portfolio_id: str = ""
+    portfolio_name: str = ""
 
 
 class _Index:
@@ -74,6 +78,8 @@ class _Index:
         self.book = {"value": self.total, "n": len(portfolio.assets), "cls": defaultdict(float)}
         for a in portfolio.assets:
             self.book["cls"][a.asset_type.value] += a.market_value
+        # the part of the book a market-wide shock can move at all: cash and unsupported instruments cannot be reached
+        self.shockable = sum(a.market_value for a in portfolio.assets if a.asset_type not in (AssetClass.CASH, AssetClass.OTHER))
 
     def slice(self, kind: str, key: str, label: str) -> ExposureSlice | None:
         g = self.book if kind == "BOOK" else self.groups[kind].get(key)
@@ -85,27 +91,37 @@ class _Index:
 
 
 class RelevanceService:
-    def __init__(self, portfolio: PortfolioRepository, catalog: ScenarioCatalog) -> None:
+    def __init__(self, portfolio: PortfolioRepository, catalog: ScenarioCatalog, band: Callable[[float | None], str] | None = None) -> None:
         self._portfolio = portfolio
         self._catalog = catalog
-        self._index: tuple[str, _Index] | None = None
+        self._band = band or (lambda share: "UNDETERMINED" if share is None else ("NONE" if share <= 0 else "HIGH" if share >= 0.2 else "MEDIUM" if share >= 0.05 else "LOW"))
+        self._index: OrderedDict[str, _Index] = OrderedDict()  # a few books at once: switching portfolios must not rebuild every time
 
-    def _idx(self) -> _Index:
-        pf = self._portfolio.get()
+    def band(self, share: float | None) -> str:
+        return self._band(share)
+
+    def _idx(self, portfolio: Portfolio | None = None) -> _Index:
+        pf = portfolio if portfolio is not None else self._portfolio.get()
         h = pf.content_hash()
-        if self._index is None or self._index[0] != h:
-            self._index = (h, _Index(pf))
-        return self._index[1]
+        ix = self._index.get(h)
+        if ix is None:
+            ix = self._index[h] = _Index(pf)
+            while len(self._index) > 8:
+                self._index.popitem(last=False)
+        else:
+            self._index.move_to_end(h)
+        return ix
 
     # ------------------------------------------------------------------------------------------------------------ feed row
-    def headline(self, signal: RiskSignal) -> tuple[RelevanceLevel, float | None]:
+    def headline(self, signal: RiskSignal, portfolio: Portfolio | None = None) -> tuple[RelevanceLevel, float | None]:
         """Level and share only (cheap, for the feed)."""
-        r = self.assess(signal, with_reach=False)
+        r = self.assess(signal, with_reach=False, portfolio=portfolio)
         return r.level, r.share
 
     # --------------------------------------------------------------------------------------------------------------- detail
-    def assess(self, signal: RiskSignal, *, with_reach: bool = True) -> PortfolioRelevance:
-        ix = self._idx()
+    def assess(self, signal: RiskSignal, *, with_reach: bool = True, portfolio: Portfolio | None = None) -> PortfolioRelevance:
+        pf = portfolio if portfolio is not None else self._portfolio.get()
+        ix = self._idx(pf)
         sc = signal.scope
         assert sc is not None
         slices: list[ExposureSlice] = []
@@ -149,9 +165,12 @@ class RelevanceService:
                 level, share = RelevanceLevel.NONE, 0.0
                 summary = f"The event is about {sc.sector}, which the book does not hold."
         elif sc.level is ScopeLevel.MARKET:
-            level, share = RelevanceLevel.MARKET_WIDE, 1.0
+            level, share = RelevanceLevel.MARKET_WIDE, (ix.shockable / ix.total if ix.total else 0.0)
             themes = ", ".join(t.replace("_", " ") for t in sc.themes) or "market-wide"
             summary = f"A market-wide event ({themes}): it reaches the whole book through market-factor shocks, not through one holding."
+            if share is not None and share < 0.9999:
+                summary = (f"A market-wide event ({themes}): market-factor shocks can move {share:.1%} of the book; the rest is cash or instruments "
+                           "EventShock cannot stress.")
         else:
             level, share = RelevanceLevel.UNDETERMINED, None
             summary = ("Nothing about this event could be tied to a company, sector or market theme, so its relevance to the book "
@@ -170,7 +189,7 @@ class RelevanceService:
             path.append(f"Region {', '.join(no_exposure)}: no positions in the book")
         reach = self._reach(signal) if with_reach else None
         return PortfolioRelevance(signal_id=signal.id, scope_level=sc.level.value, level=level, share=share, summary=summary,
-                                  path=path, slices=slices, reach=reach)
+                                  path=path, slices=slices, reach=reach, band=self._band(share), portfolio_id=pf.portfolio_id, portfolio_name=pf.name)
 
     def _reach(self, signal: RiskSignal) -> ScenarioReach | None:
         scn = self._catalog.default_for(signal.event.category)

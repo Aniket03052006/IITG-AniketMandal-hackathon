@@ -1,0 +1,85 @@
+# Personal portfolios (optional; the synthetic wholesale book stays the default).
+# Everything here is a bound, a tolerance or a presentation threshold: no number below is a market assumption.
+version: "portfolio-v1"
+
+limits:
+  max_portfolios: 25
+  max_holdings: 200
+  max_name_length: 80
+  default_total_value: 1000000      # used when a portfolio is entered as weights and states no total
+
+weights:
+  sum_tolerance_pp: 0.5             # weights within this many points of 100% are rescaled to 100% (rounding), and the portfolio says so
+
+# Single-factor trailing beta of each issuer against the S&P 500 (data/replay/market/betas.json; `make portfolio-betas`).
+# Shrinkage is Vasicek (1973): beta_shrunk = w * beta_ols + (1 - w) * prior_mean, with w = prior_var / (prior_var + se^2); prior_var is the
+# cross-sectional variance of the 34 OLS betas minus their mean squared standard error (floored). So a noisy estimate moves toward 1, a precise one does not.
+# The beta USED in a stress is then clipped to [floor, cap]: a one-year co-movement that happened to be negative is not carried into a sell-off
+# (correlations rise in stress), so a stress never credits a stock with a gain from a market fall. The cap is the engine's own bound.
+betas:
+  window_sessions: 250
+  min_observations: 200
+  prior_mean: 1.0
+  prior_variance_floor: 0.01
+  floor: 0.0
+  cap: 3.0
+
+# What the feed and the event page call a portfolio's relevance: the share of the book the event reaches.
+# These are display bands, not statistical cut-offs.
+relevance_bands:
+  high_share: 0.20
+  medium_share: 0.05
+
+# Sector names the event vocabulary knows (configs/scope.yaml). Anything else is kept as typed, mapped to "Other",
+# and sector-specific shocks will not reach it. Left side is lower-case.
+sector_aliases:
+  financials: Financials
+  financial: Financials
+  "financial services": Financials
+  banks: Financials
+  banking: Financials
+  technology: Technology
+  tech: Technology
+  "information technology": Technology
+  it: Technology
+  software: Technology
+  semiconductors: Technology
+  energy: Energy
+  "oil & gas": Energy
+  "oil and gas": Energy
+  oil: Energy
+  healthcare: Healthcare
+  "health care": Healthcare
+  pharma: Healthcare
+  pharmaceuticals: Healthcare
+  industrials: Industrials
+  industrial: Industrials
+  consumer: Consumer
+  "consumer discretionary": Consumer
+  "consumer staples": Consumer
+  retail: Consumer
+
+# Region codes the event vocabulary knows (configs/scope.yaml regions) and how people write them.
+region_aliases:
+  us: US
+  usa: US
+  "united states": US
+  america: US
+  gb: GB
+  uk: GB
+  "united kingdom": GB
+  britain: GB
+  eu: EU
+  europe: EU
+  eurozone: EU
+  cn: CN
+  china: CN
+  jp: JP
+  japan: JP
+  in: IN
+  india: IN
+  mideast: MIDEAST
+  "middle east": MIDEAST
+  other: OTHER
+
+cash_tickers: [CASH, USD, INR, EUR, GBP, JPY, MMF]

@@ -1,0 +1,121 @@
+{
+  "version": "instruments-v1",
+  "note": "Reference table for common index/bond funds and cash. Durations are rounded, indicative figures typical of each fund's published effective duration: NOT live fund statistics and not from a market feed. They are labelled REFERENCE in every portfolio that uses them and can be overridden per holding. Index funds that track the S&P 500 take beta 1.0 by construction. A security that is not here, nor one of the 34 issuers, gets no reference data.",
+  "instruments": [
+    {
+      "ticker": "SPY",
+      "name": "S&P 500 index fund",
+      "asset_class": "EQUITY",
+      "sector": "Other",
+      "region": "US",
+      "beta": 1.0,
+      "basis": "tracks the S&P 500: beta 1 by construction"
+    },
+    {
+      "ticker": "VOO",
+      "name": "S&P 500 index fund",
+      "asset_class": "EQUITY",
+      "sector": "Other",
+      "region": "US",
+      "beta": 1.0,
+      "basis": "tracks the S&P 500: beta 1 by construction"
+    },
+    {
+      "ticker": "IVV",
+      "name": "S&P 500 index fund",
+      "asset_class": "EQUITY",
+      "sector": "Other",
+      "region": "US",
+      "beta": 1.0,
+      "basis": "tracks the S&P 500: beta 1 by construction"
+    },
+    {
+      "ticker": "TLT",
+      "name": "Long-term US Treasury fund",
+      "asset_class": "BOND",
+      "sector": "Other",
+      "region": "US",
+      "duration": 17.0,
+      "spread_sensitivity": 0.0,
+      "basis": "government debt: no credit spread; duration indicative"
+    },
+    {
+      "ticker": "IEF",
+      "name": "Intermediate US Treasury fund",
+      "asset_class": "BOND",
+      "sector": "Other",
+      "region": "US",
+      "duration": 7.5,
+      "spread_sensitivity": 0.0,
+      "basis": "government debt: no credit spread; duration indicative"
+    },
+    {
+      "ticker": "SHY",
+      "name": "Short-term US Treasury fund",
+      "asset_class": "BOND",
+      "sector": "Other",
+      "region": "US",
+      "duration": 1.9,
+      "spread_sensitivity": 0.0,
+      "basis": "government debt: no credit spread; duration indicative"
+    },
+    {
+      "ticker": "GOVT",
+      "name": "US Treasury fund",
+      "asset_class": "BOND",
+      "sector": "Other",
+      "region": "US",
+      "duration": 6.0,
+      "spread_sensitivity": 0.0,
+      "basis": "government debt: no credit spread; duration indicative"
+    },
+    {
+      "ticker": "AGG",
+      "name": "US aggregate bond fund",
+      "asset_class": "BOND",
+      "sector": "Other",
+      "region": "US",
+      "duration": 6.0,
+      "spread_sensitivity": 0.5,
+      "basis": "roughly half government, half credit: spread sensitivity 0.5 is an assumption; duration indicative"
+    },
+    {
+      "ticker": "BND",
+      "name": "US aggregate bond fund",
+      "asset_class": "BOND",
+      "sector": "Other",
+      "region": "US",
+      "duration": 6.0,
+      "spread_sensitivity": 0.5,
+      "basis": "roughly half government, half credit: spread sensitivity 0.5 is an assumption; duration indicative"
+    },
+    {
+      "ticker": "LQD",
+      "name": "US investment-grade corporate bond fund",
+      "asset_class": "BOND",
+      "sector": "Other",
+      "region": "US",
+      "duration": 8.5,
+      "spread_sensitivity": 1.0,
+      "basis": "corporate credit; duration indicative"
+    },
+    {
+      "ticker": "HYG",
+      "name": "US high-yield corporate bond fund",
+      "asset_class": "BOND",
+      "sector": "Other",
+      "region": "US",
+      "duration": 3.5,
+      "spread_sensitivity": 1.0,
+      "basis": "corporate credit; duration indicative"
+    },
+    {
+      "ticker": "GLD",
+      "name": "Gold fund",
+      "asset_class": "OTHER",
+      "sector": "Other",
+      "region": "OTHER",
+      "basis": "a commodity: EventShock has no commodity shock, so it is held unstressed"
+    }
+  ]
+}

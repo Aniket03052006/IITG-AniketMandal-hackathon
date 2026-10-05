@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from ..domain import RiskFactor
+from ..domain import AssetClass, RiskFactor
 from ..domain.stress import Contribution, Contributions, PositionResult, UncoveredExposure
 
 
@@ -59,8 +59,10 @@ def build_contributions(positions: list[PositionResult], top_n: int) -> Contribu
 
 def find_uncovered(positions: list[PositionResult], portfolio_value: float) -> UncoveredExposure:
     """Positions that received no shock at all — surfaced rather than silently treated as safe."""
-    ids = [p.asset_id for p in positions if not p.shocks]
-    value = sum(p.baseline_value for p in positions if not p.shocks)
+    # cash is fixed by definition, so it is not "uncovered"; an unsupported instrument (OTHER) is
+    unshocked = [p for p in positions if not p.shocks and p.asset_class is not AssetClass.CASH]
+    ids = [p.asset_id for p in unshocked]
+    value = sum(p.baseline_value for p in unshocked)
     return UncoveredExposure(
         asset_count=len(ids),
         market_value=value,

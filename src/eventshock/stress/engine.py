@@ -8,6 +8,10 @@ the UI can show the arithmetic (explainability, FR-15).
 - LOAN        value = EAD - EL;  stressed EL = EAD * min(1, PD') * min(1, LGD')
               PD' = PD * (1 + (m - 1) * default_sensitivity),  LGD' = LGD + a
 - DERIVATIVE  dV = delta * underlying_notional * s   (first-order delta-equivalent; gamma deferred)
+- CASH        dV = 0   (its value is fixed by definition; no shock reaches it)
+- OTHER       dV = 0   (no revaluation is defined for it; reported as not stressed, never as safe)
+
+A BOND takes ``spread_sensitivity`` x the credit-spread shock (1 for corporate credit, 0 for government debt).
 """
 
 from __future__ import annotations
@@ -90,7 +94,7 @@ def _revalue_bond(asset: PortfolioAsset, chosen: dict[RiskFactor, AppliedShock])
     duration = asset.duration or 0.0
     d_rates = chosen[RiskFactor.RATES_BPS].scaled_value if RiskFactor.RATES_BPS in chosen else 0.0
     d_spread = (
-        chosen[RiskFactor.CREDIT_SPREAD_BPS].scaled_value
+        chosen[RiskFactor.CREDIT_SPREAD_BPS].scaled_value * asset.spread_sensitivity
         if RiskFactor.CREDIT_SPREAD_BPS in chosen
         else 0.0
     )
@@ -135,11 +139,19 @@ def _revalue_loan(asset: PortfolioAsset, chosen: dict[RiskFactor, AppliedShock])
     return delta, by_factor, formula
 
 
+def _revalue_fixed(note: str):
+    def revalue(asset: PortfolioAsset, chosen: dict[RiskFactor, AppliedShock]):  # noqa: ARG001
+        return 0.0, {}, note
+    return revalue
+
+
 _REVALUE = {
     AssetClass.EQUITY: _revalue_equity,
     AssetClass.BOND: _revalue_bond,
     AssetClass.LOAN: _revalue_loan,
     AssetClass.DERIVATIVE: _revalue_derivative,
+    AssetClass.CASH: _revalue_fixed("cash: dV = 0 (no shock moves it)"),
+    AssetClass.OTHER: _revalue_fixed("not stressed: EventShock has no revaluation rule for this instrument"),
 }
 
 
@@ -149,7 +161,9 @@ def revalue_asset(
     signal_entity_id: str | None,
     signal_sector: str | None,
 ) -> PositionResult:
-    chosen = select_shocks(asset, shocks, signal_entity_id, signal_sector)
+    # cash and unsupported instruments take no shock at all (so they never read as "covered")
+    unshocked = asset.asset_type in (AssetClass.CASH, AssetClass.OTHER)
+    chosen = {} if unshocked else select_shocks(asset, shocks, signal_entity_id, signal_sector)
     delta, by_factor, formula = _REVALUE[asset.asset_type](asset, chosen)
     baseline = asset.market_value
     # Derivative MTM can be zero/negative; percentage change is only meaningful against |V|.

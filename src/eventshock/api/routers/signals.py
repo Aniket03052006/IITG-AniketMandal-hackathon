@@ -5,19 +5,21 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from ...assessment.model import EvidenceView, RiskAssessment, TimelineView
 from ...assessment.views import build_evidence, build_timeline
 from ...domain import EventCategory, EventStatus, RiskSignal, SourceType
+from ...retrieval.model import AnalogueSet
 from ...services.relevance import PortfolioRelevance, RelevanceLevel
 from ...services.signal_context import build_signal_context
 from ...store import CHANNELS
 from ..deps import Container, get_container
 from ..schemas import SignalContext, SignalPage, SignalSummary
+from .portfolio import PID, book
 
 router = APIRouter(prefix="/signals", tags=["signals"])
 
 
-def summarise(c: Container, s: RiskSignal) -> SignalSummary:
-    """The feed row for a signal: its own fields plus where it came from and how it reaches the book."""
+def summarise(c: Container, s: RiskSignal, pf=None) -> SignalSummary:  # noqa: ANN001
+    """The feed row for a signal: its own fields plus where it came from and how it reaches the book (``pf``: a personal portfolio, else the default)."""
     meta = c.signals.meta_of(s.id)
-    level, share = c.relevance.headline(s) if c.relevance else (RelevanceLevel.UNDETERMINED, None)
+    level, share = c.relevance.headline(s, pf) if c.relevance else (RelevanceLevel.UNDETERMINED, None)
     sc = s.scope
     assert sc is not None
     a = c.assessments.assess(s) if c.assessments else None
@@ -60,6 +62,7 @@ def summarise(c: Container, s: RiskSignal) -> SignalSummary:
         updated_seq=meta.updated_seq if meta else None,
         relevance_level=level.value,
         relevance_share=share,
+        relevance_band=c.relevance.band(share) if c.relevance else "UNDETERMINED",
     )
 
 
@@ -73,6 +76,7 @@ def list_signals(
     scope_level: str | None = Query(default=None, pattern="^(COMPANY|SECTOR|MARKET|UNRESOLVED)$"),
     channel: str | None = Query(default=None, pattern="^(REPLAY|LIVE|MANUAL)$"),
     since_seq: int | None = Query(default=None, ge=0, description="only live-overlay signals changed after this counter"),
+    portfolio_id: str | None = PID,
     c: Container = Depends(get_container),
 ) -> SignalPage:
     assert channel is None or channel in CHANNELS
@@ -82,7 +86,8 @@ def list_signals(
     items = c.signals.list(category=None if c.assessments else category, source_type=source_type,
                            min_impact=None if c.assessments else min_impact, query=q, event_status=event_status, scope_level=scope_level,
                            channel=channel, since_seq=since_seq)
-    rows = [summarise(c, s) for s in items]
+    pf = None if c.portfolios is None or c.portfolios.is_default(portfolio_id) else book(c, portfolio_id)  # relevance reads the chosen portfolio
+    rows = [summarise(c, s, pf) for s in items]
     if c.assessments and min_impact is not None:
         rows = [r for r in rows if (r.severity_score or 0) >= min_impact]
     if c.assessments and category is not None:
@@ -99,13 +104,14 @@ def get_signal(signal_id: str, c: Container = Depends(get_container)) -> RiskSig
 
 
 @router.get("/{signal_id}/relevance", response_model=PortfolioRelevance)
-def get_signal_relevance(signal_id: str, c: Container = Depends(get_container)) -> PortfolioRelevance:
+def get_signal_relevance(signal_id: str, portfolio_id: str | None = PID, c: Container = Depends(get_container)) -> PortfolioRelevance:
     """What the event means for the book: which holdings it reaches, by issuer / sector / region / whole book, and how many of the
     default scenario's shocks bind to this kind of event. Exposure is the book's own; nothing here is a forecast."""
     signal = c.signals.get(signal_id)
     if signal is None or c.relevance is None:
         raise HTTPException(status_code=404, detail=f"signal {signal_id!r} not found")
-    return c.relevance.assess(signal)
+    pf = None if c.portfolios is None or c.portfolios.is_default(portfolio_id) else book(c, portfolio_id)
+    return c.relevance.assess(signal, portfolio=pf)
 
 
 @router.get("/{signal_id}/context", response_model=SignalContext)
@@ -158,3 +164,13 @@ def get_signal_timeline(signal_id: str, c: Container = Depends(get_container)) -
     as_of = c.as_of or signal.created_at
     ctx = build_signal_context(signal, c.calendar, c.outcomes, as_of)
     return build_timeline(signal, c.assessments.assess(signal), ctx, as_of)
+
+
+@router.get("/{signal_id}/analogues", response_model=AnalogueSet,
+            description="Past reports that resemble this one and what the market did after them: RETRIEVED evidence, labelled hindsight, never a score input. "
+                        "status NO_RELIABLE_ANALOGUE means the bar was not met and nothing is padded; UNAVAILABLE means the index or encoder is missing.")
+def get_analogues(signal_id: str, c: Container = Depends(get_container)) -> AnalogueSet:
+    signal = _need_signal(c, signal_id)
+    if c.analogues is None:
+        raise HTTPException(status_code=404, detail="analogues are available in the replay profile only")
+    return c.analogues.for_signal(signal)

@@ -49,6 +49,12 @@ def post(base: str, path: str, payload: dict):
         return json.loads(r.read())
 
 
+def delete(base: str, path: str) -> int:
+    req = urllib.request.Request(base + path, method="DELETE")
+    with urllib.request.urlopen(req, timeout=60) as r:  # noqa: S310
+        return r.status
+
+
 def run_checks(base: str) -> None:
     check(get(base, "/api/health") == {"status": "ok"}, "health")
     cards = {k: json.loads((ROOT / p).read_text(encoding="utf-8")) for k, p in CARDS.items()}
@@ -120,10 +126,41 @@ def run_checks(base: str) -> None:
     run = post(base, "/api/stress-test", {"signal_id": regulatory["signal_id"], "force": True})
     check(run["status"] == "COMPLETED" and run["audit"]["impact_origin"] == "ASSESSMENT" and any(s["scope"] == "SECTOR" and s["applicable"] for s in run["shocks"]),
           "a stress run on it is driven by the assessment, and the sector read from the text reaches the portfolio")
+    # Stage 8: historical analogues (retrieved, hindsight, never a score input) and the scenario-vs-history check
+    check(caps.get("analogues") is True and caps.get("history_check") is True, "/api/meta: analogues and the scenario history check are on")
+    an = get(base, f"/api/signals/{items[0]['id']}/analogues")
+    check(an["status"] in ("OK", "NO_RELIABLE_ANALOGUE", "UNAVAILABLE") and an["reason"] and "hindsight" in an["outcome_note"],
+          f"/api/signals/{{id}}/analogues answers honestly ({an['status']})")
+    check(all(i["origin"] == "RETRIEVED" for i in an["items"]) and (an["status"] != "OK" or an["aggregate"] is not None), "...retrieved items are labelled and an OK answer carries its aggregate")
+    hc = get(base, "/api/scenarios/scn_macro_rates_shock/history-check")
+    check(any(c["factor"] == "PD_MULTIPLIER" and not c["checkable"] for c in hc["checks"]) and any(c["checkable"] for c in hc["checks"]),
+          "/api/scenarios/{id}/history-check ranks what history can speak to and says what it cannot")
     live = get(base, "/api/live/status")
     check(live["state"] == "OFF" and live["enabled"] is False, "/api/live/status: live is off by default (replay data only)")
     scope = get(base, "/api/scope")
     check(scope["replay_mix"].get("UNRESOLVED", 0) > 0 and scope["evaluation"], "/api/scope: unresolved events are kept, and the sector vocabulary has a measured evaluation")
+
+    # Personal portfolios: optional, persistent, and the default is untouched by them.
+    plain = post(base, "/api/stress-test", {"signal_id": modelled[0]["id"], "force": True})
+    mine = post(base, "/api/portfolios", {"name": "smoke", "holdings": [{"ticker": "AAPL", "weight_pct": 40}, {"ticker": "TLT", "weight_pct": 30},
+                                                                       {"ticker": "CASH", "weight_pct": 30}]})
+    pid = mine["id"]
+    try:
+        check(get(base, "/api/portfolios")[0]["id"] == "default" and pid in {p["id"] for p in get(base, "/api/portfolios")},
+              "/api/portfolios: the synthetic default is listed first and the saved portfolio next to it")
+        exp = get(base, f"/api/portfolios/{pid}/exposure")
+        check(abs(exp["total_value"] - 1_000_000) < 1 and {r["key"] for r in exp["by_asset_class"]} == {"EQUITY", "BOND", "CASH"},
+              "/api/portfolios/{id}/exposure describes the personal holdings")
+        mrun = post(base, "/api/stress-test", {"signal_id": modelled[0]["id"], "force": True, "portfolio_id": pid})
+        again = post(base, "/api/stress-test", {"signal_id": modelled[0]["id"], "force": True, "portfolio_id": pid})
+        check(mrun["audit"]["portfolio_id"] == pid and mrun["run_id"] == again["run_id"], "a stress run on the personal portfolio is deterministic and names it")
+        if mrun["status"] == "COMPLETED":
+            chain = get(base, f"/api/stress-runs/{mrun['run_id']}/exposure-chain")
+            check(abs(chain["total_impact"] - mrun["summary"]["pnl"]) < 1.0, "/exposure-chain: the steps regroup the engine's own P&L")
+        check(post(base, "/api/stress-test", {"signal_id": modelled[0]["id"], "force": True})["run_id"] == plain["run_id"],
+              "...and a request with no portfolio is byte-for-byte the same default run as before")
+    finally:
+        check(delete(base, f"/api/portfolios/{pid}") == 204 and pid not in {p["id"] for p in get(base, "/api/portfolios")}, "a saved portfolio can be deleted")
 
     index = get(base, "/", raw=True).decode("utf-8", "replace")
     check("<div id=\"root\"" in index or "id=\"root\"" in index, "the built UI is served at /")
@@ -146,7 +183,8 @@ def main() -> int:
     journal = Path(tempfile.mkdtemp(prefix="eventshock-smoke-")) / "journal.jsonl"
     env = {**os.environ, "EVENTSHOCK_PROFILE": "replay", "PYTHONPATH": str(ROOT / "src"), "EVENTSHOCK_JOURNAL_PATH": str(journal),
            # the smoke test never calls a language model: rule mode, and a private cache file
-           "EVENTSHOCK_LLM": "0", "EVENTSHOCK_LLM_CACHE_PATH": str(journal.parent / "llm_cache.jsonl")}
+           "EVENTSHOCK_LLM": "0", "EVENTSHOCK_LLM_CACHE_PATH": str(journal.parent / "llm_cache.jsonl"),
+           "EVENTSHOCK_PORTFOLIO_STORE_PATH": str(journal.parent / "portfolios")}
     proc = subprocess.Popen([sys.executable, "-m", "eventshock", "--port", str(port)], cwd=ROOT, env=env)
     base = f"http://127.0.0.1:{port}"
     try:

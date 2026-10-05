@@ -126,7 +126,7 @@ def test_replay_signals_are_untouched_by_everything_above(app_client) -> None:
 def test_demo_profile_has_no_engine_and_says_so(client) -> None:
     r = client.post("/api/analyze", json={"text": COMPANY})
     assert r.status_code == 503 and "replay profile" in r.json()["detail"]
-    assert client.get("/api/meta").json()["capabilities"] == {"analyze": False, "live_enabled": False, "assessment": False, "llm": None}
+    assert client.get("/api/meta").json()["capabilities"] == {"analyze": False, "live_enabled": False, "assessment": False, "llm": None, "analogues": False, "history_check": True, "custom_portfolios": True}
     assert client.get("/api/live/status").status_code == 404
     page = client.get("/api/signals").json()
     assert page["seq"] == 0 and all(i["channel"] == "REPLAY" for i in page["items"])

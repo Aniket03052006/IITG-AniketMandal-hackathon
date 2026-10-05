@@ -27,6 +27,8 @@ class StressRequest(BaseModel):  # request body: defaults stay optional for clie
     impact_override: float | None = Field(
         default=None, ge=1, le=10, description="what-if impact (requires force=true)"
     )
+    portfolio_id: str | None = Field(
+        default=None, description="a saved personal portfolio to stress; absent or 'default' = the synthetic wholesale book")
 
 
 class SignalSummary(ContractModel):
@@ -64,6 +66,7 @@ class SignalSummary(ContractModel):
     updated_seq: int | None = Field(default=None, description="…and when it last changed (more reports, rebuilt)")
     relevance_level: str = Field(description="DIRECT | SECTOR | MARKET_WIDE | NONE | UNDETERMINED: how the book is reached")
     relevance_share: float | None = Field(default=None, description="share of the book the most specific slice covers")
+    relevance_band: str = Field(default="UNDETERMINED", description="NONE | LOW | MEDIUM | HIGH | UNDETERMINED display band on relevance_share; separate from severity")
     severity_score: int | None = Field(
         default=None, description="the headline score: the transparent hybrid severity (1-10) from the risk assessment; null when the text is not a market event or no assessment ran")
     severity_low: int | None = None
@@ -171,6 +174,9 @@ class Capabilities(ContractModel):
     live_enabled: bool = Field(description="a live source is configured and polling")
     assessment: bool = Field(default=False, description="the risk-assessment endpoints are available (replay profile)")
     llm: LLMInfo | None = Field(default=None, description="how new text is read; null where there is no assessment layer")
+    analogues: bool = Field(default=False, description="historical analogues are served (an index is installed); GET /api/signals/{id}/analogues")
+    history_check: bool = Field(default=False, description="scenario shocks can be ranked against history; GET /api/scenarios/{id}/history-check")
+    custom_portfolios: bool = Field(default=True, description="optional personal portfolios can be created and used instead of the synthetic default; /api/portfolios")
 
 
 class Meta(ContractModel):
@@ -211,6 +217,7 @@ class PortfolioSummary(ContractModel):
     asset_count: int
     entity_count: int
     synthetic: bool = True
+    kind: str = Field(default="DEFAULT", description="DEFAULT (the synthetic book) | USER (a saved personal portfolio)")
 
 
 class PortfolioExposure(ContractModel):

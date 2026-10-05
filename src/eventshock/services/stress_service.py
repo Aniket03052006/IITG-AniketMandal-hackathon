@@ -11,6 +11,7 @@ from datetime import datetime
 from ..config import AppConfig
 from ..domain import (
     EventCategory,
+    Portfolio,
     RiskSignal,
     Scenario,
     ScopeLevel,
@@ -87,7 +88,9 @@ class StressService:
         *,
         force: bool = False,
         impact_override: float | None = None,
+        portfolio: Portfolio | None = None,
     ) -> StressResult:
+        """``portfolio`` stresses that book instead of the default synthetic one (a personal portfolio); its content hash is in the run id."""
         signal = self._signals.get(signal_id)
         if signal is None:
             raise SignalNotFound(signal_id)
@@ -101,7 +104,7 @@ class StressService:
             view = self._severity(signal) if self._severity else None
             scenario = self._catalog.default_for(view.category if view else signal.event.category)
 
-        result = self._evaluate(signal, scenario, force, impact_override)
+        result = self._evaluate(signal, scenario, force, impact_override, portfolio)
         self._runs.pop(result.run_id, None)
         self._runs[result.run_id] = result
         while len(self._runs) > MAX_RUNS_KEPT:
@@ -111,9 +114,10 @@ class StressService:
     def get_run(self, run_id: str) -> StressResult | None:
         return self._runs.get(run_id)
 
-    def runs_for(self, signal_id: str) -> list[StressResult]:
-        """Runs already made for a signal, newest first."""
-        return [r for r in reversed(self._runs.values()) if r.signal_id == signal_id]
+    def runs_for(self, signal_id: str, portfolio_id: str | None = None) -> list[StressResult]:
+        """Runs already made for a signal, newest first; with ``portfolio_id`` only those on that portfolio."""
+        return [r for r in reversed(self._runs.values())
+                if r.signal_id == signal_id and (portfolio_id is None or r.audit.portfolio_id == portfolio_id)]
 
     def default_scenario(self, category: EventCategory) -> Scenario | None:
         return self._catalog.default_for(category)
@@ -121,10 +125,11 @@ class StressService:
     # ----------------------------------------------------------------- internals
 
     def _evaluate(
-        self, signal: RiskSignal, scenario: Scenario | None, force: bool, override: float | None
+        self, signal: RiskSignal, scenario: Scenario | None, force: bool, override: float | None,
+        portfolio: Portfolio | None = None,
     ) -> StressResult:
         threshold = self._cfg.stress.trigger_threshold
-        portfolio = self._portfolio.get()
+        portfolio = portfolio if portfolio is not None else self._portfolio.get()
         pf_hash = portfolio.content_hash()
         view = self._severity(signal) if self._severity else None
 

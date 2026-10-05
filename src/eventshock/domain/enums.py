@@ -67,6 +67,9 @@ class AssetClass(StrEnum):
     BOND = "BOND"
     LOAN = "LOAN"
     DERIVATIVE = "DERIVATIVE"
+    # user-portfolio only (the synthetic wholesale book never holds them):
+    CASH = "CASH"  # value is fixed by definition: no shock moves it, and it is not "uncovered"
+    OTHER = "OTHER"  # no revaluation rule exists: held at its value, listed as not stressed
 
 
 class RiskFactor(StrEnum):

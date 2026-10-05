@@ -181,6 +181,40 @@ impact-table-v2:  ## the v2 impact table: protocol splits + calendar features (n
 impact-study:  ## Stage 4 study -> docs/evidence/impact_study.json (long: use `--dev-only` through python -m eventshock.modeling impact-study)
 	PYTHONPATH=src $(PY) -m eventshock.modeling impact-study
 
+.PHONY: outcome-audit
+outcome-audit:  ## Stage 8 Phase 2: audit the outcome construction on a quiet-day null sample -> docs/evidence/outcome_audit.json (needs impact-table-v2, prices)
+	PYTHONPATH=src $(PY) -m eventshock.modeling outcome-audit
+
+.PHONY: severity-validity
+severity-validity:  ## Stage 8 Phase 3: text-only severity scorecard vs realised outcome-v3 moves -> docs/evidence/severity_validity.json (needs impact-table-v2, prices)
+	PYTHONPATH=src $(PY) -m eventshock.modeling severity-validity
+
+.PHONY: analogue-corpus analogue-embed
+analogue-corpus:  ## Stage 8 Phase 4: past news reports + realised outcome-v3 -> data/modeling/analogue_corpus.jsonl (+ texts to embed); needs impact-table-v2, prices
+	PYTHONPATH=src $(PY) -m eventshock.modeling analogue-corpus
+
+analogue-embed:  ## (.venv-emb) encode the analogue texts with e5-large -> data/modeling/embeddings (cached, resumable; ~1 h on CPU)
+	PYTHONPATH=src .venv-emb/bin/python -m eventshock.modeling.representations.encoders --texts data/modeling/analogue_texts.jsonl --models intfloat/multilingual-e5-large
+
+.PHONY: analogue-index analogue-relevance analogue-floor analogue-value analogue-eval
+analogue-index:  ## Stage 8: pack the trusted analogue episodes -> data/replay/analogues/ (needs analogue-corpus + analogue-embed)
+	PYTHONPATH=src $(PY) -m eventshock.modeling analogue-index
+
+analogue-relevance:  ## Stage 8: retrieval relevance, e5 vs TF-IDF on gold-v2 -> docs/evidence/analogue_relevance.json
+	PYTHONPATH=src $(PY) -m eventshock.modeling analogue-relevance
+
+analogue-floor:  ## Stage 8: the pre-registered similarity-floor rule (dev data only) -> docs/evidence/analogue_floor.json
+	PYTHONPATH=src $(PY) -m eventshock.modeling analogue-floor
+
+analogue-value:  ## Stage 8: outcome value of retrieval vs the regime+calendar baseline -> docs/evidence/analogue_outcome_value.json (needs analogue-floor)
+	PYTHONPATH=src $(PY) -m eventshock.modeling analogue-value
+
+analogue-eval: analogue-relevance analogue-floor analogue-value  ## Stage 8: the whole retrieval evaluation
+
+.PHONY: shock-history
+shock-history:  ## Stage 8 Phase 7: empirical 1/5/21-session move distributions (quantiles only) -> data/replay/market/shock_history.json (needs prices)
+	PYTHONPATH=src $(PY) -m eventshock.modeling shock-history
+
 .PHONY: filing-events
 filing-events:  ## Track F: 8-K events (exact SEC timestamps, item codes) + matched quiet-session controls -> data/modeling/filing_events.jsonl
 	PYTHONPATH=src $(PY) -m eventshock.modeling filing-events
@@ -215,3 +249,7 @@ freeze-write:  ## rewrite docs/freeze_manifest.json: only after a deliberate, jo
 
 smoke:  ## start the real server (replay profile), check API, model ids/hashes, evidence, stress and the UI (~2 min)
 	$(PY) scripts/smoke_e2e.py
+
+.PHONY: portfolio-betas
+portfolio-betas:  ## personal portfolios: single-factor trailing beta of each issuer (Blume-adjusted, derived stats only) -> data/replay/market/betas.json (needs prices; then `make freeze-write`)
+	PYTHONPATH=src $(PY) -m eventshock.modeling portfolio-betas

@@ -13,7 +13,7 @@ from ..assessment.config import load_semantics_config, load_severity_config
 from ..assessment.extractor import SemanticExtractor
 from ..assessment.rubric import RubricDeriver
 from ..assessment.rules import RuleExtractor
-from ..assessment.service import AssessmentService
+from ..assessment.service import AssessmentService, market_state
 from ..assessment.severity import SeverityScorer
 from ..assessment.vocab import Vocab
 from ..config import (
@@ -33,6 +33,7 @@ from ..ingestion.snapshot import Snapshot, load_snapshot
 from ..llm.cache import ExtractionCache
 from ..llm.client import CLIENTS, LLMClient
 from ..llm.config import load_llm_config
+from ..modeling.evidence_v3 import load_evidence_v3
 from ..pipeline.config import (
     load_enrichment_config,
     load_event_model_config,
@@ -57,10 +58,21 @@ from ..pipeline.run import load_entities, run_snapshot
 from ..pipeline.scope import ScopeConfig, ScopeResolver, load_scope_config
 from ..pipeline.sentiment_card import SentimentModelCard
 from ..pipeline.sentiment_model import SentimentModel
+from ..portfolio.betas import IssuerBetas
+from ..portfolio.catalog import InstrumentCatalog
+from ..portfolio.config import load_portfolio_config
+from ..portfolio.resolve import Resolver
+from ..portfolio.service import PortfolioService
+from ..portfolio.store import PortfolioStore
 from ..ports import PortfolioRepository
+from ..retrieval.config import load_retrieval_config, resolve_floor
+from ..retrieval.index import AnalogueIndex
+from ..retrieval.search import SearchParams
+from ..services.analogues import AnalogueService
 from ..services.analyze import Analyzer
 from ..services.evidence import build_evidence
 from ..services.live import Journal, LiveConfig, LiveService, load_live_config
+from ..services.outcome_check import OutcomeCheck, build_outcome_check
 from ..services.relevance import RelevanceService
 from ..services.signal_context import Outcomes
 from ..services.stress_service import StressService
@@ -72,6 +84,8 @@ from ..store import (
     load_portfolio_repository,
     load_signal_repository,
 )
+from ..stress.history_check import PATH as SHOCK_HISTORY_PATH
+from ..stress.history_check import ShockHistory
 from ..stress.scenarios import ScenarioCatalog
 from .schemas import ImpactStatus
 
@@ -110,8 +124,36 @@ class Container:
     live_store: LiveSignalStore | None = None
     live_config: LiveConfig | None = None
     scope_config: ScopeConfig | None = None
-    # reads the text (LLM or rules), scores severity from explicit weights, feeds the stress engine's trigger (replay profile only)
+    # reads the text (LLM or rules), scores severity with the transparent scorecard, feeds the stress engine's trigger (replay profile only)
     assessments: AssessmentService | None = None
+    # historical analogues (retrieved, hindsight-labelled; never a score input) and the scenario-vs-history reality check (both read-only side-cars)
+    analogues: AnalogueService | None = None
+    shock_history: ShockHistory | None = None
+    outcome_check: OutcomeCheck | None = None
+    # optional personal portfolios (the synthetic book above stays the default; a request names a saved one to use it instead)
+    portfolios: PortfolioService | None = None
+
+
+def _build_analogues(settings: Settings, event_model: EventModel, snapshot: Snapshot) -> AnalogueService:
+    """The analogue service, or one that says why it cannot answer. Never raises for a missing optional artifact; a MODIFIED index always stops start-up."""
+    cfg = load_retrieval_config(settings.config_dir)
+    if not cfg.enabled:
+        return AnalogueService(None, SearchParams(), None, unavailable_reason="analogue search is switched off in configs/retrieval.yaml")
+    directory = Path(cfg.index_dir)
+    directory = directory if directory.is_absolute() else REPO_ROOT / directory
+    if not (directory / "analogues.json").is_file():
+        return AnalogueService(None, SearchParams(), None, unavailable_reason="no analogue index is installed: `make analogue-corpus analogue-embed analogue-index`")
+    floor, why = resolve_floor(cfg, REPO_ROOT)
+    if floor is None:
+        return AnalogueService(None, SearchParams(), None, unavailable_reason=why)
+    index = AnalogueIndex.load(directory)            # raises ConfigError for a modified or misaligned pack
+    pre, _ = load_evidence_v3(settings.config_dir)
+    params = SearchParams.from_config(pre, floor, cfg.aggregate_over)
+    embeddings = getattr(event_model, "embeddings", None)       # the hybrid event model's pinned vectors + (optional) live encoder, shared
+    if embeddings is None and snapshot.embeddings_path() is not None and snapshot.manifest.embeddings is not None:
+        pinned = PinnedEmbeddings(snapshot.embeddings_path(), sha256=snapshot.manifest.embeddings.sha256)  # type: ignore[arg-type]
+        embeddings = ChainedEmbeddings(pinned, None, pinned.dim)
+    return AnalogueService(index, params, embeddings, vix_now=market_state)
 
 
 def _load_impact(
@@ -322,7 +364,12 @@ def build_container(settings: Settings | None = None) -> Container:
         portfolio = load_portfolio_repository(fixtures)
     replay = config.data.profile == "replay"
     evidence = build_evidence(REPO_ROOT, card, event_card, impact_card) if replay else None
-    catalog_relevance = RelevanceService(portfolio, catalog)
+    pcfg = load_portfolio_config(settings.config_dir)
+    catalog_relevance = RelevanceService(portfolio, catalog, band=pcfg.band)
+    betas = IssuerBetas.load(REPO_ROOT) if config.data.profile == "replay" else None
+    instruments = InstrumentCatalog.load(REPO_ROOT, portfolio.entities(), betas, pcfg.betas.floor, pcfg.betas.cap)
+    store_dir = settings.portfolio_store_path or REPO_ROOT / "data" / "live" / "portfolios"
+    portfolios = PortfolioService(portfolio, PortfolioStore(store_dir, max_portfolios=pcfg.limits.max_portfolios), Resolver(instruments, pcfg))
     analyzer = live = None
     if replay:
         journal = Journal(settings.journal_path or REPO_ROOT / live_cfg.journal)
@@ -335,6 +382,13 @@ def build_container(settings: Settings | None = None) -> Container:
         live.warm_start()
         assert scope_config is not None
         assessments = _build_assessments(settings, taxonomy, scope_config, scope_resolver, signals, config)
+    analogues = shock_history = None
+    if replay:
+        assert snapshot is not None
+        analogues = _build_analogues(settings, event_model, snapshot)
+    history_path = REPO_ROOT / SHOCK_HISTORY_PATH
+    if history_path.is_file():
+        shock_history = ShockHistory.load(REPO_ROOT)
     return Container(
         settings=settings,
         config=config,
@@ -365,6 +419,10 @@ def build_container(settings: Settings | None = None) -> Container:
         live_config=live_cfg if replay else None,
         scope_config=scope_config,
         assessments=assessments,
+        analogues=analogues,
+        shock_history=shock_history,
+        outcome_check=build_outcome_check(REPO_ROOT) if replay else None,
+        portfolios=portfolios,
     )
 
 

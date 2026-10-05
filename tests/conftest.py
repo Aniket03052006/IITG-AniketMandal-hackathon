@@ -18,6 +18,10 @@ os.environ["EVENTSHOCK_LLM"] = "0"
 os.environ.setdefault("EVENTSHOCK_LLM_CACHE_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-llm-")) / "llm_cache.jsonl"))
 
 
+# Saved personal portfolios live in a temp directory: no test may read or write the developer's real data/live/portfolios.
+os.environ.setdefault("EVENTSHOCK_PORTFOLIO_STORE_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-portfolios-")) / "portfolios"))
+
+
 @pytest.fixture(scope="session")
 def settings() -> Settings:
     """Stage-1 tests assert fixture facts (golden run, fictional issuers), so they pin the demo profile."""

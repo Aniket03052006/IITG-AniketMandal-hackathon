@@ -61,6 +61,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     trigger_threshold: float | None = None
     journal_path: Path | None = None  # overrides configs/live.yaml: journal (tests point it at a temp file)
+    portfolio_store_path: Path | None = None  # EVENTSHOCK_PORTFOLIO_STORE_PATH: directory of saved personal portfolios (default data/live/portfolios; tests point it at a temp dir)
     capture_path: Path | None = None  # overrides configs/live.yaml: source.capture.path
     live_source: Literal["gdelt", "capture"] | None = None  # EVENTSHOCK_LIVE_SOURCE=capture replays the capture file instead of calling GDELT
     live: bool | None = None  # EVENTSHOCK_LIVE=1 turns the live feed on (overrides configs/live.yaml: enabled)

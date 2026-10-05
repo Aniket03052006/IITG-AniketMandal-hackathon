@@ -77,7 +77,7 @@ def test_resolved_entities_exist_in_entity_master(fx):
 
 def test_portfolio_has_all_asset_classes_and_scale(fx):
     pf = load_portfolio_repository(fx).get()
-    assert {a.asset_type for a in pf.assets} == set(AssetClass)
+    assert {a.asset_type for a in pf.assets} == {AssetClass.EQUITY, AssetClass.BOND, AssetClass.LOAN, AssetClass.DERIVATIVE}  # CASH/OTHER exist only in user portfolios
     assert 40 <= len(pf.assets) <= 100
     assert len({a.entity_id for a in pf.assets}) >= 10
     assert "SYNTHETIC" in pf.description.upper()

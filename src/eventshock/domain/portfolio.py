@@ -7,7 +7,7 @@ import json
 import math
 from datetime import datetime
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, field_validator, model_serializer, model_validator
 
 from .base import ContractModel
 from .documents import _require_aware
@@ -37,11 +37,23 @@ class PortfolioAsset(ContractModel):
     lgd: float | None = Field(default=None, ge=0, le=1)
     default_sensitivity: float = Field(default=1.0, ge=0, le=3)
     delta: float | None = Field(default=None, ge=-1.5, le=1.5)
+    spread_sensitivity: float = Field(
+        default=1.0, ge=0, le=3,
+        description="share of a credit-spread shock a BOND takes: 1 corporate credit, 0 government debt")
+
+    @model_serializer(mode="wrap")
+    def _omit_default_spread_sensitivity(self, handler):  # noqa: ANN001, ANN202
+        """Omit ``spread_sensitivity`` at its default: the synthetic book's JSON and hash are unchanged."""
+        data = handler(self)
+        if data.get("spread_sensitivity") == 1.0:
+            data.pop("spread_sensitivity")
+        return data
 
     @model_validator(mode="after")
     def _per_class(self) -> PortfolioAsset:
         t = self.asset_type
-        if t in (AssetClass.EQUITY, AssetClass.BOND) and self.market_value <= 0:
+        valued = (AssetClass.EQUITY, AssetClass.BOND, AssetClass.CASH, AssetClass.OTHER)
+        if t in valued and self.market_value <= 0:
             raise ValueError(f"{t} market_value must be > 0")
         if t is AssetClass.BOND and self.duration is None:
             raise ValueError("BOND requires duration")

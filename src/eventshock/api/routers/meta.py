@@ -63,7 +63,8 @@ def _notices(c: Container) -> list[str]:
         )
     return [
         first,
-        "The portfolio is synthetic" + (" (positions on real issuers)." if c.pipeline_report else "."),
+        "The default portfolio is synthetic" + (" (positions on real issuers)." if c.pipeline_report else ".")
+        + " You can optionally stress a personal portfolio instead; the synthetic one is always one click away.",
         "Scenario magnitudes are illustrative assumptions, not forecasts.",
         "Stress results are computed by a deterministic engine from those inputs.",
     ]
@@ -102,5 +103,6 @@ def meta(c: Container = Depends(get_container)) -> Meta:
         notices=_notices(c),
         impact=c.impact_status,
         capabilities=Capabilities(analyze=c.analyzer is not None, live_enabled=bool(c.live and c.live.source),
-                                  assessment=c.assessments is not None, llm=llm_info(c)),
+                                  assessment=c.assessments is not None, llm=llm_info(c),
+                                  analogues=bool(c.analogues and c.analogues.available), history_check=c.shock_history is not None),
     )
