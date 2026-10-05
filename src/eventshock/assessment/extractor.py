@@ -142,5 +142,5 @@ class SemanticExtractor:
             mode=ExtractionMode.LLM, model_id=self._client.model_id, vocabulary_version=self.vocab.cfg.version,
             prompt_version=self._prompt_version, cached=cached is not None, notes=notes,
             basis=("A language model filled a closed schema from the text alone; every entity and quote was checked against the text. "
-                   "It does not score severity: that is computed separately from explicit weights."))
+                   "It does not score severity: that is computed separately by the severity scorecard."))
         return reading, info

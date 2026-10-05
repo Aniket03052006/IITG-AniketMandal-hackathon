@@ -70,3 +70,8 @@ make test lint        # pytest + vitest, ruff + tsc
 make smoke            # real server: API, model ids/hashes, evidence, stress, UI
 make run              # http://127.0.0.1:8000
 ```
+
+
+## Stage 8 addendum (2026-10-05): outcome checks that do not change any frozen model
+
+No trained artifact, threshold or pinned digest changed. New, additive evidence: `outcome_audit.json` (the realised-outcome target audited on 60,000 quiet-day pairs; EWMA sigma adopted as `outcome-v3` for side-car layers by a pre-registered rule), `severity_validity.json` (the severity scorecard is `HEURISTIC_UNCALIBRATED` against realised moves), `analogue_relevance.json` / `analogue_floor.json` / `analogue_outcome_value.json` (e5 retrieves same-event precedent better than TF-IDF; retrieval adds no information about the realised move and so stays display evidence). Under the regime-neutral outcome-v3 the regime-plus-calendar baseline's rank skill is event-specific (+0.149 real vs -0.007 placebo, 2025 test), i.e. calendar-driven; `impact-v2` itself is unchanged and remains experimental. Details: `docs/FINANCE_THEORY.md`, `docs/ANALOGUES.md`.

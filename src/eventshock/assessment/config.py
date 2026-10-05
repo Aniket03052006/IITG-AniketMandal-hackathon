@@ -1,4 +1,4 @@
-"""Validated loaders for ``configs/semantics.yaml`` (the closed vocabulary) and ``configs/impact_hybrid.yaml`` (the severity weights).
+"""Validated loaders for ``configs/semantics.yaml`` (the closed vocabulary) and ``configs/severity.yaml`` (the severity scorecard: anchors, reach offsets, certainty/direction factors, the two bounded data adjustments).
 
 Strict models (``extra="forbid"``): a typo in either file stops start-up instead of silently changing a score.
 """

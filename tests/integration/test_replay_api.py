@@ -278,7 +278,7 @@ class TestImpactModel:
 
     def test_a_stress_run_records_which_stage_produced_the_trigger(self, replay_client):
         items = replay_client.get("/api/signals").json()["items"]
-        # the trigger comes from the assessment (explicit weights); the trained model that scored the report is a reference, recorded on the assessment
+        # the trigger comes from the assessment (severity scorecard); the trained model that scored the report is a reference, recorded on the assessment
         for origin in ("MODEL", "PLACEHOLDER"):
             it = next(i for i in items if i["impact_origin"] == origin and i["impact_score"] is not None and i["severity_score"] is not None)
             r = replay_client.post("/api/stress-test", json={"signal_id": it["id"], "force": True}).json()

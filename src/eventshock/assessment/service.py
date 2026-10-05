@@ -101,6 +101,9 @@ def _agreement(r: SemanticReading, ref: Reference) -> Agreement:
         note=" ".join(bits) or "The assessment and the trained models agree (or the trained models made no firm call).")
 
 
+market_state = _market_state  # the public name: the analogue service reads the same market state under the same freshness limits
+
+
 class AssessmentService:
     def __init__(self, extractor: SemanticExtractor, scorer: SeverityScorer, deriver: RubricDeriver, signals: CombinedSignalRepository, *,
                  stress: StressConfig, clock: Callable[[], datetime] | None = None) -> None:

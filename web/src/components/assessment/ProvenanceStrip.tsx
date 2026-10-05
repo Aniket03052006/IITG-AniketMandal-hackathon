@@ -1,7 +1,7 @@
 import type { Origin, ProvenanceLine } from "../../api/types";
 import { OriginChip } from "./OriginChip";
 
-const ORDER: Origin[] = ["AI", "HYBRID", "DATA", "RULES", "ASSUMPTION"];
+const ORDER: Origin[] = ["AI", "HYBRID", "DATA", "RULES", "RETRIEVED", "ASSUMPTION"];
 
 /** Which parts of the result are AI, data, rules, hybrid or an assumption: the counts at a glance, the full list one click away. */
 export function ProvenanceStrip({ lines }: { lines: ProvenanceLine[] }) {

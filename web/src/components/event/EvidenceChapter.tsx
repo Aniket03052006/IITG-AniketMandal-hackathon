@@ -1,4 +1,4 @@
-import { useImpactModel } from "../../api/hooks";
+import { useImpactModel, useMeta } from "../../api/hooks";
 import type { EvidenceView, RiskAssessment, RiskSignal, SignalContext, TimelineView } from "../../api/types";
 import { ShieldGlyph } from "../icons";
 import { StateNotice } from "../StateNotice";
@@ -7,6 +7,7 @@ import { ComparablesPlot } from "./ComparablesPlot";
 import { Coverage } from "./Coverage";
 import { KnowledgeTimeline } from "./KnowledgeTimeline";
 import { useOpenDrawer } from "../Drawer";
+import { AnaloguesPanel } from "../assessment/AnaloguesPanel";
 import { AssessmentTimeline } from "../assessment/AssessmentTimeline";
 import { EvidenceGroups } from "../assessment/EvidenceGroups";
 import { Skeleton } from "../ui";
@@ -40,6 +41,8 @@ export function EvidenceChapter({
   const { data: card } = useImpactModel(modelled);
   const scope = audit ? card?.scopes.find((x) => x.scope === audit.scope) : undefined;
   const [, setOpen] = useOpenDrawer();
+  const { data: meta } = useMeta();
+  const analoguesOn = !!meta?.capabilities?.analogues;
   return (
     <Chapter
       id="evidence"
@@ -47,13 +50,14 @@ export function EvidenceChapter({
       title="What supports it, and what was known when"
       lede={
         a
-          ? "Three kinds of support, kept apart: the source text, the model's inference, and the scenario's assumptions. Then exactly what EventShock knew, and when."
+          ? "Three kinds of support, kept apart: the source text, the model's inference, and the scenario's assumptions. Then precedent from history, and exactly what EventShock knew, and when."
           : "History that resembles this estimate, who else reported the story, and a timeline you can move through to see exactly what EventShock knew."
       }
     >
       {a && (
         <>
           {evidence ? <EvidenceGroups ev={evidence} /> : assessLoading ? <Skeleton className="h-48 w-full" /> : null}
+          <AnaloguesPanel signalId={s.id} enabled={analoguesOn} />
           <div className="mt-10">
             <h3 className="text-lg font-semibold">What did EventShock know at this moment?</h3>
             <p className="mb-5 mt-1 max-w-[70ch] text-sm text-muted">

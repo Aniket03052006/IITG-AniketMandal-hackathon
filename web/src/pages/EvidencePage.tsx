@@ -9,6 +9,7 @@ import { EventModelPanel } from "../components/EventModelPanel";
 import { Formula } from "../components/Math";
 import { ImpactModelPanel } from "../components/ImpactModelPanel";
 import { SentimentModelPanel } from "../components/SentimentModelPanel";
+import { OutcomeCheckTab } from "../components/evidence/OutcomeCheckTab";
 import { ScopeTab } from "../components/scope/ScopeTab";
 import { Tabs, useTab } from "../components/Tabs";
 import { KindLegend } from "../components/ProvenanceKind";
@@ -706,6 +707,7 @@ const TABS = [
   { id: "datasets", label: "Datasets" },
   { id: "mathematics", label: "Mathematics" },
   { id: "limitations", label: "Limitations" },
+  { id: "outcome", label: "Outcome check" },
   { id: "scope", label: "Scope" },
   { id: "pipeline", label: "How it is built" },
 ] as const;
@@ -754,6 +756,7 @@ export function EvidencePage() {
             </ul>
           </div>
         )}
+        {tab === "outcome" && <OutcomeCheckTab />}
         {tab === "scope" && <ScopeTab />}
         {tab === "pipeline" && <PipelineView />}
       </Tabs>

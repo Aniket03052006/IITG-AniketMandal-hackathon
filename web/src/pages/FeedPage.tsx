@@ -142,7 +142,7 @@ function StoryStrip({ items, threshold, loading, assessed }: { items: SignalSumm
   const current = [
     { k: "News", v: n(items.length), t: "reports and posts", d: "Real news and social text, validated, de-duplicated and linked to companies." },
     { k: "AI understanding", v: n(sev.length), t: "read as market events", d: `Event type, tone, sectors, regions and evidence quotes, checked against the text. ${loading ? "" : `${(items.length - sev.length).toLocaleString("en-US")} were not market events.`}` },
-    { k: "Risk signal", v: n(sev.length), t: "scored for severity", d: "A transparent score from explicit weights. A triage level, not a forecast, and not validated." },
+    { k: "Risk signal", v: n(sev.length), t: "scored for severity", d: "A transparent scorecard of four anchored answers. A triage level, not a forecast, and not validated." },
     { k: "Scenario → portfolio", v: n(sevHigh.length), t: `reach severity ≥ ${threshold}`, d: "These suggest a scenario that the deterministic engine applies to the portfolio; the rest can run as a what-if." },
   ];
   const steps = assessed ? current : legacy;

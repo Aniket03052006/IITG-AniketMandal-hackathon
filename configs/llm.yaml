@@ -1,6 +1,6 @@
 # LLM semantic extraction (llm-v1). The LLM READS a report and fills a closed schema (event type, subtype, tone, entities, sectors, regions,
 # asset classes, severity indicators, evidence quotes). It never produces the impact number, never decides the stress trigger and never
-# does portfolio arithmetic: those are explicit code (configs/impact_hybrid.yaml, the stress engine).
+# does portfolio arithmetic: those are explicit code (configs/severity.yaml, the stress engine).
 #
 # OFF BY DEFAULT. Turning it on sends the report text (capped, below) to the provider. Enable with EVENTSHOCK_LLM=1 and the provider's key
 # (GROQ_API_KEY or ANTHROPIC_API_KEY); choose the provider with `provider` below or EVENTSHOCK_LLM_PROVIDER.

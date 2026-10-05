@@ -1,8 +1,8 @@
 # Semantic vocabulary (semantics-v1): the CLOSED sets the risk assessment may use, shared by the LLM extractor (which may only pick from
 # them) and the deterministic rule extractor (which finds them by cue phrases).
 #
-# Nothing here is learned and nothing is a probability. Cues were written from domain knowledge, not tuned on outcomes. Severity weights
-# are judgement priors (see configs/impact_hybrid.yaml and docs/RISK_ASSESSMENT.md): they say how serious a *kind* of development usually
+# Nothing here is learned and nothing is a probability. Cues were written from domain knowledge, not tuned on outcomes. Indicator levels
+# are judgement priors (see configs/severity.yaml and docs/RISK_ASSESSMENT.md): they say how serious a *kind* of development usually
 # is for a financial book, never how far a price will move.
 #
 # Cue matching is on text folded by pipeline.normalize.match_form (case-folded, punctuation -> space), whole words/phrases only.

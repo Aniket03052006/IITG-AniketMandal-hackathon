@@ -5,7 +5,7 @@ content are kept apart on purpose and each field says which it is:
 
 * source text and quotes taken from it (``EvidenceSpan``, ``source``),
 * the extraction of that text (an LLM or the deterministic rule extractor: ``ExtractionInfo.mode`` says which),
-* the severity score (explicit weights times explicit factors: ``SeverityAssessment``), and
+* the severity score (a transparent scorecard of four anchored answers plus two bounded data adjustments: ``SeverityAssessment``), and
 * scenario assumptions (owned by the scenario catalogue, only referenced here).
 
 Nothing here is a forecast. ``labels`` and ``limitations`` carry that statement on every response.
@@ -36,6 +36,7 @@ class Kind(StrEnum):
     MODEL_REFERENCE = "MODEL_REFERENCE"  # a trained model's output, experimental
     SCENARIO_ASSUMPTION = "SCENARIO_ASSUMPTION"  # a configured shock
     REALISED = "REALISED"  # what happened afterwards: display only, never an input
+    RETRIEVED = "RETRIEVED"  # a past report found by similarity, with its realised outcome: evidence about OTHER events, never about this one
 
 
 class Origin(StrEnum):
@@ -46,6 +47,7 @@ class Origin(StrEnum):
     RULES = "RULES"  # deterministic logic: cue phrases, comparison with earlier reports, exposure, scenario mapping, portfolio arithmetic
     HYBRID = "HYBRID"  # combines more than one of the above (e.g. a rules baseline moved by a bounded AI adjustment)
     ASSUMPTION = "ASSUMPTION"  # a configured judgement: a matrix anchor, a multiplier, a scenario shock
+    RETRIEVED = "RETRIEVED"  # a past report retrieved by semantic similarity (with its realised outcome): precedent, not a reading of this report
 
 
 class IndicatorBasis(StrEnum):

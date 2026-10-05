@@ -2,6 +2,7 @@ import type { Scenario, StressResult } from "../../api/types";
 import * as TeX from "../../lib/formulas";
 import { Drawer, DrawerSection, useOpenDrawer } from "../Drawer";
 import { Formula } from "../Math";
+import { HistoryCheck } from "./HistoryCheck";
 import { AuditPanel, PositionsTable, ShocksTable } from "../stress";
 
 /** The stress page's drawers (?open=math|assumptions|positions|audit): the arithmetic, the assumptions, every position, the audit trail. */
@@ -44,6 +45,7 @@ export function StressDrawers({ r, scenario }: { r: StressResult | undefined; sc
           <>
             <p className="mb-4 max-w-[62ch] text-sm text-muted">Illustrative magnitudes chosen for the scenario template, not forecasts. Shown at the template's reference impact and as applied here.</p>
             <ShocksTable shocks={r.shocks} scenario={scenario} bare />
+            <HistoryCheck scenarioId={scenario?.id} scale={r.severity?.scale ?? 1} />
           </>
         )}
       </Drawer>

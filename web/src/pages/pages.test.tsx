@@ -1079,7 +1079,7 @@ describe("Evidence page", () => {
   it("offers methodology, evaluation, datasets, mathematics, limitations and how it is built as tabs", async () => {
     renderAt("/evidence");
     const tabs = await screen.findAllByRole("tab");
-    expect(tabs.map((t) => t.textContent)).toEqual(["Methodology", "Evaluation", "Datasets", "Mathematics", "Limitations", "Scope", "How it is built"]);
+    expect(tabs.map((t) => t.textContent)).toEqual(["Methodology", "Evaluation", "Datasets", "Mathematics", "Limitations", "Outcome check", "Scope", "How it is built"]);
     expect(screen.getByRole("tab", { name: "Methodology" })).toHaveAttribute("aria-selected", "true");
     await userEvent.click(screen.getByRole("tab", { name: "Datasets" }));
     expect(screen.getByRole("tab", { name: "Datasets" })).toHaveAttribute("aria-selected", "true");

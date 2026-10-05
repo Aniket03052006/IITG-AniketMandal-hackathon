@@ -346,7 +346,7 @@ const summary = {
   category: "MA_CORPORATE_ACTION", event_status: "UNCERTAIN", sentiment_score: -0.5, impact_score: null, impact_origin: null, impact_lifecycle: null, impact_score_low: null, impact_score_high: null,
   status: "PARTIAL", source_count: 1, data_origin: "REAL_SOURCE_MIXED_NLP", scope_level: "UNRESOLVED", scope_sector: null, scope_strength: null, scope_themes: [], scope_regions: [], channel: "MANUAL",
   first_seq: 1, updated_seq: 1, relevance_level: "UNDETERMINED", relevance_share: null,
-  severity_score: 5, severity_low: 5, severity_high: 6, severity_basis: "TRANSPARENT_HYBRID", assessed_category: "MA_CORPORATE_ACTION", assessed_sector: null, extraction_mode: "RULES", above_trigger: false,
+  severity_score: 5, severity_low: 5, severity_high: 6, severity_basis: "SCORECARD", assessed_category: "MA_CORPORATE_ACTION", assessed_sector: null, extraction_mode: "RULES", above_trigger: false,
 };
 
 const calls: { url: string; body?: string }[] = [];

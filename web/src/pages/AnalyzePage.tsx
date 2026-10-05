@@ -63,7 +63,7 @@ function Working({ llm }: { llm: boolean }) {
       <ol className="mt-3 space-y-2 text-sm text-ink-2">
         <li>1 · Reading the text{llm ? " with the language model (it only reads: it does not score)" : " with the deterministic rules"}</li>
         <li>2 · Checking every entity and quote against the text</li>
-        <li>3 · Computing severity from explicit weights</li>
+        <li>3 · Computing the severity scorecard</li>
         <li>4 · Comparing it with the stress trigger</li>
       </ol>
     </section>

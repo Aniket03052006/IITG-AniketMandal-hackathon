@@ -9,6 +9,7 @@ export const ASSESSMENT_KIND: Record<string, { label: string; says: string }> = 
   MODEL_REFERENCE: { label: "Reference model", says: "A trained model's output, experimental, shown for comparison." },
   SCENARIO_ASSUMPTION: { label: "Scenario assumption", says: "A chosen shock run through a deterministic engine: a simulation, not a forecast." },
   REALISED: { label: "Realised outcome", says: "What the market did afterwards. Display only: never an input." },
+  RETRIEVED: { label: "Retrieved precedent", says: "A past report found by similarity, with its realised outcome: evidence about other events, never a reading of this one." },
 };
 
 export const ENTITY_KIND_LABEL: Record<string, string> = {
