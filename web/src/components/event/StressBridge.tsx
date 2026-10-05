@@ -4,6 +4,7 @@ import { ThresholdNotice } from "../assessment/ThresholdNotice";
 import { impactKind, KIND_LABEL } from "../../lib/impact";
 import { ArrowRight } from "../icons";
 import { KindBadge } from "../ProvenanceKind";
+import { PropagationSection } from "../propagation/PropagationSection";
 import { RelevancePanel } from "../scope/RelevancePanel";
 import { StateNotice } from "../StateNotice";
 import { Chapter } from "./Chapter";
@@ -57,6 +58,7 @@ export function StressBridge({ s, scenario, threshold, a }: { s: RiskSignal; sce
         </div>
       </div>
       <RelevancePanel signalId={s.id} />
+      <PropagationSection signalId={s.id} />
       {level !== "COMPANY" && (
         <div className="mt-5 max-w-[64ch]">
           <StateNotice

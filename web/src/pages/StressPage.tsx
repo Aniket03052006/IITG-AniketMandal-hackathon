@@ -1,12 +1,15 @@
 import { subjectLine, subjectOf, subjectOfSummary } from "../lib/scope";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useActivePortfolioItem, useAssessment, useMeta, usePortfolioExposure, usePortfolioSummary, useScenarios, useSignal, useSignals, useStressTest } from "../api/hooks";
+import { useActivePortfolioItem, useAssessment, useConcentration, useMeta, usePortfolioExposure, usePortfolioSummary, useScenarios, useSignal, useSignals, useStressTest } from "../api/hooks";
 import type { ExposureRow, StressResult } from "../api/types";
 import { FlowRail } from "../components/FlowRail";
 import { useOpenDrawer } from "../components/Drawer";
 import { ArrowRight, Play, Spinner, Wrench } from "../components/icons";
 import { ComparePanel } from "../components/portfolio/ComparePanel";
+import { RunAttribution } from "../components/propagation/AttributionPanel";
+import { ConcentrationPanel } from "../components/propagation/ConcentrationPanel";
+import { PropagationSection } from "../components/propagation/PropagationSection";
 import { ContributionDrill } from "../components/portfolio/ContributionDrill";
 import { DecisionStrip } from "../components/portfolio/DecisionStrip";
 import { ExposureChainPanel } from "../components/portfolio/ExposureChainPanel";
@@ -44,6 +47,8 @@ function ExposureBars({ rows, labelFn }: { rows: ExposureRow[]; labelFn?: (r: Ex
 function PortfolioGlance() {
   const summary = usePortfolioSummary();
   const exposure = usePortfolioExposure();
+  const { data: meta } = useMeta();
+  const conc = useConcentration(meta?.capabilities.propagation === true);
   if (summary.error) return <ErrorState error={summary.error} retry={() => summary.refetch()} />;
   const s = summary.data;
   const e = exposure.data;
@@ -71,6 +76,7 @@ function PortfolioGlance() {
         <Stat label="Issuers" value={s?.entity_count ?? "–"} />
       </div>
       {s && <p className="mt-3 max-w-[70ch] text-xs text-muted">{s.description}</p>}
+      {conc.data && <ConcentrationPanel view={conc.data} heading="Concentration" />}
       {e && (
         <div className="mt-5 grid gap-6 md:grid-cols-2">
           <div>
@@ -392,6 +398,8 @@ export function StressPage() {
 
           <ExposureChainPanel runId={shown.run_id} currency={currencySymbol(pfItem?.base_currency)} />
 
+          <RunAttribution runId={shown.run_id} enabled={meta?.capabilities.propagation === true} />
+
           {eventImpact != null && (
             <WhatIf
               eventImpact={eventImpact}
@@ -410,6 +418,12 @@ export function StressPage() {
             <summary>How large are this scenario's shocks by historical standards?</summary>
             <HistoryCheck scenarioId={selectedScenario?.id} scale={shown.severity?.scale ?? 1} />
           </details>
+
+          {s && meta?.capabilities.propagation === true && (
+            <section aria-label="Scenario generated for this event">
+              <PropagationSection signalId={s.id} variant="stress" />
+            </section>
+          )}
 
           <div className="flex flex-wrap items-center gap-2 border-t border-rule pt-5" role="group" aria-label="Explanations">
             <button type="button" className="btn" aria-haspopup="dialog" onClick={() => setOpen("math")}>

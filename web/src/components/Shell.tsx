@@ -1,14 +1,16 @@
 import clsx from "clsx";
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { useActivePortfolioItem, useMeta, useSignals } from "../api/hooks";
+import { useActivePortfolioItem, useAdjustments, useMeta, useSignals } from "../api/hooks";
+import { useOpenDrawer } from "./Drawer";
 import { FEATURED, lastEvent, pickFeatured } from "../lib/featured";
 import { dateTime } from "../lib/format";
 import { profileLabel, profileNote } from "../lib/provenance";
 import { currencySymbol } from "../lib/portfolio";
 import { setDisplayCurrency } from "../lib/format";
+import { AdjustHost } from "./adjust/AdjustDrawer";
 import { PortfolioSwitcher } from "./portfolio/PortfolioSwitcher";
-import { AnalyzeIcon, Database, EventIcon, EvidenceIcon, FeedIcon, PortfolioIcon, StressIcon } from "./icons";
+import { AnalyzeIcon, Database, EventIcon, EvidenceIcon, FeedIcon, PortfolioIcon, StressIcon, Wrench } from "./icons";
 import { Logo } from "./Logo";
 import { ThemeSwitch } from "./ThemeSwitch";
 
@@ -32,6 +34,21 @@ function ModeBadge() {
         </>
       )}
     </div>
+  );
+}
+
+/** Opens the adjustment drawer from anywhere; shows how many values are adjusted. */
+function AdjustLink() {
+  const { data: meta } = useMeta();
+  const [, setOpen] = useOpenDrawer();
+  const adj = useAdjustments(meta?.capabilities.adjustments === true);
+  if (meta?.capabilities.adjustments !== true) return null;
+  const n = adj.data?.count ?? 0;
+  return (
+    <button type="button" className="flex min-h-10 items-center gap-2.5 rounded-md px-3 text-left text-sm font-medium text-ink-2 hover:bg-paper-3 hover:text-ink" onClick={() => setOpen("adjust")} aria-haspopup="dialog">
+      <Wrench size={15} /> Adjust assumptions
+      {n > 0 && <span className="num ml-auto rounded-sm border border-dashed border-ink-2 px-1.5 text-xs" aria-label={`${n} adjusted`}>{n}</span>}
+    </button>
   );
 }
 
@@ -78,6 +95,7 @@ export function Shell() {
         </div>
         <div className="pb-2">
           <PortfolioSwitcher compact />
+          <AdjustLink />
         </div>
         <nav aria-label="Primary" className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-2">
           {nav.map((n) => (
@@ -101,6 +119,7 @@ export function Shell() {
           ))}
         </nav>
         <div className="mt-auto flex flex-col gap-3">
+          <AdjustLink />
           <PortfolioSwitcher />
           <ModeBadge />
           <ThemeSwitch />
@@ -117,6 +136,7 @@ export function Shell() {
           </div>
         </div>
       </main>
+      <AdjustHost />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useParsePortfolio, usePortfolio, usePortfolioMutations, useValidatePortfolio } from "../api/hooks";
+import { useConcentration, useMeta, useParsePortfolio, usePortfolio, usePortfolioMutations, useValidatePortfolio } from "../api/hooks";
 import type { ResolvedPortfolio } from "../api/types";
 import { HoldingsPreview } from "../components/portfolio/HoldingsPreview";
+import { ConcentrationPanel } from "../components/propagation/ConcentrationPanel";
 import { ArrowLeft, Plus, Spinner } from "../components/icons";
 import { StateNotice } from "../components/StateNotice";
 import { Tabs } from "../components/Tabs";
@@ -95,9 +96,17 @@ function RowEditor({ row, i, mode, onChange, onRemove, only }: { row: Row; i: nu
 }
 
 /** Create or edit a personal portfolio: type or paste quickly, or fill the detailed rows; the server resolves it live and says what it assumed. */
+/** Concentration of the SAVED portfolio being edited (what the server holds, not the unsaved form). */
+function SavedConcentration({ id }: { id: string }) {
+  const conc = useConcentration(true, id);
+  if (!conc.data) return null;
+  return <ConcentrationPanel view={conc.data} heading="Concentration of the saved portfolio" />;
+}
+
 export function PortfolioEditorPage() {
   const { id } = useParams();
   const editing = !!id && id !== "new";
+  const { data: meta } = useMeta();
   const nav = useNavigate();
   const stored = usePortfolio(editing ? id : undefined);
   const [form, setForm] = useState<Form>(emptyForm);
@@ -254,6 +263,8 @@ export function PortfolioEditorPage() {
         </div>
         {resolved ? <HoldingsPreview r={resolved} /> : <p className="text-sm text-muted">Add a holding to see it resolved here.</p>}
       </section>
+
+      {editing && id && meta?.capabilities.propagation === true && <SavedConcentration id={id} />}
 
       <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-rule pt-5">
         <button type="button" className="btn btn-primary" onClick={save} disabled={!resolved?.ok || saving} data-loading={saving}>
