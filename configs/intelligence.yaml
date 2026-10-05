@@ -1,0 +1,226 @@
+# Event intelligence (intelligence-v1): hierarchical scope, event grouping, evidence strength, novelty class, narrative velocity,
+# claim contradiction and event lifecycle. A derived side-car: nothing here is stored on a RiskSignal, and nothing here feeds the
+# severity score, the impact model or the stress engine.
+#
+# Every number below is a JUDGEMENT PRIOR written before any result was looked at: none is fitted, calibrated or validated, and
+# the UI says so. Vocabularies are closed lists matched as whole words/phrases; there is no model and no generated text.
+version: "intelligence-v1"
+
+# ------------------------------------------------------------------------------------------------------------------- scope
+scope:
+  # Industries sit between a company and its sector. The entity master carries none, so a company's industry comes only from
+  # the ticker map below and a text's industry only from these terms; a level with no evidence is omitted from the path.
+  industry_min_terms: 1
+  industries:
+    Banks:
+      sector: Financials
+      terms: [regional banks, regional bank, investment banks, investment bank, lender, lenders, bank stocks, wall street banks]
+    Insurance:
+      sector: Financials
+      terms: [insurer, insurers, insurance]
+    Payments:
+      sector: Financials
+      terms: [payments, card issuers, credit card]
+    Semiconductors:
+      sector: Technology
+      terms: [semiconductor, semiconductors, chipmaker, chipmakers, chip maker, chip makers, chip stocks]
+    Software and Cloud:
+      sector: Technology
+      terms: [software, cloud, saas, data center, data centers, data centre, data centres]
+    Oil and Gas:
+      sector: Energy
+      terms: [oil producer, oil producers, oil majors, oil and gas, crude producers, refiners, refinery, refineries, shale]
+    Pharmaceuticals:
+      sector: Healthcare
+      terms: [drugmaker, drugmakers, pharma, pharmaceutical, pharmaceuticals, biotech]
+    Health Insurance:
+      sector: Healthcare
+      terms: [health insurer, health insurers, managed care]
+    Aerospace and Defense:
+      sector: Industrials
+      terms: [aerospace, defense contractor, defense contractors, defence contractor, defence contractors, aircraft makers, planemaker, planemakers]
+    Autos:
+      sector: Consumer
+      terms: [carmaker, carmakers, automaker, automakers, electric vehicle makers, ev makers]
+    Retail:
+      sector: Consumer
+      terms: [retailer, retailers, retail stocks, big box retailers]
+  # ticker -> industry, for the 34-entity master only. Authoritative company facts, not inferred from text.
+  ticker_industry:
+    JPM: Banks
+    BAC: Banks
+    GS: Banks
+    MS: Banks
+    C: Banks
+    WFC: Banks
+    V: Payments
+    NVDA: Semiconductors
+    INTC: Semiconductors
+    MSFT: Software and Cloud
+    ORCL: Software and Cloud
+    XOM: Oil and Gas
+    CVX: Oil and Gas
+    SHEL: Oil and Gas
+    BP: Oil and Gas
+    PFE: Pharmaceuticals
+    JNJ: Pharmaceuticals
+    LLY: Pharmaceuticals
+    UNH: Health Insurance
+    BA: Aerospace and Defense
+    LMT: Aerospace and Defense
+    TSLA: Autos
+    F: Autos
+    WMT: Retail
+    TGT: Retail
+  # What kind of non-company subject a theme (scope.yaml) names. A theme is a vocabulary hit, not a classification of the event.
+  theme_kinds:
+    rates: MACRO
+    inflation: MACRO
+    growth_and_jobs: MACRO
+    credit_stress: THEME
+    trade_and_conflict: THEME
+    currencies_and_commodities: THEME
+    equity_market: MARKET
+  # Stress risk factors a theme can bear on (labelled a scenario/vocabulary link, never a measured exposure).
+  theme_risk_factors:
+    rates: [RATES_BPS]
+    inflation: [RATES_BPS]
+    growth_and_jobs: [EQUITY]
+    credit_stress: [CREDIT_SPREAD_BPS, PD_MULTIPLIER, LGD_ADD]
+    trade_and_conflict: [EQUITY]
+    currencies_and_commodities: [EQUITY]
+    equity_market: [EQUITY]
+  region_names:
+    US: United States
+    GB: United Kingdom
+    EU: Europe
+    CN: China
+    JP: Japan
+    IN: India
+    MIDEAST: Middle East
+    RU_UA: Russia and Ukraine
+
+# ------------------------------------------------------------------------------------------------------------------ sources
+sources:
+  # Domains treated as primary / authoritative for a claim. Closed list: a source not here is "not known to be authoritative",
+  # never "known not to be".
+  authoritative_domains:
+    - sec.gov
+    - federalreserve.gov
+    - ecb.europa.eu
+    - bankofengland.co.uk
+    - treasury.gov
+    - whitehouse.gov
+    - justice.gov
+    - ftc.gov
+    - cftc.gov
+    - fda.gov
+    - europa.eu
+    - imf.org
+    - worldbank.org
+    - bis.org
+    - rbi.org.in
+    - boj.or.jp
+    - reuters.com
+    - apnews.com
+    - bloomberg.com
+    - wsj.com
+    - ft.com
+  # A report carrying the identical text of an earlier one is a copy, not an independent source. A rewrite (NEAR_DUPLICATE) by a different outlet is
+  # that outlet reporting for itself, so it counts: independence here means a distinct outlet, not a distinct wording.
+  copy_relations: [SYNDICATED, EXACT_DUPLICATE]
+
+# ----------------------------------------------------------------------------------------------------------------- grouping
+grouping:
+  window_hours: 48                  # reports further apart than this are different events (trusted clocks only)
+  min_shared_tokens: 2              # candidate generation, as in dedup
+  max_posting_length: 400           # a token in more events than this is too common to propose candidates
+  # same resolved issuer
+  min_cosine: 0.30
+  min_shared_facts: 1               # numbers / proper nouns the two texts both carry
+  # neither names an issuer: they must then share a scope and be much closer
+  unresolved_min_cosine: 0.45
+  unresolved_min_shared_facts: 2
+
+# --------------------------------------------------------------------------------------------------------------- evidence
+evidence:
+  # first matching rule wins; the rule that fired and its inputs are shown. Never blended with model confidence.
+  strong_min_independent: 4
+  strong_min_diversity: 0.5
+  moderate_min_independent: 2
+  conflict_caps_at: WEAK            # an unresolved CONFLICTED claim pair caps the tier here
+
+# ---------------------------------------------------------------------------------------------------------------- novelty
+novelty:
+  lookback_days: 30
+  same_story_min_cosine: 0.30       # a prior event this close, in the same event class, is the same narrative
+  recurrence_gap_hours: 168         # a matching prior that went quiet this long ago makes a new occurrence RECURRING
+  min_new_facts: 1                  # new numbers / proper nouns that make a continuation an UPDATE
+  max_priors_shown: 3
+  recurrence_cues: [another, again, once more, second, third, fresh, renewed, yet another, repeat, repeated, latest in a series]
+  update_cues: [update, updates, updated, latest, widens, widened, expands, expanded, revised]
+
+# ---------------------------------------------------------------------------------------------------------------- velocity
+velocity:
+  bucket_minutes: 60
+  min_reports: 3                    # fewer than this: no velocity is stated
+  min_span_hours: 1.0
+  accel_min_reports: 5              # acceleration needs this many reports and two windows of min_span_hours each
+
+# ---------------------------------------------------------------------------------------------------------------- claims
+claims:
+  conflict_window_hours: 24         # opposite claims further apart are a sequential change of state, not a contradiction
+  min_conflict_tokens: 2            # topic words (or the shared issuer) the two claims must share to be CONFLICTED
+  max_subject_words: 5
+  max_object_words: 8
+  negators: [not, "no", never, without, yet to, fails to, failed to, unable to, has not, have not, had not, hasn't, haven't, won't, cannot, didn't, did not]
+  hedges: [reportedly, rumoured, rumored, allegedly, according to, sources say, sources said, people familiar, said to, unconfirmed, claims, claimed, alleges, alleged, may, might, could, expected to, plans to, seeks to, considering, weighs]
+  retraction_cues: [retracts, retracted, retraction, correction, corrects, corrected, walks back, walked back, withdraws statement, clarifies, clarified]
+  # Each axis has two opposite poles. A cue negated in the text ("has not confirmed") asserts nothing and extracts no claim.
+  axes:
+    confirmation:
+      label: "Confirmation"
+      pos_label: "confirmed"
+      neg_label: "denied"
+      pos: [confirms, confirmed, confirm, acknowledges, acknowledged, admits, admitted]
+      neg: [denies, denied, deny, refutes, refuted, dismisses as false, disputes, disputed, rejects claims, rejected claims]
+    status:
+      label: "Open or closed"
+      pos_label: "open"
+      neg_label: "closed"
+      pos: [reopens, reopened, remains open, stays open, open for business]
+      neg: [shuts, shut down, shuts down, shutters, shuttered, remains closed, stays closed, closed its doors]
+    deal:
+      label: "Deal outcome"
+      pos: [completes, completed, closes the deal, finalises, finalizes, finalised, finalized, seals, sealed, signed the deal]
+      neg: [cancels, cancelled, canceled, terminates, terminated, scraps, scrapped, abandons, abandoned, calls off, called off, walks away from]
+      pos_label: "completed"
+      neg_label: "cancelled"
+    operations:
+      label: "Operations"
+      pos_label: "running"
+      neg_label: "shut down"
+      pos: [resumes, resumed, restarts, restarted, back online, running normally, operating normally, production resumes, restored]
+      neg: [halts, halted, suspends, suspended, stops production, production halted, goes offline, went offline, shuts down production]
+    guidance:
+      label: "Guidance"
+      pos_label: "raised"
+      neg_label: "cut"
+      pos: [raises guidance, raised guidance, raises forecast, raised forecast, lifts outlook, lifted outlook, raises outlook, raised outlook, boosts forecast, upgrades guidance]
+      neg: [cuts guidance, cut guidance, cuts forecast, cut forecast, lowers outlook, lowered outlook, slashes forecast, slashed forecast, downgrades guidance, warns on profit]
+    approval:
+      label: "Approval"
+      pos_label: "approved"
+      neg_label: "rejected"
+      pos: [approves, approved, clears, cleared, grants approval, authorises, authorizes, authorised, authorized]
+      neg: [rejects, rejected, blocks, blocked, denies approval, vetoes, vetoed, refuses approval]
+
+# -------------------------------------------------------------------------------------------------------------- lifecycle
+lifecycle:
+  confirmed_min_independent: 2      # independent sources, or one authoritative source, make DEVELOPING -> CONFIRMED
+  resolution_min_independent: 2     # distinct independent domains that each carry an explicit resolution cue (or one authoritative)
+  stale_after_hours: 72             # no new report for this long, and not RESOLVED -> STALE
+  escalation_hold_hours: 24         # ESCALATING without a further escalation cue for this long -> STABILIZING
+  escalation_cues: [escalates, escalated, escalation, widens, widened, expands, expanded, intensifies, intensified, worsens, worsened, deepens, deepened, spreads, spread to, new probe, fresh probe, fresh charges, additional charges, second wave, impose, imposes, imposed, launches probe, launched probe, opens investigation, expanding]
+  deescalation_cues: [eases, eased, easing, calms, calmed, cools, cooled, contained, stabilises, stabilizes, stabilised, stabilized, subsides, subsided, steadies, steadied, de-escalates, de-escalation, truce, ceasefire, talks resume, talks begin]
+  resolution_cues: [resolved, resolves, settles, settled, settlement reached, deal reached, agreement reached, agreed a deal, has ended, lifted sanctions, lifts sanctions, drops charges, dropped charges, dismissed, case closed, concluded, concludes, ceasefire holds, fully restored, completed the, closes the investigation, closed the investigation, withdrawn]

@@ -7,6 +7,7 @@
   "configs/evidence_v3.yaml": "99c0ff9bf42b068c31a5c7f425e10e72850f10a89337950a1ab71c61b36bde80",
   "configs/external_datasets.yaml": "e730399f38074cae4524b96acbd77493268a9faad22c18bd7ddde2cae9ff9f39",
   "configs/impact_model.yaml": "1cde9e0924a0d732870fdf118927c3f48d7ad6483768be9b517eca5bfdc7b108",
+  "configs/intelligence.yaml": "e645ed12ab5b4b1fc55d615298e9326a80cd6b7ebf1992a9673699aab974533e",
   "configs/lexicons.yaml": "32c0f7068c0aaab3ebe3a39ba07f2cb882181ae1dfca2866a94468b1cd95a94a",
   "configs/live.yaml": "0a26d58778cd1680dc3ec29dc0168d92ea5b62a92194a4aa89fd5b5893140483",
   "configs/llm.yaml": "c3a34f42c829d7e11e51ac7b4315262a25186e5ec21b269a54316928cf586ded",
