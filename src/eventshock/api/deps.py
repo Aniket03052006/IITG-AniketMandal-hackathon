@@ -20,6 +20,7 @@ from ..assessment.rules import RuleExtractor
 from ..assessment.service import AssessmentService, market_state
 from ..assessment.severity import SeverityScorer
 from ..assessment.vocab import Vocab
+from ..brief.service import BriefService
 from ..config import (
     REPO_ROOT,
     AppConfig,
@@ -32,14 +33,28 @@ from ..config import (
     resolve_fixtures_dir,
     resolve_replay_dir,
 )
+from ..decision.config import DecisionConfig, load_decision_config
+from ..explain.service import ExplainService
+from ..feedback.service import FeedbackService
+from ..feedback.store import FeedbackStore
 from ..ingestion.live import CaptureSource, GdeltLiveSource, LiveSource
 from ..ingestion.snapshot import Snapshot, load_snapshot
 from ..intelligence.scope import HierarchicalScopeResolver
 from ..intelligence.service import IntelligenceService
+from ..lab.service import LabService
 from ..llm.cache import ExtractionCache
 from ..llm.client import CLIENTS, LLMClient
 from ..llm.config import load_llm_config
+from ..markets.config import load_markets_config
+from ..markets.kalshi import KalshiProvider
+from ..markets.models import ProviderCategory, ProviderState
+from ..markets.provider import load_point_provider
+from ..markets.service import MarketService
 from ..modeling.evidence_v3 import load_evidence_v3
+from ..monitor.digest import DigestService
+from ..monitor.service import MonitorService
+from ..monitor.state import StateBuilder
+from ..monitor.store import ChangeLog, StateStore
 from ..pipeline.config import (
     load_enrichment_config,
     load_event_model_config,
@@ -98,6 +113,9 @@ from ..store import (
 from ..stress.history_check import PATH as SHOCK_HISTORY_PATH
 from ..stress.history_check import ShockHistory
 from ..stress.scenarios import ScenarioCatalog
+from ..watchlist.service import WatchlistService
+from ..watchlist.store import WatchlistStore
+from ..watchlist.vocabulary import build_vocabulary
 from .schemas import ImpactStatus
 
 HYBRID_ENCODER = "intfloat/multilingual-e5-large"
@@ -150,6 +168,16 @@ class Container:
     # manual adjustment of the side-cars above (relevance bands, intelligence priors, propagation tables); a rebuild swaps them under `sidecar_lock`
     adjust: AdjustmentService | None = None
     scope_resolver: ScopeResolver | None = None
+    # decision intelligence (derived side-cars, replay profile only; their stateful stores are built once, so an adjustment rebuild never resets them)
+    decision: DecisionConfig | None = None
+    monitor: MonitorService | None = None
+    digest: DigestService | None = None
+    watchlists: WatchlistService | None = None
+    lab: LabService | None = None
+    explain: ExplainService | None = None
+    markets: MarketService | None = None
+    brief: BriefService | None = None
+    feedback: FeedbackService | None = None
     sidecar_lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
 
 
@@ -471,7 +499,78 @@ def build_container(settings: Settings | None = None) -> Container:
     container.adjust = AdjustmentService(settings.config_dir, overrides_store, scenarios, {c.id: c.default_scenario for c in taxonomy.categories},
                                          on_change=lambda ov: rebuild_sidecars(container, ov))
     rebuild_sidecars(container, overrides_store.values())
+    if replay:
+        _build_decision(container, settings)
     return container
+
+
+def _build_decision(c: Container, settings: Settings) -> None:
+    """The decision side-cars. Built once (their stores persist); they read the adjustable side-cars through accessors, so an adjustment swaps what they read."""
+    dcfg = load_decision_config(settings.config_dir)
+    store_dir = settings.decision_store_path or REPO_ROOT / "data" / "live" / "decision"
+    builder = StateBuilder(dcfg.monitor, intelligence=lambda: c.intelligence, propagation=lambda: c.propagation, assessments=c.assessments)
+
+    def live_status() -> tuple[bool, str | None, str | None]:
+        if c.live is None or c.live.source is None:
+            return False, None, None
+        st = c.live.status()
+        return True, st.state, st.source_mode
+
+    c.decision = dcfg
+    c.monitor = MonitorService(
+        dcfg, signals=c.signals, intelligence=lambda: c.intelligence, builder=builder,
+        changelog=ChangeLog(store_dir / "monitor" / "changes.jsonl", dcfg.monitor.store_max_changes), states=StateStore(store_dir / "monitor" / "live_state.json"),
+        live_status=live_status, adjust_version=(c.adjust.version if c.adjust is not None else None))
+    if c.live is not None and c.live.source is not None:
+        c.live.on_applied = lambda now: c.monitor.observe(now) if c.monitor is not None else None
+
+    def vocabulary():  # noqa: ANN202
+        assert c.intelligence is not None and c.scope_config is not None
+        return build_vocabulary(c.intelligence.cfg, c.scope_config.sectors, c.taxonomy, c.portfolio.entities(), dcfg.watchlist)
+
+    def book(pf):  # noqa: ANN001, ANN202
+        return pf if pf is not None else c.portfolio.get()
+
+    c.watchlists = WatchlistService(
+        dcfg.watchlist, WatchlistStore(store_dir / "watchlists", max_watchlists=dcfg.watchlist.max_watchlists), c.monitor, vocabulary=vocabulary,
+        intelligence=lambda: c.intelligence, propagation=lambda: c.propagation, assessments=c.assessments, portfolio=book)
+    c.lab = LabService(
+        dcfg.lab, reverse_cfg=dcfg.reverse, stress=c.stress, propagation=lambda: c.propagation, signals=c.signals, book=book, entities=lambda: c.portfolio.entities(),
+        sectors=lambda: list(c.scope_config.sectors) if c.scope_config is not None else [], shock_history=lambda: c.shock_history)
+    c.feedback = FeedbackService(dcfg.feedback, FeedbackStore(store_dir / "feedback" / "feedback.jsonl", max_records=dcfg.feedback.max_records, clock=lambda: c.signals.as_of), c.monitor)
+    c.digest = DigestService(dcfg, c.monitor, propagation=lambda: c.propagation, watch_summaries=lambda **kw: c.watchlists.digest_summaries(**kw) if c.watchlists is not None else [])
+    c.markets = _build_markets(c, settings)
+    c.brief = BriefService(monitor=c.monitor, propagation=lambda: c.propagation, analogues=lambda: c.analogues, markets=lambda: c.markets, clock=lambda: c.signals.as_of)
+    c.explain = ExplainService(
+        monitor=c.monitor, propagation=lambda: c.propagation, watchlists=lambda: c.watchlists, lab=lambda: c.lab, markets=lambda: c.markets,
+        threshold=lambda: c.assessments.threshold if c.assessments is not None else c.config.stress.trigger_threshold, clock=lambda: c.signals.as_of)
+
+
+def _build_markets(c: Container, settings: Settings) -> MarketService:
+    """The external-market side-car. The default reads the captured, hash-pinned snapshot (no network). A missing snapshot is a labelled UNAVAILABLE, never an invented value; a MODIFIED snapshot
+    stops start-up (ConfigError), like every other pinned artifact. Live is opt-in and rate limited."""
+    mcfg = load_markets_config(settings.config_dir)
+    mode = settings.markets or "snapshot"
+    gap = mcfg.providers.kalshi.previous_gap_hours
+    provider = None
+    state = ProviderState(provider="kalshi", category=ProviderCategory.PREDICTION_MARKET, state="DISABLED", mode="off", reason="external market data is switched off (EVENTSHOCK_MARKETS=off)")
+    if mode == "snapshot":
+        path = settings.kalshi_snapshot_path or REPO_ROOT / mcfg.snapshot.path
+        if path.is_file():
+            provider = load_point_provider(path, name="kalshi", previous_gap_hours=gap, expect_synthetic=False, manifest=path.with_suffix(".manifest.json"))
+            state = provider.state()
+        else:
+            state = ProviderState(provider="kalshi", category=ProviderCategory.PREDICTION_MARKET, state="UNAVAILABLE", mode="snapshot",
+                                  reason=f"no captured Kalshi snapshot is installed at {path.name}: `make kalshi-snapshot` (network, no key). Nothing is invented to fill the gap.")
+    elif mode == "fixture":
+        path = settings.markets_fixture_path or REPO_ROOT / "data" / "fixtures" / "external_markets" / "markets.json"
+        provider = load_point_provider(path, name="kalshi", previous_gap_hours=gap, expect_synthetic=True)
+        state = provider.state()
+    elif mode == "live":
+        provider = KalshiProvider(mcfg.providers.kalshi, max_spread=mcfg.matching.max_spread)
+        state = provider.state()
+    assert c.monitor is not None
+    return MarketService(mcfg, provider, c.monitor, clock=lambda: c.signals.as_of, state=state)
 
 
 def get_container(request: Request) -> Container:

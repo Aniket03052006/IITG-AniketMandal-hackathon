@@ -16,10 +16,14 @@ from .deps import build_container
 from .routers import (
     adjustments,
     analyze,
+    events,
     evidence,
+    feedback,
+    lab,
     live,
     meta,
     models,
+    monitor,
     pipeline,
     portfolio,
     portfolios,
@@ -28,6 +32,7 @@ from .routers import (
     scope,
     signals,
     stress,
+    watchlists,
 )
 
 
@@ -42,10 +47,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         poller = None
         if container.live is not None and container.live.source is not None:
             poller = asyncio.create_task(container.live.run(stop), name="eventshock-live")
+        warm = None
+        if container.monitor is not None:
+            # the first monitoring cycles are computed in the background
+            task = asyncio.to_thread(container.monitor.warm)
+            warm = asyncio.create_task(task, name="eventshock-monitor-warm")
         try:
             yield
         finally:
             stop.set()
+            if warm is not None:
+                warm.cancel()
             if poller is not None:
                 poller.cancel()
                 with contextlib.suppress(asyncio.CancelledError):
@@ -73,7 +85,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     for r in (meta.router, pipeline.router, models.router, evidence.router, signals.router, portfolio.router,
               portfolios.router, scenarios.router, stress.router, analyze.router, live.router, scope.router,
-              propagation.router, adjustments.router):
+              propagation.router, adjustments.router, monitor.router, events.router, watchlists.router,
+              lab.router, feedback.router):
         app.include_router(r, prefix="/api")
 
     dist = settings.web_dist_dir

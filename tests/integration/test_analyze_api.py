@@ -126,7 +126,10 @@ def test_replay_signals_are_untouched_by_everything_above(app_client) -> None:
 def test_demo_profile_has_no_engine_and_says_so(client) -> None:
     r = client.post("/api/analyze", json={"text": COMPANY})
     assert r.status_code == 503 and "replay profile" in r.json()["detail"]
-    assert client.get("/api/meta").json()["capabilities"] == {"analyze": False, "live_enabled": False, "assessment": False, "llm": None, "analogues": False, "history_check": True, "intelligence": False, "propagation": False, "adjustments": True, "custom_portfolios": True}
+    caps = client.get("/api/meta").json()["capabilities"]
+    older = {"analyze": False, "live_enabled": False, "assessment": False, "llm": None, "analogues": False, "history_check": True, "intelligence": False, "propagation": False, "adjustments": True, "custom_portfolios": True}
+    assert {k: caps[k] for k in older} == older
+    assert not any(v for k, v in caps.items() if k not in older)           # the demo profile serves none of the decision side-cars (monitor, watchlists, scenario lab, explanations, feedback, brief, markets)
     assert client.get("/api/live/status").status_code == 404
     page = client.get("/api/signals").json()
     assert page["seq"] == 0 and all(i["channel"] == "REPLAY" for i in page["items"])

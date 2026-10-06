@@ -189,6 +189,13 @@ class Capabilities(ContractModel):
     propagation: bool = Field(default=False, description="event -> portfolio propagation, materiality, generated scenarios, attribution and concentration are served; /api/signals/{id}/propagation")
     adjustments: bool = Field(default=True, description="the side-cars' thresholds, mapping tables and scenario sizes can be adjusted by hand; /api/adjustments")
     custom_portfolios: bool = Field(default=True, description="optional personal portfolios can be created and used instead of the synthetic default; /api/portfolios")
+    external_markets: bool = Field(default=False, description="the external-market view (what an independent prediction market is pricing: an observation, never an input) is served; /api/events/{id}/external-markets")
+    executive_brief: bool = Field(default=False, description="the executive risk brief (a fixed-order, template-written reading of one event for one portfolio, every statement sourced) is served; /api/events/{id}/brief")
+    feedback: bool = Field(default=False, description="analyst feedback can be recorded and counted (not ground truth, never used to change a model); /api/feedback")
+    explanations: bool = Field(default=False, description="structured 'Why?' explanations are served; /api/events/{id}/explanation, /api/scenarios/explanation, /api/reverse-stress/explanation")
+    scenario_lab: bool = Field(default=False, description="the scenario lab is served: build, run and compare scenarios (BASE / ASSESSED / CUSTOM); /api/scenarios, /api/lab/options")
+    watchlists: bool = Field(default=False, description="persistent watchlists are served; /api/watchlists")
+    monitor: bool = Field(default=False, description="the risk monitor and event memory are served (what changed, per event timeline); /api/monitor/*, /api/events/{id}/timeline")
 
 
 class Meta(ContractModel):

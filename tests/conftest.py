@@ -22,6 +22,10 @@ os.environ.setdefault("EVENTSHOCK_LLM_CACHE_PATH", str(Path(tempfile.mkdtemp(pre
 os.environ.setdefault("EVENTSHOCK_PORTFOLIO_STORE_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-portfolios-")) / "portfolios"))
 # Manual adjustments of the side-cars live in a temp file: no test may read or write the developer's real data/live/overrides (tests that adjust use their own).
 os.environ.setdefault("EVENTSHOCK_OVERRIDES_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-overrides-")) / "overrides.json"))
+# External market data in tests is the SYNTHETIC fixture (no network, no dependence on whether a snapshot was captured); tests that need another mode build their own settings.
+os.environ["EVENTSHOCK_MARKETS"] = "fixture"
+# The monitor log, watchlists, feedback and saved scenarios live in a temp directory: no test may read or write the developer's real data/live/decision.
+os.environ.setdefault("EVENTSHOCK_DECISION_STORE_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-decision-")) / "decision"))
 
 
 @pytest.fixture(scope="session")
