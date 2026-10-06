@@ -209,6 +209,58 @@ def run_checks(base: str) -> None:
     check(post(base, "/api/adjustments/reset", {})["count"] == 0 and get(base, f"/api/signals/{avail}/propagation", raw=True) == before,
           "...and a reset puts every byte of the answer back")
 
+
+    # Stage 12 decision intelligence: monitor, executive digest, watchlists, scenario lab, reverse stress, explanations, feedback, external markets, brief.
+    caps = get(base, "/api/meta")["capabilities"]
+    check(all(caps[k] is True for k in ("monitor", "watchlists", "scenario_lab", "explanations", "feedback", "external_markets", "executive_brief")),
+          "/api/meta advertises the decision-intelligence side-cars")
+    mst = get(base, "/api/monitor/status")
+    cycles = get(base, "/api/monitor/cycles")
+    check(mst["state"] == "OK" and mst["replay_cycles"] == len(cycles) and len(cycles) > 1 and cycles[0]["baseline"] is True, "/api/monitor: the replay clock has a baseline and later cycles")
+    ch1 = get(base, "/api/monitor/changes?mode=REPLAY", raw=True)
+    check(ch1 == get(base, "/api/monitor/changes?mode=REPLAY", raw=True), "/api/monitor/changes: the replay changes are byte-identical on repeat")
+    dg = get(base, "/api/monitor/digest?mode=REPLAY")
+    cards = [c for sec in dg["sections"] for c in sec["cards"]]
+    check(dg["availability"] == "AVAILABLE" and len(dg["sections"]) == 8 and "No importance score" in dg["ranking"] and all(c["rank_key"] for c in cards),
+          "/api/monitor/digest: eight sections, no score, every card carries its ordering key")
+    check(get(base, "/api/monitor/digest?mode=REPLAY", raw=True) == get(base, "/api/monitor/digest?mode=REPLAY", raw=True), "...and the digest is identical on repeat")
+    eid = next(c["event_id"] for c in cards if c.get("event_id"))
+    tl = get(base, f"/api/events/{eid}/timeline")
+    check(tl["items"] and all(i["provenance"] for i in tl["items"]), "/api/events/{id}/timeline: the event as a narrative, every item with its provenance")
+    for subject in ("PRIORITY", "VISIBILITY", "STRESS", "MARKET"):
+        ex = get(base, f"/api/events/{eid}/explanation?subject={subject}")
+        check(ex["subject"] == subject and (ex["reasons"] or ex["availability"] == "UNAVAILABLE") and all(r["source_ref"] and r["provenance"] for r in ex["reasons"]),
+              f"/api/events/{{id}}/explanation: {subject} gives structured, sourced reasons")
+    xm = get(base, f"/api/events/{eid}/external-markets")
+    check(xm["label"] == "EXTERNAL MARKET OBSERVATION" and "never an input" in xm["note"] and xm["match"]["status"] in ("MATCHED", "LOW_CONFIDENCE_MATCH", "NO_MATCH", "INSUFFICIENT_DATA"),
+          "/api/events/{id}/external-markets: a labelled observation with an honest match status")
+    mt = get(base, f"/api/events/{eid}/market-timeline")
+    check(set(mt["kinds"]) <= {"SOURCE_EVENT", "EVENTSHOCK_ASSESSMENT", "EXTERNAL_MARKET_OBSERVATION", "SCENARIO_ASSUMPTION", "REALISED_OUTCOME"}, "/api/events/{id}/market-timeline: the kinds of statement stay separate")
+    brief = get(base, f"/api/events/{eid}/brief")
+    check([x["id"] for x in brief["sections"]] == ["EXECUTIVE_SUMMARY", "WHAT_HAPPENED", "CURRENT_STATUS", "WHY_IT_MATTERS", "EVIDENCE", "CONFLICTS", "AFFECTED", "PORTFOLIO_EXPOSURE", "PROPAGATION",
+                                                  "STRESS", "TOP_DRIVERS", "HISTORICAL_CONTEXT", "EXTERNAL_MARKET_VIEW", "ASSUMPTIONS", "UNCERTAINTY", "WHAT_TO_MONITOR"]
+          and all(st["source_refs"] for x in brief["sections"] for st in x["statements"]), "/api/events/{id}/brief: sixteen sections in order, every statement sourced")
+    check(get(base, f"/api/events/{eid}/brief", raw=True) == get(base, f"/api/events/{eid}/brief", raw=True)
+          and get(base, f"/api/events/{eid}/brief?format=md", raw=True).startswith(b"# Executive risk brief"), "...the brief is deterministic and has a Markdown form")
+    wl = post(base, "/api/watchlists", {"name": "smoke watch", "items": [{"kind": "COMPANY", "value": "MSFT"}]})
+    try:
+        act = get(base, f"/api/watchlists/{wl['id']}/activity?mode=REPLAY")
+        check(act["watchlist"]["id"] == wl["id"] and "items" in act, "/api/watchlists: a watchlist is created and has activity")
+        check(put(base, f"/api/watchlists/{wl['id']}", {"name": "smoke watch", "enabled": False, "items": wl["items"]})["enabled"] is False, "...and can be switched off")
+    finally:
+        check(delete(base, f"/api/watchlists/{wl['id']}") == 204, "a watchlist can be deleted")
+    req = {"scenario_type": "CUSTOM", "assumptions": [{"kind": "EQUITY_MARKET", "value": -0.10}, {"kind": "RATES", "value": 100}]}
+    lab1, lab2 = post(base, "/api/scenarios", req), post(base, "/api/scenarios", req)
+    check(lab1["status"] == "COMPLETED" and lab1["scenario_id"] == lab2["scenario_id"] and lab1["scenario_id"].startswith("scn_lab_") and lab1["label"].startswith("SCENARIO SIMULATION"),
+          "/api/scenarios: a custom scenario runs deterministically on the unchanged engine and is labelled a simulation")
+    cmp = post(base, "/api/scenarios/compare", {"scenarios": [req, {"scenario_type": "BASE", "assumptions": []}]})
+    check(len(cmp["rows"]) == 2 and any(r["scenario_type"] == "BASE" and r["pnl"] == 0 for r in cmp["rows"]), "/api/scenarios/compare: two scenarios side by side (the base case is zero)")
+    rev = post(base, "/api/reverse-stress", {"target_pct": -5})
+    check(rev["status"] == "ACHIEVABLE" and abs(rev["difference_pp"]) <= 0.05 and rev["required_shocks"], "/api/reverse-stress: a hypothetical combination reaches -5% within tolerance")
+    fb = post(base, "/api/feedback", {"event_id": eid, "type": "RELEVANCE", "value": "RELEVANT", "analyst_id": "smoke"})
+    check(fb["event_id"] and get(base, "/api/feedback/statistics")["volume"] >= 1 and "not ground truth" in get(base, "/api/feedback/statistics")["label"].lower(),
+          "/api/feedback: an answer is recorded and the statistics say it is not ground truth")
+
     index = get(base, "/", raw=True).decode("utf-8", "replace")
     check("<div id=\"root\"" in index or "id=\"root\"" in index, "the built UI is served at /")
 
@@ -232,7 +284,8 @@ def main() -> int:
            # the smoke test never calls a language model: rule mode, and a private cache file
            "EVENTSHOCK_LLM": "0", "EVENTSHOCK_LLM_CACHE_PATH": str(journal.parent / "llm_cache.jsonl"),
            "EVENTSHOCK_PORTFOLIO_STORE_PATH": str(journal.parent / "portfolios"),
-           "EVENTSHOCK_OVERRIDES_PATH": str(journal.parent / "overrides.json")}
+           "EVENTSHOCK_OVERRIDES_PATH": str(journal.parent / "overrides.json"),
+           "EVENTSHOCK_DECISION_STORE_PATH": str(journal.parent / "decision")}
     proc = subprocess.Popen([sys.executable, "-m", "eventshock", "--port", str(port)], cwd=ROOT, env=env)
     base = f"http://127.0.0.1:{port}"
     try:

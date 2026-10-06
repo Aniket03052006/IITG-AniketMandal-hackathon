@@ -1,11 +1,13 @@
 {
  "files": {
   "configs/app.yaml": "22d29f3f371af11a2e7592532ccc1bc64900a9c921fd09d7ecc8561a15e87387",
+  "configs/decision.yaml": "ff3eb24007bbda226f400099f5003e84a73c20691ecf71d28fc7fbab293271f5",
   "configs/event_model.yaml": "613c6d8e8ff2aabe867d04e513346e8391766505ee0744991154ced6c1be3899",
   "configs/event_taxonomy.yaml": "ae98decec1d5b437076a5a6e46d47adf67983150ddc4c5a2db8de94ea8a558de",
   "configs/evidence_v2.yaml": "59f2af5b33da50ff4fb331851d9c2d4b851a33b6684d34df94abf42fdb333b8f",
   "configs/evidence_v3.yaml": "99c0ff9bf42b068c31a5c7f425e10e72850f10a89337950a1ab71c61b36bde80",
   "configs/external_datasets.yaml": "e730399f38074cae4524b96acbd77493268a9faad22c18bd7ddde2cae9ff9f39",
+  "configs/external_markets.yaml": "ae6e35cac6db5176e1dd9f7de666b2a40fa557b6ae3e17f73358dfc14e97b666",
   "configs/impact_model.yaml": "1cde9e0924a0d732870fdf118927c3f48d7ad6483768be9b517eca5bfdc7b108",
   "configs/intelligence.yaml": "e645ed12ab5b4b1fc55d615298e9326a80cd6b7ebf1992a9673699aab974533e",
   "configs/lexicons.yaml": "32c0f7068c0aaab3ebe3a39ba07f2cb882181ae1dfca2866a94468b1cd95a94a",
