@@ -76,3 +76,19 @@ Also try **Quantum Dynamics announces a major restructuring…**: the company is
 2. **Portfolio Stress** on the Apple patent verdict (company event): the three separate answers (severity 7/10, relevance High 20%, modeled impact -3%), then **Why is my portfolio exposed?** (issuer shock on your 20%, sector, market). Say: "a modeled scenario change, not a forecast".
 3. Switch to an Energy-sector event: relevance **None** (you hold no Energy), only market shocks reach you. Compare with the default book.
 4. **Compare with another portfolio**, then **Use default portfolio** in the rail: one click and everything is the synthetic book again.
+
+## Stage 12 addendum: from "what changed?" to an executive brief (about 4 minutes, no network)
+
+Start at **Today** (first in the left rail; `/today`). Replay data, the captured/fixture market data and every figure are deterministic.
+
+| # | Presenter does | Judge sees | Presenter says |
+|---|----------------|------------|----------------|
+| 1 | Opens **Today**; points at the mode chips and replay clock. | Eight sections of cards with a *rank key*, no score; REPLAY is the default, LIVE says the feed is off. | "What should I care about right now? The order is a documented key, shown on every card. Nothing is a black-box score." |
+| 2 | Opens **Why is this here, in this order?** on the first card; then **Full reasons**. | The five key parts, then structured reasons each labelled model output / product rule / scenario assumption / historical observation. | "Every reason says what kind of statement it is and which output it was read from." |
+| 3 | Clicks the headline, then **Executive brief**. | Sixteen numbered sections, every sentence with a kind word and numbered sources; *Copy as Markdown*. | "Template-written, no language model: a statement without a source cannot be built." |
+| 4 | On the event, scrolls to *Event memory* and *External market view*. | The timeline of reports classified by rule; a market card (or "No relevant external prediction market identified.") and the gates behind the match. | "A prediction market is shown as an observation beside our view; it never changes a number. Click *How it was matched*." |
+| 5 | Opens **Stress**, then the **Scenario lab** disclosure: adds equity −10 %, rates +100 bp; compares with the base case. | Two results side by side, every size tagged SCENARIO ASSUMPTION, *SCENARIO SIMULATION — NOT A PREDICTION*. | "Your numbers are assumptions, run on the same deterministic engine." |
+| 6 | Runs **Reverse stress** at −5 %. | A combination of shocks that reaches −5 % within 0.02 pp, the bounds, the method and "a hypothetical, not the most likely". | "What would it take to lose 5%? Bounded search; the loss shown is a full engine run." |
+| 7 | **Portfolios → Watchlists**: watches Microsoft; gives feedback on an event. | Activity for the list; the feedback bar; the Evidence page's *Analyst feedback* tab says "not ground truth". | "Feedback is recorded for review; it does not train or change any model." |
+
+If the Kalshi snapshot shows no match for an event, say so: that is the honest answer. `EVENTSHOCK_MARKETS=fixture make run` shows the synthetic, labelled fixture markets (the nine required cases).
