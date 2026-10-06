@@ -10,6 +10,7 @@ import { StateNotice } from "../StateNotice";
 import { SourceBadge, StatusTag } from "../ui";
 import { SeverityVerdict } from "../assessment/SeverityVerdict";
 import { ImpactVerdict } from "./ImpactVerdict";
+import { WatchButton } from "../watchlist/WatchButton";
 
 /** First viewport: what happened, who, when, what was detected, how severe. The headline dominates; everything else is secondary. */
 export function EventHero({ s, label, a, threshold }: { s: RiskSignal; label: (c: string) => string; a?: RiskAssessment; threshold: number }) {
@@ -83,6 +84,7 @@ export function EventHero({ s, label, a, threshold }: { s: RiskSignal; label: (c
             <p className="mt-2 text-sm text-muted">{sc.note}</p>
           </div>
         )}
+        <div className="mt-4"><WatchButton s={s} eventType={a ? a.reading.event_type : s.event.status === "CLASSIFIED" ? s.event.category : null} /></div>
       </div>
       <aside className="hero-verdict" aria-label={a ? "Severity verdict" : "Impact verdict"}>
         {a ? <SeverityVerdict a={a} threshold={threshold} /> : <ImpactVerdict s={s} />}

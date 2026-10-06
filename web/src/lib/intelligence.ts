@@ -84,7 +84,7 @@ export const AVAILABILITY_LABEL: Record<string, string> = {
 };
 
 export const factorLabel = (f: string): string =>
-  ({ EQUITY: "Equity prices", RATES_BPS: "Interest rates", CREDIT_SPREAD_BPS: "Credit spreads", PD_MULTIPLIER: "Default probability", LGD_ADD: "Loss given default" })[f] ?? f;
+  ({ EQUITY: "Equity prices", RATES_BPS: "Interest rates", CREDIT_SPREAD_BPS: "Credit spreads", PD_MULTIPLIER: "Default probability", LGD_ADD: "Loss given default", FX_PCT: "Currencies", COMMODITY_PCT: "Oil price" })[f] ?? f;
 
 export const hoursLabel = (h: number | null | undefined): string =>
   h == null ? "n/a" : h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${h.toFixed(1)} h` : `${(h / 24).toFixed(1)} days`;

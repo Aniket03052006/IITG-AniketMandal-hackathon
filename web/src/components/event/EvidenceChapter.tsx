@@ -8,6 +8,7 @@ import { Coverage } from "./Coverage";
 import { KnowledgeTimeline } from "./KnowledgeTimeline";
 import { useOpenDrawer } from "../Drawer";
 import { AnaloguesPanel } from "../assessment/AnaloguesPanel";
+import { ExternalMarketCard } from "../markets/ExternalMarketCard";
 import { AssessmentTimeline } from "../assessment/AssessmentTimeline";
 import { EvidenceGroups } from "../assessment/EvidenceGroups";
 import { Skeleton } from "../ui";
@@ -58,6 +59,7 @@ export function EvidenceChapter({
         <>
           {evidence ? <EvidenceGroups ev={evidence} /> : assessLoading ? <Skeleton className="h-48 w-full" /> : null}
           <AnaloguesPanel signalId={s.id} enabled={analoguesOn} />
+          <ExternalMarketCard eventId={s.id} />
           <div className="mt-10">
             <h3 className="text-lg font-semibold">What did EventShock know at this moment?</h3>
             <p className="mb-5 mt-1 max-w-[70ch] text-sm text-muted">

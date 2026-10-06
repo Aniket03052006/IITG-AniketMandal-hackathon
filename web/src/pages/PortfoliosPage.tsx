@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useActivePortfolioItem, usePortfolioMutations, usePortfolios } from "../api/hooks";
+import { useActivePortfolioItem, useMeta, usePortfolioMutations, usePortfolios } from "../api/hooks";
 import type { PortfolioListItem } from "../api/types";
 import { ExposurePanel } from "../components/portfolio/ExposurePanel";
 import { Plus } from "../components/icons";
+import { ChangesFeed } from "../components/monitor/ChangesFeed";
+import { Tabs, useTab } from "../components/Tabs";
+import { ScenarioLab } from "../components/lab/ScenarioLab";
+import { WatchlistsPanel } from "../components/watchlist/WatchlistsPanel";
 import { StateNotice } from "../components/StateNotice";
 import { EmptyState, ErrorState, Loading, PageHeader, StatusTag } from "../components/ui";
 import { dateTime, money } from "../lib/format";
@@ -79,8 +83,7 @@ function PortfolioCard({ p, active, onFocus, focused }: { p: PortfolioListItem; 
   );
 }
 
-/** Optional personal portfolios. With none chosen EventShock stresses its synthetic book; "Use default portfolio" always puts it back. */
-export function PortfoliosPage() {
+function PortfoliosList() {
   const list = usePortfolios();
   const { id: activeId } = useActivePortfolioItem();
   const [focus, setFocus] = useState<string | null | undefined>(undefined);
@@ -139,5 +142,36 @@ export function PortfoliosPage() {
         </div>
       )}
     </>
+  );
+}
+
+const TAB_IDS = ["portfolios", "watchlists", "lab"] as const;
+
+/** Optional personal portfolios, and (where the monitor runs) watchlists. With no portfolio chosen EventShock stresses its synthetic book; "Use default portfolio" always puts it back. */
+export function PortfoliosPage() {
+  const { data: meta } = useMeta();
+  const watch = meta?.capabilities.watchlists === true;
+  const lab = meta?.capabilities.scenario_lab === true;
+  const [tab, setTab] = useTab(TAB_IDS, "portfolios");
+  if (!watch && !lab) return <PortfoliosList />;
+  const tabs = [{ id: "portfolios", label: "Portfolios" }, ...(watch ? [{ id: "watchlists", label: "Watchlists and monitor" }] : []), ...(lab ? [{ id: "lab", label: "Scenario lab" }] : [])];
+  const active = tabs.some((t) => t.id === tab) ? tab : "portfolios";
+  return (
+    <Tabs tabs={tabs} active={active} onChange={setTab} label="Portfolio views">
+      {active === "portfolios" ? (
+        <PortfoliosList />
+      ) : active === "watchlists" ? (
+        <div className="space-y-6">
+          <PageHeader title="Watchlists and monitor" sub="What you follow, and what changed about it. Everything here comes from the same monitor as the Risk Feed." />
+          <ChangesFeed limit={4} heading="Current risk monitor" />
+          <WatchlistsPanel />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <PageHeader title="Scenario lab" sub="Choose the shocks yourself and see what they would do to the portfolio in use. Hypothetical stress analysis: never a prediction." />
+          <ScenarioLab />
+        </div>
+      )}
+    </Tabs>
   );
 }

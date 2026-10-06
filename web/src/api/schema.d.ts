@@ -133,6 +133,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/events/{event_id}/analogues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Event Analogues
+         * @description HISTORICAL OBSERVATION: the events most like this one in the past and what the market did afterwards, from the Stage 8 analogue index (the same answer as /api/signals/{id}/analogues for the event's anchor report). Retrieved with hindsight, never a prediction and never an input to severity. Live text is UNAVAILABLE without an encoder.
+         */
+        get: operations["get_event_analogues_api_events__event_id__analogues_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/events/{event_id}/brief": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Brief
+         * @description The executive risk brief for one event and one portfolio: sixteen sections in a fixed order (executive summary, what happened, current status, why it matters, evidence, conflicts, affected entities and sectors, portfolio exposure, propagation, stress, top drivers, historical context, external market view, assumptions, uncertainty, what to monitor). Written from templates over structured outputs; every statement lists the sources it was read from and what KIND of statement it is (a source report, an EventShock assessment, an external market observation, a scenario assumption, a historical observation, a product rule). Where an input is absent the section says so in a fixed sentence. `cycle` picks the REPLAY moment (default: the last).
+         */
+        get: operations["get_brief_api_events__event_id__brief_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/events/{event_id}/explanation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Explanation
+         * @description Why? as structured reasons: PRIORITY (why it is ranked where it is), VISIBILITY (why you are seeing it), CHANGE (why it was flagged as changed) or STRESS (why the modeled stress is what it is). Each reason has a closed code, a value, the kind of statement it is (model output, product rule, scenario assumption, historical observation) and the output it was read from. `cycle` picks the REPLAY moment (default: the last).
+         */
+        get: operations["get_explanation_api_events__event_id__explanation_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/events/{event_id}/external-markets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get External Markets
+         * @description EXTERNAL MARKET OBSERVATION: what an independent prediction market (Kalshi) currently appears to price about this event's theme. The event reaches a market only through a curated theme and explicit gates (class, resolved scope, evidence of the subject, place; market open, near, fresh), never by keyword overlap with a title. Match status MATCHED / LOW_CONFIDENCE_MATCH / NO_MATCH / INSUFFICIENT_DATA; a descriptive interpretation (MARKET_REPRICED / ALIGNED / DIVERGENT / LOW_INFORMATION) that is not a verdict. Never an input to any EventShock number; unavailable data says UNAVAILABLE and nothing is invented. `cycle` picks the REPLAY moment (default: the last).
+         */
+        get: operations["get_external_markets_api_events__event_id__external_markets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/events/{event_id}/market-timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Market Timeline
+         * @description The event's timeline with the matched market's probability path merged in. Each item says what kind of statement it is: SOURCE_EVENT, EVENTSHOCK_ASSESSMENT, EXTERNAL_MARKET_OBSERVATION or SCENARIO_ASSUMPTION; they are never blurred.
+         */
+        get: operations["get_market_timeline_api_events__event_id__market_timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/events/{event_id}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Timeline
+         * @description The event as an evolving narrative: every report classified as NEW_EVENT / CONTINUATION / UPDATE / ESCALATION / DE_ESCALATION / RESOLUTION by an explicit rule, the lifecycle transitions with their verbatim cues, and the severity, evidence, conflict, portfolio-relevance and stress history by monitoring cycle. `event_id` is an event id (evt_...) or the id of any signal in it. Reports with replay-assigned times are never ordered: those events answer UNAVAILABLE with the reason.
+         */
+        get: operations["get_timeline_api_events__event_id__timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/evidence": {
         parameters: {
             query?: never;
@@ -178,6 +298,50 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Feedback
+         * @description Recorded feedback, newest first; `event_id` (an event id or a signal id) narrows it to one event.
+         */
+        get: operations["list_feedback_api_feedback_get"];
+        put?: never;
+        /**
+         * Post Feedback
+         * @description Record what an analyst says about an event: RELEVANCE (relevant / partially relevant / irrelevant), SCOPE (correct / incorrect) or EVENT (correct / incorrect), with an optional comment. ANALYST FEEDBACK: stored and counted, never ground truth, never used to change a model, a score, a threshold or any served output.
+         */
+        post: operations["post_feedback_api_feedback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/feedback/statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Statistics
+         * @description Counts of analyst feedback: volume, relevance agreement, scope agreement, event agreement, and the event/type pairs that need review or where analysts disagree. Analyst feedback, not ground truth.
+         */
+        get: operations["get_statistics_api_feedback_statistics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -187,6 +351,26 @@ export interface paths {
         };
         /** Health */
         get: operations["health_api_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/lab/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lab Options
+         * @description What the scenario editor can offer, from the same vocabulary the validator enforces: kinds and their units and limits, sectors, issuers, currencies (and which the portfolio holds), risk factors, and the oil priors.
+         */
+        get: operations["lab_options_api_lab_options_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -304,6 +488,106 @@ export interface paths {
          * @description The sentiment model card: what it is, how it was chosen, how it scored and where it fails.
          */
         get: operations["sentiment_model_api_models_sentiment_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/changes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Changes
+         * @description What changed recently. REPLAY: the changes detected in cycle `cycle` (default: the last) and the `window - 1` cycles before it, identical on every run. LIVE: the persisted change log since `since`. One event can produce several changes per cycle; an article that belongs to an existing event is never a new risk.
+         */
+        get: operations["get_changes_api_monitor_changes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/cycles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cycles
+         * @description The REPLAY clock: one monitoring cycle per fixed step from the first report to the replay clock. Cycle 0 is the baseline.
+         */
+        get: operations["get_cycles_api_monitor_cycles_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/digest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Digest
+         * @description What should I care about right now? The executive digest: top new risks, escalations, the largest changes in portfolio exposure and in modeled stress, important evidence changes, major conflicts, concentration changes and watchlist activity. Nothing is scored: every card shows the ordered key (materiality tier, severity, size of the change, recency, id) it was ranked by, and drills down to the event, its evidence, scope, exposure, propagation, stress and attribution. REPLAY is a deterministic cycle of the replay clock; LIVE reads the live monitor.
+         */
+        get: operations["get_digest_api_monitor_digest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Refresh
+         * @description LIVE: poll the live source once and diff (a no-op when the live feed is off). REPLAY needs no refresh.
+         */
+        post: operations["post_refresh_api_monitor_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Status
+         * @description Whether the monitor can answer in each mode: REPLAY (a fixed clock over the frozen signals; always available offline) and LIVE (the live feed, or a capture replayed as if live). A live feed that is off or degraded never affects REPLAY.
+         */
+        get: operations["get_status_api_monitor_status_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -517,6 +801,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reverse-stress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reverse Stress
+         * @description What would it take to lose this much? A bounded, deterministic search (grid over a fixed basket of shocks, then a bisection) valued by the unchanged stress engine: the shocks that reach `target_pct` of the portfolio, the dominant drivers, holdings, sectors and risk factors, the configured bounds, and the full engine run of the combination. Every shock is a SCENARIO ASSUMPTION and the result is a hypothetical stress analysis, not a prediction of future losses. When the bounds cannot reach the target the answer says NOT_ACHIEVABLE and returns the largest loss they allow.
+         */
+        post: operations["reverse_stress_api_reverse_stress_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reverse-stress/explanation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Explain Reverse
+         * @description Why these shocks reach the target: the method, each shock's share of its limit, the axes that were not used and why, the binding bounds, and the engine's decomposition.
+         */
+        post: operations["explain_reverse_api_reverse_stress_explanation_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scenarios": {
         parameters: {
             query?: never;
@@ -527,7 +851,71 @@ export interface paths {
         /** List Scenarios */
         get: operations["list_scenarios_api_scenarios_get"];
         put?: never;
-        post?: never;
+        /**
+         * Run Scenario
+         * @description Run a scenario through the unchanged stress engine. BASE = no shock; ASSESSED = EventShock's configured scenario for `signal_id`; CUSTOM = the assumptions you give, each a SCENARIO ASSUMPTION (never a prediction). The id is deterministic: the same assumptions on the same portfolio give the same id and result. A shock only reaches positions that carry the exposure it acts on; when none does the answer is NOT_APPLICABLE and says why, not a zero.
+         */
+        post: operations["run_scenario_api_scenarios_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scenarios/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Compare Scenarios
+         * @description Run two or three scenarios on one portfolio and compare them side by side: value before and after, loss, dominant driver, sectors, risk factors, holdings and the assumptions that differ.
+         */
+        post: operations["compare_scenarios_api_scenarios_compare_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scenarios/explanation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Explain Scenario
+         * @description Why the scenario moves the portfolio as it does: each assumption (a SCENARIO ASSUMPTION you chose, or EventShock's configured one), what it reached, and the engine's own decomposition.
+         */
+        post: operations["explain_scenario_api_scenarios_explanation_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/scenarios/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate Scenario
+         * @description What a request resolves to, and every problem with it, without running anything.
+         */
+        post: operations["validate_scenario_api_scenarios_validate_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -921,6 +1309,89 @@ export interface paths {
          * @description Always 200 for a well-formed request; ``status`` says whether numbers were produced.
          */
         post: operations["run_stress_test_api_stress_test_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watchlists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Watchlists
+         * @description Every saved watchlist, oldest first.
+         */
+        get: operations["list_watchlists_api_watchlists_get"];
+        put?: never;
+        /** Create Watchlist */
+        post: operations["create_watchlist_api_watchlists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watchlists/vocabulary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Vocabulary
+         * @description What each kind of item can name: companies (the entity master), sectors, industries, region codes, event categories, risk themes, and 'top:N' holdings. A value outside it is refused: free text never becomes a company.
+         */
+        get: operations["get_vocabulary_api_watchlists_vocabulary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watchlists/{watchlist_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Watchlist */
+        get: operations["get_watchlist_api_watchlists__watchlist_id__get"];
+        /**
+         * Update Watchlist
+         * @description Replace a watchlist's name, switch and items (create, edit, enable/disable are all this call).
+         */
+        put: operations["update_watchlist_api_watchlists__watchlist_id__put"];
+        post?: never;
+        /** Delete Watchlist */
+        delete: operations["delete_watchlist_api_watchlists__watchlist_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/watchlists/{watchlist_id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Activity
+         * @description What each watched item shows now: matching events with severity, lifecycle, novelty, velocity, evidence quality, conflicts, portfolio relevance, modeled stress and recent changes. REPLAY is a deterministic cycle of the replay clock (default: the last); LIVE reads the live monitor. A disabled list matches nothing.
+         */
+        get: operations["get_activity_api_watchlists__watchlist_id__activity_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1348,6 +1819,16 @@ export interface components {
             applicable: boolean;
             /** Base Value */
             base_value: number;
+            /**
+             * Currency
+             * @description FX_PCT: the currency that moves (omitted from the JSON when unset)
+             */
+            currency: string | null;
+            /**
+             * Entity Id
+             * @description ISSUER scope: the issuer a scenario-lab shock names (omitted from the JSON when unset)
+             */
+            entity_id: string | null;
             factor: components["schemas"]["RiskFactor"];
             /**
              * Not Applicable Reason
@@ -1402,6 +1883,112 @@ export interface components {
          * @enum {string}
          */
         AssetClass: "EQUITY" | "BOND" | "LOAN" | "DERIVATIVE" | "CASH" | "OTHER";
+        /** Assumption */
+        "Assumption-Input": {
+            kind: components["schemas"]["AssumptionKind"];
+            /**
+             * Rationale
+             * @default
+             */
+            rationale?: string;
+            /**
+             * Target
+             * @description SECTOR: a sector; ISSUER: an entity id or ticker; FX: a currency code; CREDIT_SPREAD: an optional sector; RISK_FACTOR: a risk factor id ('FX:EUR' for a currency)
+             */
+            target?: string | null;
+            /**
+             * Value
+             * @description fraction for equity / sector / issuer / oil / FX (-0.05 = -5%), basis points for rates and credit spread, a multiplier for default probability
+             */
+            value: number;
+        };
+        /** Assumption */
+        "Assumption-Output": {
+            kind: components["schemas"]["AssumptionKind"];
+            /**
+             * Rationale
+             * @default
+             */
+            rationale: string;
+            /**
+             * Target
+             * @description SECTOR: a sector; ISSUER: an entity id or ticker; FX: a currency code; CREDIT_SPREAD: an optional sector; RISK_FACTOR: a risk factor id ('FX:EUR' for a currency)
+             */
+            target: string | null;
+            /**
+             * Value
+             * @description fraction for equity / sector / issuer / oil / FX (-0.05 = -5%), basis points for rates and credit spread, a multiplier for default probability
+             */
+            value: number;
+        };
+        /** AssumptionDiffRow */
+        AssumptionDiffRow: {
+            /** Differs */
+            differs: boolean;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Values
+             * @description one entry per compared scenario, in order; null = the scenario does not set it
+             */
+            values: (string | null)[];
+        };
+        /**
+         * AssumptionKind
+         * @enum {string}
+         */
+        AssumptionKind: "EQUITY_MARKET" | "RATES" | "CREDIT_SPREAD" | "COMMODITY" | "FX" | "SECTOR" | "ISSUER" | "RISK_FACTOR";
+        /** AssumptionResult */
+        AssumptionResult: {
+            /** Description */
+            description: string;
+            /** Index */
+            index: number;
+            /** Kind */
+            kind: string;
+            /**
+             * Label
+             * @default SCENARIO ASSUMPTION
+             */
+            label: string;
+            /** Note */
+            note: string | null;
+            /**
+             * Origin
+             * @description USER (you chose it) | ASSESSED (EventShock's configured scenario for the event)
+             */
+            origin: string;
+            /**
+             * Pnl
+             * @description the modeled change this assumption alone accounts for (a simulation under the assumptions, not a forecast)
+             */
+            pnl: number | null;
+            /** Positions Reached */
+            positions_reached: number;
+            /** Rationale */
+            rationale: string;
+            /**
+             * Reach
+             * @description APPLIED | NOT_REACHED (no position carries the exposure this shock acts on)
+             */
+            reach: string;
+            /** Share Reached */
+            share_reached: number;
+            /** Shocks */
+            shocks: components["schemas"]["ResolvedShock"][];
+            /** Target */
+            target: string | null;
+            /** Target Label */
+            target_label: string | null;
+            /** Unit */
+            unit: string;
+            /** Value */
+            value: number;
+            /** Value Reached */
+            value_reached: number;
+        };
         /** Attribution */
         Attribution: {
             /**
@@ -1539,6 +2126,31 @@ export interface components {
          * @enum {string}
          */
         Availability: "AVAILABLE" | "PARTIAL" | "ABSTAINED" | "UNAVAILABLE";
+        /** AxisBound */
+        AxisBound: {
+            /** Axis */
+            axis: string;
+            /** Bound */
+            bound: number;
+            /**
+             * Direction
+             * @description ADVERSE_DOWN | ADVERSE_UP: the direction that loses
+             */
+            direction: string;
+            /**
+             * Efficiency
+             * @description loss in percent of the book per 100% of the bound, from the probe; null when the axis was not probed
+             */
+            efficiency: number | null;
+            /** Label */
+            label: string;
+            /** Note */
+            note: string | null;
+            /** Unit */
+            unit: string;
+            /** Used */
+            used: boolean;
+        };
         /** BandRow */
         BandRow: {
             /** Band */
@@ -1577,6 +2189,55 @@ export interface components {
             set: string;
             /** Within Issuer Skill */
             within_issuer_skill: number | null;
+        };
+        /** Brief */
+        Brief: {
+            /** As Of */
+            as_of: string | null;
+            /** Cycle */
+            cycle: number | null;
+            /** Event Id */
+            event_id: string;
+            /** Headline */
+            headline: string;
+            /** Labels */
+            labels: string[];
+            /** Mode */
+            mode: string;
+            /**
+             * Note
+             * @default Template-written from structured outputs; every statement lists its sources. Stress figures: SCENARIO SIMULATION — NOT A PREDICTION.
+             */
+            note: string;
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Portfolio Name */
+            portfolio_name: string | null;
+            /** Sections */
+            sections: components["schemas"]["BriefSection"][];
+            /** Signal Id */
+            signal_id: string;
+            /** Sources */
+            sources: components["schemas"]["SourceRef"][];
+            /**
+             * Version
+             * @default brief-v1
+             */
+            version: string;
+        };
+        /** BriefSection */
+        BriefSection: {
+            /**
+             * Availability
+             * @description AVAILABLE | PARTIAL | UNAVAILABLE
+             */
+            availability: string;
+            /** Id */
+            id: string;
+            /** Statements */
+            statements: components["schemas"]["Statement"][];
+            /** Title */
+            title: string;
         };
         /** CalibrationBin */
         CalibrationBin: {
@@ -1652,23 +2313,6 @@ export interface components {
             /** Temperature */
             temperature: number;
         };
-        /** Candidate */
-        Candidate: {
-            /** C */
-            C: number;
-            /** Class Weight */
-            class_weight: string | null;
-            /** Preprocessing */
-            preprocessing: string;
-            /** Selected */
-            selected: boolean;
-            /** Temperature */
-            temperature: number;
-            /** Valid Log Loss */
-            valid_log_loss: number;
-            /** Valid Macro F1 */
-            valid_macro_f1: number;
-        };
         /** CandidateRow */
         CandidateRow: {
             /** Adopt */
@@ -1723,6 +2367,30 @@ export interface components {
              */
             custom_portfolios: boolean;
             /**
+             * Executive Brief
+             * @description the executive risk brief (a fixed-order, template-written reading of one event for one portfolio, every statement sourced) is served; /api/events/{id}/brief
+             * @default false
+             */
+            executive_brief: boolean;
+            /**
+             * Explanations
+             * @description structured 'Why?' explanations are served; /api/events/{id}/explanation, /api/scenarios/explanation, /api/reverse-stress/explanation
+             * @default false
+             */
+            explanations: boolean;
+            /**
+             * External Markets
+             * @description the external-market view (what an independent prediction market is pricing: an observation, never an input) is served; /api/events/{id}/external-markets
+             * @default false
+             */
+            external_markets: boolean;
+            /**
+             * Feedback
+             * @description analyst feedback can be recorded and counted (not ground truth, never used to change a model); /api/feedback
+             * @default false
+             */
+            feedback: boolean;
+            /**
              * History Check
              * @description scenario shocks can be ranked against history; GET /api/scenarios/{id}/history-check
              * @default false
@@ -1742,11 +2410,29 @@ export interface components {
             /** @description how new text is read; null where there is no assessment layer */
             llm: components["schemas"]["LLMInfo"] | null;
             /**
+             * Monitor
+             * @description the risk monitor and event memory are served (what changed, per event timeline); /api/monitor/*, /api/events/{id}/timeline
+             * @default false
+             */
+            monitor: boolean;
+            /**
              * Propagation
              * @description event -> portfolio propagation, materiality, generated scenarios, attribution and concentration are served; /api/signals/{id}/propagation
              * @default false
              */
             propagation: boolean;
+            /**
+             * Scenario Lab
+             * @description the scenario lab is served: build, run and compare scenarios (BASE / ASSESSED / CUSTOM); /api/scenarios, /api/lab/options
+             * @default false
+             */
+            scenario_lab: boolean;
+            /**
+             * Watchlists
+             * @description persistent watchlists are served; /api/watchlists
+             * @default false
+             */
+            watchlists: boolean;
         };
         /** ChainStep */
         ChainStep: {
@@ -1792,6 +2478,58 @@ export interface components {
             /** Unit */
             unit: string;
         };
+        /** ChangeSet */
+        ChangeSet: {
+            /**
+             * Availability
+             * @description AVAILABLE | UNAVAILABLE
+             */
+            availability: string;
+            /** Changes */
+            changes: components["schemas"]["RiskChange"][];
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Cycle */
+            cycle: number | null;
+            /**
+             * Excluded Untrusted Clock
+             * @description events whose report times were assigned by the replay: never placed on a timeline
+             */
+            excluded_untrusted_clock: number;
+            /** From At */
+            from_at: string | null;
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            mode: components["schemas"]["Mode"];
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Reason */
+            reason: string | null;
+            /** To At */
+            to_at: string | null;
+            /** Tracked Events */
+            tracked_events: number;
+            /** Truncated */
+            truncated: boolean;
+            /** Untracked Events */
+            untracked_events: number;
+            /**
+             * Version
+             * @default monitor-v1
+             */
+            version: string;
+            /** Window */
+            window: number;
+        };
+        /**
+         * ChangeType
+         * @enum {string}
+         */
+        ChangeType: "NEW_EVENT" | "EVENT_UPDATED" | "EVENT_ESCALATED" | "EVENT_DE_ESCALATED" | "EVIDENCE_STRENGTHENED" | "EVIDENCE_WEAKENED" | "CONFLICT_APPEARED" | "CONFLICT_RESOLVED" | "PORTFOLIO_EXPOSURE_CHANGED" | "STRESS_CHANGED" | "LIFECYCLE_CHANGED";
         /** CheckRow */
         CheckRow: {
             /**
@@ -1926,6 +2664,64 @@ export interface components {
             scenario_id?: string | null;
             /** Signal Id */
             signal_id: string;
+        };
+        /** Comparison */
+        Comparison: {
+            /** Assumption Diff */
+            assumption_diff: components["schemas"]["AssumptionDiffRow"][];
+            /**
+             * Label
+             * @default SCENARIO SIMULATION — NOT A PREDICTION
+             */
+            label: string;
+            /**
+             * Note
+             * @default A hypothetical stress analysis under the assumptions above. It is not a prediction, a forecast or an expected return.
+             */
+            note: string;
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Portfolio Name */
+            portfolio_name: string;
+            /** Results */
+            results: components["schemas"]["LabResult"][];
+            /** Rows */
+            rows: components["schemas"]["ComparisonRow"][];
+            /**
+             * Version
+             * @default lab-v1
+             */
+            version: string;
+            /** Worst Scenario Id */
+            worst_scenario_id: string | null;
+        };
+        /** ComparisonRow */
+        ComparisonRow: {
+            /** Assumption Count */
+            assumption_count: number;
+            /** Baseline Value */
+            baseline_value: number | null;
+            /** Dominant Driver */
+            dominant_driver: string | null;
+            /** Name */
+            name: string;
+            /** Pnl */
+            pnl: number | null;
+            /** Pnl Pct */
+            pnl_pct: number | null;
+            /** Scenario Id */
+            scenario_id: string;
+            scenario_type: components["schemas"]["ScenarioType"];
+            /** Status */
+            status: string;
+            /** Stressed Value */
+            stressed_value: number | null;
+            /** Top Holdings */
+            top_holdings: string[];
+            /** Top Risk Factors */
+            top_risk_factors: string[];
+            /** Top Sectors */
+            top_sectors: string[];
         };
         /** ConcentrationRow */
         ConcentrationRow: {
@@ -2199,7 +2995,7 @@ export interface components {
          * @description Whether a signal was computed by a model or comes from a pinned demo fixture.
          * @enum {string}
          */
-        DataOrigin: "DEMO_FIXTURE" | "REAL_SOURCE_PLACEHOLDER_NLP" | "REAL_SOURCE_MIXED_NLP" | "MODEL_OUTPUT";
+        DataOrigin: "DEMO_FIXTURE" | "REAL_SOURCE_PLACEHOLDER_NLP" | "REAL_SOURCE_MIXED_NLP" | "MODEL_OUTPUT" | "USER_SCENARIO";
         /** DedupAudit */
         DedupAudit: {
             /** Cluster Id */
@@ -2254,6 +3050,112 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** Digest */
+        Digest: {
+            /** As Of */
+            as_of: string | null;
+            /**
+             * Availability
+             * @description AVAILABLE | UNAVAILABLE
+             */
+            availability: string;
+            /** Change Count */
+            change_count: number;
+            /** Cycle */
+            cycle: number | null;
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            mode: components["schemas"]["Mode"];
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Portfolio Name */
+            portfolio_name: string | null;
+            /**
+             * Ranking
+             * @description the ordering rule, in words
+             */
+            ranking: string;
+            /** Reason */
+            reason: string | null;
+            /** Sections */
+            sections: components["schemas"]["DigestSection"][];
+            /** Tracked Events */
+            tracked_events: number;
+            /**
+             * Version
+             * @default digest-v1
+             */
+            version: string;
+            /** Window */
+            window: number;
+        };
+        /** DigestCard */
+        DigestCard: {
+            /** At */
+            at: string | null;
+            /** Change Ids */
+            change_ids: string[];
+            /** Change Types */
+            change_types: components["schemas"]["ChangeType"][];
+            /** Conflict */
+            conflict: string | null;
+            /** Drill */
+            drill: components["schemas"]["DrillStep"][];
+            /** Event Id */
+            event_id: string | null;
+            /** Evidence Tier */
+            evidence_tier: string | null;
+            /** Exposure Share */
+            exposure_share: number | null;
+            /** Headline */
+            headline: string;
+            /** Independent Sources */
+            independent_sources: number | null;
+            /**
+             * Kind
+             * @description EVENT | OVERLAP | WATCHLIST
+             */
+            kind: string;
+            /** Lifecycle */
+            lifecycle: string | null;
+            /** Materiality */
+            materiality: string | null;
+            overlap: components["schemas"]["OverlapSummary"] | null;
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+            /** Rank */
+            rank: number;
+            /** Rank Key */
+            rank_key: components["schemas"]["RankPart"][];
+            /** Section */
+            section: string;
+            /** Severity */
+            severity: number | null;
+            /** Signal Id */
+            signal_id: string | null;
+            /** Stress Pnl Pct */
+            stress_pnl_pct: number | null;
+            /** Summary */
+            summary: string;
+            watch: components["schemas"]["WatchSummary"] | null;
+        };
+        /** DigestSection */
+        DigestSection: {
+            /** Blurb */
+            blurb: string;
+            /** Cards */
+            cards: components["schemas"]["DigestCard"][];
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Total */
+            total: number;
+            /** Truncated */
+            truncated: boolean;
+        };
         /** DimensionConcentration */
         DimensionConcentration: {
             /** Dimension */
@@ -2285,6 +3187,16 @@ export interface components {
             n: number;
             /** Note */
             note: string;
+        };
+        /** DrillStep */
+        DrillStep: {
+            /** Signal Id */
+            signal_id: string;
+            /**
+             * Step
+             * @description EVENT | EVIDENCE | SCOPE | EXPOSURE | PROPAGATION | STRESS | ATTRIBUTION
+             */
+            step: string;
         };
         /**
          * EntityAudit
@@ -2777,6 +3689,94 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** EventMarketView */
+        EventMarketView: {
+            /** As Of */
+            as_of: string | null;
+            /**
+             * Availability
+             * @description AVAILABLE | UNAVAILABLE
+             */
+            availability: string;
+            /** Caveats */
+            caveats: string[];
+            /** Event Id */
+            event_id: string;
+            /** Eventshock Materiality */
+            eventshock_materiality: string | null;
+            /** Eventshock Severity */
+            eventshock_severity: number | null;
+            interpretation: components["schemas"]["InterpretationView"] | null;
+            /**
+             * Label
+             * @default EXTERNAL MARKET OBSERVATION
+             */
+            label: string;
+            match: components["schemas"]["MarketMatch"] | null;
+            /**
+             * Note
+             * @default External market data is an observation. It is never an input to the risk signal, the severity score, sentiment, the event classification, portfolio mapping, portfolio stress or reverse stress, and a market price is not a ground truth.
+             */
+            note: string;
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+            provider: components["schemas"]["ProviderState"];
+            /** Reason */
+            reason: string | null;
+            /** Signal Id */
+            signal_id: string | null;
+            /**
+             * Version
+             * @default external-markets-v1
+             */
+            version: string;
+        };
+        /** EventMemory */
+        EventMemory: {
+            /** Anchor Signal Id */
+            anchor_signal_id: string;
+            /** As Of */
+            as_of: string | null;
+            /**
+             * Availability
+             * @description AVAILABLE | PARTIAL | UNAVAILABLE
+             */
+            availability: string;
+            /** Clock Trusted */
+            clock_trusted: boolean;
+            current: components["schemas"]["EventState"] | null;
+            /** Event Id */
+            event_id: string;
+            /** Headline */
+            headline: string;
+            /**
+             * History
+             * @description the event's state at each monitoring cycle: severity, relevance and stress history
+             */
+            history: components["schemas"]["HistoryPoint"][];
+            /** Items */
+            items: components["schemas"]["MemoryItem"][];
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            mode: components["schemas"]["Mode"];
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Reason */
+            reason: string | null;
+            /** Signal Ids */
+            signal_ids: string[];
+            /** Update Counts */
+            update_counts: {
+                [key: string]: number;
+            };
+            /**
+             * Version
+             * @default monitor-v1
+             */
+            version: string;
+        };
         /** EventModelCard */
         EventModelCard: {
             /**
@@ -2863,6 +3863,110 @@ export interface components {
              * @description other subjects the text also points to (regions, themes)
              */
             secondary: components["schemas"]["ScopeNode"][];
+        };
+        /**
+         * EventState
+         * @description What EventShock held about one event at ``as_of``. Every field is read from an existing layer; none is computed here.
+         */
+        EventState: {
+            /** Anchor Signal Id */
+            anchor_signal_id: string;
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Clock Trusted */
+            clock_trusted: boolean;
+            /**
+             * Conflict
+             * @description NO_CONFLICT | POSSIBLE_CONFLICT | CONFLICTED | RESOLVED_CONFLICT (claim contradiction, never tone)
+             */
+            conflict: string;
+            /** Event Id */
+            event_id: string;
+            /** Event Type */
+            event_type: string | null;
+            /**
+             * Evidence Tier
+             * @description INSUFFICIENT | WEAK | MODERATE | STRONG (how well corroborated; not model confidence)
+             */
+            evidence_tier: string;
+            /**
+             * Exposure Share
+             * @description share of the book the event reaches (0-1)
+             */
+            exposure_share: number | null;
+            /**
+             * Fingerprint
+             * @description hash of the fields a change is detected on; equal fingerprints mean no change
+             */
+            fingerprint: string;
+            /** First Seen */
+            first_seen: string | null;
+            /**
+             * Headline
+             * @description the lead report's headline
+             */
+            headline: string;
+            /** Independent Sources */
+            independent_sources: number;
+            /** Last Seen */
+            last_seen: string | null;
+            /**
+             * Lead Signal Id
+             * @description the report cluster of the event with the highest severity (then portfolio materiality, then earliest) at this moment
+             */
+            lead_signal_id: string;
+            /**
+             * Lifecycle
+             * @description DEVELOPING | CONFIRMED | ESCALATING | STABILIZING | RESOLVED | STALE; null when the clock is not trusted
+             */
+            lifecycle: string | null;
+            /**
+             * Materiality
+             * @description LOW | MEDIUM | HIGH | CRITICAL | NONE | UNDETERMINED (relevance to the book)
+             */
+            materiality: string | null;
+            /**
+             * Member Count
+             * @description report clusters (signals) of the event published by this moment
+             */
+            member_count: number;
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Report Count */
+            report_count: number;
+            /** Scope Type */
+            scope_type: string;
+            /** Scope Value */
+            scope_value: string | null;
+            /**
+             * Severity
+             * @description the transparent 1-10 scorecard of the lead report; null when the text is not a market event
+             */
+            severity: number | null;
+            /** Severity Band */
+            severity_band: string | null;
+            /**
+             * Stress Pnl Pct
+             * @description modeled P&L as a fraction of the book under the generated scenario: a simulation, not a forecast
+             */
+            stress_pnl_pct: number | null;
+            /** Stress Run Id */
+            stress_run_id: string | null;
+            /**
+             * Stress Status
+             * @description AVAILABLE | ABSTAINED | UNAVAILABLE for the generated scenario, then COMPLETED when it ran
+             */
+            stress_status: string | null;
+            /**
+             * Tracked
+             * @description severity or portfolio materiality reached the tracking floor in configs/decision.yaml
+             */
+            tracked: boolean;
+            /** Velocity Per Hour */
+            velocity_per_hour: number | null;
         };
         /**
          * EventStatus
@@ -3076,6 +4180,46 @@ export interface components {
             signal_id: string;
             source_evidence: components["schemas"]["SourceEvidence"];
         };
+        /** Explanation */
+        Explanation: {
+            /**
+             * Availability
+             * @description AVAILABLE | PARTIAL | UNAVAILABLE
+             */
+            availability: string;
+            /** Event Id */
+            event_id: string | null;
+            /** Headline */
+            headline: string;
+            /**
+             * Kinds
+             * @description how many reasons of each kind: a model output is never counted as an observation
+             */
+            kinds: {
+                [key: string]: number;
+            };
+            /** Labels */
+            labels: string[];
+            /**
+             * Level
+             * @description the level being explained (e.g. HIGH), when it has one
+             */
+            level: string | null;
+            /** Limitations */
+            limitations: string[];
+            /** Reasons */
+            reasons: components["schemas"]["Reason"][];
+            /** Signal Id */
+            signal_id: string | null;
+            subject: components["schemas"]["Subject"];
+            /** Unavailable Reason */
+            unavailable_reason: string | null;
+            /**
+             * Version
+             * @default explain-v1
+             */
+            version: string;
+        };
         /** ExposureChain */
         ExposureChain: {
             /**
@@ -3160,6 +4304,68 @@ export interface components {
              */
             share: number;
         };
+        /**
+         * ExternalMarketObservation
+         * @description One market at one moment, as an independent source reported it.
+         */
+        ExternalMarketObservation: {
+            category: components["schemas"]["ProviderCategory"];
+            /** Close Time */
+            close_time: string | null;
+            /** Market Id */
+            market_id: string;
+            market_status: components["schemas"]["MarketStatus"];
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Open Interest */
+            open_interest: number | null;
+            /** Previous Observed At */
+            previous_observed_at: string | null;
+            /** Previous Probability */
+            previous_probability: number | null;
+            /**
+             * Probability
+             * @description the market's implied probability of YES (0-1); null when the market is not priced (no trade and no usable quote)
+             */
+            probability: number | null;
+            /**
+             * Probability Change Pp
+             * @description percentage points since the previous observation; null when either is missing
+             */
+            probability_change_pp: number | null;
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+            /** Provider */
+            provider: string;
+            /** Question */
+            question: string;
+            /** Raw Status */
+            raw_status: string | null;
+            /** Series Id */
+            series_id: string | null;
+            /**
+             * Source
+             * @description kalshi (live) | kalshi-snapshot (a captured copy) | fixture (SYNTHETIC: not market data)
+             */
+            source: string;
+            /** Source Url */
+            source_url: string | null;
+            /**
+             * Synthetic
+             * @default false
+             */
+            synthetic: boolean;
+            /**
+             * Volume
+             * @description contracts traded in total, when the source reports it
+             */
+            volume: number | null;
+            /** Volume 24H */
+            volume_24h: number | null;
+        };
         /** ExtractionInfo */
         ExtractionInfo: {
             /**
@@ -3220,6 +4426,119 @@ export interface components {
             /** Why */
             why: string;
         };
+        /** Feedback */
+        Feedback: {
+            /** Analyst Id */
+            analyst_id: string;
+            /** Comment */
+            comment: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Cycle */
+            cycle: number | null;
+            /** Event Id */
+            event_id: string;
+            /** Feedback Id */
+            feedback_id: string;
+            /**
+             * Label
+             * @default ANALYST FEEDBACK — not ground truth, and not used to train or change any model
+             */
+            label: string;
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Signal Id */
+            signal_id: string | null;
+            type: components["schemas"]["FeedbackType"];
+            value: components["schemas"]["FeedbackValue"];
+        };
+        /** FeedbackInput */
+        FeedbackInput: {
+            /**
+             * Analyst Id
+             * @description who is giving it; the X-Analyst-Id header is used when this is empty; 'anonymous' otherwise
+             */
+            analyst_id?: string | null;
+            /** Comment */
+            comment?: string | null;
+            /**
+             * Cycle
+             * @description the replay cycle the analyst was looking at, when there was one
+             */
+            cycle?: number | null;
+            /**
+             * Event Id
+             * @description an event id (evt_...) or the id of any signal in it
+             */
+            event_id: string;
+            type: components["schemas"]["FeedbackType"];
+            value: components["schemas"]["FeedbackValue"];
+        };
+        /** FeedbackList */
+        FeedbackList: {
+            /** Items */
+            items: components["schemas"]["Feedback"][];
+            /**
+             * Label
+             * @default ANALYST FEEDBACK — not ground truth, and not used to train or change any model
+             */
+            label: string;
+            /** Total */
+            total: number;
+        };
+        /** FeedbackStats */
+        FeedbackStats: {
+            /** Analysts */
+            analysts: number;
+            /**
+             * Disagreements
+             * @description event/type pairs where analysts' latest answers point both ways
+             */
+            disagreements: number;
+            event: components["schemas"]["TypeStats"];
+            /** Events */
+            events: number;
+            /** First At */
+            first_at: string | null;
+            /**
+             * Label
+             * @default ANALYST FEEDBACK — not ground truth, and not used to train or change any model
+             */
+            label: string;
+            /** Last At */
+            last_at: string | null;
+            /** Limitations */
+            limitations: string[];
+            /**
+             * Needs Review
+             * @description event/type pairs whose latest answer from at least one analyst is negative (IRRELEVANT or INCORRECT)
+             */
+            needs_review: number;
+            /** Note */
+            note: string;
+            relevance: components["schemas"]["TypeStats"];
+            scope: components["schemas"]["TypeStats"];
+            /**
+             * Version
+             * @default feedback-v1
+             */
+            version: string;
+            /** Volume */
+            volume: number;
+        };
+        /**
+         * FeedbackType
+         * @enum {string}
+         */
+        FeedbackType: "RELEVANCE" | "SCOPE" | "EVENT";
+        /**
+         * FeedbackValue
+         * @enum {string}
+         */
+        FeedbackValue: "RELEVANT" | "PARTIALLY_RELEVANT" | "IRRELEVANT" | "CORRECT" | "INCORRECT";
         /**
          * FetchQuery
          * @description Final outcome of one download request, collapsed over its attempts (failures are never hidden).
@@ -3240,6 +4559,15 @@ export interface components {
              * @description ok | error (latest attempt)
              */
             status: string;
+        };
+        /** FieldChange */
+        FieldChange: {
+            /** Current */
+            current: string | number | boolean | null;
+            /** Field */
+            field: string;
+            /** Previous */
+            previous: string | number | boolean | null;
         };
         /**
          * FieldSource
@@ -3409,6 +4737,34 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HistoryPoint */
+        HistoryPoint: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Conflict */
+            conflict: string;
+            /** Cycle */
+            cycle: number | null;
+            /** Evidence Tier */
+            evidence_tier: string;
+            /** Exposure Share */
+            exposure_share: number | null;
+            /** Independent Sources */
+            independent_sources: number;
+            /** Lifecycle */
+            lifecycle: string | null;
+            /** Materiality */
+            materiality: string | null;
+            /** Report Count */
+            report_count: number;
+            /** Severity */
+            severity: number | null;
+            /** Stress Pnl Pct */
+            stress_pnl_pct: number | null;
         };
         /** HoldingInput */
         "HoldingInput-Input": {
@@ -3842,6 +5198,43 @@ export interface components {
             /** Timestamp Origin */
             timestamp_origin: string;
         };
+        /**
+         * Interpretation
+         * @enum {string}
+         */
+        Interpretation: "MARKET_REPRICED" | "ALIGNED" | "DIVERGENT" | "LOW_INFORMATION" | "NOT_ASSESSED";
+        /** InterpretationView */
+        InterpretationView: {
+            /** Caveats */
+            caveats: string[];
+            code: components["schemas"]["Interpretation"];
+            /**
+             * Eventshock Direction
+             * @description UP | DOWN | FLAT | None: the change of EventShock's severity since the previous cycle, when there was one
+             */
+            eventshock_direction: string | null;
+            /** Eventshock Elevated */
+            eventshock_elevated: boolean;
+            /**
+             * Market Direction
+             * @description TOWARD_RISK | AWAY_FROM_RISK | FLAT | UNMAPPED | None: relative to the market's own orientation
+             */
+            market_direction: string | null;
+            /**
+             * Orientation
+             * @description UP | DOWN | NEUTRAL: which way a higher probability moves the world relative to risk, and how it was read
+             */
+            orientation: string;
+            /** Reason */
+            reason: string;
+            /** Rule */
+            rule: string;
+            /**
+             * Text
+             * @description a descriptive observation, never 'the market confirms EventShock'
+             */
+            text: string;
+        };
         /** Interval */
         Interval: {
             /** Estimate */
@@ -3876,12 +5269,81 @@ export interface components {
          * @enum {string}
          */
         IssueLevel: "ERROR" | "WARNING" | "INFO";
+        /** ItemActivity */
+        ItemActivity: {
+            /** Events */
+            events: components["schemas"]["WatchedEvent"][];
+            item: components["schemas"]["WatchItem-Output"];
+            /** Matched Events */
+            matched_events: number;
+            /** New Events */
+            new_events: number;
+            /** Reason */
+            reason: string | null;
+            rollup: components["schemas"]["ItemRollup"] | null;
+            /** Scanned */
+            scanned: number;
+            /**
+             * Status
+             * @description MATCHED | NO_MATCH | DISABLED | UNAVAILABLE
+             */
+            status: string;
+            /** Truncated */
+            truncated: boolean;
+        };
+        /** ItemRollup */
+        ItemRollup: {
+            /** Conflicts Open */
+            conflicts_open: number;
+            /** Evidence Counts */
+            evidence_counts: {
+                [key: string]: number;
+            };
+            /** Fastest Velocity Per Hour */
+            fastest_velocity_per_hour: number | null;
+            /** Lifecycle Counts */
+            lifecycle_counts: {
+                [key: string]: number;
+            };
+            /** Max Materiality */
+            max_materiality: string | null;
+            /** Max Severity */
+            max_severity: number | null;
+            /** Novelty Counts */
+            novelty_counts: {
+                [key: string]: number;
+            };
+            /** Worst Stress Pnl Pct */
+            worst_stress_pnl_pct: number | null;
+        };
         /**
          * Kind
          * @description What sort of statement a number or phrase is. The UI shows these as separate badges and never blends them.
          * @enum {string}
          */
         Kind: "SOURCE" | "EXTRACTION" | "JUDGEMENT_PRIOR" | "MARKET_STATE" | "MODEL_REFERENCE" | "SCENARIO_ASSUMPTION" | "REALISED" | "RETRIEVED";
+        /** KindInfo */
+        KindInfo: {
+            kind: components["schemas"]["AssumptionKind"];
+            /** Label */
+            label: string;
+            /** Max */
+            max: number | null;
+            /** Min */
+            min: number | null;
+            /**
+             * Needs Target
+             * @description what `target` must name for this kind (null = it takes none)
+             */
+            needs_target: string | null;
+            /**
+             * Reaches
+             * @description what the shock reaches, in words
+             */
+            reaches: string;
+            /** Unit */
+            unit: string;
+        };
         /** Knob */
         Knob: {
             /** Adjusted */
@@ -3971,6 +5433,142 @@ export interface components {
              * @description true only in LLM mode: the report text goes to the model provider
              */
             sends_text_off_machine: boolean;
+        };
+        /** LabCompareRequest */
+        LabCompareRequest: {
+            /** Portfolio Id */
+            portfolio_id?: string | null;
+            /** Scenarios */
+            scenarios: components["schemas"]["ScenarioRequest-Input"][];
+        };
+        /** LabIssue */
+        LabIssue: {
+            /** Field */
+            field: string;
+            /** Index */
+            index: number | null;
+            /** Message */
+            message: string;
+        };
+        /**
+         * LabOptions
+         * @description What the editor can offer: the same vocabulary the validator enforces.
+         */
+        LabOptions: {
+            /** Base Currency */
+            base_currency: string;
+            /** Currencies */
+            currencies: components["schemas"]["OptionEntry"][];
+            /** Held Currencies */
+            held_currencies: string[];
+            /** Issuers */
+            issuers: components["schemas"]["OptionEntry"][];
+            /** Kinds */
+            kinds: components["schemas"]["KindInfo"][];
+            /**
+             * Label
+             * @default SCENARIO ASSUMPTION
+             */
+            label: string;
+            /** Max Assumptions */
+            max_assumptions: number;
+            /** Max Compared */
+            max_compared: number;
+            /** Oil Priors */
+            oil_priors: components["schemas"]["PriorUse"][];
+            /** Portfolio Id */
+            portfolio_id: string;
+            reverse: components["schemas"]["ReverseOptions"];
+            /** Risk Factors */
+            risk_factors: components["schemas"]["OptionEntry"][];
+            /** Sectors */
+            sectors: components["schemas"]["OptionEntry"][];
+            /**
+             * Version
+             * @default lab-v1
+             */
+            version: string;
+        };
+        /**
+         * LabPlan
+         * @description What a request resolves to before anything runs.
+         */
+        LabPlan: {
+            /** Assumptions */
+            assumptions: components["schemas"]["AssumptionResult"][];
+            /** Bounds */
+            bounds: {
+                [key: string]: {
+                    [key: string]: number | string;
+                };
+            };
+            /** Issues */
+            issues: components["schemas"]["LabIssue"][];
+            /**
+             * Label
+             * @default SCENARIO ASSUMPTION
+             */
+            label: string;
+            /** Ok */
+            ok: boolean;
+            /** Scenario Id */
+            scenario_id: string | null;
+            scenario_type: components["schemas"]["ScenarioType"];
+        };
+        /** LabResult */
+        LabResult: {
+            /** Assumptions */
+            assumptions: components["schemas"]["AssumptionResult"][];
+            attribution: components["schemas"]["StressAttribution"] | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Exposure Priors */
+            exposure_priors: components["schemas"]["PriorUse"][];
+            history_check: components["schemas"]["ScenarioHistoryCheck"] | null;
+            /**
+             * Label
+             * @default SCENARIO SIMULATION — NOT A PREDICTION
+             */
+            label: string;
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            /** Name */
+            name: string;
+            /**
+             * Note
+             * @default A hypothetical stress analysis under the assumptions above. It is not a prediction, a forecast or an expected return.
+             */
+            note: string;
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Portfolio Name */
+            portfolio_name: string;
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+            /** Reason */
+            reason: string | null;
+            result: components["schemas"]["StressResult"] | null;
+            /**
+             * Scenario Id
+             * @description deterministic: the same assumptions on the same portfolio give the same id
+             */
+            scenario_id: string;
+            scenario_type: components["schemas"]["ScenarioType"];
+            /**
+             * Status
+             * @description COMPLETED | NOT_APPLICABLE (nothing in the portfolio carries the exposure) | UNAVAILABLE (an assessed scenario that cannot be generated)
+             */
+            status: string;
+            /**
+             * Version
+             * @default lab-v1
+             */
+            version: string;
         };
         /**
          * LabelScores
@@ -4123,6 +5721,89 @@ export interface components {
          * @enum {string}
          */
         MappingBasis: "DIRECT_FACT" | "EVIDENCED_SCOPE" | "ASSUMPTION_ONLY" | "NONE";
+        /** MarketMatch */
+        MarketMatch: {
+            /** Candidates */
+            candidates: components["schemas"]["eventshock__markets__models__Candidate"][];
+            /** Event Gates */
+            event_gates: components["schemas"]["Gate"][];
+            /**
+             * Evidence
+             * @description what in the event made the theme apply: scope themes and the phrases found in its text
+             */
+            evidence: string[];
+            market: components["schemas"]["ExternalMarketObservation"] | null;
+            /**
+             * Reason
+             * @description in words: which gates passed or failed and why this market (or none)
+             */
+            reason: string;
+            status: components["schemas"]["MatchStatus"];
+            /** Theme Id */
+            theme_id: string | null;
+            /** Theme Label */
+            theme_label: string | null;
+        };
+        /**
+         * MarketStatus
+         * @enum {string}
+         */
+        MarketStatus: "OPEN" | "CLOSED" | "SETTLED" | "UNKNOWN";
+        /** MarketTimeline */
+        MarketTimeline: {
+            /** Availability */
+            availability: string;
+            /** Event Id */
+            event_id: string;
+            /** Items */
+            items: components["schemas"]["MarketTimelineItem"][];
+            /** Kinds */
+            kinds: {
+                [key: string]: number;
+            };
+            /**
+             * Label
+             * @default EXTERNAL MARKET OBSERVATION
+             */
+            label: string;
+            /** Market Id */
+            market_id: string | null;
+            /**
+             * Note
+             * @default External market data is an observation. It is never an input to the risk signal, the severity score, sentiment, the event classification, portfolio mapping, portfolio stress or reverse stress, and a market price is not a ground truth.
+             */
+            note: string;
+            /** Reason */
+            reason: string | null;
+            /**
+             * Version
+             * @default external-markets-v1
+             */
+            version: string;
+        };
+        /** MarketTimelineItem */
+        MarketTimelineItem: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Change Pp */
+            change_pp: number | null;
+            /** Detail */
+            detail: string;
+            /**
+             * Kind
+             * @description EXTERNAL_MARKET_OBSERVATION | SOURCE_EVENT | EVENTSHOCK_ASSESSMENT | SCENARIO_ASSUMPTION | REALISED_OUTCOME
+             */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Probability */
+            probability: number | null;
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+        };
         /**
          * MarketUse
          * @description Whether market data entered the score, and exactly how fresh it was.
@@ -4152,6 +5833,11 @@ export interface components {
             /** Vix */
             vix: number | null;
         };
+        /**
+         * MatchStatus
+         * @enum {string}
+         */
+        MatchStatus: "MATCHED" | "LOW_CONFIDENCE_MATCH" | "NO_MATCH" | "INSUFFICIENT_DATA";
         /** MaterialityComponent */
         MaterialityComponent: {
             /** Band */
@@ -4180,6 +5866,38 @@ export interface components {
              * @description GRID | BUMP | CAP
              */
             kind: string;
+        };
+        /** MemoryItem */
+        MemoryItem: {
+            /** At */
+            at: string | null;
+            /** Detail */
+            detail: string;
+            /** Independent */
+            independent: boolean | null;
+            /**
+             * Kind
+             * @description REPORT | LIFECYCLE | EVIDENCE | SEVERITY | PORTFOLIO | STRESS | ASSESSMENT | OUTCOME
+             */
+            kind: string;
+            /** Label */
+            label: string;
+            /**
+             * Observation
+             * @description an ObservationKind: SOURCE_EVENT | EVENTSHOCK_ASSESSMENT | SCENARIO_ASSUMPTION | REALISED_OUTCOME | ...
+             */
+            observation: string;
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+            /** Report Id */
+            report_id: string | null;
+            /** Rule */
+            rule: string | null;
+            /** Signal Id */
+            signal_id: string | null;
+            /** Source */
+            source: string | null;
+            update_kind: components["schemas"]["UpdateKind"] | null;
         };
         /** Meta */
         Meta: {
@@ -4237,6 +5955,11 @@ export interface components {
             /** Value */
             value: number | null;
         };
+        /**
+         * Mode
+         * @enum {string}
+         */
+        Mode: "REPLAY" | "LIVE";
         /** ModelConfidenceItem */
         ModelConfidenceItem: {
             /** Basis */
@@ -4302,6 +6025,61 @@ export interface components {
             /** Sentiment */
             sentiment: string;
         };
+        /** MonitorCycle */
+        MonitorCycle: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Baseline
+             * @description the first cycle: it records the starting states and reports no changes
+             */
+            baseline: boolean;
+            /** Index */
+            index: number;
+        };
+        /** MonitorStatus */
+        MonitorStatus: {
+            /** Available */
+            available: boolean;
+            /** Changes Logged */
+            changes_logged: number;
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            /** Live Enabled */
+            live_enabled: boolean;
+            /** Live Source Mode */
+            live_source_mode: string | null;
+            /** Live State */
+            live_state: string | null;
+            mode: components["schemas"]["Mode"];
+            /** Reason */
+            reason: string | null;
+            /** Replay Cycles */
+            replay_cycles: number;
+            /** Replay First */
+            replay_first: string | null;
+            /** Replay Last */
+            replay_last: string | null;
+            /** Replay Step Hours */
+            replay_step_hours: number;
+            /**
+             * State
+             * @description OK | DEGRADED | OFF | UNAVAILABLE: LIVE reflects the live feed; REPLAY is always OK when the replay is loaded
+             */
+            state: string;
+            /** Tracked Floor */
+            tracked_floor: string;
+            /**
+             * Version
+             * @default monitor-v1
+             */
+            version: string;
+        };
         /** NoveltyAssessment */
         NoveltyAssessment: {
             availability: components["schemas"]["Availability"];
@@ -4338,6 +6116,11 @@ export interface components {
             /** Rule */
             rule: string;
         };
+        /**
+         * ObservationKind
+         * @enum {string}
+         */
+        ObservationKind: "SOURCE_EVENT" | "EVENTSHOCK_ASSESSMENT" | "EXTERNAL_MARKET_OBSERVATION" | "SCENARIO_ASSUMPTION" | "HISTORICAL_OBSERVATION" | "REALISED_OUTCOME" | "PRODUCT_RULE";
         /** OmittedFactor */
         OmittedFactor: {
             /** Id */
@@ -4346,6 +6129,15 @@ export interface components {
             label: string;
             /** Reason */
             reason: string;
+        };
+        /** OptionEntry */
+        OptionEntry: {
+            /** Detail */
+            detail: string | null;
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
         };
         /**
          * Origin
@@ -4408,6 +6200,28 @@ export interface components {
             severity: number | null;
             /** Signal Id */
             signal_id: string;
+        };
+        /** OverlapSummary */
+        OverlapSummary: {
+            /** Event Count */
+            event_count: number;
+            /** Previous Event Count */
+            previous_event_count: number;
+            /** Risk Factor */
+            risk_factor: string;
+            /** Risk Factor Label */
+            risk_factor_label: string;
+            /** Sentence */
+            sentence: string;
+            /** Shared Share */
+            shared_share: number;
+            /** Signal Ids */
+            signal_ids: string[];
+            /**
+             * Status
+             * @description NEW | GROWN | RESOLVED
+             */
+            status: string;
         };
         /** OverlapView */
         OverlapView: {
@@ -4603,6 +6417,16 @@ export interface components {
              */
             beta: number;
             /**
+             * Commodity Sensitivity
+             * @description elasticity of the position's value to the price of crude oil (0.5 = a 10% oil move moves it 5%); unset = not measured, so an oil shock does not move it (omitted from the JSON)
+             */
+            commodity_sensitivity: number | null;
+            /**
+             * Currency
+             * @description ISO code of the currency the position is denominated in when it is not the portfolio's base currency; unset = base currency (omitted from the JSON)
+             */
+            currency: string | null;
+            /**
              * Default Sensitivity
              * @default 1
              */
@@ -4750,6 +6574,28 @@ export interface components {
              * @default propagation-v1
              */
             version: string;
+        };
+        /** PortfolioImpact */
+        PortfolioImpact: {
+            /** Exposure Share Current */
+            exposure_share_current: number | null;
+            /** Exposure Share Previous */
+            exposure_share_previous: number | null;
+            /**
+             * Label
+             * @default Stress figures are a simulation under an illustrative scenario: not a prediction.
+             */
+            label: string;
+            /** Materiality Current */
+            materiality_current: string | null;
+            /** Materiality Previous */
+            materiality_previous: string | null;
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Stress Pnl Pct Current */
+            stress_pnl_pct_current: number | null;
+            /** Stress Pnl Pct Previous */
+            stress_pnl_pct_previous: number | null;
         };
         /** PortfolioInput */
         "PortfolioInput-Input": {
@@ -4996,6 +6842,16 @@ export interface components {
         };
         /** PositionShock */
         PositionShock: {
+            /**
+             * Currency
+             * @description FX_PCT: the currency that moved (omitted from the JSON when unset)
+             */
+            currency: string | null;
+            /**
+             * Entity Id
+             * @description ISSUER scope: the named issuer of a scenario-lab shock (omitted from the JSON when unset)
+             */
+            entity_id: string | null;
             factor: components["schemas"]["RiskFactor"];
             scope: components["schemas"]["ShockScope"];
             /**
@@ -5085,6 +6941,22 @@ export interface components {
             signal_id: string;
             /** Similarity */
             similarity: number;
+        };
+        /** PriorUse */
+        PriorUse: {
+            /**
+             * Label
+             * @default JUDGEMENT PRIOR
+             */
+            label: string;
+            /** Positions */
+            positions: number;
+            /** Sector */
+            sector: string;
+            /** Sensitivity */
+            sensitivity: number;
+            /** Value */
+            value: number;
         };
         /** ProbeRow */
         ProbeRow: {
@@ -5209,6 +7081,57 @@ export interface components {
             /** Part */
             part: string;
         };
+        /**
+         * ProvenanceRef
+         * @description Where one value came from: a kind, the component that produced it, and (when there is one) the record it came from.
+         */
+        ProvenanceRef: {
+            /** As Of */
+            as_of: string | null;
+            kind: components["schemas"]["ObservationKind"];
+            /**
+             * Ref Id
+             * @description signal, report, run or market id the value was read from
+             */
+            ref_id: string | null;
+            /**
+             * Source
+             * @description the component or dataset, e.g. 'intelligence.lifecycle', 'monitor.diff', 'kalshi'
+             */
+            source: string;
+        };
+        /**
+         * ProviderCategory
+         * @enum {string}
+         */
+        ProviderCategory: "PREDICTION_MARKET" | "EQUITY_MARKET" | "RATE_MARKET" | "CREDIT_MARKET" | "COMMODITY_MARKET" | "FX_MARKET" | "VOLATILITY_MARKET";
+        /** ProviderState */
+        ProviderState: {
+            category: components["schemas"]["ProviderCategory"];
+            /**
+             * Mode
+             * @description live | snapshot | fixture | off
+             */
+            mode: string;
+            /** Observed From */
+            observed_from: string | null;
+            /** Observed Through */
+            observed_through: string | null;
+            /** Provider */
+            provider: string;
+            /** Reason */
+            reason: string | null;
+            /**
+             * State
+             * @description AVAILABLE | UNAVAILABLE | DISABLED
+             */
+            state: string;
+            /**
+             * Synthetic
+             * @default false
+             */
+            synthetic: boolean;
+        };
         /** PutRequest */
         PutRequest: {
             /** Values */
@@ -5228,6 +7151,13 @@ export interface components {
             record_ref: string;
             /** Source */
             source: string;
+        };
+        /** RankPart */
+        RankPart: {
+            /** Name */
+            name: string;
+            /** Value */
+            value: string;
         };
         /**
          * RawDocument
@@ -5337,6 +7267,43 @@ export interface components {
              */
             z: number;
         };
+        /** Reason */
+        Reason: {
+            code: components["schemas"]["ReasonCode"];
+            /** Detail */
+            detail: string | null;
+            kind: components["schemas"]["ReasonKind"];
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+            /**
+             * Source Ref
+             * @description the output this was read from: 'intelligence.lifecycle', 'propagation.materiality', 'monitor.state', 'stress.attribution', ...
+             */
+            source_ref: string;
+            /**
+             * Text
+             * @description the reason in words, from the structured value below
+             */
+            text: string;
+            /** Unit */
+            unit: string | null;
+            /**
+             * Value
+             * @description the value the reason is about, when it has one
+             */
+            value: string | number | null;
+        };
+        /**
+         * ReasonCode
+         * @enum {string}
+         */
+        ReasonCode: "SEVERITY" | "SEVERITY_UNSCORED" | "EVENT_CLASS" | "SCOPE" | "SCOPE_UNRESOLVED" | "EVIDENCE_TIER" | "INDEPENDENT_SOURCES" | "LIFECYCLE" | "CONFLICT_OPEN" | "NOVELTY" | "MATERIALITY" | "EXPOSURE_SHARE" | "MAPPING_BASIS" | "MATERIALITY_RULE" | "WATCHLIST_MATCH" | "RECENT_CHANGE" | "CHANGE_RULE" | "CHANGE_FIELD" | "STRESS_TOTAL" | "STRESS_SCENARIO" | "STRESS_SHOCK" | "STRESS_NOT_RUN" | "STRESS_DRIVER_KIND" | "STRESS_DRIVER_SECTOR" | "STRESS_DRIVER_FACTOR" | "STRESS_DRIVER_RISK_FACTOR" | "STRESS_DRIVER_ISSUER" | "STRESS_HISTORY" | "REVERSE_TARGET" | "REVERSE_METHOD" | "REVERSE_SHOCK" | "REVERSE_BOUND" | "REVERSE_BINDING" | "MARKET_MATCH" | "MARKET_MOVE" | "MARKET_INTERPRETATION" | "MARKET_UNAVAILABLE";
+        /**
+         * ReasonKind
+         * @description What KIND of statement a reason is. Never blurred: a model output is not an observation, a scenario assumption is not a fact, a rule is not a model.
+         * @enum {string}
+         */
+        ReasonKind: "MODEL_OUTPUT" | "HISTORICAL_OBSERVATION" | "EXTERNAL_MARKET_OBSERVATION" | "SCENARIO_ASSUMPTION" | "PRODUCT_RULE";
         /**
          * ReferenceReading
          * @description The trained market-reaction model's own output, kept next to the severity score as a labelled reference. It is not used by the trigger.
@@ -5549,6 +7516,35 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /** RequiredShock */
+        RequiredShock: {
+            /** Axis */
+            axis: string;
+            /**
+             * Bound
+             * @description the configured limit of this axis, in the same unit
+             */
+            bound: number;
+            kind: components["schemas"]["AssumptionKind"];
+            /** Label */
+            label: string;
+            /**
+             * Label Kind
+             * @default SCENARIO ASSUMPTION
+             */
+            label_kind: string;
+            /**
+             * Share Of Bound
+             * @description how much of its limit this shock uses (0-1)
+             */
+            share_of_bound: number;
+            /** Target */
+            target: string | null;
+            /** Unit */
+            unit: string;
+            /** Value */
+            value: number;
+        };
         /**
          * ResolutionStatus
          * @enum {string}
@@ -5634,6 +7630,28 @@ export interface components {
             /** Total Value */
             total_value: number | null;
         };
+        /** ResolvedShock */
+        ResolvedShock: {
+            /**
+             * Basis
+             * @description what made this engine shock: the user's choice, or the transmission edge that spread a risk-factor shock
+             */
+            basis: string;
+            /** Currency */
+            currency: string | null;
+            /** Entity Id */
+            entity_id: string | null;
+            /** Factor */
+            factor: string;
+            /** Scope */
+            scope: string;
+            /** Sector */
+            sector: string | null;
+            /** Unit */
+            unit: string;
+            /** Value */
+            value: number;
+        };
         /** RetrievalSummary */
         RetrievalSummary: {
             /** Decision */
@@ -5650,6 +7668,119 @@ export interface components {
             similarity_floor: number | null;
             /** Value */
             value: components["schemas"]["ValueRow"][];
+        };
+        /** ReverseOptions */
+        ReverseOptions: {
+            /** Axes */
+            axes: components["schemas"]["OptionEntry"][];
+            /** Method */
+            method: string;
+            /** Min Target Pct */
+            min_target_pct: number;
+            /** Presets Pct */
+            presets_pct: number[];
+            /** Tolerance Pp */
+            tolerance_pp: number;
+        };
+        /** ReverseStressRequest */
+        ReverseStressRequest: {
+            /**
+             * Exposure Priors
+             * @description let the oil axis use sector priors for positions with no measured oil elasticity (a judgement prior, shown beside the result)
+             * @default false
+             */
+            exposure_priors?: boolean;
+            /**
+             * Factors
+             * @description restrict the search to these basket axes (by id, e.g. EQUITY_MARKET, CREDIT_SPREAD, RATES, COMMODITY, or a held sector); default: the configured basket
+             */
+            factors?: string[] | null;
+            /** Portfolio Id */
+            portfolio_id?: string | null;
+            /**
+             * Target Pct
+             * @description the loss to find a hypothetical combination for, in percent of the portfolio: -5 means -5%
+             */
+            target_pct: number;
+        };
+        /** ReverseStressResult */
+        ReverseStressResult: {
+            /** Achieved Pct */
+            achieved_pct: number | null;
+            /** Achieved Pnl */
+            achieved_pnl: number | null;
+            /** Affected Holdings */
+            affected_holdings: string[];
+            /** Affected Risk Factors */
+            affected_risk_factors: string[];
+            /** Affected Sectors */
+            affected_sectors: string[];
+            /** Assumptions */
+            assumptions: string[];
+            /** Baseline Value */
+            baseline_value: number | null;
+            /**
+             * Binding Bounds
+             * @description when not achievable: the axes that were already at their limit
+             */
+            binding_bounds: string[];
+            /** Bounds */
+            bounds: components["schemas"]["AxisBound"][];
+            /**
+             * Difference Pp
+             * @description achieved minus target, in percentage points of the book
+             */
+            difference_pp: number | null;
+            /** Dominant Drivers */
+            dominant_drivers: string[];
+            /** Evaluations */
+            evaluations: number;
+            /** Exposure Priors */
+            exposure_priors: components["schemas"]["PriorUse"][];
+            /**
+             * Label
+             * @default SCENARIO ASSUMPTION
+             */
+            label: string;
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            /**
+             * Note
+             * @default A hypothetical stress analysis: the shocks above are what it would take, under these bounds, to lose this much. It is not a prediction of future losses.
+             */
+            note: string;
+            /** @description the same combination as a CUSTOM scenario, to fork into the lab */
+            open_in_lab: components["schemas"]["ScenarioRequest-Output"] | null;
+            /** Portfolio Id */
+            portfolio_id: string;
+            /** Portfolio Name */
+            portfolio_name: string;
+            /** Required Shocks */
+            required_shocks: components["schemas"]["RequiredShock"][];
+            /** Reverse Id */
+            reverse_id: string;
+            /** @description the complete engine run of the combination found (value before and after, attribution, history check) */
+            scenario: components["schemas"]["LabResult"] | null;
+            /** Search Config */
+            search_config: {
+                [key: string]: string | number | string[];
+            };
+            /** Search Method */
+            search_method: string;
+            /**
+             * Status
+             * @description ACHIEVABLE | NOT_ACHIEVABLE (the bounds cannot reach it) | NO_EXPOSURE (no basket shock reaches the book)
+             */
+            status: string;
+            /** Target Pct */
+            target_pct: number;
+            /**
+             * Version
+             * @default lab-v1
+             */
+            version: string;
         };
         /** RiskAssessment */
         RiskAssessment: {
@@ -5713,12 +7844,50 @@ export interface components {
             /** Timestamp Origin */
             timestamp_origin: string;
         };
+        /** RiskChange */
+        RiskChange: {
+            /**
+             * At
+             * Format: date-time
+             * @description the clock of the cycle that detected it
+             */
+            at: string;
+            /** Change Id */
+            change_id: string;
+            change_type: components["schemas"]["ChangeType"];
+            /** Changed Fields */
+            changed_fields: components["schemas"]["FieldChange"][];
+            current: components["schemas"]["EventState"];
+            /**
+             * Cycle
+             * @description REPLAY: the monitoring cycle that detected it; null in LIVE
+             */
+            cycle: number | null;
+            /** Event Id */
+            event_id: string;
+            /** Headline */
+            headline: string;
+            mode: components["schemas"]["Mode"];
+            portfolio_impact: components["schemas"]["PortfolioImpact"] | null;
+            previous: components["schemas"]["EventState"] | null;
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+            /**
+             * Rule
+             * @description the configured rule that fired, with its threshold
+             */
+            rule: string;
+            /** Summary */
+            summary: string;
+            /** Supporting Evidence */
+            supporting_evidence: components["schemas"]["SupportingEvidence"][];
+        };
         /**
          * RiskFactor
          * @description Scenario risk factors. Units are fixed per factor (see ``FACTOR_UNITS``).
          * @enum {string}
          */
-        RiskFactor: "EQUITY" | "RATES_BPS" | "CREDIT_SPREAD_BPS" | "PD_MULTIPLIER" | "LGD_ADD";
+        RiskFactor: "EQUITY" | "RATES_BPS" | "CREDIT_SPREAD_BPS" | "PD_MULTIPLIER" | "LGD_ADD" | "FX_PCT" | "COMMODITY_PCT";
         /**
          * RiskSignal
          * @description The product's central object: one normalised, auditable signal per accepted document.
@@ -5935,6 +8104,67 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** ScenarioRequest */
+        "ScenarioRequest-Input": {
+            /** Assumptions */
+            assumptions?: components["schemas"]["Assumption-Input"][];
+            /**
+             * Exposure Priors
+             * @description estimate an oil elasticity from the sector for equities and derivatives that have none: a judgement prior, shown beside the result
+             * @default false
+             */
+            exposure_priors?: boolean;
+            /**
+             * Force
+             * @description ASSESSED: run the generated scenario even when a soft gate (severity, relevance) fails, as a what-if
+             * @default false
+             */
+            force?: boolean;
+            /** Name */
+            name?: string | null;
+            /** Portfolio Id */
+            portfolio_id?: string | null;
+            /** @default CUSTOM */
+            scenario_type?: components["schemas"]["ScenarioType"];
+            /**
+             * Signal Id
+             * @description ASSESSED: the signal whose generated scenario to run
+             */
+            signal_id?: string | null;
+        };
+        /** ScenarioRequest */
+        "ScenarioRequest-Output": {
+            /** Assumptions */
+            assumptions: components["schemas"]["Assumption-Output"][];
+            /**
+             * Exposure Priors
+             * @description estimate an oil elasticity from the sector for equities and derivatives that have none: a judgement prior, shown beside the result
+             * @default false
+             */
+            exposure_priors: boolean;
+            /**
+             * Force
+             * @description ASSESSED: run the generated scenario even when a soft gate (severity, relevance) fails, as a what-if
+             * @default false
+             */
+            force: boolean;
+            /** Name */
+            name: string | null;
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** @default CUSTOM */
+            scenario_type: components["schemas"]["ScenarioType"];
+            /**
+             * Signal Id
+             * @description ASSESSED: the signal whose generated scenario to run
+             */
+            signal_id: string | null;
+        };
+        /**
+         * ScenarioType
+         * @enum {string}
+         */
+        ScenarioType: "BASE" | "ASSESSED" | "CUSTOM";
         /**
          * ScopeBasis
          * @enum {string}
@@ -6236,7 +8466,7 @@ export interface components {
             artifact_sha256: string;
             calibration: components["schemas"]["CalibrationInfo"];
             /** Candidates */
-            candidates: components["schemas"]["Candidate"][];
+            candidates: components["schemas"]["eventshock__pipeline__sentiment_card__Candidate"][];
             /** Classes */
             classes: string[];
             /** Confident Errors */
@@ -6462,6 +8692,16 @@ export interface components {
          * @description A shock at the scenario's *reference impact*; scaled by severity at run time.
          */
         ShockSpec: {
+            /**
+             * Currency
+             * @description FX_PCT only: the ISO code of the currency whose value moves against the base currency (omitted from the JSON when unset)
+             */
+            currency: string | null;
+            /**
+             * Entity Id
+             * @description ISSUER scope only: the issuer this shock names, whatever the event is about (scenario-lab shocks; omitted from the JSON when unset). Unset, it binds to the event's own issuer.
+             */
+            entity_id: string | null;
             factor: components["schemas"]["RiskFactor"];
             /**
              * Rationale
@@ -6807,6 +9047,26 @@ export interface components {
             /** Sha256 */
             sha256: string | null;
         };
+        /** SourceRef */
+        SourceRef: {
+            /** As Of */
+            as_of: string | null;
+            /**
+             * Endpoint
+             * @description the API path where the same structured output can be read
+             */
+            endpoint: string | null;
+            /**
+             * Id
+             * @description the key statements cite
+             */
+            id: string;
+            kind: components["schemas"]["ObservationKind"];
+            /** Label */
+            label: string;
+            /** Ref Id */
+            ref_id: string | null;
+        };
         /** SourceRow */
         SourceRow: {
             /**
@@ -6884,6 +9144,18 @@ export interface components {
             stage: string;
             /** Summary */
             summary: string;
+        };
+        /** Statement */
+        Statement: {
+            /** @description what kind of statement it is: a source report, an EventShock assessment, an external market observation, a scenario assumption, a historical observation or a product rule */
+            kind: components["schemas"]["ObservationKind"];
+            /**
+             * Source Refs
+             * @description ids in `sources`; at least one
+             */
+            source_refs: string[];
+            /** Text */
+            text: string;
         };
         /**
          * Status
@@ -7178,6 +9450,34 @@ export interface components {
              */
             track_f: components["schemas"]["TrackF"];
         };
+        /**
+         * Subject
+         * @enum {string}
+         */
+        Subject: "PRIORITY" | "STRESS" | "VISIBILITY" | "CHANGE" | "LAB" | "REVERSE" | "MARKET";
+        /** SupportingEvidence */
+        SupportingEvidence: {
+            /** At */
+            at: string | null;
+            /**
+             * Kind
+             * @description REPORT | LIFECYCLE_TRANSITION | CONFLICT | SCORE
+             */
+            kind: string;
+            /** Report Id */
+            report_id: string | null;
+            /** Rule */
+            rule: string | null;
+            /** Signal Id */
+            signal_id: string | null;
+            /** Source */
+            source: string | null;
+            /**
+             * Text
+             * @description a report's headline, a transition's verbatim cue, or the claim that conflicts
+             */
+            text: string;
+        };
         /** TaxonomyItem */
         TaxonomyItem: {
             /** Default Scenario */
@@ -7308,6 +9608,26 @@ export interface components {
              */
             pairs: number;
         };
+        /** TypeStats */
+        TypeStats: {
+            /**
+             * Agreement
+             * @description CORRECT / all for SCOPE and EVENT; RELEVANT / all for RELEVANCE; null with no feedback
+             */
+            agreement: number | null;
+            /**
+             * At Least Partly Relevant
+             * @description RELEVANCE only: (RELEVANT + PARTIALLY_RELEVANT) / all
+             */
+            at_least_partly_relevant: number | null;
+            /** By Value */
+            by_value: {
+                [key: string]: number;
+            };
+            /** Total */
+            total: number;
+            type: components["schemas"]["FeedbackType"];
+        };
         /** UncoveredExposure */
         UncoveredExposure: {
             /** Asset Count */
@@ -7319,6 +9639,11 @@ export interface components {
             /** Share Of Portfolio */
             share_of_portfolio: number;
         };
+        /**
+         * UpdateKind
+         * @enum {string}
+         */
+        UpdateKind: "NEW_EVENT" | "CONTINUATION" | "UPDATE" | "ESCALATION" | "DE_ESCALATION" | "RESOLUTION";
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -7413,6 +9738,219 @@ export interface components {
             /** Window Start */
             window_start: string | null;
         };
+        /** VocabEntry */
+        VocabEntry: {
+            /** Detail */
+            detail: string | null;
+            /** Label */
+            label: string;
+            /** Value */
+            value: string;
+        };
+        /** WatchItem */
+        "WatchItem-Input": {
+            kind: components["schemas"]["WatchKind"];
+            /**
+             * Label
+             * @description a display name; filled in from the vocabulary when left empty
+             * @default
+             */
+            label?: string;
+            /**
+             * Value
+             * @description COMPANY: an entity id or ticker in the entity master; SECTOR / INDUSTRY: a name from the vocabulary; GEOGRAPHY: a region code; EVENT_TYPE: an event category id; RISK_THEME: a theme id; PORTFOLIO_EXPOSURE: 'top:N' or a held entity id / ticker
+             */
+            value: string;
+        };
+        /** WatchItem */
+        "WatchItem-Output": {
+            kind: components["schemas"]["WatchKind"];
+            /**
+             * Label
+             * @description a display name; filled in from the vocabulary when left empty
+             * @default
+             */
+            label: string;
+            /**
+             * Value
+             * @description COMPANY: an entity id or ticker in the entity master; SECTOR / INDUSTRY: a name from the vocabulary; GEOGRAPHY: a region code; EVENT_TYPE: an event category id; RISK_THEME: a theme id; PORTFOLIO_EXPOSURE: 'top:N' or a held entity id / ticker
+             */
+            value: string;
+        };
+        /**
+         * WatchKind
+         * @enum {string}
+         */
+        WatchKind: "COMPANY" | "SECTOR" | "INDUSTRY" | "GEOGRAPHY" | "EVENT_TYPE" | "RISK_THEME" | "PORTFOLIO_EXPOSURE";
+        /** WatchSummary */
+        WatchSummary: {
+            /** Matched Events */
+            matched_events: number;
+            /** Name */
+            name: string;
+            /** New Events */
+            new_events: number;
+            /** Recent Changes */
+            recent_changes: number;
+            /**
+             * Top
+             * @description the watched events that matter most: signal_id, headline, severity, materiality
+             */
+            top: {
+                [key: string]: string | number | null;
+            }[];
+            /** Watchlist Id */
+            watchlist_id: string;
+        };
+        /**
+         * WatchVocabulary
+         * @description What each kind of item can name: the pickers of the UI and the validator of the API are the same object.
+         */
+        WatchVocabulary: {
+            /** Companies */
+            companies: components["schemas"]["VocabEntry"][];
+            /** Event Types */
+            event_types: components["schemas"]["VocabEntry"][];
+            /** Geographies */
+            geographies: components["schemas"]["VocabEntry"][];
+            /** Industries */
+            industries: components["schemas"]["VocabEntry"][];
+            /** Max Items */
+            max_items: number;
+            /** Max Watchlists */
+            max_watchlists: number;
+            /** Portfolio Exposure */
+            portfolio_exposure: components["schemas"]["VocabEntry"][];
+            /** Risk Themes */
+            risk_themes: components["schemas"]["VocabEntry"][];
+            /** Sectors */
+            sectors: components["schemas"]["VocabEntry"][];
+        };
+        /** WatchedEvent */
+        WatchedEvent: {
+            /** Clock Trusted */
+            clock_trusted: boolean;
+            /** Conflict */
+            conflict: string;
+            /** Event Id */
+            event_id: string;
+            /** Evidence Tier */
+            evidence_tier: string;
+            /** Exposure Share */
+            exposure_share: number | null;
+            /** First Seen */
+            first_seen: string | null;
+            /** Headline */
+            headline: string;
+            /**
+             * Is New
+             * @description first tracked within the requested window
+             */
+            is_new: boolean;
+            /** Last Seen */
+            last_seen: string | null;
+            /** Lead Signal Id */
+            lead_signal_id: string;
+            /** Lifecycle */
+            lifecycle: string | null;
+            /**
+             * Match Reason
+             * @description why this event is on the list, in words: which scope level or which fact matched
+             */
+            match_reason: string;
+            /** Materiality */
+            materiality: string | null;
+            /** Novelty */
+            novelty: string | null;
+            /** Recent Changes */
+            recent_changes: components["schemas"]["ChangeType"][];
+            /** Severity */
+            severity: number | null;
+            /**
+             * Stress Pnl Pct
+             * @description modeled scenario P&L (a simulation, not a forecast); null when no scenario applies
+             */
+            stress_pnl_pct: number | null;
+            /** Velocity Per Hour */
+            velocity_per_hour: number | null;
+        };
+        /** Watchlist */
+        Watchlist: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /** Id */
+            id: string;
+            /** Items */
+            items: components["schemas"]["WatchItem-Output"][];
+            /** Name */
+            name: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** WatchlistActivity */
+        WatchlistActivity: {
+            /** As Of */
+            as_of: string | null;
+            /** Cycle */
+            cycle: number | null;
+            /** Items */
+            items: components["schemas"]["ItemActivity"][];
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            /** Mode */
+            mode: string;
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Provenance */
+            provenance: components["schemas"]["ProvenanceRef"][];
+            /** Reason */
+            reason: string | null;
+            /** Recent Changes */
+            recent_changes: number;
+            /**
+             * Status
+             * @description OK | DISABLED | UNAVAILABLE
+             */
+            status: string;
+            /**
+             * Version
+             * @default watchlist-v1
+             */
+            version: string;
+            watchlist: components["schemas"]["Watchlist"];
+            /** Window */
+            window: number;
+        };
+        /** WatchlistInput */
+        WatchlistInput: {
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled?: boolean;
+            /** Items */
+            items?: components["schemas"]["WatchItem-Input"][];
+            /** Name */
+            name: string;
+        };
+        /** WatchlistList */
+        WatchlistList: {
+            /** Watchlists */
+            watchlists: components["schemas"]["Watchlist"][];
+        };
         /** YearCount */
         YearCount: {
             /**
@@ -7453,6 +9991,27 @@ export interface components {
             url: string | null;
             /** Used In Score */
             used_in_score: boolean;
+        };
+        /** Candidate */
+        eventshock__markets__models__Candidate: {
+            /** Chosen */
+            chosen: boolean;
+            /** Close Time */
+            close_time: string | null;
+            /** Gates */
+            gates: components["schemas"]["Gate"][];
+            /** Market Id */
+            market_id: string;
+            /** Open Interest */
+            open_interest: number | null;
+            /** Probability */
+            probability: number | null;
+            /** Question */
+            question: string;
+            /** Series Id */
+            series_id: string | null;
+            /** Volume */
+            volume: number | null;
         };
         /** Acceptance */
         eventshock__pipeline__event_card__Acceptance: {
@@ -7555,6 +10114,23 @@ export interface components {
             /** Signals */
             signals: number;
             source_type: components["schemas"]["SourceType"];
+        };
+        /** Candidate */
+        eventshock__pipeline__sentiment_card__Candidate: {
+            /** C */
+            C: number;
+            /** Class Weight */
+            class_weight: string | null;
+            /** Preprocessing */
+            preprocessing: string;
+            /** Selected */
+            selected: boolean;
+            /** Temperature */
+            temperature: number;
+            /** Valid Log Loss */
+            valid_log_loss: number;
+            /** Valid Macro F1 */
+            valid_macro_f1: number;
         };
         /** TrainingInfo */
         eventshock__pipeline__sentiment_card__TrainingInfo: {
@@ -7825,6 +10401,215 @@ export interface operations {
             };
         };
     };
+    get_event_analogues_api_events__event_id__analogues_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalogueSet"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_brief_api_events__event_id__brief_get: {
+        parameters: {
+            query?: {
+                format?: "json" | "md";
+                cycle?: number | null;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description JSON by default; `format=md` returns the same brief as Markdown */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Brief"];
+                    "text/markdown": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_explanation_api_events__event_id__explanation_get: {
+        parameters: {
+            query?: {
+                subject?: components["schemas"]["Subject"];
+                cycle?: number | null;
+                change_id?: string | null;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Explanation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_external_markets_api_events__event_id__external_markets_get: {
+        parameters: {
+            query?: {
+                cycle?: number | null;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventMarketView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_market_timeline_api_events__event_id__market_timeline_get: {
+        parameters: {
+            query?: {
+                cycle?: number | null;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketTimeline"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_timeline_api_events__event_id__timeline_get: {
+        parameters: {
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventMemory"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     evidence_api_evidence_get: {
         parameters: {
             query?: never;
@@ -7865,6 +10650,96 @@ export interface operations {
             };
         };
     };
+    list_feedback_api_feedback_get: {
+        parameters: {
+            query?: {
+                event_id?: string | null;
+                limit?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_feedback_api_feedback_post: {
+        parameters: {
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: {
+                "x-analyst-id"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeedbackInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Feedback"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_statistics_api_feedback_statistics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackStats"];
+                };
+            };
+        };
+    };
     health_api_health_get: {
         parameters: {
             query?: never;
@@ -7883,6 +10758,38 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+        };
+    };
+    lab_options_api_lab_options_get: {
+        parameters: {
+            query?: {
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabOptions"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -8003,6 +10910,150 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SentimentModelCard"];
+                };
+            };
+        };
+    };
+    get_changes_api_monitor_changes_get: {
+        parameters: {
+            query?: {
+                mode?: components["schemas"]["Mode"];
+                cycle?: number | null;
+                window?: number;
+                types?: components["schemas"]["ChangeType"][] | null;
+                /** @description LIVE only: an ISO timestamp */
+                since?: string | null;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangeSet"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cycles_api_monitor_cycles_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitorCycle"][];
+                };
+            };
+        };
+    };
+    get_digest_api_monitor_digest_get: {
+        parameters: {
+            query?: {
+                mode?: components["schemas"]["Mode"];
+                cycle?: number | null;
+                window?: number;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Digest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_refresh_api_monitor_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitorStatus"];
+                };
+            };
+        };
+    };
+    get_status_api_monitor_status_get: {
+        parameters: {
+            query?: {
+                mode?: components["schemas"]["Mode"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitorStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -8432,6 +11483,72 @@ export interface operations {
             };
         };
     };
+    reverse_stress_api_reverse_stress_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReverseStressRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReverseStressResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    explain_reverse_api_reverse_stress_explanation_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReverseStressRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Explanation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_scenarios_api_scenarios_get: {
         parameters: {
             query?: never;
@@ -8448,6 +11565,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ScenarioList"];
+                };
+            };
+        };
+    };
+    run_scenario_api_scenarios_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRequest-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    compare_scenarios_api_scenarios_compare_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LabCompareRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comparison"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    explain_scenario_api_scenarios_explanation_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRequest-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Explanation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validate_scenario_api_scenarios_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScenarioRequest-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LabPlan"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -9088,6 +12337,211 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StressResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_watchlists_api_watchlists_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchlistList"];
+                };
+            };
+        };
+    };
+    create_watchlist_api_watchlists_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WatchlistInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Watchlist"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_vocabulary_api_watchlists_vocabulary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchVocabulary"];
+                };
+            };
+        };
+    };
+    get_watchlist_api_watchlists__watchlist_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                watchlist_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Watchlist"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_watchlist_api_watchlists__watchlist_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                watchlist_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WatchlistInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Watchlist"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_watchlist_api_watchlists__watchlist_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                watchlist_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_activity_api_watchlists__watchlist_id__activity_get: {
+        parameters: {
+            query?: {
+                mode?: components["schemas"]["Mode"];
+                cycle?: number | null;
+                window?: number;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path: {
+                watchlist_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WatchlistActivity"];
                 };
             };
             /** @description Validation Error */

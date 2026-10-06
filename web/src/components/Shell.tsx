@@ -10,7 +10,7 @@ import { currencySymbol } from "../lib/portfolio";
 import { setDisplayCurrency } from "../lib/format";
 import { AdjustHost } from "./adjust/AdjustDrawer";
 import { PortfolioSwitcher } from "./portfolio/PortfolioSwitcher";
-import { AnalyzeIcon, Database, EventIcon, EvidenceIcon, FeedIcon, PortfolioIcon, StressIcon, Wrench } from "./icons";
+import { AnalyzeIcon, Database, EventIcon, EvidenceIcon, FeedIcon, PortfolioIcon, StressIcon, TodayIcon, Wrench } from "./icons";
 import { Logo } from "./Logo";
 import { ThemeSwitch } from "./ThemeSwitch";
 
@@ -64,6 +64,7 @@ export function Shell() {
   setDisplayCurrency(currencySymbol(activeItem?.base_currency));
 
   const nav = [
+    ...(meta?.capabilities.monitor === true ? [{ to: "/today", label: "Today", icon: TodayIcon, active: pathname.startsWith("/today") }] : []),
     { to: "/", label: "Risk Feed", icon: FeedIcon, active: pathname === "/" },
     ...(meta?.capabilities.analyze !== false ? [{ to: "/analyze", label: "Analyze", icon: AnalyzeIcon, active: pathname.startsWith("/analyze") }] : []),
     { to: eventTo, label: "Event Intelligence", icon: EventIcon, active: pathname.startsWith("/events/") },

@@ -10,6 +10,8 @@ import { ComparePanel } from "../components/portfolio/ComparePanel";
 import { RunAttribution } from "../components/propagation/AttributionPanel";
 import { ConcentrationPanel } from "../components/propagation/ConcentrationPanel";
 import { PropagationSection } from "../components/propagation/PropagationSection";
+import { ScenarioLab } from "../components/lab/ScenarioLab";
+import { WhyButtons, WhyDrawers } from "../components/explain/WhyDrawer";
 import { ContributionDrill } from "../components/portfolio/ContributionDrill";
 import { DecisionStrip } from "../components/portfolio/DecisionStrip";
 import { ExposureChainPanel } from "../components/portfolio/ExposureChainPanel";
@@ -414,6 +416,13 @@ export function StressPage() {
 
           {s && <ComparePanel signalId={s.id} scenarioId={scenarioParam || undefined} activeId={activePf} force={!!result.audit.forced} />}
 
+          {meta?.capabilities.scenario_lab === true && (
+            <details id="lab" className="disclosure" open={params.get("open") === "lab" || undefined}>
+              <summary>Scenario lab: build, run and compare your own scenarios</summary>
+              <div className="mt-4"><ScenarioLab signalId={s?.id ?? null} /></div>
+            </details>
+          )}
+
           <details className="disclosure">
             <summary>How large are this scenario's shocks by historical standards?</summary>
             <HistoryCheck scenarioId={selectedScenario?.id} scale={shown.severity?.scale ?? 1} />
@@ -438,12 +447,14 @@ export function StressPage() {
             <button type="button" className="btn btn-ghost" aria-haspopup="dialog" onClick={() => setOpen("audit")}>
               Audit trail
             </button>
+            {s && meta?.capabilities.propagation === true && <WhyButtons subjects={["STRESS"]} size="md" />}
           </div>
         </div>
       )}
 
       {signalId && !s && !signal.isLoading && !signal.error && <EmptyState title="Event not found" />}
       <StressDrawers r={shown} scenario={selectedScenario} />
+      {s && meta?.capabilities.propagation === true && <WhyDrawers eventId={s.id} subjects={["STRESS"]} />}
       <div className="sr-only" aria-live="polite">
         {(main.isPending || sim.isPending) && "Running stress test"}
       </div>

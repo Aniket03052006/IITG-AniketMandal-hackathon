@@ -9,6 +9,10 @@ import { EventHero } from "../components/event/EventHero";
 import { EvidenceChapter } from "../components/event/EvidenceChapter";
 import { ImpactChapter } from "../components/event/ImpactChapter";
 import { IntelligencePanel } from "../components/intelligence/IntelligencePanel";
+import { EventMemoryPanel } from "../components/monitor/EventMemoryPanel";
+import { BriefButton, BriefDrawer } from "../components/brief/BriefDrawer";
+import { WhyButtons, WhyDrawers } from "../components/explain/WhyDrawer";
+import { FeedbackBar } from "../components/feedback/FeedbackBar";
 import { StressBridge } from "../components/event/StressBridge";
 import { UnderstandChapter } from "../components/event/UnderstandChapter";
 import { FlowRail, type Stage } from "../components/FlowRail";
@@ -91,6 +95,7 @@ export function EventPage() {
             }
           />
           <EventHero s={s} label={label} a={a} threshold={threshold} />
+          <div className="mt-4 space-y-3"><div className="flex flex-wrap items-center gap-2"><WhyButtons subjects={["PRIORITY", "VISIBILITY", "STRESS"]} /><BriefButton /></div><FeedbackBar eventId={s.id} /></div>
           <ChainGraphic
             s={s}
             label={label}
@@ -101,6 +106,7 @@ export function EventPage() {
             a={a}
           />
           <IntelligencePanel signalId={s.id} enabled={meta?.capabilities.intelligence === true} />
+          <EventMemoryPanel signalId={s.id} />
           <UnderstandChapter s={s} label={label} a={a} />
           {a ? <SeverityChapter a={a} /> : <ImpactChapter s={s} label={label} />}
           <EvidenceChapter
@@ -116,6 +122,8 @@ export function EventPage() {
             assessLoading={assessed && (asm.isLoading || evid.isLoading || tl.isLoading)}
           />
           <StressBridge s={s} scenario={scenario} threshold={threshold} a={a} />
+          <WhyDrawers eventId={s.id} subjects={["PRIORITY", "VISIBILITY", "STRESS"]} />
+          <BriefDrawer eventId={s.id} />
           <EventDrawers s={s} ctx={ctx.data} ctxLoading={ctx.isLoading} label={label} assessment={a} timeline={tl.data} />
         </>
       )}

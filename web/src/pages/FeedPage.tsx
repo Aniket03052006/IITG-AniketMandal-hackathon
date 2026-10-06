@@ -1,3 +1,4 @@
+import { ChangesFeed } from "../components/monitor/ChangesFeed";
 import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -288,6 +289,9 @@ export function FeedPage() {
         <p className="mt-1 max-w-[64ch] text-md text-ink-2">
           EventShock reads financial text, works out what happened and how severe it is likely to be, and shows what that does to a portfolio. Start with the featured event, or browse.
         </p>
+        {meta?.capabilities.monitor === true && (
+          <p className="mt-3"><Link className="btn" to="/today">What should I care about right now? <ArrowRight size={14} /></Link></p>
+        )}
       </header>
 
       {live.data && (
@@ -303,6 +307,7 @@ export function FeedPage() {
       )}
       <StoryStrip items={processed} threshold={threshold} loading={all.isLoading} assessed={assessed} />
       {!all.isLoading && <FeaturedPanel items={everything} label={label} assessed={assessed} threshold={threshold} />}
+      <div className="mt-6"><ChangesFeed limit={5} /></div>
 
       <details className="disclosure mt-5">
         <summary>What is real here, and what is a stand-in?</summary>

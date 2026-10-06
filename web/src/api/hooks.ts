@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActivePortfolio } from "../lib/portfolio";
 import { api, type SignalFilters } from "./client";
-import type { AutoStressRequest, CompareRequest, PortfolioInput, StressRequest } from "./types";
+import type { AutoStressRequest, CompareRequest, ExplainSubject, FeedbackInput, MonitorMode, PortfolioInput, ReverseStressRequest, ScenarioRequest, StressRequest, WatchlistInput } from "./types";
 
 export const useMeta = () => useQuery({ queryKey: ["meta"], queryFn: api.meta, staleTime: Infinity });
 
@@ -217,4 +217,121 @@ export const useAdjustmentMutations = () => {
     reset: useMutation({ mutationFn: api.resetAdjustment, onSuccess: done }),
     resetAll: useMutation({ mutationFn: api.resetAdjustments, onSuccess: done }),
   };
+};
+
+/** The monitor: what changed. REPLAY is a deterministic clock over the frozen signals (always available); LIVE needs the live feed. Absent (404) in the demo profile. */
+export const useMonitorStatus = (mode: MonitorMode, enabled = true) =>
+  useQuery({ queryKey: ["monitor-status", mode], queryFn: () => api.monitorStatus(mode), enabled, staleTime: 10_000, retry: false });
+
+export const useMonitorCycles = (enabled = true) =>
+  useQuery({ queryKey: ["monitor-cycles"], queryFn: api.monitorCycles, enabled, staleTime: Infinity, retry: false });
+
+export const useMonitorChanges = (mode: MonitorMode, cycle: number | null, window: number, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({
+    queryKey: ["monitor-changes", mode, cycle, window, pf],
+    queryFn: () => api.monitorChanges({ mode, cycle, window, pf }),
+    enabled,
+    staleTime: mode === "LIVE" ? 5_000 : 60_000,
+    retry: false,
+    placeholderData: (prev) => prev,
+  });
+};
+
+/** The event as an evolving narrative: reports classified as new / continuation / update / escalation / de-escalation / resolution, with its history by cycle. */
+export const useEventTimeline = (id: string | undefined, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["event-timeline", id, pf], queryFn: () => api.eventTimeline(id as string, pf), enabled: !!id && enabled, staleTime: 30_000, retry: false });
+};
+
+/** EXTERNAL MARKET OBSERVATION for an event (an event id or any signal in it). Never an input to a risk number; gate on `capabilities.external_markets`. */
+export const useExternalMarkets = (id: string | undefined, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["external-markets", id, pf], queryFn: () => api.eventExternalMarkets(id as string, pf), enabled: !!id && enabled, staleTime: 60_000, retry: false });
+};
+
+/** The executive risk brief of an event for the active portfolio. Fetched only while its drawer is open (`enabled`). */
+export const useEventBrief = (id: string | undefined, enabled: boolean, cycle: number | null = null) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["brief", id, cycle, pf], queryFn: () => api.eventBrief(id as string, { pf, cycle }), enabled: !!id && enabled, staleTime: 30_000, retry: false });
+};
+
+export const useMarketTimeline = (id: string | undefined, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["market-timeline", id, pf], queryFn: () => api.eventMarketTimeline(id as string, pf), enabled: !!id && enabled, staleTime: 60_000, retry: false });
+};
+
+/** Persistent watchlists (replay profile). Absent (404) elsewhere: callers gate on `capabilities.watchlists`. */
+export const useWatchlists = (enabled = true) => useQuery({ queryKey: ["watchlists"], queryFn: api.watchlists, enabled, staleTime: 10_000, retry: false });
+
+export const useWatchVocabulary = (enabled = true) => useQuery({ queryKey: ["watch-vocabulary"], queryFn: api.watchVocabulary, enabled, staleTime: Infinity, retry: false });
+
+export const useWatchlistActivity = (id: string | undefined, mode: MonitorMode, cycle: number | null, window: number, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["watchlist-activity", id, mode, cycle, window, pf], queryFn: () => api.watchlistActivity(id as string, { mode, cycle, window, pf }), enabled: !!id && enabled, staleTime: 30_000, retry: false });
+};
+
+export const useWatchlistMutations = () => {
+  const qc = useQueryClient();
+  const done = () => {
+    qc.invalidateQueries({ queryKey: ["watchlists"] });
+    qc.invalidateQueries({ queryKey: ["watchlist-activity"] });
+  };
+  return {
+    create: useMutation({ mutationFn: (b: WatchlistInput) => api.createWatchlist(b), onSuccess: done }),
+    update: useMutation({ mutationFn: (a: { id: string; body: WatchlistInput }) => api.updateWatchlist(a.id, a.body), onSuccess: done }),
+    remove: useMutation({ mutationFn: (id: string) => api.deleteWatchlist(id), onSuccess: done }),
+  };
+};
+
+/** The scenario lab: build, run and compare scenarios on the unchanged stress engine. Every size a person sets is a SCENARIO ASSUMPTION. */
+export const useLabOptions = (enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["lab-options", pf], queryFn: () => api.labOptions(pf), enabled, staleTime: 60_000, retry: false });
+};
+
+export const useRunScenario = () => {
+  const pf = useActivePortfolio();
+  return useMutation({ mutationFn: (b: ScenarioRequest) => api.runScenario({ ...b, portfolio_id: pf }) });
+};
+
+export const useCompareScenarios = () => {
+  const pf = useActivePortfolio();
+  return useMutation({ mutationFn: (scenarios: ScenarioRequest[]) => api.compareScenarios({ scenarios, portfolio_id: pf }) });
+};
+
+/** Reverse stress: the hypothetical shocks that would reach a target loss, searched within configured bounds and valued by the unchanged engine. */
+export const useReverseStress = () => {
+  const pf = useActivePortfolio();
+  return useMutation({ mutationFn: (b: Omit<ReverseStressRequest, "portfolio_id">) => api.reverseStress({ ...b, portfolio_id: pf } as ReverseStressRequest) });
+};
+
+/** "Why?" as structured reasons. Fetched only when a drawer is opened (`enabled`). */
+export const useEventExplanation = (id: string | undefined, subject: ExplainSubject, enabled: boolean, cycle: number | null = null, changeId: string | null = null) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["explanation", id, subject, cycle, changeId, pf], queryFn: () => api.eventExplanation(id as string, subject, { cycle, changeId, pf }), enabled: !!id && enabled, staleTime: 30_000, retry: false });
+};
+
+export const useExplainScenario = () => {
+  const pf = useActivePortfolio();
+  return useMutation({ mutationFn: (b: ScenarioRequest) => api.explainScenario({ ...b, portfolio_id: pf }) });
+};
+
+export const useExplainReverse = () => {
+  const pf = useActivePortfolio();
+  return useMutation({ mutationFn: (b: Omit<ReverseStressRequest, "portfolio_id">) => api.explainReverse({ ...b, portfolio_id: pf } as ReverseStressRequest) });
+};
+
+/** The executive digest: what should I care about right now? Ordered by a documented key, never a score. */
+export const useDigest = (mode: MonitorMode, cycle: number | null, window: number, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["digest", mode, cycle, window, pf], queryFn: () => api.monitorDigest({ mode, cycle, window, pf }), enabled, staleTime: mode === "LIVE" ? 5_000 : 60_000, retry: false, placeholderData: (prev) => prev });
+};
+
+/** Analyst feedback: recorded and counted, never ground truth, never used to change a model. */
+export const useFeedbackStats = (enabled = true) => useQuery({ queryKey: ["feedback-stats"], queryFn: api.feedbackStats, enabled, staleTime: 10_000, retry: false });
+
+export const usePostFeedback = () => {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (b: FeedbackInput) => api.postFeedback(b), onSuccess: () => qc.invalidateQueries({ queryKey: ["feedback-stats"] }) });
 };

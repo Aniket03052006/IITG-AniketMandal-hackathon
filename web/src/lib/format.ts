@@ -40,6 +40,8 @@ export function signed(value: number, digits = 2): string {
 export function shockValue(factor: string, value: number): string {
   switch (factor) {
     case "EQUITY":
+    case "FX_PCT":
+    case "COMMODITY_PCT":
       return pct(value, 1, true);
     case "RATES_BPS":
     case "CREDIT_SPREAD_BPS":
@@ -59,6 +61,8 @@ export const FACTOR_LABEL: Record<string, string> = {
   CREDIT_SPREAD_BPS: "Credit spread",
   PD_MULTIPLIER: "PD multiplier",
   LGD_ADD: "LGD add-on",
+  FX_PCT: "Currency (vs base)",
+  COMMODITY_PCT: "Oil price",
 };
 
 export const SCOPE_LABEL: Record<string, string> = {

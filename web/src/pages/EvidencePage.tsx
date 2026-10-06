@@ -1,3 +1,4 @@
+import { FeedbackStatsTab } from "../components/feedback/FeedbackStatsTab";
 import clsx from "clsx";
 import { useMemo, useState } from "react";
 import { useEvidence, useMeta } from "../api/hooks";
@@ -711,13 +712,15 @@ const TABS = [
   { id: "scope", label: "Scope" },
   { id: "pipeline", label: "How it is built" },
 ] as const;
+const FEEDBACK_TAB = { id: "feedback", label: "Analyst feedback" } as const;
 
 /** "How much evidence supports EventShock?": four plain verdicts first, the full technical record one tab away. */
 export function EvidencePage() {
   const { data: meta } = useMeta();
   const enabled = !!meta?.replay;
   const { data: b, error, isLoading, refetch } = useEvidence(enabled);
-  const [tab, setTab] = useTab(TABS.map((t) => t.id), "methodology");
+  const tabs = meta?.capabilities.feedback === true ? [...TABS.slice(0, 7), FEEDBACK_TAB, TABS[7]] : [...TABS];
+  const [tab, setTab] = useTab(tabs.map((t) => t.id), "methodology");
   if (meta && !meta.replay) {
     return (
       <EmptyState title="No evidence in the demo profile">
@@ -741,7 +744,7 @@ export function EvidencePage() {
         ))}
         <EngineTile />
       </div>
-      <Tabs tabs={[...TABS]} active={tab} onChange={setTab} label="Evidence views">
+      <Tabs tabs={tabs} active={tab} onChange={setTab} label="Evidence views">
         {tab === "methodology" && <Methodology b={b} />}
         {tab === "evaluation" && <Evaluation b={b} />}
         {tab === "datasets" && <DataCard d={b.data} />}
@@ -757,6 +760,7 @@ export function EvidencePage() {
           </div>
         )}
         {tab === "outcome" && <OutcomeCheckTab />}
+        {tab === "feedback" && <FeedbackStatsTab />}
         {tab === "scope" && <ScopeTab />}
         {tab === "pipeline" && <PipelineView />}
       </Tabs>

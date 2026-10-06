@@ -43,6 +43,31 @@ import type {
   OverlapView,
   AdjustmentState,
   ValidationReport,
+  ChangeSet,
+  Brief,
+  EventMarketView,
+  EventMemory,
+  MarketTimeline,
+  MonitorCycle,
+  MonitorMode,
+  MonitorStatus,
+  Watchlist,
+  WatchlistActivity,
+  WatchlistInput,
+  WatchVocabulary,
+  LabComparison,
+  LabOptions,
+  LabPlan,
+  LabResult,
+  ScenarioRequest,
+  ReverseStressRequest,
+  ReverseStressResult,
+  Explanation,
+  ExplainSubject,
+  Digest,
+  Feedback,
+  FeedbackInput,
+  FeedbackStats,
 } from "./types";
 import { pfParam } from "../lib/portfolio";
 
@@ -164,6 +189,41 @@ export const api = {
   putAdjustments: (values: Record<string, unknown>) => request<AdjustmentState>("/adjustments", { method: "PUT", body: JSON.stringify({ values }) }),
   resetAdjustment: (path: string) => request<AdjustmentState>(`/adjustments?path=${encodeURIComponent(path)}`, { method: "DELETE" }),
   resetAdjustments: () => request<AdjustmentState>("/adjustments/reset", { method: "POST" }),
+  monitorStatus: (mode: MonitorMode) => request<MonitorStatus>(`/monitor/status${qs(`mode=${mode}`)}`),
+  monitorCycles: () => request<MonitorCycle[]>("/monitor/cycles"),
+  monitorChanges: (q: { mode: MonitorMode; cycle?: number | null; window?: number; pf?: string | null }) =>
+    request<ChangeSet>(`/monitor/changes${qs(`mode=${q.mode}`, q.cycle != null ? `cycle=${q.cycle}` : "", q.window ? `window=${q.window}` : "", pfParam(q.pf ?? null))}`),
+  eventExternalMarkets: (id: string, pf: string | null = null) => request<EventMarketView>(`/events/${encodeURIComponent(id)}/external-markets${qs(pfParam(pf))}`),
+  eventMarketTimeline: (id: string, pf: string | null = null) => request<MarketTimeline>(`/events/${encodeURIComponent(id)}/market-timeline${qs(pfParam(pf))}`),
+  eventBrief: (id: string, q: { pf?: string | null; cycle?: number | null } = {}) =>
+    request<Brief>(`/events/${encodeURIComponent(id)}/brief${qs(q.cycle != null ? `cycle=${q.cycle}` : "", pfParam(q.pf ?? null))}`),
+  eventBriefMarkdown: async (id: string, q: { pf?: string | null; cycle?: number | null } = {}): Promise<string> => {
+    const res = await fetch(`${BASE}/events/${encodeURIComponent(id)}/brief${qs("format=md", q.cycle != null ? `cycle=${q.cycle}` : "", pfParam(q.pf ?? null))}`, { headers: { Accept: "text/markdown" } });
+    if (!res.ok) throw new ApiError(res.status, res.statusText);
+    return res.text();
+  },
+  eventTimeline: (id: string, pf: string | null = null) => request<EventMemory>(`/events/${encodeURIComponent(id)}/timeline${qs(pfParam(pf))}`),
+  watchlists: () => request<{ watchlists: Watchlist[] }>("/watchlists"),
+  watchVocabulary: () => request<WatchVocabulary>("/watchlists/vocabulary"),
+  createWatchlist: (body: WatchlistInput) => request<Watchlist>("/watchlists", { method: "POST", body: JSON.stringify(body) }),
+  updateWatchlist: (id: string, body: WatchlistInput) => request<Watchlist>(`/watchlists/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(body) }),
+  deleteWatchlist: (id: string) => request<void>(`/watchlists/${encodeURIComponent(id)}`, { method: "DELETE" }),
+  watchlistActivity: (id: string, q: { mode: MonitorMode; cycle?: number | null; window?: number; pf?: string | null }) =>
+    request<WatchlistActivity>(`/watchlists/${encodeURIComponent(id)}/activity${qs(`mode=${q.mode}`, q.cycle != null ? `cycle=${q.cycle}` : "", q.window ? `window=${q.window}` : "", pfParam(q.pf ?? null))}`),
+  labOptions: (pf: string | null = null) => request<LabOptions>(`/lab/options${qs(pfParam(pf))}`),
+  runScenario: (body: ScenarioRequest) => request<LabResult>("/scenarios", { method: "POST", body: JSON.stringify(body) }),
+  validateScenario: (body: ScenarioRequest) => request<LabPlan>("/scenarios/validate", { method: "POST", body: JSON.stringify(body) }),
+  compareScenarios: (body: { scenarios: ScenarioRequest[]; portfolio_id?: string | null }) =>
+    request<LabComparison>("/scenarios/compare", { method: "POST", body: JSON.stringify(body) }),
+  reverseStress: (body: ReverseStressRequest) => request<ReverseStressResult>("/reverse-stress", { method: "POST", body: JSON.stringify(body) }),
+  eventExplanation: (id: string, subject: ExplainSubject, q: { cycle?: number | null; changeId?: string | null; pf?: string | null } = {}) =>
+    request<Explanation>(`/events/${encodeURIComponent(id)}/explanation${qs(`subject=${subject}`, q.cycle != null ? `cycle=${q.cycle}` : "", q.changeId ? `change_id=${encodeURIComponent(q.changeId)}` : "", pfParam(q.pf ?? null))}`),
+  explainScenario: (body: ScenarioRequest) => request<Explanation>("/scenarios/explanation", { method: "POST", body: JSON.stringify(body) }),
+  explainReverse: (body: ReverseStressRequest) => request<Explanation>("/reverse-stress/explanation", { method: "POST", body: JSON.stringify(body) }),
+  monitorDigest: (q: { mode: MonitorMode; cycle?: number | null; window?: number; pf?: string | null }) =>
+    request<Digest>(`/monitor/digest${qs(`mode=${q.mode}`, q.cycle != null ? `cycle=${q.cycle}` : "", q.window ? `window=${q.window}` : "", pfParam(q.pf ?? null))}`),
+  postFeedback: (body: FeedbackInput) => request<Feedback>("/feedback", { method: "POST", body: JSON.stringify(body) }),
+  feedbackStats: () => request<FeedbackStats>("/feedback/statistics"),
   stressTest: (body: StressRequest) =>
     request<StressResult>("/stress-test", { method: "POST", body: JSON.stringify(body) }),
 };

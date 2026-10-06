@@ -1,3 +1,4 @@
+import { TodayPage } from "./pages/TodayPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { ApiError } from "./api/client";
@@ -36,6 +37,7 @@ export function App() {
         <Routes>
           <Route element={<Shell />}>
             <Route index element={<FeedPage />} />
+            <Route path="today" element={<TodayPage />} />
             <Route path="analyze" element={<AnalyzePage />} />
             <Route path="events/:id" element={<EventPage />} />
             <Route path="pipeline" element={<Navigate to="/evidence?tab=pipeline" replace />} />

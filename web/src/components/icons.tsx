@@ -81,6 +81,12 @@ export const CATEGORY_ICON: Record<EventCategory, (p: P) => React.JSX.Element> =
 };
 
 /* ---- navigation + utility ---- */
+export const TodayIcon = (p: P) => (
+  <Icon {...p}>
+    <circle cx="8" cy="8" r="5.5" />
+    <path d="M8 4.5V8l2.5 1.5" />
+  </Icon>
+);
 export const FeedIcon = (p: P) => (
   <Icon {...p}>
     <path d="M2.5 4h11M2.5 8h11M2.5 12h7" />
