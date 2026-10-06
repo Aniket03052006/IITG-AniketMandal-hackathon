@@ -78,6 +78,12 @@ fetch-prices:  ## daily prices (Yahoo chart endpoint, no key) for all issuers + 
 	PYTHONPATH=src $(PY) -c "import json,sys; sys.path.insert(0,'scripts'); from replay_universe import price_symbols; json.dump(price_symbols(), open('data/raw/prices/symbols.json','w'))"
 	PYTHONPATH=src $(PY) -m eventshock.ingestion.prices --symbols-file data/raw/prices/symbols.json --start $(PRICES_START) --end $(PRICES_END) --out data/raw/prices
 
+market-fixtures:  ## regenerate the SYNTHETIC external-market fixtures (deterministic; tests and the offline demo)
+	$(PY) scripts/make_market_fixtures.py
+
+kalshi-snapshot:  ## capture a small hash-pinned snapshot of Kalshi's public market data for the curated themes -> data/external/kalshi_snapshot.json (network, no key; replay and the demo read it)
+	$(PY) scripts/kalshi_snapshot.py
+
 fetch-tfn:  ## download the Twitter Financial News dataset into data/raw (network)
 	PYTHONPATH=src $(PY) -m eventshock.ingestion.fetch tfn --split train --out data/raw/tfn/train.jsonl
 	PYTHONPATH=src $(PY) -m eventshock.ingestion.fetch tfn --split valid --out data/raw/tfn/valid.jsonl

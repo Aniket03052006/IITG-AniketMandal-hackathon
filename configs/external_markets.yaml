@@ -1,0 +1,95 @@
+# External market intelligence (external-markets-v1): what an independent market currently appears to price about an event's theme. An OBSERVATION layer, not a ground-truth layer.
+#
+# A derived side-car. Nothing here (no probability, no probability change, no volume, no liquidity, no market-derived confidence) is ever an input to the risk signal, the impact score, sentiment,
+# the event classification, the severity scorecard, portfolio mapping, portfolio stress or reverse stress: those stay independent. Divergence between EventShock and a market is something worth
+# monitoring, not proof that either is right.
+#
+# EVERY theme, series choice, threshold and orientation below is a JUDGEMENT PRIOR written before any result was looked at: none is fitted or validated. The series tickers were checked against
+# Kalshi's public API (https://external-api.kalshi.com/trade-api/v2, no key) on 2026-10-06; a ticker that has no open market simply yields no observation.
+version: "external-markets-v1"
+
+providers:
+  kalshi:
+    base_url: https://external-api.kalshi.com/trade-api/v2
+    timeout_seconds: 20
+    min_interval_seconds: 0.6        # spacing between live requests (the public endpoints are rate limited)
+    page_limit: 200
+    max_markets_per_series: 8        # the most active markets of a series are kept (by volume, then open interest, then ticker)
+    previous_gap_hours: 24           # "previous" = the observation at least this long before (a snapshot / fixture series); live uses the exchange's own previous price
+
+snapshot:
+  path: data/external/kalshi_snapshot.json      # committed or captured with `make kalshi-snapshot`; hash-pinned by its manifest
+  history_days: 45
+  candle_minutes: 1440
+
+matching:
+  horizon_max_days: 1200            # a market that resolves further out than this is not matched
+  staleness_days: 7                 # the latest observation must be at most this old at the moment asked about
+  max_spread: 0.05                  # a quote is used as a price only when there was no trade and the yes bid and ask are at most this far apart (dollars: 0.05 = 5 cents)
+  top_candidates: 3                 # candidates listed beside the best market
+
+interpretation:
+  repriced_pp: 10                   # a probability move of at least this many percentage points is a material re-pricing
+  aligned_pp: 2                     # a move of at least this many points counts as a direction
+  elevated_severity: 7.0            # EventShock is "elevated" at or above this severity, or at one of the materiality levels below
+  elevated_materiality: [HIGH, CRITICAL]
+  min_open_interest: 50             # contracts: below both this and min_volume the market is LOW_INFORMATION
+  min_volume: 50
+
+# Curated themes. An event reaches a series only through a theme: its assessed class, resolved scope and evidence in the text must all fit (every gate below), never because words overlap with a
+# market title. `orientation` says which way a higher probability moves the world relative to risk: UP / DOWN, NEUTRAL (no direction is claimed), or TITLE (read from the market's own question).
+themes:
+  - id: FED_POLICY
+    label: US monetary policy
+    when:
+      event_classes: [MACROECONOMIC]
+      scope_types: [MACRO, MARKET, THEME]
+      themes_any: [rates]
+      terms_any: [federal reserve, fomc, powell, rate cut, rate cuts, rate hike, rate hikes, interest rate decision, fed funds]
+      regions_any: [US]
+    series: [KXFEDDECISION, KXFEDCUT, KXRATECUTCOUNT, KXFEDFUNDSYEAR]
+    orientation: {mode: NEUTRAL}
+
+  - id: US_INFLATION
+    label: US inflation
+    when:
+      event_classes: [MACROECONOMIC]
+      scope_types: [MACRO, MARKET, THEME]
+      themes_any: [inflation]
+      terms_any: [inflation, consumer price, consumer prices, cpi, pce]
+      regions_any: [US]
+    series: [KXUSCPIYEAR, KXPCECORE]
+    orientation: {mode: TITLE, up: [above, exceed, higher, greater, more than], down: [below, lower, less than, under]}
+
+  - id: US_LABOUR
+    label: US labour market
+    when:
+      event_classes: [MACROECONOMIC]
+      scope_types: [MACRO, MARKET, THEME]
+      themes_any: [growth_and_jobs]
+      terms_any: [unemployment, jobless, payrolls, jobs report, nonfarm]
+      regions_any: [US]
+    series: [KXU3EOY]
+    orientation: {mode: TITLE, up: [above, exceed, higher, greater, more than], down: [below, lower, less than, under]}
+
+  - id: US_TRADE_POLICY
+    label: US tariffs and trade policy
+    when:
+      event_classes: [GEOPOLITICAL, MACROECONOMIC]
+      scope_types: [MACRO, MARKET, THEME, GEOGRAPHY]
+      themes_any: [trade_and_conflict]
+      terms_any: [tariff, tariffs, trade war, customs duties, import duties]
+      regions_any: [US]
+    series: [KXEFFTARIFF]
+    orientation: {mode: TITLE, up: [above, exceed, higher, greater, more than], down: [below, lower, less than, under]}
+
+  - id: US_SOVEREIGN_CREDIT
+    label: US sovereign credit
+    when:
+      event_classes: [MACROECONOMIC, CREDIT_FUNDING, GEOPOLITICAL]
+      scope_types: [MACRO, MARKET, THEME]
+      themes_any: [credit_stress]
+      terms_any: [debt ceiling, default on its debt, sovereign downgrade, credit rating downgrade, treasury default, government shutdown]
+      regions_any: [US]
+    series: [KXDEFAULT]
+    orientation: {mode: UP}

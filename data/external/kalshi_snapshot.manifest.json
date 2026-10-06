@@ -1,0 +1,7 @@
+{
+ "schema": "market-points-manifest-v1",
+ "file": "kalshi_snapshot.json",
+ "sha256": "3e920a6da16702b19bbefd0b539150ff514078faf9e2ca4ffedc55b12ed30a0e",
+ "markets": 49,
+ "captured_at": "2026-10-05T22:35:59.332809Z"
+}
