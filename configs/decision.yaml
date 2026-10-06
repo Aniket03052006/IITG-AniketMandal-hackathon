@@ -1,0 +1,100 @@
+# Decision intelligence (decision-v1): the live monitor and event memory, watchlists, the scenario lab, reverse stress, explanations, analyst feedback and the
+# executive digest. Derived side-cars: nothing here is stored on a RiskSignal, and nothing here changes a model, the severity score or the stress formulas.
+#
+# EVERY number below is a JUDGEMENT PRIOR written before any result was looked at: none is fitted, calibrated or validated. A threshold decides when a change is
+# worth reporting; it is not a measure of how much the change matters. The UI and the docs say so.
+version: "decision-v1"
+
+# ----------------------------------------------------------------------------------------------------------------------------------- monitor
+monitor:
+  replay_step_hours: 12            # REPLAY: one monitoring cycle per this many hours of replay clock (a fixed grid, so every run is identical)
+  replay_max_cycles: 120           # at most this many cycles; if the window is longer, earlier events fold into the first (baseline) cycle
+  escalation_delta: 1.0            # severity points (1-10 scorecard) that make a change an escalation / de-escalation
+  stress_change_pp: 0.25           # percentage points of modeled portfolio P&L that make a stress change worth reporting
+  exposure_change_pp: 2.0          # percentage points of the book an event reaches that make an exposure change worth reporting
+  track_min_severity: 5.0          # an event is tracked once its lead report scores at least this ...
+  track_min_materiality: MEDIUM    # ... or once it matters to the portfolio at least this much (LOW | MEDIUM | HIGH | CRITICAL)
+  max_tracked_events: 400          # states are computed for at most this many events per cycle (the rest are counted, never silently dropped)
+  max_changes_returned: 500
+  store_max_changes: 5000          # LIVE: the change log keeps this many records (oldest dropped)
+
+# ------------------------------------------------------------------------------------------------------------------------------ event memory
+# How each report of an event is classified (first matching rule wins). The rule id is returned with every classification.
+memory:
+  escalation_rules: [ESCALATION_CUE, RE_ESCALATED]
+  de_escalation_rules: [DEESCALATION_CUE, ESCALATION_HELD]
+  resolution_rules: [RESOLVED_AUTHORITATIVE, RESOLVED_INDEPENDENT]
+  update_min_new_facts: 1          # a report that adds at least this many numbers/names the earlier reports lacked is an UPDATE, not a CONTINUATION
+
+# ------------------------------------------------------------------------------------------------------------------------------- watchlists
+watchlist:
+  max_watchlists: 20
+  max_items: 50                    # items per watchlist
+  max_events_per_item: 8           # events listed per item (the match count is always the full count)
+  max_scan_events: 300             # at most this many matching events are assessed per item per request (newest first); beyond it the answer says so
+  top_holdings_max: 10             # PORTFOLIO_EXPOSURE "top N holdings" accepts N up to this
+  name_max_chars: 80
+
+# ------------------------------------------------------------------------------------------------------------------------------ scenario lab
+# Every size a person types is a SCENARIO ASSUMPTION: a hypothetical run through the unchanged stress engine, never a prediction. These are only the limits of what the lab accepts.
+lab:
+  max_assumptions: 12
+  max_compared: 3
+  # inclusive limits per assumption kind (fraction: -0.05 = -5%; bp: basis points)
+  bounds:
+    EQUITY_MARKET: {min: -0.80, max: 0.50, unit: fraction}
+    RATES:         {min: -500,  max: 500,  unit: bp}
+    CREDIT_SPREAD: {min: -200,  max: 1000, unit: bp}
+    COMMODITY:     {min: -0.90, max: 1.00, unit: fraction}     # the price of crude oil
+    FX:            {min: -0.60, max: 0.60, unit: fraction}     # a foreign currency against the portfolio's base currency
+    SECTOR:        {min: -0.80, max: 0.50, unit: fraction}     # an equity shock to one sector
+    ISSUER:        {min: -1.00, max: 0.50, unit: fraction}     # an equity shock to one issuer
+  # a shock to a named risk factor: an engine-modelled factor maps to its engine shock; a proxy factor is spread over the sectors its transmission edges name (edge weight x size)
+  risk_factors:
+    RATES:           {kind: RATES,         min: -500, max: 500,  unit: bp}
+    EQUITY_MARKET:   {kind: EQUITY_MARKET, min: -0.80, max: 0.50, unit: fraction}
+    CREDIT_SPREAD:   {kind: CREDIT_SPREAD, min: -200, max: 1000, unit: bp}
+    OIL_ENERGY:      {kind: COMMODITY,     min: -0.90, max: 1.00, unit: fraction}
+    FX:              {kind: FX,            min: -0.60, max: 0.60, unit: fraction}
+    CREDIT_DEFAULT:  {kind: PD_MULTIPLIER, min: 0.0,  max: 10.0, unit: multiplier}
+    INFLATION:       {kind: PROXY,         min: -0.80, max: 0.50, unit: fraction}
+    GEOPOLITICAL:    {kind: PROXY,         min: -0.80, max: 0.50, unit: fraction}
+  # Only when the user switches "estimate oil exposure from sector priors" on: an equity or derivative with no measured oil elasticity is given its sector's prior. The priors are
+  # JUDGEMENT PRIORS, shown beside every result that uses them; a holding with a measured elasticity keeps it. Off by default: with it off an oil shock reaches only measured holdings.
+  commodity_sector_priors: {Energy: 0.80, Industrials: -0.15, Consumer: -0.10, Technology: -0.05, Financials: 0.0, Healthcare: 0.0}
+
+# --------------------------------------------------------------------------------------------------------------------------- reverse stress
+# "What would it take to lose X%?" A bounded, deterministic search over a fixed basket of shocks, every candidate valued by the unchanged stress engine. Method (BOUNDED_GRID_MINIMAX):
+#  1. probe each basket axis alone at probe_fraction of its bound, in its adverse direction; drop axes that reach nothing or only gain;
+#  2. keep the max_axes most efficient axes (loss per unit of bound);  3. evaluate every grid point of (grid_levels + 1)^axes levels from 0 to 100% of each bound;
+#  4. among the points that reach the target, take the one whose most extreme shock is the smallest share of its own bound (then the smaller total share, then the basket order);
+#  5. scale that combination by a common factor (bisection, at most 50 steps) until the engine's loss equals the target within tolerance_pp.
+# If every kept axis at 100% of its bound still falls short, the target is NOT_ACHIEVABLE and the largest loss the bounds allow is returned. Bounds are limits of the search, not predictions.
+reverse:
+  presets_pct: [-2, -5, -10]
+  min_target_pct: -95
+  tolerance_pp: 0.02             # percentage points of the book
+  grid_levels: 6
+  max_axes: 3
+  probe_fraction: 0.25
+  max_evaluations: 600
+  basket:                        # the order is the final tie-break
+    - {id: EQUITY_MARKET,  kind: EQUITY_MARKET,  sign: -1,     bound: 0.40, unit: fraction}
+    - {id: CREDIT_SPREAD,  kind: CREDIT_SPREAD,  sign: 1,      bound: 400,  unit: bp}
+    - {id: RATES,          kind: RATES,          sign: 1,      bound: 300,  unit: bp}
+    - {id: COMMODITY,      kind: COMMODITY,      sign: auto,   bound: 0.50, unit: fraction}      # reaches only positions with an oil elasticity; the adverse direction is found by the probe
+    - {id: SECTOR,         kind: SECTOR_EACH,    sign: -1,     bound: 0.40, unit: fraction}      # one axis per held sector
+
+# --------------------------------------------------------------------------------------------------------------------------------- feedback
+# Analyst feedback is stored and counted; it is never used to change a model, a score, a threshold or a mapping, and it is not ground truth.
+feedback:
+  max_comment_chars: 500
+  max_records: 20000
+  max_list: 200
+
+# ----------------------------------------------------------------------------------------------------------------------------------- digest
+# The executive digest ranks by an ordered key, not a weighted score: materiality tier, then severity, then the size of the change, then recency, then id.
+digest:
+  per_section: 5
+  materiality_order: [CRITICAL, HIGH, MEDIUM, LOW, NONE, UNDETERMINED]
+  sections: [NEW_RISKS, ESCALATIONS, EXPOSURE_CHANGES, STRESS_CHANGES, EVIDENCE_CHANGES, CONFLICTS, CONCENTRATION, WATCHLISTS]
