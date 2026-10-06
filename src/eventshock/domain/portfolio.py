@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from datetime import datetime
 
 from pydantic import Field, field_validator, model_serializer, model_validator
@@ -41,12 +42,21 @@ class PortfolioAsset(ContractModel):
         default=1.0, ge=0, le=3,
         description="share of a credit-spread shock a BOND takes: 1 corporate credit, 0 government debt")
 
+    currency: str | None = Field(
+        default=None, description="ISO code of the currency the position is denominated in when it is not the portfolio's base currency; unset = base currency (omitted from the JSON)")
+    commodity_sensitivity: float | None = Field(
+        default=None, ge=-5, le=5,
+        description="elasticity of the position's value to the price of crude oil (0.5 = a 10% oil move moves it 5%); unset = not measured, so an oil shock does not move it (omitted from the JSON)")
+
     @model_serializer(mode="wrap")
-    def _omit_default_spread_sensitivity(self, handler):  # noqa: ANN001, ANN202
-        """Omit ``spread_sensitivity`` at its default: the synthetic book's JSON and hash are unchanged."""
+    def _omit_default_optional_fields(self, handler):  # noqa: ANN001, ANN202
+        """Omit ``spread_sensitivity`` at its default and the unset FX / oil exposure: the synthetic book's JSON and hash are unchanged."""
         data = handler(self)
         if data.get("spread_sensitivity") == 1.0:
             data.pop("spread_sensitivity")
+        for k in ("currency", "commodity_sensitivity"):
+            if data.get(k) is None:
+                data.pop(k, None)
         return data
 
     @model_validator(mode="after")
@@ -65,6 +75,8 @@ class PortfolioAsset(ContractModel):
                 raise ValueError("LOAN market_value must equal notional * (1 - pd * lgd)")
         if t is AssetClass.DERIVATIVE and self.delta is None:
             raise ValueError("DERIVATIVE requires delta")
+        if self.currency is not None and not re.fullmatch(r"[A-Z]{3}", self.currency):
+            raise ValueError("currency must be a three-letter ISO code such as EUR")
         return self
 
 

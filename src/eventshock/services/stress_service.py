@@ -10,12 +10,14 @@ from datetime import datetime
 
 from ..config import AppConfig
 from ..domain import (
+    DataOrigin,
     EventCategory,
     Portfolio,
     RiskSignal,
     Scenario,
     ScopeLevel,
     ShockScope,
+    ShockSpec,
     SignalStatus,
     StressStatus,
 )
@@ -118,13 +120,59 @@ class StressService:
         force: bool = False,
         impact_override: float | None = None,
         portfolio: Portfolio | None = None,
+        store: bool = True,
     ) -> StressResult:
         """Run a scenario that is not in the catalog (a generated one) through the same engine, trigger and scaling. Its id and version are in the run id,
-        and a generated scenario's version is a hash of its shocks, so a different scenario is a different run."""
+        and a generated scenario's version is a hash of its shocks, so a different scenario is a different run.
+
+        ``store=False`` computes the run without remembering it: a derived view (the monitor, the digest, an explanation) must not change what ``runs_for`` and the
+        propagation view's ``existing_run_id`` report, which are "runs a person made"."""
         signal = self._signals.get(signal_id)
         if signal is None:
             raise SignalNotFound(signal_id)
-        return self._store(self._evaluate(signal, scenario, force, impact_override, portfolio))
+        result = self._evaluate(signal, scenario, force, impact_override, portfolio)
+        return self._store(result) if store else result
+
+    @staticmethod
+    def quick_pnl(shocks: list[ShockSpec], portfolio: Portfolio) -> tuple[float, float]:
+        """(modeled change, baseline value) of ``shocks`` on ``portfolio`` through the same engine, without building or storing a run: what a search that values hundreds of
+        candidates needs. The candidate that is finally reported is re-run in full by ``run_custom``, so the figure shown is always a complete engine run."""
+        ordered = sorted(shocks, key=lambda s: (s.factor.value, s.scope.value, s.sector or "", s.currency or "", s.entity_id or ""))
+        applied = [AppliedShock(factor=s.factor, scope=s.scope, sector=s.sector, currency=s.currency, entity_id=s.entity_id, base_value=s.value, scaled_value=s.value,
+                                applicable=True) for s in ordered]
+        positions = stress_portfolio(portfolio, applied, None, None)
+        return sum(p.delta for p in positions), sum(p.baseline_value for p in positions)
+
+    def run_custom(self, *, scenario_id: str, name: str, shocks: list[ShockSpec], portfolio: Portfolio, subject_id: str = "scenario-lab") -> StressResult:
+        """Run shocks a person chose (the scenario lab) through the same engine, with no signal and no severity scaling: every shock is applied at its stated size. Lab runs are not
+        stored with the event runs (they are memoised by the lab and returned whole), so they can never evict or change what ``runs_for`` reports.
+
+        The result's run id and scenario version are hashes of the shocks and the portfolio, so the same assumptions on the same book give the same run. A scenario with
+        no shock is the identity (the BASE case); a scenario whose shocks reach no position is NOT_APPLICABLE (never a zero P&L that reads as "safe")."""
+        ordered = sorted(shocks, key=lambda s: (s.factor.value, s.scope.value, s.sector or "", s.currency or "", s.entity_id or ""))
+        applied = [AppliedShock(factor=s.factor, scope=s.scope, sector=s.sector, currency=s.currency, entity_id=s.entity_id, base_value=s.value, scaled_value=s.value,
+                                applicable=True, rationale=s.rationale) for s in ordered]
+        version = "custom-" + hashlib.sha256(json.dumps([[s.factor.value, s.scope.value, s.sector, s.currency, s.entity_id, round(s.value, 8)] for s in ordered]).encode()).hexdigest()[:10]
+        pf_hash = portfolio.content_hash()
+        run_id = "run_" + hashlib.sha256(json.dumps({"scenario": [scenario_id, version], "portfolio": pf_hash, "subject": subject_id}, sort_keys=True).encode()).hexdigest()[:12]
+        ref = ScenarioRef(id=scenario_id, version=version, name=name, category="USER_SCENARIO", illustrative=True)
+        audit = StressAudit(
+            mode=self._cfg.mode, data_origin=DataOrigin.USER_SCENARIO, engine_version=ENGINE_VERSION, scenario_version=version, portfolio_id=portfolio.portfolio_id,
+            portfolio_hash=pf_hash, threshold=self._cfg.stress.trigger_threshold, forced=True, impact_overridden=False, scope_note="a scenario-lab run: every shock is a value a person chose",
+            calculated_at=self._clock())
+        positions = stress_portfolio(portfolio, applied, None, None)
+        if applied and not any(p.shocks for p in positions):
+            return StressResult(
+                run_id=run_id, status=StressStatus.NOT_APPLICABLE, signal_id=subject_id, scenario=ref, shocks=applied, audit=audit,
+                reason="No position in this portfolio carries the exposure these shocks act on (for example no holding in the shocked currency, or no measured oil elasticity), so no change is "
+                       "computed rather than reporting a zero.")
+        baseline = sum(p.baseline_value for p in positions)
+        pnl = sum(p.delta for p in positions)
+        return StressResult(
+            run_id=run_id, status=StressStatus.COMPLETED, signal_id=subject_id, scenario=ref, shocks=applied,
+            summary=StressSummary(baseline_value=baseline, stressed_value=baseline + pnl, pnl=pnl, pnl_pct=pnl / baseline if baseline else 0.0),
+            positions=sorted(positions, key=lambda p: (p.delta, p.asset_id)), contributions=build_contributions(positions, self._cfg.stress.top_n_positions),
+            uncovered=find_uncovered(positions, baseline), audit=audit)
 
     def _store(self, result: StressResult) -> StressResult:
         self._runs.pop(result.run_id, None)

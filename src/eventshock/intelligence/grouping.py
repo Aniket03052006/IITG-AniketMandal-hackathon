@@ -194,6 +194,7 @@ class EventIndex:
             ev.nodes.append(n)
             self._of[n.signal.id] = ev
         self._by_id = {e.id: e for e in self.events}
+        self._scope_index: dict[str, list[tuple[datetime, Event]]] | None = None
 
     def event_of(self, signal_id: str) -> Event | None:
         return self._of.get(signal_id)
@@ -205,16 +206,27 @@ class EventIndex:
         """Earlier events of the same subject within the look-back, nearest in time first."""
         if scope_key is None:
             return []
-        out = []
-        for e in self.events:
-            if e is event or not e.trusted:
+        out: list[tuple[datetime, Event]] = []
+        for first, e in self._by_scope().get(scope_key, ()):
+            if e is event:
                 continue
-            first = min(n.time for n in e.nodes)
             if first >= before or (before - first).total_seconds() > lookback_hours * 3600:
                 continue
-            if scope_key_of(e.anchor) == scope_key:
-                out.append(e)
-        return sorted(out, key=lambda e: min(n.time for n in e.nodes), reverse=True)
+            out.append((first, e))
+        return [e for _, e in sorted(out, key=lambda fe: fe[0], reverse=True)]
+
+    def _by_scope(self) -> dict[str, list[tuple[datetime, Event]]]:
+        """Trusted events by the subject they share (built once: a late-cycle monitor asks for priors of every event, and a scan of all events per call was the cost)."""
+        if self._scope_index is None:
+            idx: dict[str, list[tuple[datetime, Event]]] = {}
+            for e in self.events:
+                if not e.trusted:
+                    continue
+                key = scope_key_of(e.anchor)
+                if key is not None:
+                    idx.setdefault(key, []).append((min(n.time for n in e.nodes), e))
+            self._scope_index = idx
+        return self._scope_index
 
 
 def scope_key_of(node: Node) -> str | None:

@@ -37,7 +37,8 @@ SERIES = {  # (factor, scope) -> series id
 SERIES_LABEL = {"SP500": "the S&P 500", "SECTOR_BASKET": "an equal-weight sector basket of the 34 issuers", "ISSUER": "one of the 34 issuers",
                 "US10Y_BP": "the 10-year Treasury yield (bp)"}
 NOT_CHECKABLE = {RiskFactor.CREDIT_SPREAD_BPS: "no free credit-spread history is held", RiskFactor.PD_MULTIPLIER: "no default history is held",
-                 RiskFactor.LGD_ADD: "no loss-given-default history is held"}
+                 RiskFactor.LGD_ADD: "no loss-given-default history is held", RiskFactor.FX_PCT: "no exchange-rate history is held",
+                 RiskFactor.COMMODITY_PCT: "no oil-price history is held"}
 PATH = Path("data") / "replay" / "market" / "shock_history.json"
 
 
@@ -167,7 +168,7 @@ class ShockHistory:
         return cls(json.loads(p.read_text(encoding="utf-8")))
 
     def check_shock(self, factor: RiskFactor, scope: ShockScope, value: float) -> ShockCheck:
-        unit = "bp" if factor in (RiskFactor.RATES_BPS, RiskFactor.CREDIT_SPREAD_BPS) else ("x" if factor is RiskFactor.PD_MULTIPLIER else "fraction")
+        unit = "bp" if factor in (RiskFactor.RATES_BPS, RiskFactor.CREDIT_SPREAD_BPS) else ("x" if factor is RiskFactor.PD_MULTIPLIER else "fraction")  # FX and oil are fractions
         sid = SERIES.get((factor, scope))
         if sid is None:
             why = NOT_CHECKABLE.get(factor, "history does not speak to this combination")

@@ -36,8 +36,8 @@ def make_portfolio(assets: list[PortfolioAsset]) -> Portfolio:
     return Portfolio(portfolio_id="pf_test", name="t", as_of=NOW, assets=assets)
 
 
-def shock(factor: RiskFactor, scope: ShockScope, value: float, applicable: bool = True) -> AppliedShock:
-    return AppliedShock(factor=factor, scope=scope, base_value=value, scaled_value=value,
+def shock(factor: RiskFactor, scope: ShockScope, value: float, applicable: bool = True, **kw) -> AppliedShock:
+    return AppliedShock(factor=factor, scope=scope, base_value=value, scaled_value=value, **kw,
                         applicable=applicable)
 
 

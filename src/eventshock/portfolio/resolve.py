@@ -254,7 +254,7 @@ class Resolver:
         currency = (h.currency or base).upper()
         src["currency"] = FieldSource.USER if h.currency else FieldSource.DEFAULT_ASSUMPTION
         if currency != base:
-            say(IssueLevel.WARNING, "FX_NOT_MODELLED", f"{ticker} is in {currency} but the portfolio is in {base}: it is valued as entered, and currency moves are not modelled.", "currency")
+            say(IssueLevel.WARNING, "FX_NOT_MODELLED", f"{ticker} is in {currency} but the portfolio is in {base}: it is valued as entered. No event scenario moves currencies; the scenario lab can shock {currency} against {base}.", "currency")
 
         # beta (equities), duration and spread sensitivity (bonds)
         beta = duration = spread = None
@@ -311,7 +311,8 @@ class Resolver:
                 assets.append(PortfolioAsset(
                     asset_id=r.asset_id, asset_type=r.asset_class, entity_id=entity, name=r.name, sector=r.sector, geography=r.region,
                     notional=r.value, market_value=r.value, beta=r.beta if r.beta is not None else 1.0, duration=r.duration,
-                    spread_sensitivity=r.spread_sensitivity if r.spread_sensitivity is not None else 1.0))
+                    spread_sensitivity=r.spread_sensitivity if r.spread_sensitivity is not None else 1.0,
+                    currency=r.currency if r.currency != base else None))  # a holding in another currency carries its exchange-rate exposure (only the scenario lab shocks it)
             except ValidationError as exc:
                 issues.append(_issue(IssueLevel.ERROR, "INVALID_HOLDING", f"{r.ticker}: {exc.errors()[0]['msg']}", r.index))
                 return None

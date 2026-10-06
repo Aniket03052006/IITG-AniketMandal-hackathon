@@ -23,9 +23,11 @@ from .models import ChainStep, ExposureChain, ExposureRowV2, SkippedShock
 FACTOR_LABEL = {
     RiskFactor.EQUITY: "equity price shock", RiskFactor.RATES_BPS: "interest-rate shock", RiskFactor.CREDIT_SPREAD_BPS: "credit-spread shock",
     RiskFactor.PD_MULTIPLIER: "default-probability shock", RiskFactor.LGD_ADD: "loss-given-default shock",
+    RiskFactor.FX_PCT: "exchange-rate shock", RiskFactor.COMMODITY_PCT: "oil-price shock",
 }
 SCOPE_LABEL = {"MARKET": "market-wide", "SECTOR": "sector", "ISSUER": "issuer"}
-UNIT = {RiskFactor.EQUITY: "fraction", RiskFactor.RATES_BPS: "bp", RiskFactor.CREDIT_SPREAD_BPS: "bp", RiskFactor.PD_MULTIPLIER: "x", RiskFactor.LGD_ADD: "fraction"}
+UNIT = {RiskFactor.EQUITY: "fraction", RiskFactor.RATES_BPS: "bp", RiskFactor.CREDIT_SPREAD_BPS: "bp", RiskFactor.PD_MULTIPLIER: "x", RiskFactor.LGD_ADD: "fraction",
+        RiskFactor.FX_PCT: "fraction", RiskFactor.COMMODITY_PCT: "fraction"}
 SYMBOL = {"USD": "$", "INR": "₹", "EUR": "€", "GBP": "£", "JPY": "¥"}
 
 
@@ -40,7 +42,7 @@ def shock_text(f: RiskFactor, v: float) -> str:
         return f"{v:+.0f} bp"
     if f is RiskFactor.PD_MULTIPLIER:
         return f"x{v:.2f}"
-    return f"{100 * v:+.1f}%" if f is RiskFactor.EQUITY else f"{100 * v:+.1f} pp"
+    return f"{100 * v:+.1f}%" if f in (RiskFactor.EQUITY, RiskFactor.FX_PCT, RiskFactor.COMMODITY_PCT) else f"{100 * v:+.1f} pp"
 
 
 def _sensitivity(f: RiskFactor, scope: str, assets: list[PortfolioAsset]) -> str:
@@ -58,6 +60,10 @@ def _sensitivity(f: RiskFactor, scope: str, assets: list[PortfolioAsset]) -> str
             sens = sum(a.market_value * a.spread_sensitivity for a in assets) / value
             return f"value-weighted duration {dur:.1f} years, credit-spread sensitivity {sens:.2f}"
         return f"value-weighted duration {dur:.1f} years: price change = -duration x yield change"
+    if f is RiskFactor.FX_PCT:
+        return "positions held in the shocked currency move one for one with its exchange rate"
+    if f is RiskFactor.COMMODITY_PCT:
+        return f"value-weighted oil elasticity {sum(a.market_value * (a.commodity_sensitivity or 0.0) for a in assets) / value:.2f}"
     return "expected-loss model (probability and loss given default)"
 
 

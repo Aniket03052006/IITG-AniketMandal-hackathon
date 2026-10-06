@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import threading
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from datetime import timedelta
 from typing import Any
 
@@ -16,6 +16,7 @@ from ..adjust.models import AdjustmentNotice
 from ..domain import (
     EventCategory,
     Portfolio,
+    RiskFactor,
     RiskSignal,
     ScopeLevel,
     StressResult,
@@ -77,6 +78,7 @@ class PropagationService:
         self._lock = threading.RLock()
         self._memo: OrderedDict[tuple, Any] = OrderedDict()
         self._origins: OrderedDict[tuple[str, str], list[ShockOrigin]] = OrderedDict()
+        self._hashes: OrderedDict[int, tuple[Portfolio, str]] = OrderedDict()  # id(portfolio) -> (portfolio, content hash): hashing 100 holdings per lookup was the cost
 
     # ------------------------------------------------------------------------------------------------------------------ helpers
     def _book(self, portfolio: Portfolio | None) -> Portfolio:
@@ -112,8 +114,21 @@ class PropagationService:
         issuer_known = signal.scope is not None and signal.scope.level is ScopeLevel.COMPANY and signal.entity.entity_id != UNKNOWN_ENTITY
         return _Ctx(scope, category, severity, direction, sector, issuer_known)
 
+    def _pf_hash(self, pf: Portfolio) -> str:
+        """``pf.content_hash()``, computed once per portfolio object (the object is held so its id cannot be reused; portfolios are never mutated in place)."""
+        with self._lock:
+            hit = self._hashes.get(id(pf))
+            if hit is not None and hit[0] is pf:
+                return hit[1]
+        h = pf.content_hash()
+        with self._lock:
+            self._hashes[id(pf)] = (pf, h)
+            while len(self._hashes) > 32:
+                self._hashes.popitem(last=False)
+        return h
+
     def _key(self, kind: str, signal: RiskSignal, pf: Portfolio, *extra: object) -> tuple:
-        return (kind, signal.id, signal.created_at, signal.document.id, pf.content_hash(), self._signals.seq, self._adjust_version(), *extra)
+        return (kind, signal.id, signal.created_at, signal.document.id, self._pf_hash(pf), self._signals.seq, self._adjust_version(), *extra)
 
     # ---------------------------------------------------------------------------------------------------------------------- graph
     def graph(self, signal: RiskSignal, portfolio: Portfolio | None = None) -> PropagationGraph:
@@ -162,7 +177,7 @@ class PropagationService:
 
     # ------------------------------------------------------------------------------------------------------------------- stress
     def portfolio_stress(self, signal: RiskSignal, portfolio: Portfolio | None = None, *, force: bool = False,
-                         impact_override: float | None = None) -> AutoStressResult:
+                         impact_override: float | None = None, store: bool = True) -> AutoStressResult:
         pf = self._book(portfolio)
         mat = self.materiality(signal, pf)
         gen = self.scenario(signal, pf)
@@ -174,7 +189,7 @@ class PropagationService:
         sev = self._ctx(signal).severity
         below_trigger = (sev if impact_override is None else impact_override) is not None and \
             (sev if impact_override is None else impact_override) < self._stress.trigger_threshold
-        run = self._stress.run_scenario(signal.id, gen.scenario, force=force or impact_override is not None or below_trigger, impact_override=impact_override, portfolio=pf)
+        run = self._stress.run_scenario(signal.id, gen.scenario, force=force or impact_override is not None or below_trigger, impact_override=impact_override, portfolio=pf, store=store)
         chain = attribution = None
         note = None
         if run.status is StressStatus.COMPLETED:
@@ -184,13 +199,14 @@ class PropagationService:
             note = run.reason
         return AutoStressResult(run=run, chain=chain, attribution=attribution, note=note, **base)
 
-    def attribution(self, run: StressResult, portfolio: Portfolio) -> StressAttribution:
+    def attribution(self, run: StressResult, portfolio: Portfolio, *, extra_factor_map: Mapping[RiskFactor, str] | None = None) -> StressAttribution:
+        """``extra_factor_map`` names the risk factors of engine factors a user-built scenario adds (FX, oil); every catalog and generated run passes none."""
         origins = None
         if run.scenario is not None:
             with self._lock:
                 origins = self._origins.get((run.scenario.id, run.scenario.version))
         return build_attribution(
-            run, portfolio, industry_of=self._mapper.industry_of, origins=origins, engine_factor_map=self.cfg.engine_factor_map,
+            run, portfolio, industry_of=self._mapper.industry_of, origins=origins, engine_factor_map={**self.cfg.engine_factor_map, **(extra_factor_map or {})},
             risk_factor_labels={k: v.label for k, v in self.cfg.risk_factors.items()}, entity_names=self._names())
 
     def _names(self) -> dict[str, str]:
@@ -199,7 +215,11 @@ class PropagationService:
     # ------------------------------------------------------------------------------------------------------------ concentration
     def concentration(self, portfolio: Portfolio | None = None) -> ConcentrationView:
         pf = self._book(portfolio)
-        return self._cached(("conc", pf.content_hash(), self._adjust_version()), lambda: self._conc.view(pf, self._notice()))
+        return self._cached(("conc", self._pf_hash(pf), self._adjust_version()), lambda: self._conc.view(pf, self._notice()))
+
+    def overlaps_of(self, items: list[OverlapItem], portfolio: Portfolio | None = None) -> OverlapView:
+        """Overlaps among a given set of events (each already mapped to the portfolio): the same analyzer, over events a caller chose (the monitor's states at a moment)."""
+        return self._conc.overlaps(self._book(portfolio), items, considered=len(items), adjustments=self._notice())
 
     def overlaps(self, portfolio: Portfolio | None = None) -> OverlapView:
         pf = self._book(portfolio)
@@ -230,5 +250,5 @@ class PropagationService:
                 items.append(OverlapItem(signal_id=s.id, event_id=ev.id, headline=s.document.headline, published_at=s.document.published_at,
                                          materiality=mat.level, severity=sev, graph=self.graph(s, pf)))
             return self._conc.overlaps(pf, items, considered=considered, adjustments=self._notice())
-        return self._cached(("overlaps", pf.content_hash(), self._signals.seq, self._adjust_version()), build)
+        return self._cached(("overlaps", self._pf_hash(pf), self._signals.seq, self._adjust_version()), build)
 

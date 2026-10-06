@@ -13,14 +13,14 @@ from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..domain import RiskFactor, Scenario, ShockScope
+from ..domain import LAB_FACTORS, RiskFactor, Scenario, ShockScope
 from ..propagation.config import LEVELS, Edge
 
 CONFIGS = ("intelligence", "portfolio", "propagation")
-ENGINE_FACTORS = [f.value for f in RiskFactor]
+ENGINE_FACTORS = [f.value for f in RiskFactor if f not in LAB_FACTORS]  # the lab-only factors are not part of any adjustable mapping
 _USER_EDGE = re.compile(r"^propagation\.risk_factors\.([A-Z_]+)\.transmission\.(user_[a-z0-9_]+)$")
 _SHOCK_RANGE = {RiskFactor.EQUITY: (-1.0, 1.0), RiskFactor.RATES_BPS: (-2000.0, 2000.0), RiskFactor.CREDIT_SPREAD_BPS: (-2000.0, 2000.0),
-                RiskFactor.PD_MULTIPLIER: (0.0, 20.0), RiskFactor.LGD_ADD: (-1.0, 1.0)}
+                RiskFactor.PD_MULTIPLIER: (0.0, 20.0), RiskFactor.LGD_ADD: (-1.0, 1.0), RiskFactor.FX_PCT: (-1.0, 1.0), RiskFactor.COMMODITY_PCT: (-1.0, 1.0)}
 
 
 @dataclass(frozen=True)

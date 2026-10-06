@@ -144,8 +144,10 @@ class Journal:
 class LiveService:
     def __init__(self, *, cfg: LiveConfig, engine: RiskEngine, store: LiveSignalStore, source: LiveSource | None,
                  journal: Journal | None, event_model_note: Callable[[], tuple[str, str | None]],
-                 market_through: str | None, clock: Callable[[], datetime] | None = None) -> None:
+                 market_through: str | None, clock: Callable[[], datetime] | None = None,
+                 on_applied: Callable[[datetime], None] | None = None) -> None:
         self.cfg, self.engine, self.store, self.source, self.journal = cfg, engine, store, source, journal
+        self.on_applied = on_applied  # called with the poll's clock after a poll was applied; a failure in it is logged, never raised into the poller
         self._event_model_note = event_model_note
         self._market_through = market_through
         self._clock = clock or (lambda: datetime.now(UTC))
@@ -212,6 +214,11 @@ class LiveService:
         self._state = "DEGRADED" if partial else ("IDLE" if poll.exhausted else "OK")
         self._exhausted = poll.exhausted
         self._schedule(0)
+        if self.on_applied is not None:
+            try:
+                self.on_applied(poll.clock)
+            except Exception:  # noqa: BLE001 (an observer must never break the feed)
+                log.exception("live observer failed")
 
     def _record_failure(self, error: str) -> None:
         self._failures += 1

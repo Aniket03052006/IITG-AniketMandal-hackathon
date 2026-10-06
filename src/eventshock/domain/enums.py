@@ -55,6 +55,8 @@ class DataOrigin(StrEnum):
     # ``SignalProvenance.stage_origins``.
     REAL_SOURCE_MIXED_NLP = "REAL_SOURCE_MIXED_NLP"
     MODEL_OUTPUT = "MODEL_OUTPUT"
+    # a run of the scenario lab: no signal, no model; every shock is a value a person chose (a SCENARIO ASSUMPTION)
+    USER_SCENARIO = "USER_SCENARIO"
 
 
 class RunMode(StrEnum):
@@ -80,6 +82,9 @@ class RiskFactor(StrEnum):
     CREDIT_SPREAD_BPS = "CREDIT_SPREAD_BPS"  # spread widening, basis points
     PD_MULTIPLIER = "PD_MULTIPLIER"  # probability-of-default multiplier (>= 1 is adverse)
     LGD_ADD = "LGD_ADD"  # additive loss-given-default, fraction
+    # Scenario-lab factors. Exposure is data on the position (``PortfolioAsset.currency`` / ``commodity_sensitivity``), never a prior inside the engine; a position that carries none is not moved.
+    FX_PCT = "FX_PCT"  # change in the value of a foreign currency against the portfolio's base currency, fraction (names its currency)
+    COMMODITY_PCT = "COMMODITY_PCT"  # change in the price of crude oil, fraction
 
 
 FACTOR_UNITS: dict[RiskFactor, str] = {
@@ -88,7 +93,12 @@ FACTOR_UNITS: dict[RiskFactor, str] = {
     RiskFactor.CREDIT_SPREAD_BPS: "bp",
     RiskFactor.PD_MULTIPLIER: "x",
     RiskFactor.LGD_ADD: "pp",
+    RiskFactor.FX_PCT: "%",
+    RiskFactor.COMMODITY_PCT: "%",
 }
+
+# the factors only a user-built scenario applies (no catalog scenario and no propagation mapping uses them)
+LAB_FACTORS = (RiskFactor.FX_PCT, RiskFactor.COMMODITY_PCT)
 
 
 class ShockScope(StrEnum):

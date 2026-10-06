@@ -3,6 +3,7 @@
 from .documents import Entity, EntityMention, RawDocument
 from .enums import (
     FACTOR_UNITS,
+    LAB_FACTORS,
     SCOPE_SPECIFICITY,
     UNKNOWN_ENTITY,
     AssetClass,
@@ -53,7 +54,7 @@ __all__ = [
     "EntityCandidate", "EventAudit", "ImpactAudit", "ImpactLifecycle", "ImpactScope", "RejectedCandidate",
     "SentimentAudit", "SignalProvenance", "StageOrigin",
     "TimestampOrigin",
-    "FACTOR_UNITS", "SCOPE_SPECIFICITY", "UNKNOWN_ENTITY", "AssetClass", "CorroboratingSource",
+    "FACTOR_UNITS", "LAB_FACTORS", "SCOPE_SPECIFICITY", "UNKNOWN_ENTITY", "AssetClass", "CorroboratingSource",
     "DataOrigin", "Entity",
     "EntityMention", "Evidence", "EventCategory", "EventClassification", "EventStatus", "ImpactAssessment",
     "ImpactDriver", "ModelVersions", "Portfolio", "PortfolioAsset", "RawDocument", "RiskFactor",

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import Field
+from pydantic import Field, model_serializer
 
 from .base import ContractModel
 from .enums import (
@@ -25,10 +25,20 @@ class AppliedShock(ContractModel):
     base_value: float
     scaled_value: float
     sector: str | None = Field(default=None, description="the sector a SECTOR shock names explicitly (generated scenarios); null = the event's own sector")
+    currency: str | None = Field(default=None, description="FX_PCT: the currency that moves (omitted from the JSON when unset)")
+    entity_id: str | None = Field(default=None, description="ISSUER scope: the issuer a scenario-lab shock names (omitted from the JSON when unset)")
     applicable: bool = Field(description="False when the scope needs an entity the signal lacks")
     not_applicable_reason: str | None = Field(
         default=None, description="why the shock was skipped, in terms of what the event is about")
     rationale: str = ""
+
+    @model_serializer(mode="wrap")
+    def _omit_unset_lab_fields(self, handler):  # noqa: ANN001, ANN202
+        data = handler(self)
+        for k in ("currency", "entity_id"):
+            if data.get(k) is None:
+                data.pop(k, None)
+        return data
 
 
 class PositionShock(ContractModel):
@@ -36,6 +46,16 @@ class PositionShock(ContractModel):
     scope: ShockScope
     value: float
     sector: str | None = Field(default=None, description="the sector this SECTOR shock named explicitly (generated scenarios), else null")
+    currency: str | None = Field(default=None, description="FX_PCT: the currency that moved (omitted from the JSON when unset)")
+    entity_id: str | None = Field(default=None, description="ISSUER scope: the named issuer of a scenario-lab shock (omitted from the JSON when unset)")
+
+    @model_serializer(mode="wrap")
+    def _omit_unset_lab_fields(self, handler):  # noqa: ANN001, ANN202
+        data = handler(self)
+        for k in ("currency", "entity_id"):
+            if data.get(k) is None:
+                data.pop(k, None)
+        return data
 
 
 class PositionResult(ContractModel):
