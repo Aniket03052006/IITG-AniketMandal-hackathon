@@ -13315,6 +13315,48 @@
             "description": "elasticity of the position's value to the price of crude oil (0.5 = a 10% oil move moves it 5%); unset = not measured, so an oil shock does not move it (omitted from the JSON)",
             "title": "Commodity Sensitivity"
           },
+          "convexity": {
+            "anyOf": [
+              {
+                "maximum": 500.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "BOND: convexity in years squared; adds 0.5 x C x (yield change)^2 to the price change. Unset = duration only (first order)",
+            "title": "Convexity"
+          },
+          "counterparty_lgd": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DERIVATIVE: loss given default of the counterparty; required with counterparty_pd",
+            "title": "Counterparty Lgd"
+          },
+          "counterparty_pd": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DERIVATIVE: one-year default probability of the counterparty, for the credit-valuation adjustment",
+            "title": "Counterparty Pd"
+          },
           "currency": {
             "anyOf": [
               {
@@ -13366,6 +13408,20 @@
             "title": "Entity Id",
             "type": "string"
           },
+          "gamma": {
+            "anyOf": [
+              {
+                "maximum": 50.0,
+                "minimum": -50.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "DERIVATIVE: change in delta per unit return of the underlying; adds 0.5 x gamma x underlying x s^2. Unset = delta only",
+            "title": "Gamma"
+          },
           "geography": {
             "title": "Geography",
             "type": "string"
@@ -13386,6 +13442,20 @@
           "market_value": {
             "title": "Market Value",
             "type": "number"
+          },
+          "maturity_years": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 40.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "LOAN: remaining tenor in years; the horizon of the hazard-rate link between a spread shock and PD",
+            "title": "Maturity Years"
           },
           "name": {
             "title": "Name",
@@ -13409,9 +13479,50 @@
             ],
             "title": "Pd"
           },
+          "rating": {
+            "anyOf": [
+              {
+                "maxLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "external-style rating bucket (e.g. BBB). Carried for reporting and concentration only: no revaluation reads it",
+            "title": "Rating"
+          },
           "sector": {
             "title": "Sector",
             "type": "string"
+          },
+          "spread_bp": {
+            "anyOf": [
+              {
+                "maximum": 5000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "BOND: current credit spread in basis points. Carried for reporting only: no revaluation reads it",
+            "title": "Spread Bp"
+          },
+          "spread_passthrough": {
+            "anyOf": [
+              {
+                "maximum": 1.5,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "LOAN: share of a credit-spread shock that reaches this borrower's hazard rate (credit triangle: spread = hazard x LGD). Unset = a spread shock does not move the loan",
+            "title": "Spread Passthrough"
           },
           "spread_sensitivity": {
             "default": 1.0,
@@ -13439,7 +13550,15 @@
           "delta",
           "spread_sensitivity",
           "currency",
-          "commodity_sensitivity"
+          "commodity_sensitivity",
+          "convexity",
+          "maturity_years",
+          "spread_passthrough",
+          "gamma",
+          "counterparty_pd",
+          "counterparty_lgd",
+          "rating",
+          "spread_bp"
         ],
         "title": "PortfolioAsset",
         "type": "object"
@@ -13657,7 +13776,8 @@
           "kind": {
             "enum": [
               "DEFAULT",
-              "USER"
+              "USER",
+              "PRESET"
             ],
             "title": "Kind",
             "type": "string"
@@ -14039,7 +14159,8 @@
           "kind": {
             "enum": [
               "DEFAULT",
-              "USER"
+              "USER",
+              "PRESET"
             ],
             "title": "Kind",
             "type": "string"
@@ -14335,7 +14456,7 @@
           },
           "kind": {
             "default": "DEFAULT",
-            "description": "DEFAULT (the synthetic book) | USER (a saved personal portfolio)",
+            "description": "DEFAULT (the synthetic book) | USER (a saved personal portfolio) | PRESET (a committed read-only synthetic book, e.g. Wholesale Book v2)",
             "title": "Kind",
             "type": "string"
           },
@@ -14382,7 +14503,8 @@
           "kind": {
             "enum": [
               "DEFAULT",
-              "USER"
+              "USER",
+              "PRESET"
             ],
             "title": "Kind",
             "type": "string"
@@ -25004,6 +25126,32 @@
           }
         },
         "summary": "Parse Quick",
+        "tags": [
+          "portfolios"
+        ]
+      }
+    },
+    "/api/portfolios/presets": {
+      "get": {
+        "description": "Committed, read-only synthetic books you can name as ``portfolio_id`` anywhere (Wholesale Book v2: convexity, spread-to-PD link, gamma, CVA, FX and oil exposures).",
+        "operationId": "list_presets_api_portfolios_presets_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PortfolioListItem"
+                  },
+                  "title": "Response List Presets Api Portfolios Presets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Presets",
         "tags": [
           "portfolios"
         ]

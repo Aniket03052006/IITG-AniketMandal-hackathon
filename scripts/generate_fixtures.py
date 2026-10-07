@@ -21,6 +21,7 @@ from eventshock.domain import (
     Portfolio,
     RiskSignal,
 )
+from eventshock.portfolio.book_v2 import build_book_v2
 
 OUT = Path(__file__).resolve().parents[1] / "data" / "fixtures"
 AS_OF = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
@@ -450,6 +451,7 @@ def main() -> None:
 
     dump("entities.json", [e.model_dump(mode="json") for e in entities])
     dump("portfolio.json", portfolio.model_dump(mode="json"))
+    dump("portfolio_v2.json", build_book_v2(portfolio, seed=SEED + 1, as_of=AS_OF).model_dump(mode="json"))
     dump("signals.json", {
         "as_of": AS_OF.isoformat().replace("+00:00", "Z"),
         "data_origin": "DEMO_FIXTURE",

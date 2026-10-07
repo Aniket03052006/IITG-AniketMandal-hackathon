@@ -124,7 +124,7 @@ class ResolvedPortfolio(ContractModel):
 class PortfolioListItem(ContractModel):
     id: str
     name: str
-    kind: Literal["DEFAULT", "USER"]
+    kind: Literal["DEFAULT", "USER", "PRESET"]
     base_currency: str
     total_value: float
     holding_count: int
@@ -136,7 +136,7 @@ class PortfolioView(ContractModel):
     """A stored portfolio together with its resolution (holdings with sources, issues)."""
 
     id: str
-    kind: Literal["DEFAULT", "USER"]
+    kind: Literal["DEFAULT", "USER", "PRESET"]
     stored: StoredPortfolio | None = None
     resolved: ResolvedPortfolio | None = None
     list_item: PortfolioListItem
@@ -222,7 +222,7 @@ class PositionWeight(ContractModel):
 class PortfolioExposureDetail(ContractModel):
     portfolio_id: str
     name: str
-    kind: Literal["DEFAULT", "USER"]
+    kind: Literal["DEFAULT", "USER", "PRESET"]
     base_currency: str
     total_value: float
     position_count: int

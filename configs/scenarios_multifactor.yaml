@@ -1,0 +1,66 @@
+# Multi-factor scenario templates (Stage 13). Same rules as scenarios.yaml: every magnitude is an ILLUSTRATIVE assumption, not a forecast and not
+# calibrated to any regulatory framework; shocks are specified at `reference_impact` and scaled by severity.
+#
+# What they add over the base catalog: oil and foreign-exchange shocks together with the usual rates, spread, equity and credit shocks, so a
+# position's own exposure (currency, oil elasticity, spread pass-through, convexity, gamma) decides what it takes. They are NOT the default
+# scenario of any event class (the base catalog is), so the event-to-scenario mapping, the replay, GOLDEN_RUN_ID and every pinned run are
+# unchanged; pick one by id (POST /api/stress-test {"scenario_id": ...}) or from the scenario lab.
+# A position that carries no currency / oil elasticity is NOT moved by those shocks (reported as not reached, never as zero).
+version: "1"
+scenarios:
+  - id: scn_mf_stagflation
+    version: "1.0"
+    name: Stagflation (multi-factor)
+    category: MACROECONOMIC
+    description: Inflation re-accelerates while growth stalls; yields and oil rise, the dollar strengthens, equities de-rate and credit deteriorates.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: MARKET, value: -0.15, rationale: Earnings and multiple compression. }
+      - { factor: RATES_BPS, scope: MARKET, value: 150, rationale: Repricing of the policy path. }
+      - { factor: CREDIT_SPREAD_BPS, scope: MARKET, value: 120, rationale: Growth scare widens spreads. }
+      - { factor: COMMODITY_PCT, scope: MARKET, value: 0.40, rationale: Energy-led inflation impulse. }
+      - { factor: FX_PCT, scope: MARKET, value: -0.08, currency: EUR, rationale: Dollar strength against the euro. }
+      - { factor: FX_PCT, scope: MARKET, value: -0.06, currency: GBP, rationale: Dollar strength against sterling. }
+      - { factor: PD_MULTIPLIER, scope: MARKET, value: 1.6, rationale: Margin squeeze lifts defaults. }
+      - { factor: LGD_ADD, scope: MARKET, value: 0.05, rationale: Weaker collateral values. }
+  - id: scn_mf_oil_supply_shock
+    version: "1.0"
+    name: Oil supply shock (multi-factor)
+    category: GEOPOLITICAL
+    description: A supply disruption lifts oil sharply; risk-off bid pulls yields down, spreads widen, importers' currencies weaken.
+    reference_impact: 7
+    shocks:
+      - { factor: COMMODITY_PCT, scope: MARKET, value: 0.35, rationale: Physical supply disruption. }
+      - { factor: EQUITY, scope: MARKET, value: -0.07, rationale: Broad risk-off. }
+      - { factor: RATES_BPS, scope: MARKET, value: -25, rationale: Safe-haven demand. }
+      - { factor: CREDIT_SPREAD_BPS, scope: MARKET, value: 70, rationale: Risk aversion. }
+      - { factor: FX_PCT, scope: MARKET, value: -0.04, currency: EUR, rationale: Terms-of-trade hit to an energy importer. }
+      - { factor: PD_MULTIPLIER, scope: MARKET, value: 1.2, rationale: Modest across-the-board uplift. }
+  - id: scn_mf_funding_squeeze
+    version: "1.0"
+    name: Funding and liquidity squeeze (multi-factor)
+    category: CREDIT_FUNDING
+    description: Wholesale funding tightens; spreads gap wider, defaults and loss severities rise, the dollar bids.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: MARKET, value: -0.12, rationale: Bank and credit-sensitive equities lead the sell-off. }
+      - { factor: RATES_BPS, scope: MARKET, value: 60, rationale: Term premium rises as liquidity thins. }
+      - { factor: CREDIT_SPREAD_BPS, scope: MARKET, value: 220, rationale: Spreads gap wider. }
+      - { factor: FX_PCT, scope: MARKET, value: -0.05, currency: EUR, rationale: Dollar funding scarcity. }
+      - { factor: PD_MULTIPLIER, scope: MARKET, value: 2.2, rationale: Refinancing failures. }
+      - { factor: LGD_ADD, scope: MARKET, value: 0.08, rationale: Fire-sale recoveries. }
+  - id: scn_mf_global_downturn
+    version: "1.0"
+    name: Global downturn (multi-factor)
+    category: MARKET_VALUATION
+    description: A synchronised downturn; equities and oil fall, yields rally, spreads and defaults rise, both foreign currencies weaken.
+    reference_impact: 7
+    shocks:
+      - { factor: EQUITY, scope: MARKET, value: -0.28, rationale: Severe equity drawdown. }
+      - { factor: RATES_BPS, scope: MARKET, value: -75, rationale: Growth scare and easing expectations. }
+      - { factor: CREDIT_SPREAD_BPS, scope: MARKET, value: 180, rationale: Credit reprices to recession. }
+      - { factor: COMMODITY_PCT, scope: MARKET, value: -0.30, rationale: Demand collapse. }
+      - { factor: FX_PCT, scope: MARKET, value: -0.07, currency: EUR, rationale: Safe-haven dollar. }
+      - { factor: FX_PCT, scope: MARKET, value: -0.09, currency: GBP, rationale: Safe-haven dollar. }
+      - { factor: PD_MULTIPLIER, scope: MARKET, value: 2.0, rationale: Recession defaults. }
+      - { factor: LGD_ADD, scope: MARKET, value: 0.10, rationale: Collateral value decline. }

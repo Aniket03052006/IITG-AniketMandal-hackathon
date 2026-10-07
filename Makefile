@@ -7,7 +7,7 @@ GDELT_THROTTLE ?= 20
 PRICES_START ?= 2014-01-01
 PRICES_END ?= 2026-10-02
 
-.PHONY: train-sentiment-v2 run-llm market-context impact-table train-impact audit probe gold-sample gold-validate gold-score train-sentiment train-event event-pools event-merge event-table fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
+.PHONY: book-v2 train-sentiment-v2 run-llm market-context impact-table train-impact audit probe gold-sample gold-validate gold-score train-sentiment train-event event-pools event-merge event-table fetch-kaggle fetch-tfn-topic fetch-prices fetch-gkg fetch-gkg-list fetch-gdelt fetch-tfn replay-pack ingest setup setup-api setup-web run dev build test test-api test-web lint fixtures types logo
 
 setup: setup-api setup-web  ## install everything
 
@@ -106,6 +106,9 @@ audit:  ## modeling tables + every leakage check -> data/modeling/ (needs data/r
 
 probe:  ## seconds-long classical baselines on the audit tables (needs `uv pip install -r requirements-ml.txt`)
 	$(PY) -m eventshock.modeling probe
+
+book-v2:  ## Wholesale Book v2 (Stage 13 mechanics on the replay default book) -> data/portfolio/book_v2_replay.json
+	$(PY) scripts/build_book_v2.py
 
 train-sentiment-v2:  ## sentiment v2 (class-balanced candidates, selected on valid macro-F1) -> models/sentiment/tfidf-lr-v2/
 	$(PY) -m eventshock.modeling train-sentiment --config sentiment_model_v2.yaml

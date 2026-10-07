@@ -725,6 +725,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portfolios/presets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Presets
+         * @description Committed, read-only synthetic books you can name as ``portfolio_id`` anywhere (Wholesale Book v2: convexity, spread-to-PD link, gamma, CVA, FX and oil exposures).
+         */
+        get: operations["list_presets_api_portfolios_presets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portfolios/validate": {
         parameters: {
             query?: never;
@@ -6422,6 +6442,21 @@ export interface components {
              */
             commodity_sensitivity: number | null;
             /**
+             * Convexity
+             * @description BOND: convexity in years squared; adds 0.5 x C x (yield change)^2 to the price change. Unset = duration only (first order)
+             */
+            convexity: number | null;
+            /**
+             * Counterparty Lgd
+             * @description DERIVATIVE: loss given default of the counterparty; required with counterparty_pd
+             */
+            counterparty_lgd: number | null;
+            /**
+             * Counterparty Pd
+             * @description DERIVATIVE: one-year default probability of the counterparty, for the credit-valuation adjustment
+             */
+            counterparty_pd: number | null;
+            /**
              * Currency
              * @description ISO code of the currency the position is denominated in when it is not the portfolio's base currency; unset = base currency (omitted from the JSON)
              */
@@ -6440,20 +6475,45 @@ export interface components {
              * @description issuer / borrower / underlying entity
              */
             entity_id: string;
+            /**
+             * Gamma
+             * @description DERIVATIVE: change in delta per unit return of the underlying; adds 0.5 x gamma x underlying x s^2. Unset = delta only
+             */
+            gamma: number | null;
             /** Geography */
             geography: string;
             /** Lgd */
             lgd: number | null;
             /** Market Value */
             market_value: number;
+            /**
+             * Maturity Years
+             * @description LOAN: remaining tenor in years; the horizon of the hazard-rate link between a spread shock and PD
+             */
+            maturity_years: number | null;
             /** Name */
             name: string;
             /** Notional */
             notional: number;
             /** Pd */
             pd: number | null;
+            /**
+             * Rating
+             * @description external-style rating bucket (e.g. BBB). Carried for reporting and concentration only: no revaluation reads it
+             */
+            rating: string | null;
             /** Sector */
             sector: string;
+            /**
+             * Spread Bp
+             * @description BOND: current credit spread in basis points. Carried for reporting only: no revaluation reads it
+             */
+            spread_bp: number | null;
+            /**
+             * Spread Passthrough
+             * @description LOAN: share of a credit-spread shock that reaches this borrower's hazard rate (credit triangle: spread = hazard x LGD). Unset = a spread shock does not move the loan
+             */
+            spread_passthrough: number | null;
             /**
              * Spread Sensitivity
              * @description share of a credit-spread shock a BOND takes: 1 corporate credit, 0 government debt
@@ -6526,7 +6586,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "DEFAULT" | "USER";
+            kind: "DEFAULT" | "USER" | "PRESET";
             /** Largest Positions */
             largest_positions: components["schemas"]["PositionWeight"][];
             /** Metrics */
@@ -6671,7 +6731,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "DEFAULT" | "USER";
+            kind: "DEFAULT" | "USER" | "PRESET";
             /** Name */
             name: string;
             /** Total Value */
@@ -6780,7 +6840,7 @@ export interface components {
             entity_count: number;
             /**
              * Kind
-             * @description DEFAULT (the synthetic book) | USER (a saved personal portfolio)
+             * @description DEFAULT (the synthetic book) | USER (a saved personal portfolio) | PRESET (a committed read-only synthetic book, e.g. Wholesale Book v2)
              * @default DEFAULT
              */
             kind: string;
@@ -6807,7 +6867,7 @@ export interface components {
              * Kind
              * @enum {string}
              */
-            kind: "DEFAULT" | "USER";
+            kind: "DEFAULT" | "USER" | "PRESET";
             list_item: components["schemas"]["PortfolioListItem"];
             resolved: components["schemas"]["ResolvedPortfolio"] | null;
             stored: components["schemas"]["StoredPortfolio"] | null;
@@ -11289,6 +11349,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_presets_api_portfolios_presets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioListItem"][];
                 };
             };
         };

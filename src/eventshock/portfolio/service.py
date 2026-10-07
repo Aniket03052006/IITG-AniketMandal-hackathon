@@ -35,8 +35,9 @@ class PortfolioInvalid(ValueError):
 
 class PortfolioService:
     def __init__(self, default: PortfolioRepository, store: PortfolioStore, resolver: Resolver,
-                 clock: Callable[[], datetime] | None = None) -> None:
+                 clock: Callable[[], datetime] | None = None, presets: dict[str, Portfolio] | None = None) -> None:
         self._default = default
+        self._presets = dict(presets or {})   # committed, read-only synthetic books (Wholesale Book v2), addressed by their own portfolio_id
         self._store = store
         self._resolver = resolver
         self._clock = clock or (lambda: datetime.now(UTC))
@@ -44,6 +45,13 @@ class PortfolioService:
     # ----------------------------------------------------------------------------------------------------- identity
     def is_default(self, pid: str | None) -> bool:
         return pid is None or pid == DEFAULT_ID or pid == self._default.get().portfolio_id
+
+    def is_preset(self, pid: str | None) -> bool:
+        return pid is not None and pid in self._presets
+
+    def presets(self) -> list[PortfolioListItem]:
+        return [PortfolioListItem(id=p.portfolio_id, name=p.name, kind="PRESET", base_currency=p.base_currency, total_value=p.total_value,
+                                  holding_count=len(p.assets), description=p.description, updated_at=None) for p in self._presets.values()]
 
     def _default_item(self) -> PortfolioListItem:
         pf = self._default.get()
@@ -64,6 +72,8 @@ class PortfolioService:
     def view(self, pid: str | None) -> PortfolioView:
         if self.is_default(pid):
             return PortfolioView(id=DEFAULT_ID, kind="DEFAULT", list_item=self._default_item())
+        if self.is_preset(pid):
+            return PortfolioView(id=str(pid), kind="PRESET", list_item=next(i for i in self.presets() if i.id == pid))
         sp = self._store.get(pid)  # type: ignore[arg-type]
         res = self.resolve_stored(sp)
         return PortfolioView(id=sp.id, kind="USER", stored=sp, resolved=res, list_item=self._item(sp, res))
@@ -72,6 +82,8 @@ class PortfolioService:
         """The engine's portfolio for an id (None / 'default' -> the synthetic book). A saved portfolio that no longer resolves is refused."""
         if self.is_default(pid):
             return self._default.get()
+        if self.is_preset(pid):
+            return self._presets[pid]  # type: ignore[index]
         res = self.resolve_stored(self._store.get(pid))  # type: ignore[arg-type]
         if not res.ok or res.portfolio is None:
             raise PortfolioInvalid(res.issues)
@@ -79,7 +91,9 @@ class PortfolioService:
 
     def label(self, pid: str | None) -> tuple[str, str]:
         """(id, kind) a request resolves to."""
-        return (DEFAULT_ID, "DEFAULT") if self.is_default(pid) else (str(pid), "USER")
+        if self.is_default(pid):
+            return DEFAULT_ID, "DEFAULT"
+        return (str(pid), "PRESET") if self.is_preset(pid) else (str(pid), "USER")
 
     # ------------------------------------------------------------------------------------------------------- writes
     def validate(self, inp: PortfolioInput) -> ResolvedPortfolio:

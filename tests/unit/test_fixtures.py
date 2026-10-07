@@ -106,7 +106,7 @@ def test_fixtures_are_regenerated_byte_identically(tmp_path, monkeypatch):
     spec.loader.exec_module(gen)
     monkeypatch.setattr(gen, "OUT", tmp_path)
     gen.main()
-    for name in ("entities.json", "portfolio.json", "signals.json"):
+    for name in ("entities.json", "portfolio.json", "portfolio_v2.json", "signals.json"):
         assert json.loads((tmp_path / name).read_text()) == json.loads(
             (REPO_ROOT / "data" / "fixtures" / name).read_text()
         ), name

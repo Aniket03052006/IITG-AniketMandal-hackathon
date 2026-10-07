@@ -28,12 +28,14 @@ from ..config import (
     Settings,
     Taxonomy,
     load_app_config,
+    load_multifactor_scenarios,
     load_scenarios,
     load_taxonomy,
     resolve_fixtures_dir,
     resolve_replay_dir,
 )
 from ..decision.config import DecisionConfig, load_decision_config
+from ..domain import Portfolio
 from ..explain.service import ExplainService
 from ..feedback.service import FeedbackService
 from ..feedback.store import FeedbackStore
@@ -301,6 +303,18 @@ def _fallback(served: Path, reference: Path, why: str) -> EventModel:
     return EventModel.load(reference)
 
 
+def _load_presets(replay: bool, settings: Settings, config: AppConfig) -> dict[str, Portfolio]:
+    """Committed read-only synthetic books: Wholesale Book v2, derived from the profile's own default book (``make book-v2`` / ``generate_fixtures.py``)."""
+    path = REPO_ROOT / "data" / "portfolio" / "book_v2_replay.json" if replay else resolve_fixtures_dir(settings, config) / "portfolio_v2.json"
+    if not path.is_file():
+        import logging
+
+        logging.getLogger("eventshock").warning("Wholesale Book v2 not found at %s: no preset portfolio is served (run `make book-v2`)", path)
+        return {}
+    book = Portfolio.model_validate(json.loads(path.read_text(encoding="utf-8")))  # a malformed book is a start-up error, not a silent omission
+    return {book.portfolio_id: book}
+
+
 def _live_source(settings: Settings, cfg: LiveConfig) -> LiveSource | None:
     """The configured live source, or None when live is off (the default). Capture mode reads a local file and needs no network."""
     enabled = settings.live if settings.live is not None else cfg.enabled
@@ -370,7 +384,7 @@ def build_container(settings: Settings | None = None) -> Container:
     config = load_app_config(settings)
     taxonomy = load_taxonomy(settings)
     version, scenarios = load_scenarios(settings)
-    catalog = ScenarioCatalog(scenarios, {c.id: c.default_scenario for c in taxonomy.categories})
+    catalog = ScenarioCatalog([*scenarios, *load_multifactor_scenarios(settings)], {c.id: c.default_scenario for c in taxonomy.categories})
     snapshot: Snapshot | None = None
     report: PipelineReport | None = None
     card: SentimentModelCard | None = None
@@ -446,7 +460,8 @@ def build_container(settings: Settings | None = None) -> Container:
     betas = IssuerBetas.load(REPO_ROOT) if config.data.profile == "replay" else None
     instruments = InstrumentCatalog.load(REPO_ROOT, portfolio.entities(), betas, pcfg.betas.floor, pcfg.betas.cap)
     store_dir = settings.portfolio_store_path or REPO_ROOT / "data" / "live" / "portfolios"
-    portfolios = PortfolioService(portfolio, PortfolioStore(store_dir, max_portfolios=pcfg.limits.max_portfolios), Resolver(instruments, pcfg))
+    portfolios = PortfolioService(portfolio, PortfolioStore(store_dir, max_portfolios=pcfg.limits.max_portfolios), Resolver(instruments, pcfg),
+                                  presets=_load_presets(replay, settings, config))
     analyzer = live = None
     if replay:
         journal = Journal(settings.journal_path or REPO_ROOT / live_cfg.journal)

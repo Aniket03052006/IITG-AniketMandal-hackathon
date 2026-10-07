@@ -85,6 +85,12 @@ def compare(body: CompareRequest, c: Container = Depends(get_container)) -> Port
     return compare_runs(body.signal_id, ra.scenario.id if ra.scenario else body.scenario_id, ia, ib, ra, rb)
 
 
+@router.get("/presets", response_model=list[PortfolioListItem])
+def list_presets(c: Container = Depends(get_container)) -> list[PortfolioListItem]:
+    """Committed, read-only synthetic books you can name as ``portfolio_id`` anywhere (Wholesale Book v2: convexity, spread-to-PD link, gamma, CVA, FX and oil exposures)."""
+    return service(c).presets()
+
+
 @router.get("/{portfolio_id}", response_model=PortfolioView)
 def get_portfolio(portfolio_id: str, c: Container = Depends(get_container)) -> PortfolioView:
     try:

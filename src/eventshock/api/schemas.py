@@ -236,7 +236,7 @@ class PortfolioSummary(ContractModel):
     asset_count: int
     entity_count: int
     synthetic: bool = True
-    kind: str = Field(default="DEFAULT", description="DEFAULT (the synthetic book) | USER (a saved personal portfolio)")
+    kind: str = Field(default="DEFAULT", description="DEFAULT (the synthetic book) | USER (a saved personal portfolio) | PRESET (a committed read-only synthetic book, e.g. Wholesale Book v2)")
 
 
 class PortfolioExposure(ContractModel):

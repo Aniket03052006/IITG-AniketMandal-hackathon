@@ -51,10 +51,11 @@ def _rows(
 def summary(portfolio_id: str | None = PID, c: Container = Depends(get_container)) -> PortfolioSummary:
     pf = book(c, portfolio_id)
     user = c.portfolios is not None and not c.portfolios.is_default(portfolio_id)
+    preset = user and c.portfolios.is_preset(portfolio_id)
     return PortfolioSummary(
         portfolio_id=pf.portfolio_id, name=pf.name, description=pf.description, as_of=pf.as_of,
         base_currency=pf.base_currency, total_value=pf.total_value, asset_count=len(pf.assets),
-        entity_count=len({a.entity_id for a in pf.assets}), synthetic=not user, kind="USER" if user else "DEFAULT",
+        entity_count=len({a.entity_id for a in pf.assets}), synthetic=not user or preset, kind="PRESET" if preset else "USER" if user else "DEFAULT",
     )
 
 

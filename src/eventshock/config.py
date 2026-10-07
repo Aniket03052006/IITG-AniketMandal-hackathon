@@ -132,6 +132,14 @@ def load_scenarios(settings: Settings) -> tuple[str, list[Scenario]]:
     return str(data.get("version", "0")), scenarios
 
 
+def load_multifactor_scenarios(settings: Settings) -> list[Scenario]:
+    """The Stage 13 multi-factor templates (FX, oil, spread, rates, equity, credit together). Served by id; never the default scenario of an event class."""
+    path = settings.config_dir / "scenarios_multifactor.yaml"
+    if not path.is_file():
+        return []
+    return [Scenario.model_validate(s) for s in _read_yaml(path).get("scenarios", [])]
+
+
 def resolve_fixtures_dir(settings: Settings, cfg: AppConfig) -> Path:
     path = settings.fixtures_dir or Path(cfg.data.fixtures_dir)
     return path if path.is_absolute() else REPO_ROOT / path
