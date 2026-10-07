@@ -32,7 +32,7 @@ from .event_model import EventModel
 from .impact_model import ImpactInput, ImpactModel, ImpactSkip
 from .market_context import MarketContext
 from .normalize import match_form
-from .sentiment_model import SentimentModel
+from .sentiment_model import SentimentInputError, SentimentModel
 
 
 @dataclass(frozen=True)
@@ -250,8 +250,12 @@ class ImpactModelEnricher(ModelEnricher):
     """
 
     def __init__(self, cfg: EnrichmentConfig, sentiment_model: SentimentModel, event_model: EventModel,
-                 impact_model: ImpactModel, context: MarketContext, impact_event_model: EventModel | None = None) -> None:
+                 impact_model: ImpactModel, context: MarketContext, impact_event_model: EventModel | None = None,
+                 impact_sentiment_model: SentimentModel | None = None) -> None:
         super().__init__(cfg, sentiment_model, event_model)
+        # Same train/serve parity rule as the event model: the impact models were fitted on the reference sentiment model's output
+        # (sent_pos / sent_neg features), so when the served sentiment model is another one the impact stage keeps reading the reference.
+        self.impact_sentiment_model = impact_sentiment_model
         # impact-v1 was fitted on the probabilities of the TF-IDF event model. When the served event model is another one (the hybrid), the impact stage keeps
         # reading the reference model's probabilities for its features: feeding it different numbers than it was trained on would be train/serve skew.
         self.impact_event_model = impact_event_model
@@ -280,11 +284,21 @@ class ImpactModelEnricher(ModelEnricher):
         if self.impact_event_model is not None:
             d = self.impact_event_model.decide(f"{signal.document.headline} {signal.document.body or ''}".strip())
             event = EventClassification(category=d.category, probabilities=d.probabilities, status=d.status, no_event_probability=d.no_event_probability)
+        sentiment = signal.sentiment
+        if self.impact_sentiment_model is not None:
+            try:
+                p = self.impact_sentiment_model.predict(f"{signal.document.headline} {signal.document.body or ''}".strip())
+            except SentimentInputError as exc:  # the reference model cannot read a text the served one can: no parity input, so no model impact
+                origins = dict(prov.stage_origins)
+                origins["impact"] = StageOrigin.PLACEHOLDER_RULES.value
+                return signal.model_copy(update={"provenance": prov.model_copy(update={
+                    "stage_origins": origins, "impact_note": f"reference sentiment model cannot score this text: {exc}"})})
+            sentiment = SentimentResult(positive=p.positive, neutral=p.neutral, negative=p.negative, score=p.score)
         inp = ImpactInput(
             ticker=signal.entity.ticker, entity_unknown=signal.entity.is_unknown, multi_entity=prov.entity_audit.multi_entity,
             link_confidence=signal.entity.link_confidence, published_at=signal.document.published_at,
             timestamp_origin=prov.timestamp_origin.value, source_type=signal.document.source_type.value,
-            novelty=signal.evidence.novelty_score, event=event, sentiment=signal.sentiment)
+            novelty=signal.evidence.novelty_score, event=event, sentiment=sentiment)
         out = self.impact_model.assess(inp, self.context)
         origins = dict(prov.stage_origins)
         if isinstance(out, ImpactSkip):

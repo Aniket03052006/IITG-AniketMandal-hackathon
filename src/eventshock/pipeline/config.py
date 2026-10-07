@@ -188,11 +188,17 @@ class SentimentEvalConfig(_Strict):
     near_duplicate_threshold: float = Field(default=0.7, gt=0, le=1)
 
 
+# valid_log_loss_after_temperature: v1 (calibrated probabilities first). valid_macro_f1: v2, declared after v1's out-of-domain
+# results were known (docs/SENTIMENT_MODEL.md, "v2"): a disclosed, not a blind, choice.
+SENTIMENT_SELECTION_RULES = frozenset({"valid_log_loss_after_temperature", "valid_macro_f1"})
+
+
 class SentimentModelConfig(_Strict):
     """configs/sentiment_model.yaml: how the sentiment model is trained, selected, evaluated and where it lives."""
 
     version: str
-    model_dir: str
+    model_dir: str  # the reference model: what impact-v1/v2 were trained against (impact parity) and what training/evaluation compare to
+    served_model_dir: str | None = None  # the sentiment model the product serves when it differs from the reference (v2)
     table: str
     seed: int
     word: WordFeatures = WordFeatures()
@@ -205,16 +211,16 @@ class SentimentModelConfig(_Strict):
 
     @model_validator(mode="after")
     def _valid(self) -> SentimentModelConfig:
-        if self.selection_rule != "valid_log_loss_after_temperature":
-            raise ValueError("unknown selection_rule")
+        if self.selection_rule not in SENTIMENT_SELECTION_RULES:
+            raise ValueError(f"unknown selection_rule {self.selection_rule!r}; known: {sorted(SENTIMENT_SELECTION_RULES)}")
         lo, hi, step = self.temperature_grid
         if not 0 < lo < hi or step <= 0:
             raise ValueError("temperature_grid must be (lo, hi, step) with 0 < lo < hi and step > 0")
         return self
 
 
-def load_sentiment_model_config(config_dir: Path) -> SentimentModelConfig:
-    path = config_dir / "sentiment_model.yaml"
+def load_sentiment_model_config(config_dir: Path, name: str = "sentiment_model.yaml") -> SentimentModelConfig:
+    path = config_dir / name
     try:
         return SentimentModelConfig.model_validate(_load(path))
     except ValueError as exc:
@@ -287,8 +293,8 @@ class EventModelConfig(_Strict):
 
     @model_validator(mode="after")
     def _valid(self) -> EventModelConfig:
-        if self.selection_rule != "valid_log_loss_after_temperature":
-            raise ValueError("unknown selection_rule")
+        if self.selection_rule not in SENTIMENT_SELECTION_RULES:
+            raise ValueError(f"unknown selection_rule {self.selection_rule!r}; known: {sorted(SENTIMENT_SELECTION_RULES)}")
         lo, hi, step = self.temperature_grid
         if not 0 < lo < hi or step <= 0:
             raise ValueError("temperature_grid must be (lo, hi, step) with 0 < lo < hi and step > 0")

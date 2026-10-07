@@ -313,7 +313,8 @@ def _live_source(settings: Settings, cfg: LiveConfig) -> LiveSource | None:
 
 
 def _build_engine(pipeline_cfg, live_cfg: LiveConfig, enrich_cfg, scope_resolver, enricher, sentiment, event_model, legacy,
-                  impact_model, market_context, store: LiveSignalStore, entities, snapshot_id: str):  # noqa: ANN001, ANN202
+                  impact_model, market_context, store: LiveSignalStore, entities, snapshot_id: str,
+                  sentiment_reference=None):  # noqa: ANN001, ANN202
     """The incremental engine over the same models the replay run used (loaded once, shared).
 
     New text has no pinned vector, so a hybrid event model can only score it when an encoder is installed. Without one the engine
@@ -327,7 +328,8 @@ def _build_engine(pipeline_cfg, live_cfg: LiveConfig, enrich_cfg, scope_resolver
     fallback = None
     if hybrid and legacy is not None:
         if impact_model is not None and market_context is not None and impact_model.served_scopes:
-            fallback = ImpactModelEnricher(enrich_cfg, sentiment, legacy, impact_model, market_context)
+            fallback = ImpactModelEnricher(enrich_cfg, sentiment, legacy, impact_model, market_context,
+                                           impact_sentiment_model=sentiment_reference)
         else:
             fallback = ModelEnricher(enrich_cfg, sentiment, legacy)
     engine = RiskEngine(
@@ -387,8 +389,13 @@ def build_container(settings: Settings | None = None) -> Container:
         # The sentiment stage is a trained model. A missing or modified artifact stops start-up (ConfigError):
         # there is deliberately no silent fall-back to the lexicon, which would mislabel what the numbers are.
         model_cfg = load_sentiment_model_config(settings.config_dir)
-        model_dir = settings.sentiment_model_dir or Path(model_cfg.model_dir)
-        model = SentimentModel.load(model_dir if model_dir.is_absolute() else REPO_ROOT / model_dir)
+        model_dir = settings.sentiment_model_dir or Path(model_cfg.served_model_dir or model_cfg.model_dir)
+        model_dir = model_dir if model_dir.is_absolute() else REPO_ROOT / model_dir
+        model = SentimentModel.load(model_dir)
+        # the impact models were trained on the reference sentiment model's output: keep feeding them that one (train/serve parity)
+        sent_ref_dir = Path(model_cfg.model_dir)
+        sent_ref_dir = sent_ref_dir if sent_ref_dir.is_absolute() else REPO_ROOT / sent_ref_dir
+        sentiment_reference = SentimentModel.load(sent_ref_dir) if sent_ref_dir.resolve() != model_dir.resolve() else None
         # Same policy for the event stage: a trained model or no start-up.
         event_cfg = load_event_model_config(settings.config_dir)
         served = settings.event_model_dir or Path(event_cfg.served_model_dir or event_cfg.model_dir)
@@ -403,7 +410,8 @@ def build_container(settings: Settings | None = None) -> Container:
         enricher: ModelEnricher
         if impact_model is not None and market_context is not None and impact_model.served_scopes:
             enricher = ImpactModelEnricher(
-                enrich_cfg, model, event_model, impact_model, market_context, impact_event_model=legacy)
+                enrich_cfg, model, event_model, impact_model, market_context, impact_event_model=legacy,
+                impact_sentiment_model=sentiment_reference)
         else:
             enricher = ModelEnricher(enrich_cfg, model, event_model)
         pipeline_cfg = load_pipeline_config(settings.config_dir)
@@ -427,7 +435,7 @@ def build_container(settings: Settings | None = None) -> Container:
         signals = CombinedSignalRepository(base, live_store)
         engine, fallback_id = _build_engine(
             pipeline_cfg, live_cfg, enrich_cfg, scope_resolver, enricher, model, event_model, legacy, impact_model, market_context,
-            live_store, load_entities(snapshot.entities_path()), snapshot.manifest.snapshot_id)
+            live_store, load_entities(snapshot.entities_path()), snapshot.manifest.snapshot_id, sentiment_reference)
     else:
         fixtures = resolve_fixtures_dir(settings, config)
         signals = CombinedSignalRepository(load_signal_repository(fixtures), LiveSignalStore())

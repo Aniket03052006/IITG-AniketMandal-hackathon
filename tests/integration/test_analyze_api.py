@@ -120,7 +120,9 @@ def test_replay_signals_are_untouched_by_everything_above(app_client) -> None:
     from eventshock.api.deps import get_container  # noqa: F401
 
     meta = app_client.get("/api/meta").json()
-    assert meta["replay"]["output_digest"] == "70478b2d22a001a5111d206488db75e3d345c0fe4fe295134831b86a44efc70d"
+    from tests.e2e.test_replay_served import GOLDEN_SERVED_DIGEST
+
+    assert meta["replay"]["output_digest"] == GOLDEN_SERVED_DIGEST
 
 
 def test_demo_profile_has_no_engine_and_says_so(client) -> None:

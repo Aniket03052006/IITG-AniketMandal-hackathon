@@ -24,7 +24,7 @@ from eventshock.ingestion.snapshot import load_snapshot  # noqa: E402
 
 OUT = ROOT / "docs" / "freeze_manifest.json"
 SCHEMA = 1
-MODEL_DIRS = ["models/sentiment/tfidf-lr-v1", "models/event/tfidf-lr-event-v1", "models/event/hybrid-event-v2",
+MODEL_DIRS = ["models/sentiment/tfidf-lr-v1", "models/sentiment/tfidf-lr-v2", "models/event/tfidf-lr-event-v1", "models/event/hybrid-event-v2",
               "models/impact/impact-v1", "models/impact/impact-v2"]
 GROUPS = {  # label -> (directory, glob); sorted, so the manifest is stable
     "models": ("models", "**/*"),
@@ -95,6 +95,7 @@ def reload_is_deterministic() -> list[str]:
 
     bad: list[str] = []
     for label, load in (("sentiment tfidf-lr-v1", lambda: SentimentModel.load(ROOT / "models/sentiment/tfidf-lr-v1")),
+                        ("sentiment tfidf-lr-v2", lambda: SentimentModel.load(ROOT / "models/sentiment/tfidf-lr-v2")),
                         ("event tfidf-lr-event-v1", lambda: EventModel.load(ROOT / "models/event/tfidf-lr-event-v1"))):
         a, b = load().probabilities(PROBES), load().probabilities(PROBES)
         if not np.array_equal(a, b):

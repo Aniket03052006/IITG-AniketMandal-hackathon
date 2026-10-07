@@ -18,7 +18,7 @@ def test_freeze_check_passes():
 
 def test_freeze_manifest_names_every_served_model_and_the_adjudication_queues():
     m = json.loads((REPO_ROOT / "docs/freeze_manifest.json").read_text())
-    assert {v["id"] for v in m["models"].values()} == {"tfidf-lr-v1", "tfidf-lr-event-v1", "hybrid-event-v2", "impact-v1", "impact-v2"}
+    assert {v["id"] for v in m["models"].values()} == {"tfidf-lr-v1", "tfidf-lr-v2", "tfidf-lr-event-v1", "hybrid-event-v2", "impact-v1", "impact-v2"}
     for needed in ("data/gold_v2/adjudication_v2.csv", "data/gold_v2/gold_v2.csv", "data/gold/adjudication.csv", "data/replay/manifest.json",
                    "configs/evidence_v2.yaml", "configs/impact_model.yaml", "configs/event_model.yaml", "data/events/fomc.json"):
         assert needed in m["files"], needed

@@ -1,7 +1,10 @@
 # Sentiment model (the first real NLP stage). Everything that decides what the model is lives here, not in code;
 # values are validated at startup, a typo fails loudly. Changing training-relevant values changes the artifact: bump `version`.
 version: "tfidf-lr-v1"
-model_dir: models/sentiment/tfidf-lr-v1   # model.joblib + model_card.json (committed; the API refuses to start without them)
+model_dir: models/sentiment/tfidf-lr-v1   # the REFERENCE model (model.joblib + model_card.json, committed; the API refuses to start without them)
+# The model the product serves (Stage 13). v2 is the class-balanced candidate (configs/sentiment_model_v2.yaml). v1 stays the reference:
+# impact-v1/v2 were trained on its output, so the impact stage keeps reading v1 (train/serve parity, as for the event model).
+served_model_dir: models/sentiment/tfidf-lr-v2
 table: data/modeling/sentiment.jsonl      # TFN sentiment, exact-deduplicated, near-duplicate-grouped, re-split (make audit)
 seed: 20261004
 

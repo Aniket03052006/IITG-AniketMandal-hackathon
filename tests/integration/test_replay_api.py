@@ -67,9 +67,9 @@ class TestSignals:
         assert e["model_id"] == "hybrid-event-v2" and len(e["artifact_sha256"]) == 64 and e["calibrated"] is True
         assert 0 <= e["confidence"] <= 1 and 0 <= e["no_event_probability"] <= 1 and isinstance(e["seen_in_training"], bool)
         assert s["event"]["status"] in {"CLASSIFIED", "NO_EVENT", "UNCERTAIN"}
-        assert s["model_versions"]["sentiment"].startswith("tfidf-lr-v1+")
+        assert s["model_versions"]["sentiment"].startswith("tfidf-lr-v2+")
         a = p["sentiment"]
-        assert a["model_id"] == "tfidf-lr-v1" and len(a["artifact_sha256"]) == 64 and a["calibrated"] is True
+        assert a["model_id"] == "tfidf-lr-v2" and len(a["artifact_sha256"]) == 64 and a["calibrated"] is True
         assert 0 <= a["confidence"] <= 1 and isinstance(a["seen_in_training"], bool)
         snt = s["sentiment"]
         assert abs(snt["positive"] + snt["neutral"] + snt["negative"] - 1) < 1e-3 and -1 <= snt["score"] <= 1
@@ -152,7 +152,7 @@ class TestRealSignalsDriveTheStressEngine:
 class TestSentimentModelEndpoint:
     def test_card_is_served_with_results_and_limits(self, replay_client):
         c = replay_client.get("/api/models/sentiment").json()
-        assert c["id"] == "tfidf-lr-v1" and len(c["artifact_sha256"]) == 64 and c["limitations"]
+        assert c["id"] == "tfidf-lr-v2" and len(c["artifact_sha256"]) == 64 and c["limitations"]
         sets = {e["id"]: e for e in c["evaluations"]}
         t = sets["tfn_test"]
         assert t["status"] == "ok" and t["model"]["n"] > 1000 and len(t["model"]["confusion"]) == 3

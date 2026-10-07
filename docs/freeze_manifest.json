@@ -24,7 +24,8 @@
   "configs/scope.yaml": "f5f1421648df37aa45533f5b1998be453c5d447548dd2ef1cac6cfc684876e7b",
   "configs/sec_items.yaml": "d07a9c3b0ef4a29575955517824b65f4ca4a597b4350b94dc4adfd250b5e6670",
   "configs/semantics.yaml": "6752fe89a0c2e8e13e7db60775bc4e775c22e3af3fa88b68e5c0674b1c0beddb",
-  "configs/sentiment_model.yaml": "98c80a155547190f3614766ded7e79a90bb21ddbdf5d3ae53cbca41c1a02618b",
+  "configs/sentiment_model.yaml": "7c1e7fed14380ff2b704a21134ced40ebf7d8b6a4685a44e17b897c2e848be10",
+  "configs/sentiment_model_v2.yaml": "d0ae73283ef91fac92563de6b74db760bdb139ad6fbff63da801c452fc2a1d8a",
   "configs/severity.yaml": "922a6d047ec6dc27ed61c53b9ea193b7eabc52b3ff4981c4f1b8e0e259e14947",
   "configs/topic_mapping.yaml": "93619ddc7997ab36e0143cf4826a2616b969f213475a0f71a2648ca7aadb37c7",
   "data/events/fomc.json": "25e46f93f6597d61992c464c667e4f2f7e3f05a42ebbf629992b6e0786b5576f",
@@ -82,7 +83,9 @@
   "models/impact/impact-v2/model.joblib": "31545b4913b36d3a5f9a85a21b9f0e48fa730eb36e085f9ad9f669819b2bcc86",
   "models/impact/impact-v2/model_card.json": "b8dbcc03dcfcb6871356c1ae48872407ed3793c76d387e48e2a6dd2aeafb60e8",
   "models/sentiment/tfidf-lr-v1/model.joblib": "41048a3895100bd48d5b312fee03cfe6f1f8121138a25b94f29e59ed50935470",
-  "models/sentiment/tfidf-lr-v1/model_card.json": "1293944c860c1648802e7718ec14b30d0a024fbe114768215af97e95344e9858"
+  "models/sentiment/tfidf-lr-v1/model_card.json": "1293944c860c1648802e7718ec14b30d0a024fbe114768215af97e95344e9858",
+  "models/sentiment/tfidf-lr-v2/model.joblib": "d8b694c1363d30b13fa68c22f896f6169a155aba4f86068638a47615aa0d6e17",
+  "models/sentiment/tfidf-lr-v2/model_card.json": "322e30c2bff9fa46862b51d30cc0a82b4e5df5d303e51d15fbbe0757aa718dbc"
  },
  "frozen_on": "2026-10-03",
  "models": {
@@ -105,6 +108,10 @@
   "models/sentiment/tfidf-lr-v1": {
    "artifact_sha256": "41048a3895100bd48d5b312fee03cfe6f1f8121138a25b94f29e59ed50935470",
    "id": "tfidf-lr-v1"
+  },
+  "models/sentiment/tfidf-lr-v2": {
+   "artifact_sha256": "d8b694c1363d30b13fa68c22f896f6169a155aba4f86068638a47615aa0d6e17",
+   "id": "tfidf-lr-v2"
   }
  },
  "replay_snapshot": "replay-2026-09-30-v1",

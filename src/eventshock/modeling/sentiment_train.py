@@ -167,7 +167,9 @@ def train(cfg: SentimentModelConfig, rows: list[dict[str, Any]]) -> Trained:
                 cand = Candidate(preprocessing=pre, C=c, class_weight=cw, temperature=round(temp, 4),
                                  valid_log_loss=round(ll, 4), valid_macro_f1=round(f1, 4), selected=False)
                 # ties on the rounded log-loss go to the simpler, more regularised candidate (smaller C, then name order)
-                results.append(((cand.valid_log_loss, c, f"{pre}/{cw}"), cand, pipe))
+                # v1 ranks on calibrated log-loss; v2 on valid macro-F1 (negated so that "smaller sorts first" holds for both)
+                primary = -cand.valid_macro_f1 if cfg.selection_rule == "valid_macro_f1" else cand.valid_log_loss
+                results.append(((primary, cand.valid_log_loss, c, f"{pre}/{cw}"), cand, pipe))
     results.sort(key=lambda t: t[0])
     best_key, best, pipe = results[0]
     cands = [c.model_copy(update={"selected": c is best}) for _, c, _ in results]
@@ -308,10 +310,15 @@ def _card(cfg, t: Trained, sha: str, art_path: Path, libs: dict[str, str], rows,
 
 
 def main(argv: list[str] | None = None) -> int:  # pragma: no cover - thin CLI wrapper, exercised by `make train-sentiment`
+    import argparse
+
     from ..config import REPO_ROOT
     from ..pipeline.config import load_enrichment_config, load_sentiment_model_config
 
-    cfg = load_sentiment_model_config(REPO_ROOT / "configs")
+    ap = argparse.ArgumentParser(prog="train-sentiment")
+    ap.add_argument("--config", default="sentiment_model.yaml", help="file under configs/ (v2: sentiment_model_v2.yaml)")
+    args = ap.parse_args(argv)
+    cfg = load_sentiment_model_config(REPO_ROOT / "configs", args.config)
     card = run(cfg, repo_root=REPO_ROOT, enrichment_cfg=load_enrichment_config(REPO_ROOT / "configs"))
     sel = next(c for c in card.candidates if c.selected)
     print(f"model {card.id}: {sel.preprocessing}, C={sel.C}, class_weight={sel.class_weight}, T={sel.temperature} "

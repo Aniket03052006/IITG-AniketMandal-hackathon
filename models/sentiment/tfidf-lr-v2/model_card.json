@@ -1,0 +1,650 @@
+{
+ "id": "tfidf-lr-v2",
+ "version": "tfidf-lr-v2",
+ "algorithm": "TF-IDF (word 1-2gram + char_wb 2-5gram, sublinear) -> multinomial logistic regression -> temperature scaling",
+ "preprocessing": "normalised",
+ "classes": [
+  "negative",
+  "neutral",
+  "positive"
+ ],
+ "score_definition": "score = P(positive) - P(negative), in [-1, 1]; probabilities are calibrated and rounded to 4 decimals",
+ "artifact_file": "model.joblib",
+ "artifact_sha256": "d8b694c1363d30b13fa68c22f896f6169a155aba4f86068638a47615aa0d6e17",
+ "artifact_bytes": 1660995,
+ "libraries": {
+  "scikit-learn": "1.9.1",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1"
+ },
+ "training": {
+  "dataset": "Twitter Financial News sentiment (zeroshot/twitter-financial-news-sentiment)",
+  "licence": "MIT",
+  "table": "data/modeling/sentiment.jsonl",
+  "table_sha256": "314f9ddf4355d92fb0ef889cb57077f606d95e9f1e06d929ad66f9f7586b2bd4",
+  "rows": {
+   "train": 9355,
+   "valid": 1170,
+   "test": 1169
+  },
+  "label_distribution": {
+   "negative": 1404,
+   "neutral": 6060,
+   "positive": 1891
+  },
+  "split_note": "exact duplicates and conflicting labels removed, near-duplicate groups kept on one side (Jaccard >= 0.7)",
+  "seed": 20261004,
+  "config_digest": "5ee18fcdde96b9a7"
+ },
+ "selection_rule": "valid_macro_f1",
+ "candidates": [
+  {
+   "preprocessing": "normalised",
+   "C": 3.0,
+   "class_weight": "balanced",
+   "temperature": 0.99,
+   "valid_log_loss": 0.5113,
+   "valid_macro_f1": 0.7535,
+   "selected": true
+  },
+  {
+   "preprocessing": "normalised",
+   "C": 10.0,
+   "class_weight": "balanced",
+   "temperature": 1.3,
+   "valid_log_loss": 0.5069,
+   "valid_macro_f1": 0.7521,
+   "selected": false
+  },
+  {
+   "preprocessing": "normalised",
+   "C": 1.0,
+   "class_weight": "balanced",
+   "temperature": 0.75,
+   "valid_log_loss": 0.5273,
+   "valid_macro_f1": 0.7384,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 10.0,
+   "class_weight": "balanced",
+   "temperature": 1.32,
+   "valid_log_loss": 0.5164,
+   "valid_macro_f1": 0.7352,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 3.0,
+   "class_weight": "balanced",
+   "temperature": 0.98,
+   "valid_log_loss": 0.5226,
+   "valid_macro_f1": 0.7308,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 1.0,
+   "class_weight": "balanced",
+   "temperature": 0.74,
+   "valid_log_loss": 0.5371,
+   "valid_macro_f1": 0.7306,
+   "selected": false
+  },
+  {
+   "preprocessing": "raw",
+   "C": 0.3,
+   "class_weight": "balanced",
+   "temperature": 0.52,
+   "valid_log_loss": 0.5673,
+   "valid_macro_f1": 0.715,
+   "selected": false
+  },
+  {
+   "preprocessing": "normalised",
+   "C": 0.3,
+   "class_weight": "balanced",
+   "temperature": 0.54,
+   "valid_log_loss": 0.5615,
+   "valid_macro_f1": 0.7146,
+   "selected": false
+  }
+ ],
+ "calibration": {
+  "method": "temperature scaling (one parameter on the logits)",
+  "temperature": 0.99,
+  "fitted_on": "TFN valid split",
+  "ece_test_before": 0.0293,
+  "ece_test_after": 0.0275,
+  "reliability_test": [
+   {
+    "lo": 0.0,
+    "hi": 0.1,
+    "n": 0,
+    "confidence": 0.0,
+    "accuracy": 0.0
+   },
+   {
+    "lo": 0.1,
+    "hi": 0.2,
+    "n": 0,
+    "confidence": 0.0,
+    "accuracy": 0.0
+   },
+   {
+    "lo": 0.2,
+    "hi": 0.3,
+    "n": 0,
+    "confidence": 0.0,
+    "accuracy": 0.0
+   },
+   {
+    "lo": 0.3,
+    "hi": 0.4,
+    "n": 8,
+    "confidence": 0.3863,
+    "accuracy": 0.625
+   },
+   {
+    "lo": 0.4,
+    "hi": 0.5,
+    "n": 72,
+    "confidence": 0.4632,
+    "accuracy": 0.4444
+   },
+   {
+    "lo": 0.5,
+    "hi": 0.6,
+    "n": 121,
+    "confidence": 0.5508,
+    "accuracy": 0.5702
+   },
+   {
+    "lo": 0.6,
+    "hi": 0.7,
+    "n": 126,
+    "confidence": 0.6513,
+    "accuracy": 0.7222
+   },
+   {
+    "lo": 0.7,
+    "hi": 0.8,
+    "n": 138,
+    "confidence": 0.7523,
+    "accuracy": 0.8188
+   },
+   {
+    "lo": 0.8,
+    "hi": 0.9,
+    "n": 209,
+    "confidence": 0.8556,
+    "accuracy": 0.866
+   },
+   {
+    "lo": 0.9,
+    "hi": 1.0,
+    "n": 495,
+    "confidence": 0.9571,
+    "accuracy": 0.9697
+   }
+  ]
+ },
+ "evaluations": [
+  {
+   "id": "tfn_test",
+   "title": "Twitter Financial News, held-out test",
+   "role": "in_domain",
+   "description": "Same source and style as the training data; near-duplicate groups never straddle the split. The primary in-domain result.",
+   "status": "ok",
+   "note": "",
+   "model": {
+    "n": 1169,
+    "weighted": false,
+    "labels": [
+     "negative",
+     "neutral",
+     "positive"
+    ],
+    "accuracy": 0.8306,
+    "macro_f1": 0.7826,
+    "macro_f1_ci95": [
+     0.7565,
+     0.8088
+    ],
+    "per_class": {
+     "negative": {
+      "precision": 0.6505,
+      "recall": 0.7571,
+      "f1": 0.6997,
+      "support": 177.0
+     },
+     "neutral": {
+      "precision": 0.917,
+      "recall": 0.8613,
+      "f1": 0.8883,
+      "support": 757.0
+     },
+     "positive": {
+      "precision": 0.7341,
+      "recall": 0.7872,
+      "f1": 0.7598,
+      "support": 235.0
+     }
+    },
+    "confusion": [
+     [
+      134.0,
+      29.0,
+      14.0
+     ],
+     [
+      52.0,
+      652.0,
+      53.0
+     ],
+     [
+      20.0,
+      30.0,
+      185.0
+     ]
+    ],
+    "log_loss": 0.453,
+    "brier": 0.2466,
+    "ece": 0.0275,
+    "spearman_score_vs_label": 0.637,
+    "mean_score_by_class": {
+     "negative": -0.5203,
+     "neutral": -0.001,
+     "positive": 0.5608
+    },
+    "product_rule": {
+     "accuracy": 0.7682,
+     "macro_f1": 0.7303
+    }
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.6476,
+     "macro_f1": 0.262
+    },
+    "placeholder_lexicon": {
+     "accuracy": 0.6818,
+     "macro_f1": 0.5275
+    },
+    "audit_probe_tfidf_logreg": {
+     "accuracy": 0.8358,
+     "macro_f1": 0.7855
+    }
+   }
+  },
+  {
+   "id": "phrasebank",
+   "title": "Financial PhraseBank (external)",
+   "role": "external",
+   "description": "Sentences from Finnish-company news, labelled by finance professionals; non-commercial licence, evaluation only, never trained on.",
+   "status": "ok",
+   "note": "",
+   "model": {
+    "n": 4846,
+    "weighted": false,
+    "labels": [
+     "negative",
+     "neutral",
+     "positive"
+    ],
+    "accuracy": 0.6531,
+    "macro_f1": 0.5252,
+    "macro_f1_ci95": [
+     0.5081,
+     0.5409
+    ],
+    "per_class": {
+     "negative": {
+      "precision": 0.4918,
+      "recall": 0.4967,
+      "f1": 0.4942,
+      "support": 604.0
+     },
+     "neutral": {
+      "precision": 0.6786,
+      "recall": 0.9,
+      "f1": 0.7738,
+      "support": 2879.0
+     },
+     "positive": {
+      "precision": 0.6555,
+      "recall": 0.201,
+      "f1": 0.3077,
+      "support": 1363.0
+     }
+    },
+    "confusion": [
+     [
+      300.0,
+      274.0,
+      30.0
+     ],
+     [
+      174.0,
+      2591.0,
+      114.0
+     ],
+     [
+      136.0,
+      953.0,
+      274.0
+     ]
+    ],
+    "log_loss": 0.9024,
+    "brier": 0.5003,
+    "ece": 0.0955,
+    "spearman_score_vs_label": 0.3605,
+    "mean_score_by_class": {
+     "negative": -0.3309,
+     "neutral": -0.0307,
+     "positive": 0.075
+    },
+    "product_rule": {
+     "accuracy": 0.6083,
+     "macro_f1": 0.5298
+    }
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.5941,
+     "macro_f1": 0.2485
+    },
+    "placeholder_lexicon": {
+     "accuracy": 0.6348,
+     "macro_f1": 0.4117
+    },
+    "audit_probe_tfidf_logreg": {
+     "accuracy": 0.6589,
+     "macro_f1": 0.5405
+    }
+   }
+  },
+  {
+   "id": "gold_history",
+   "title": "Gold set, our own sources (AI-annotated)",
+   "role": "indicative",
+   "description": "280 tweets and headlines from the sources EventShock actually ingests, inclusion-weighted to the population. Labels are AI-annotated and not human-adjudicated.",
+   "status": "ok",
+   "note": "",
+   "model": {
+    "n": 280,
+    "weighted": true,
+    "labels": [
+     "negative",
+     "neutral",
+     "positive"
+    ],
+    "accuracy": 0.5577,
+    "macro_f1": 0.4927,
+    "macro_f1_ci95": [
+     0.4061,
+     0.5779
+    ],
+    "per_class": {
+     "negative": {
+      "precision": 0.4733,
+      "recall": 0.2691,
+      "f1": 0.3432,
+      "support": 33248.15
+     },
+     "neutral": {
+      "precision": 0.6045,
+      "recall": 0.7666,
+      "f1": 0.676,
+      "support": 64907.63
+     },
+     "positive": {
+      "precision": 0.4825,
+      "recall": 0.4376,
+      "f1": 0.459,
+      "support": 32976.22
+     }
+    },
+    "confusion": [
+     [
+      8948.53,
+      19270.9,
+      5028.72
+     ],
+     [
+      4699.78,
+      49759.77,
+      10448.08
+     ],
+     [
+      5256.7,
+      13289.03,
+      14430.48
+     ]
+    ],
+    "log_loss": 1.0911,
+    "brier": 0.6053,
+    "ece": 0.1827,
+    "spearman_score_vs_label": 0.278,
+    "mean_score_by_class": {
+     "negative": -0.1322,
+     "neutral": 0.0752,
+     "positive": 0.2464
+    },
+    "product_rule": {
+     "accuracy": 0.565,
+     "macro_f1": 0.5376
+    }
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.495,
+     "macro_f1": 0.2207
+    },
+    "placeholder_lexicon": {
+     "accuracy": 0.4785,
+     "macro_f1": 0.296
+    },
+    "audit_probe_tfidf_logreg": {
+     "accuracy": 0.5578,
+     "macro_f1": 0.504
+    }
+   }
+  },
+  {
+   "id": "gold_tfn",
+   "title": "Gold set, TFN-style text (AI-annotated)",
+   "role": "indicative",
+   "description": "TFN-style headlines from the gold sample.",
+   "status": "ok",
+   "note": "1 of 120 rows were removed because the training data holds a near-duplicate.",
+   "model": {
+    "n": 119,
+    "weighted": true,
+    "labels": [
+     "negative",
+     "neutral",
+     "positive"
+    ],
+    "accuracy": 0.6796,
+    "macro_f1": 0.6528,
+    "macro_f1_ci95": [
+     0.5183,
+     0.7695
+    ],
+    "per_class": {
+     "negative": {
+      "precision": 0.7979,
+      "recall": 0.6141,
+      "f1": 0.694,
+      "support": 5776.5
+     },
+     "neutral": {
+      "precision": 0.6347,
+      "recall": 0.8602,
+      "f1": 0.7304,
+      "support": 7441.17
+     },
+     "positive": {
+      "precision": 0.6546,
+      "recall": 0.4508,
+      "f1": 0.5339,
+      "support": 4215.33
+     }
+    },
+    "confusion": [
+     [
+      3547.33,
+      1615.67,
+      613.5
+     ],
+     [
+      651.5,
+      6400.67,
+      389.0
+     ],
+     [
+      247.17,
+      2067.83,
+      1900.33
+     ]
+    ],
+    "log_loss": 1.0104,
+    "brier": 0.5171,
+    "ece": 0.164,
+    "spearman_score_vs_label": 0.502,
+    "mean_score_by_class": {
+     "negative": -0.3509,
+     "neutral": -0.0184,
+     "positive": 0.2542
+    },
+    "product_rule": {
+     "accuracy": 0.5943,
+     "macro_f1": 0.5823
+    }
+   },
+   "baselines": {
+    "majority_class": {
+     "accuracy": 0.4268,
+     "macro_f1": 0.1994
+    },
+    "placeholder_lexicon": {
+     "accuracy": 0.5129,
+     "macro_f1": 0.446
+    },
+    "audit_probe_tfidf_logreg": {
+     "accuracy": 0.6424,
+     "macro_f1": 0.6078
+    }
+   }
+  }
+ ],
+ "confident_errors": [
+  {
+   "eval_set": "tfn_test",
+   "text": "EU Trade Commissioner Phil Hogan says a political agreement on the shape of a new trading relationship with the U.K…",
+   "truth": "positive",
+   "predicted": "neutral",
+   "confidence": 0.9772,
+   "score": -0.0007
+  },
+  {
+   "eval_set": "tfn_test",
+   "text": "$CNK - Cinemark Holdings (CNK) Presents At Southwest Ideas Investor Conference - Slideshow. Get more updates here:…",
+   "truth": "positive",
+   "predicted": "neutral",
+   "confidence": 0.965,
+   "score": -0.0013
+  },
+  {
+   "eval_set": "tfn_test",
+   "text": "The Federal Reserve's rescue of the overnight lending market appears to be having an unintended side effect: it's j…",
+   "truth": "negative",
+   "predicted": "neutral",
+   "confidence": 0.9642,
+   "score": -0.0024
+  },
+  {
+   "eval_set": "tfn_test",
+   "text": "$ETSY 37 to 43",
+   "truth": "neutral",
+   "predicted": "positive",
+   "confidence": 0.9623,
+   "score": 0.9316
+  },
+  {
+   "eval_set": "tfn_test",
+   "text": "Firan Technology Group Corporation (TSE:FTG) Is Employing Capital Very Effectively",
+   "truth": "positive",
+   "predicted": "neutral",
+   "confidence": 0.9564,
+   "score": 0.0319
+  },
+  {
+   "eval_set": "tfn_test",
+   "text": "China's Need To Import LNG Is Slowing Down. #stocks #stockmarket #trading",
+   "truth": "positive",
+   "predicted": "negative",
+   "confidence": 0.9523,
+   "score": -0.9464
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Thank you, @JackMHuynh, for sharing how AMD is delivering a new category of PC gaming with the #SteamDeck and our partnership with @valvesoftware. https://t.co/",
+   "truth": "positive",
+   "predicted": "neutral",
+   "confidence": 0.9914,
+   "score": 0.0033
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "How to protect your assets ahead of Fed interest rate hikes",
+   "truth": "negative",
+   "predicted": "neutral",
+   "confidence": 0.9879,
+   "score": 0.0006
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "@trish_zornio @cbouzy @SalCarrillo817 @elonmusk @Tesla I canceled my Y order this week.",
+   "truth": "negative",
+   "predicted": "neutral",
+   "confidence": 0.9767,
+   "score": -0.0087
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Dollar edges lower against euro as markets trim US rate hike bets",
+   "truth": "neutral",
+   "predicted": "negative",
+   "confidence": 0.9744,
+   "score": -0.9697
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "#Google Acquires Orbitera. Read more: http://owler.us/aa8wMZ $GOOG",
+   "truth": "positive",
+   "predicted": "neutral",
+   "confidence": 0.9735,
+   "score": -0.0048
+  },
+  {
+   "eval_set": "gold_history",
+   "text": "Meta deal to implement elements of state social media law",
+   "truth": "negative",
+   "predicted": "neutral",
+   "confidence": 0.9663,
+   "score": -0.0028
+  }
+ ],
+ "limitations": [
+  "Trained on Twitter Financial News: English tweets and headlines from financial news accounts, about 65% neutral. It has not seen retail chatter, long articles or non-English text.",
+  "Out of domain it is markedly weaker (see the PhraseBank and gold-set rows): treat scores on our own sources as indicative, not as accuracy figures.",
+  "The gold set is annotated by an AI and has not been human-adjudicated; it bounds noise, not shared bias.",
+  "Scores describe the tone of the text, not its market effect: a negative headline about a competitor, or a neutral regulatory notice, can matter more than the sign suggests.",
+  "Only the exact text is checked against the training data (case, punctuation and links ignored). A rewritten copy of a training text is not flagged as seen.",
+  "The model is bag-of-words: it does not model negation scope, sarcasm or numbers (a 3% rise and a 30% rise look alike).",
+  "Calibration was fitted on TFN validation data; probabilities on other domains are over-confident (see ECE per evaluation set)."
+ ]
+}

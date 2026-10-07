@@ -67,7 +67,7 @@ def _probe(args: argparse.Namespace) -> int:
 def _train_sentiment(args: argparse.Namespace) -> int:
     from .sentiment_train import main as train_main
 
-    return train_main()
+    return train_main(["--config", args.config] if getattr(args, "config", None) else [])
 
 
 def _train_event(args: argparse.Namespace) -> int:
@@ -228,7 +228,9 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("audit", help="profile the data, build the impact and text tables, run every leakage check").set_defaults(fn=_audit)
     sub.add_parser("probe", help="seconds-long classical baselines on the built tables (needs the ml extra)").set_defaults(fn=_probe)
-    sub.add_parser("train-sentiment", help="train, select, calibrate and evaluate the sentiment model; write models/sentiment/*").set_defaults(fn=_train_sentiment)
+    ts = sub.add_parser("train-sentiment", help="train, select, calibrate and evaluate the sentiment model; write models/sentiment/*")
+    ts.add_argument("--config", help="file under configs/ (default sentiment_model.yaml; v2: sentiment_model_v2.yaml)")
+    ts.set_defaults(fn=_train_sentiment)
     p = sub.add_parser("train-event", help="train, tune, calibrate and evaluate the event model; write models/event/*")
     p.add_argument("--dev-only", metavar="OUT_DIR", help="iterate on dev rows only, writing to OUT_DIR; never scores the held-out sets")
     p.set_defaults(fn=_train_event)

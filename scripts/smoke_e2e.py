@@ -22,7 +22,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CARDS = {"sentiment": "models/sentiment/tfidf-lr-v1/model_card.json", "event": "models/event/hybrid-event-v2/model_card.json",
+CARDS = {"sentiment": "models/sentiment/tfidf-lr-v2/model_card.json", "event": "models/event/hybrid-event-v2/model_card.json",
          "impact": "models/impact/impact-v2/model_card.json"}
 STARTUP_SECONDS = 600
 
@@ -91,8 +91,8 @@ def run_checks(base: str) -> None:
     prov = detail["provenance"]
     check(prov["event"]["model_id"] == "hybrid-event-v2" and prov["event"]["artifact_sha256"] == cards["event"]["artifact_sha256"],
           "a signal's audit names hybrid-event-v2 and its artifact hash")
-    check(prov["sentiment"]["model_id"] == "tfidf-lr-v1" and prov["sentiment"]["artifact_sha256"] == cards["sentiment"]["artifact_sha256"],
-          "...tfidf-lr-v1 with its artifact hash")
+    check(prov["sentiment"]["model_id"] == "tfidf-lr-v2" and prov["sentiment"]["artifact_sha256"] == cards["sentiment"]["artifact_sha256"],
+          "...tfidf-lr-v2 with its artifact hash")
     check(prov["impact"]["model_id"] == "impact-v2" and prov["impact"]["artifact_sha256"] == cards["impact"]["artifact_sha256"]
           and prov["impact"]["feature_schema"] == cards["impact"]["feature_schema"], "...impact-v2 with its artifact hash and feature schema")
     check(prov["stage_origins"]["event"] == "MODEL" and prov["stage_origins"]["impact"] == "MODEL", "...with MODEL stage origins")
