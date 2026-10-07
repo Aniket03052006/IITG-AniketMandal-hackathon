@@ -295,7 +295,7 @@ class StressService:
         for s in scenario.shocks:
             ok, why = (True, None) if s.sector else _binds(s.scope, level, entity_known, sector)  # a shock that names its sector reaches it whatever the event is about
             applied.append(AppliedShock(
-                factor=s.factor, scope=s.scope, sector=s.sector, base_value=s.value,
+                factor=s.factor, scope=s.scope, sector=s.sector, currency=s.currency, entity_id=s.entity_id, base_value=s.value,
                 scaled_value=scaled_shock_value(s.factor, s.value, scale),
                 applicable=ok, not_applicable_reason=why, rationale=s.rationale))
         if not any(a.applicable for a in applied):

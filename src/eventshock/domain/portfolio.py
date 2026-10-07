@@ -48,13 +48,36 @@ class PortfolioAsset(ContractModel):
         default=None, ge=-5, le=5,
         description="elasticity of the position's value to the price of crude oil (0.5 = a 10% oil move moves it 5%); unset = not measured, so an oil shock does not move it (omitted from the JSON)")
 
+    # Stage 13 mechanics. Every one is optional and omitted from the JSON while unset, so the default book's hash and every pinned run are unchanged.
+    convexity: float | None = Field(
+        default=None, ge=0, le=500,
+        description="BOND: convexity in years squared; adds 0.5 x C x (yield change)^2 to the price change. Unset = duration only (first order)")
+    maturity_years: float | None = Field(
+        default=None, gt=0, le=40, description="LOAN: remaining tenor in years; the horizon of the hazard-rate link between a spread shock and PD")
+    spread_passthrough: float | None = Field(
+        default=None, ge=0, le=1.5,
+        description="LOAN: share of a credit-spread shock that reaches this borrower's hazard rate (credit triangle: spread = hazard x LGD). Unset = a spread shock does not move the loan")
+    gamma: float | None = Field(
+        default=None, ge=-50, le=50,
+        description="DERIVATIVE: change in delta per unit return of the underlying; adds 0.5 x gamma x underlying x s^2. Unset = delta only")
+    counterparty_pd: float | None = Field(
+        default=None, ge=0, le=1, description="DERIVATIVE: one-year default probability of the counterparty, for the credit-valuation adjustment")
+    counterparty_lgd: float | None = Field(
+        default=None, gt=0, le=1, description="DERIVATIVE: loss given default of the counterparty; required with counterparty_pd")
+    rating: str | None = Field(
+        default=None, max_length=8,
+        description="external-style rating bucket (e.g. BBB). Carried for reporting and concentration only: no revaluation reads it")
+    spread_bp: float | None = Field(
+        default=None, ge=0, le=5000, description="BOND: current credit spread in basis points. Carried for reporting only: no revaluation reads it")
+
     @model_serializer(mode="wrap")
     def _omit_default_optional_fields(self, handler):  # noqa: ANN001, ANN202
-        """Omit ``spread_sensitivity`` at its default and the unset FX / oil exposure: the synthetic book's JSON and hash are unchanged."""
+        """Omit ``spread_sensitivity`` at its default and every unset optional exposure / mechanic: the synthetic book's JSON and hash are unchanged."""
         data = handler(self)
         if data.get("spread_sensitivity") == 1.0:
             data.pop("spread_sensitivity")
-        for k in ("currency", "commodity_sensitivity"):
+        for k in ("currency", "commodity_sensitivity", "convexity", "maturity_years", "spread_passthrough", "gamma",
+                  "counterparty_pd", "counterparty_lgd", "rating", "spread_bp"):
             if data.get(k) is None:
                 data.pop(k, None)
         return data
@@ -77,6 +100,16 @@ class PortfolioAsset(ContractModel):
             raise ValueError("DERIVATIVE requires delta")
         if self.currency is not None and not re.fullmatch(r"[A-Z]{3}", self.currency):
             raise ValueError("currency must be a three-letter ISO code such as EUR")
+        only = {"convexity": AssetClass.BOND, "spread_bp": AssetClass.BOND, "maturity_years": AssetClass.LOAN,
+                "spread_passthrough": AssetClass.LOAN, "gamma": AssetClass.DERIVATIVE, "counterparty_pd": AssetClass.DERIVATIVE,
+                "counterparty_lgd": AssetClass.DERIVATIVE}
+        for field, cls in only.items():
+            if getattr(self, field) is not None and t is not cls:
+                raise ValueError(f"{field} applies to {cls.value} positions only")
+        if self.spread_passthrough is not None and self.maturity_years is None:
+            raise ValueError("spread_passthrough needs maturity_years (the horizon of the hazard-rate link)")
+        if (self.counterparty_pd is None) != (self.counterparty_lgd is None):
+            raise ValueError("counterparty_pd and counterparty_lgd are set together (the credit-valuation adjustment needs both)")
         return self
 
 
