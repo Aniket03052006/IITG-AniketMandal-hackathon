@@ -111,3 +111,22 @@ Needs `data/modeling/sentiment.jsonl` (committed; `make audit` regenerates it by
 | Event classification | Placeholder keyword rules (`placeholder-v0-keywords`) |
 | Impact score | Placeholder heuristic (`placeholder-v0-heuristic`), which now reads the model's tone magnitude |
 | Stress engine | Real, deterministic |
+
+## v2 (`tfidf-lr-v2`, served from Stage 13; v1 stays the reference)
+
+**Why.** v1's selection rule (valid log-loss after temperature) picked the unweighted model, which answers "neutral" for most out-of-domain text: negative recall 0.28 on PhraseBank and 0.19 on the gold set, positive recall 0.14 on PhraseBank, while the audit probe with `class_weight=balanced` was better out of domain (0.540 vs 0.466 macro-F1).
+
+**What changed.** Same features, data, split and calibration (`configs/sentiment_model_v2.yaml`). The grid is `class_weight: balanced` only and the winner is the candidate with the highest TFN-**validation macro-F1** (`selection_rule: valid_macro_f1`); the temperature is still fitted on valid log-loss afterwards. `make train-sentiment-v2` (~1 min) writes `models/sentiment/tfidf-lr-v2/`. Winner: normalised text, C=3, balanced, T=0.99.
+
+**How honest the choice is.** This is **not** a pre-registered test: the rule was fixed after v1's out-of-domain results were known (that is disclosed in the config). What keeps it bounded: selection uses TFN validation only; the TFN test split, PhraseBank and both gold sets take no part in it; v1 is kept, committed and loadable (`served_model_dir` vs `model_dir` in `configs/sentiment_model.yaml`). No numeric tolerance for the in-domain accuracy loss was written down beforehand; the decision was made on the table below.
+
+| Eval set | n | v1 acc / macro-F1 | v2 acc / macro-F1 [95% CI] | negative recall v1 → v2 | ECE v1 → v2 |
+|---|---|---|---|---|---|
+| TFN test (in domain) | 1,169 | 0.844 / 0.778 | 0.831 / 0.783 [0.757, 0.809] | 0.599 → 0.757 | 0.024 → 0.028 |
+| PhraseBank (external) | 4,846 | 0.650 / 0.466 | 0.653 / 0.525 [0.508, 0.541] | 0.277 → 0.497 | 0.156 → 0.096 |
+| Gold, our sources (AI-labelled) | 280 | 0.544 / 0.440 | 0.558 / 0.493 [0.406, 0.578] | 0.185 → 0.269 | 0.232 → 0.183 |
+| Gold, TFN-style (AI-labelled) | 119 | 0.624 / 0.588 | 0.680 / 0.653 [0.518, 0.770] | 0.415 → 0.614 | 0.261 → 0.164 |
+
+**Reading it.** In domain the two are the same within noise (macro-F1 CIs overlap; accuracy is 1.4 points lower because the balanced model gives up some neutral recall). On PhraseBank the improvement is outside the v1 interval ([0.447, 0.483]). On the two gold sets the intervals overlap, so v2 is better in the point estimate but **not distinguishable from v1** there. Positive recall on PhraseBank is still 0.20 and out-of-domain ECE is still 0.10 to 0.18: v2 reduces the neutral bias, it does not fix the domain gap.
+
+**Effect on the product.** Replay sentiment changes for every signal (v2 labels 488 of 2,330 signals negative at the UI's ±0.15 cut, v1 320; positive 620 vs 486). Event, scope and every model-scored impact are byte-identical: the impact models were trained on v1's sentiment output, so the impact stage keeps reading **v1** (train/serve parity, the same rule as for the event model). The 237 signals whose impact is a placeholder rule that reads tone magnitude did change.

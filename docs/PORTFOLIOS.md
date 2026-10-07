@@ -50,7 +50,7 @@ An unknown ticker can only be reached by sector and market-wide shocks, because 
 | `AssetClass.OTHER` (held, not stressed, reported as uncovered) | no revaluation rule exists; refusing to call it safe | none | none | yes | added |
 | `spread_sensitivity` on a bond (default 1) | government debt carries no credit spread; the engine used to widen spreads on every bond | reference table (Treasury funds 0, aggregate funds 0.5, corporate 1) | the 0.5 for aggregate funds is a stated assumption | yes (hand-checked) | added; hash-neutral for the synthetic book (default is omitted from serialisation, so its content hash, JSON and every run id are unchanged) |
 | single-factor trailing beta for the 34 issuers (`data/replay/market/betas.json`, `make portfolio-betas`) | the market shock needs the market beta, not the two-factor partial in the impact model's context; the synthetic book's betas are random draws | 250 sessions to 2026-10-01, derived statistics only | stationarity over a year; Vasicek shrinkage toward 1 (prior variance from the cross-section of the 34); **clipped to [0, 3] when used** so a stress never credits a stock with a gain from a market fall on a one-year co-movement | yes (recompute from synthetic prices, no data before the window changes the fit) | used for personal portfolios only; the default book keeps its own |
-| convexity | second-order bond price effect | none for user holdings | n/a | no | **not added**: first-order duration overstates the loss for a large rate rise (+100 bp on a 17-year fund), stated in the exposure metric |
+| convexity | second-order bond price effect | none for user holdings | n/a | no | **not added for user holdings** (first-order duration overstates the loss for a large rate rise, stated in the exposure metric). **Added in Stage 13 as an opt-in position field** (`convexity`, omitted when unset), filled only on the synthetic Wholesale Book v2 where the bond terms are ours to define; see `docs/FINANCE_THEORY.md` §5 |
 | volatility-regime scaling of shocks | shock size should follow the regime | the severity score is uncalibrated | would add unsupported precision | no evidence it improves anything | **rejected** |
 | sector-specific transmission for macro / geopolitical events | oil shocks hit energy-importers, etc. | no transmission data | invented betas | no | **not added**: the existing scenarios bind market / sector / issuer only |
 | PD / LGD / spread history | credit shocks should be ranked against history | none held | n/a | no | stays labelled "not checkable" |
@@ -65,7 +65,7 @@ Notable data finding: the fitted betas are well estimated (standard errors about
 
 ## Limits
 
-Single currency per portfolio (no FX shock); no shorts or leverage; no live prices (quantity mode needs a price you type); only the 34 issuers are nameable by events; user holdings are assumed correct (a ticker is not verified against any market); region exposure is shown but no scenario shocks a region; betas are a snapshot to 2026-10-01 and are rebuilt with `make portfolio-betas`; reference durations are indicative round numbers, flagged `REFERENCE` and editable per holding.
+A personal portfolio is in one currency and carries no FX or oil exposure of its own (the scenario lab and the committed Wholesale Book v2 can: a position carries a `currency` / `commodity_sensitivity`, and a position without one is never moved by an FX or oil shock); no shorts or leverage; no live prices (quantity mode needs a price you type); only the 34 issuers are nameable by events; user holdings are assumed correct (a ticker is not verified against any market); region exposure is shown but no scenario shocks a region; betas are a snapshot to 2026-10-01 and are rebuilt with `make portfolio-betas`; reference durations are indicative round numbers, flagged `REFERENCE` and editable per holding.
 
 **Scenario sector shocks are always adverse.** The existing scenarios shock a named sector downward regardless of whether the event helps or hurts it, so an oil-supply event is modeled as a loss for an energy-heavy portfolio, though energy producers might gain. A question like "which of my holdings are oil-import-sensitive?" cannot be answered honestly without transmission data the repository does not hold; it is deliberately not faked.
 
@@ -77,3 +77,12 @@ make run                  # UI at http://127.0.0.1:8000 -> Portfolios -> Create 
 make test lint types      # backend + web tests, ruff + tsc, regenerate the API types
 make freeze-check smoke   # frozen state unchanged; real-server check incl. create -> stress -> chain -> delete
 ```
+
+## Wholesale Book v2 (Stage 13, committed preset)
+
+A second **read-only** synthetic book, `pf_wholesale_v2`: every position of the profile's default book with the Stage 13 mechanics filled in (bond convexity, loan tenor and spread pass-through, derivative gamma and counterparty PD/LGD, euro and sterling denominations, oil elasticities by sector, internal PD-bucket ratings) plus a government sleeve (`spread_sensitivity` 0) and a cash sleeve (USD and EUR). It is a superset of the default book, so comparing the two shows what the extra mechanics change.
+
+- It is **not** a personal portfolio and is never listed with them: `GET /api/portfolios/presets` lists it; the id is accepted wherever `portfolio_id` is (stress, relevance, lab, propagation, brief, compare, exposure), kind `PRESET`. The default book remains the default, untouched.
+- Files: `data/portfolio/book_v2_replay.json` (replay profile, `make book-v2`) and `data/fixtures/portfolio_v2.json` (demo profile, `scripts/generate_fixtures.py`); both come from `src/eventshock/portfolio/book_v2.py` with fixed seeds.
+- Everything added is synthetic and illustrative. It is **API-only for now**: the portfolio switcher in the UI does not offer it.
+- Companion scenarios: `configs/scenarios_multifactor.yaml` (stagflation, oil supply shock, funding squeeze, global downturn). They are served by id and are never the default scenario of an event class. A position without a currency or oil elasticity is not moved by FX or oil shocks, so these scenarios mainly differ from the base ones on Book v2.

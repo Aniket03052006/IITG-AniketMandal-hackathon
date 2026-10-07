@@ -1,7 +1,7 @@
 # Decision intelligence (Stage 12)
 
 The decision loop on top of the frozen risk engine: **what changed → does it matter to my book → what if it gets worse → what would it take to lose X% → why am I seeing this → what do I tell someone.**
-Everything here is a *derived side-car*. Nothing is stored on a `RiskSignal`, so `GOLDEN_SERVED_DIGEST` (`70478b2d…`) and `GOLDEN_RUN_ID` (`run_10e9dc8e3b9a`) are unchanged; no trained model, severity anchor or replay-pack hash moved. Core packages
+Everything here is a *derived side-car*. Nothing is stored on a `RiskSignal`, so `GOLDEN_SERVED_DIGEST` (`70478b2d…` at the time of Stage 12; `078a70ae…` since Stage 13 served sentiment v2) and `GOLDEN_RUN_ID` (`run_10e9dc8e3b9a`) are unchanged; no trained model, severity anchor or replay-pack hash moved. Core packages
 (`assessment pipeline stress modeling domain retrieval portfolio intelligence propagation adjust llm ingestion services`) may not import `decision monitor watchlist lab explain feedback markets brief`
 (`tests/unit/test_decision_architecture.py`; the only exemption is `ingestion/kalshi_capture.py`, the network code of the Kalshi snapshot).
 

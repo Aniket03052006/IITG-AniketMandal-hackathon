@@ -125,7 +125,7 @@ Stage 11 makes the side-cars adjustable by hand (`Adjust assumptions` in the sid
 
 - The transmission table and every shock size are judgement priors; nothing here is validated against outcomes. The UI says so next to each.
 - Industry is known only for the 25 tickers of the entity master (`intelligence.yaml: ticker_industry`); other holdings are Unclassified and are reached by sector, asset class or region. Industry edges extend the reach but write no shock (the engine shocks sectors).
-- No FX or commodity factor exists in the engine: currencies are reported, never simulated; oil acts only through sector proxies.
+- Propagation itself writes no FX or oil shock: the engine has `FX_PCT` / `COMMODITY_PCT` factors (Stage 12, the scenario lab, and the Stage 13 multi-factor scenarios), but a position is moved by them only when it carries its own `currency` / `commodity_sensitivity`; the generated scenario of this module acts on oil only through sector proxies, and the default book carries no such exposure.
 - Generated scenarios are downside simulations; a favourable event is refused unless run as a what-if.
 - Overlaps look only at signals in the store (the replay pack, plus anything pasted or live), and the window is anchored at the replay's own as-of, so it describes the loaded events, not the world.
 - Adjustments are global to the server instance, not per browser.

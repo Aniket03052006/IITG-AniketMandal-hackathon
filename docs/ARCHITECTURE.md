@@ -15,7 +15,7 @@ differs from them, the difference is listed under [Decisions](#decisions-and-dev
 
 ```
 snapshot (hash-verified) → normalise → validate/quarantine → entity resolution → dedup
-   → sentiment            tfidf-lr-v1            (text only)
+   → sentiment            tfidf-lr-v2            (text only; v1 is the reference the impact models were trained on)
    → event type           hybrid-event-v2        (TF-IDF ‖ pinned e5-large vector; can say NONE / UNCERTAIN)
    → impact (post-pass)   impact-v2              (market state + event calendar + TF-IDF event probabilities)
    → RiskSignal (every stage records model id, artifact sha256, origin) → evidence → scenario mapping → stress engine → API → UI
