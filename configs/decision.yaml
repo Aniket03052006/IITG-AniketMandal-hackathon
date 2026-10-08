@@ -92,6 +92,18 @@ feedback:
   max_records: 20000
   max_list: 200
 
+# ---------------------------------------------------------------------------------------------------------------------------------- review
+# The analyst review queue: a triage list of events a person should look at, each with the named rule(s) that put it there. JUDGEMENT PRIOR: none of these numbers is validated.
+# A decision made in the queue is a note: it never changes a model, a score, a threshold or any served output. A reviewed or dismissed event reopens if its own evidence changes.
+review:
+  max_items: 100
+  max_note_chars: 500
+  max_records: 20000
+  unresolved_min_severity: 6      # UNRESOLVED_HIGH_SEVERITY: severity at least this and the text names no company, sector or market
+  single_source_min_severity: 7   # SINGLE_SOURCE_HIGH_SEVERITY: severity at least this (the stress trigger) with one independent source
+  material_levels: [HIGH, CRITICAL]   # MATERIAL_TO_BOOK: relevance to the book at one of these levels
+  stress_loss_floor: -0.01        # LARGE_STRESS_LOSS: the generated scenario's modeled change is at least a 1% loss of the book (a simulation, not a forecast)
+
 # ----------------------------------------------------------------------------------------------------------------------------------- digest
 # The executive digest ranks by an ordered key, not a weighted score: materiality tier, then severity, then the size of the change, then recency, then id.
 digest:

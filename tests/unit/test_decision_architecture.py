@@ -13,7 +13,7 @@ from eventshock.config import REPO_ROOT, ConfigError
 from eventshock.decision.config import load_decision_config
 
 SRC = REPO_ROOT / "src" / "eventshock"
-SIDECARS = r"\b(decision|monitor|watchlist|lab|explain|feedback|markets|brief)\b"
+SIDECARS = r"\b(decision|monitor|watchlist|lab|explain|feedback|markets|brief|review)\b"
 CORE = ["assessment", "pipeline", "stress", "modeling", "domain", "retrieval", "portfolio", "intelligence", "propagation", "adjust", "llm", "ingestion", "services"]
 
 

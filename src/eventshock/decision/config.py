@@ -152,6 +152,25 @@ class FeedbackCfg(_Strict):
     max_list: int = Field(ge=1, le=2000)
 
 
+class ReviewCfg(_Strict):
+    """When an event is worth an analyst's look. Every number is a judgement prior, not a measurement."""
+
+    max_items: int = Field(ge=1, le=500, description="most items one request returns")
+    max_note_chars: int = Field(ge=0, le=5000)
+    max_records: int = Field(ge=10)
+    unresolved_min_severity: float = Field(ge=1, le=10, description="a high-severity text whose subject could not be resolved to a company, sector or market")
+    single_source_min_severity: float = Field(ge=1, le=10, description="a high-severity event that only one independent source reports")
+    material_levels: list[str] = Field(min_length=1, description="portfolio materiality levels that always deserve a look")
+    stress_loss_floor: float = Field(lt=0, ge=-1, description="the generated scenario's modeled change as a fraction of the book, at or below which the event is queued")
+
+    @model_validator(mode="after")
+    def _levels(self) -> ReviewCfg:
+        bad = [m for m in self.material_levels if m not in ("LOW", "MEDIUM", "HIGH", "CRITICAL")]
+        if bad:
+            raise ValueError(f"material_levels must be among LOW, MEDIUM, HIGH, CRITICAL: {bad}")
+        return self
+
+
 class DigestCfg(_Strict):
     per_section: int = Field(ge=1, le=50)
     materiality_order: list[str]
@@ -175,6 +194,7 @@ class DecisionConfig(_Strict):
     lab: LabCfg
     reverse: ReverseCfg
     feedback: FeedbackCfg
+    review: ReviewCfg
     digest: DigestCfg
 
 
