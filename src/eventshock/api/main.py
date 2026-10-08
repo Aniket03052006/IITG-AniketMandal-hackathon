@@ -28,6 +28,7 @@ from .routers import (
     portfolio,
     portfolios,
     propagation,
+    review,
     scenarios,
     scope,
     signals,
@@ -45,7 +46,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.container = container
         stop = asyncio.Event()
         poller = None
-        if container.live is not None and container.live.source is not None:
+        if container.live is not None:  # runs for the whole process; idle while the switch is off
             poller = asyncio.create_task(container.live.run(stop), name="eventshock-live")
         warm = None
         if container.monitor is not None:
@@ -86,7 +87,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     for r in (meta.router, pipeline.router, models.router, evidence.router, signals.router, portfolio.router,
               portfolios.router, scenarios.router, stress.router, analyze.router, live.router, scope.router,
               propagation.router, adjustments.router, monitor.router, events.router, watchlists.router,
-              lab.router, feedback.router):
+              lab.router, feedback.router, review.router):
         app.include_router(r, prefix="/api")
 
     dist = settings.web_dist_dir

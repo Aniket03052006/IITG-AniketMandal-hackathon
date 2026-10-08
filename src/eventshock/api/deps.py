@@ -39,7 +39,10 @@ from ..domain import Portfolio
 from ..explain.service import ExplainService
 from ..feedback.service import FeedbackService
 from ..feedback.store import FeedbackStore
-from ..ingestion.live import CaptureSource, GdeltLiveSource, LiveSource
+from ..ingestion.edgar import sec_contact
+from ..ingestion.edgar_live import EdgarLiveSource
+from ..ingestion.fetch import FetchError
+from ..ingestion.live import CaptureSource, CombinedSource, GdeltLiveSource, LiveSource
 from ..ingestion.snapshot import Snapshot, load_snapshot
 from ..intelligence.scope import HierarchicalScopeResolver
 from ..intelligence.service import IntelligenceService
@@ -96,10 +99,12 @@ from ..propagation.service import PropagationService
 from ..retrieval.config import load_retrieval_config, resolve_floor
 from ..retrieval.index import AnalogueIndex
 from ..retrieval.search import SearchParams
+from ..review.service import ReviewService
+from ..review.store import ReviewStore
 from ..services.analogues import AnalogueService
 from ..services.analyze import Analyzer
 from ..services.evidence import build_evidence
-from ..services.live import Journal, LiveConfig, LiveService, load_live_config
+from ..services.live import Journal, LiveConfig, LiveService, SourceChoice, load_live_config
 from ..services.outcome_check import OutcomeCheck, build_outcome_check
 from ..services.relevance import RelevanceService
 from ..services.signal_context import Outcomes
@@ -180,6 +185,7 @@ class Container:
     markets: MarketService | None = None
     brief: BriefService | None = None
     feedback: FeedbackService | None = None
+    review: ReviewService | None = None
     sidecar_lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
 
 
@@ -315,15 +321,70 @@ def _load_presets(replay: bool, settings: Settings, config: AppConfig) -> dict[s
     return {book.portfolio_id: book}
 
 
+def _capture_config(settings: Settings, cfg: LiveConfig):  # noqa: ANN202
+    return cfg.source.capture if settings.capture_path is None else cfg.source.capture.model_copy(update={"path": settings.capture_path})
+
+
+def _capture_file(settings: Settings, cfg: LiveConfig) -> Path:
+    path = _capture_config(settings, cfg).path
+    return path if path.is_absolute() else REPO_ROOT / path
+
+
+def _tracked_ciks() -> frozenset[int]:
+    """CIKs of the issuers in the entity master, from the committed filing table (a filing is matched to an issuer by CIK, never by name)."""
+    path = REPO_ROOT / "data" / "events" / "sec_filings.jsonl"
+    if not path.is_file():
+        return frozenset()
+    ciks: set[int] = set()
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            ciks.add(int(json.loads(line)["cik"]))
+    return frozenset(ciks)
+
+
+def _edgar_contact_problem() -> str | None:
+    """None when SEC's declared contact is configured; otherwise what to do. Never sends an anonymous request."""
+    try:
+        sec_contact()
+    except FetchError as exc:
+        return str(exc)
+    return None
+
+
+def _make_live_source(kind: str, settings: Settings, cfg: LiveConfig) -> LiveSource:
+    """A live source by kind. Capture mode reads a local file and needs no network; a missing file or contact is a ``ConfigError`` with the fix."""
+    if kind == "capture":
+        return CaptureSource(_capture_config(settings, cfg), base=REPO_ROOT)
+    if kind == "gdelt":
+        return GdeltLiveSource(cfg.source.gdelt)
+    if kind in ("edgar", "both"):
+        problem = _edgar_contact_problem()
+        if problem:
+            raise ConfigError(problem)
+        edgar = EdgarLiveSource(cfg.source.edgar, tracked_ciks=_tracked_ciks())
+        return edgar if kind == "edgar" else CombinedSource([GdeltLiveSource(cfg.source.gdelt), edgar])
+    raise ConfigError(f"unknown live source {kind!r}")
+
+
 def _live_source(settings: Settings, cfg: LiveConfig) -> LiveSource | None:
-    """The configured live source, or None when live is off (the default). Capture mode reads a local file and needs no network."""
+    """The source configured for start-up, or None when live is off (the default). The UI switch can change this at run time."""
     enabled = settings.live if settings.live is not None else cfg.enabled
     if not enabled:
         return None
-    if (settings.live_source or cfg.source.kind) == "capture":
-        cap = cfg.source.capture if settings.capture_path is None else cfg.source.capture.model_copy(update={"path": settings.capture_path})
-        return CaptureSource(cap, base=REPO_ROOT)
-    return GdeltLiveSource(cfg.source.gdelt)
+    return _make_live_source(settings.live_source or cfg.source.kind, settings, cfg)
+
+
+def _live_choices(settings: Settings, cfg: LiveConfig) -> list[SourceChoice]:
+    """What the switch offers, with the reason a choice cannot be selected. Cheap (no network, no file read beyond existence)."""
+    capture = _capture_file(settings, cfg)
+    contact = _edgar_contact_problem()
+    return [
+        SourceChoice(kind="both", label="News + SEC filings (two live sources)", network=True, available=contact is None, reason=contact),
+        SourceChoice(kind="gdelt", label="GDELT news feed (live)", network=True, available=True, reason=None),
+        SourceChoice(kind="edgar", label="SEC EDGAR 8-K filings (live)", network=True, available=contact is None, reason=contact),
+        SourceChoice(kind="capture", label="Simulated live (captured file, offline)", network=False, available=capture.is_file(),
+                     reason=None if capture.is_file() else f"no capture file at {capture.relative_to(REPO_ROOT) if capture.is_relative_to(REPO_ROOT) else capture}; create one with `make capture-from-replay`"),
+    ]
 
 
 def _build_engine(pipeline_cfg, live_cfg: LiveConfig, enrich_cfg, scope_resolver, enricher, sentiment, event_model, legacy,
@@ -470,7 +531,8 @@ def build_container(settings: Settings | None = None) -> Container:
         live = LiveService(
             cfg=live_cfg, engine=engine, store=live_store, source=live_source, journal=journal,
             event_model_note=lambda: (engine.status.event_model, engine.status.event_fallback_reason),
-            market_through=market_through)
+            market_through=market_through, source_factory=lambda kind: _make_live_source(kind, settings, live_cfg),
+            source_choices=lambda: _live_choices(settings, live_cfg))
         live.warm_start()
         assert scope_config is not None
         assessments = _build_assessments(settings, taxonomy, scope_config, scope_resolver, signals, config)
@@ -544,7 +606,7 @@ def _build_decision(c: Container, settings: Settings) -> None:
         dcfg, signals=c.signals, intelligence=lambda: c.intelligence, builder=builder,
         changelog=ChangeLog(store_dir / "monitor" / "changes.jsonl", dcfg.monitor.store_max_changes), states=StateStore(store_dir / "monitor" / "live_state.json"),
         live_status=live_status, adjust_version=(c.adjust.version if c.adjust is not None else None))
-    if c.live is not None and c.live.source is not None:
+    if c.live is not None:  # installed whether or not the feed is on yet: the UI switch can turn it on later
         c.live.on_applied = lambda now: c.monitor.observe(now) if c.monitor is not None else None
 
     def vocabulary():  # noqa: ANN202
@@ -561,6 +623,7 @@ def _build_decision(c: Container, settings: Settings) -> None:
         dcfg.lab, reverse_cfg=dcfg.reverse, stress=c.stress, propagation=lambda: c.propagation, signals=c.signals, book=book, entities=lambda: c.portfolio.entities(),
         sectors=lambda: list(c.scope_config.sectors) if c.scope_config is not None else [], shock_history=lambda: c.shock_history)
     c.feedback = FeedbackService(dcfg.feedback, FeedbackStore(store_dir / "feedback" / "feedback.jsonl", max_records=dcfg.feedback.max_records, clock=lambda: c.signals.as_of), c.monitor)
+    c.review = ReviewService(dcfg, ReviewStore(store_dir / "review" / "decisions.jsonl", max_records=dcfg.review.max_records), c.monitor)  # real time: a decision is made today, whatever the replay clock says
     c.digest = DigestService(dcfg, c.monitor, propagation=lambda: c.propagation, watch_summaries=lambda **kw: c.watchlists.digest_summaries(**kw) if c.watchlists is not None else [])
     c.markets = _build_markets(c, settings)
     c.brief = BriefService(monitor=c.monitor, propagation=lambda: c.propagation, analogues=lambda: c.analogues, markets=lambda: c.markets, clock=lambda: c.signals.as_of)

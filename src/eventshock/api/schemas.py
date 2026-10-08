@@ -192,6 +192,7 @@ class Capabilities(ContractModel):
     external_markets: bool = Field(default=False, description="the external-market view (what an independent prediction market is pricing: an observation, never an input) is served; /api/events/{id}/external-markets")
     executive_brief: bool = Field(default=False, description="the executive risk brief (a fixed-order, template-written reading of one event for one portfolio, every statement sourced) is served; /api/events/{id}/brief")
     feedback: bool = Field(default=False, description="analyst feedback can be recorded and counted (not ground truth, never used to change a model); /api/feedback")
+    review: bool = Field(default=False, description="the analyst review queue is served; /api/review/queue and /api/review/decisions")
     explanations: bool = Field(default=False, description="structured 'Why?' explanations are served; /api/events/{id}/explanation, /api/scenarios/explanation, /api/reverse-stress/explanation")
     scenario_lab: bool = Field(default=False, description="the scenario lab is served: build, run and compare scenarios (BASE / ASSESSED / CUSTOM); /api/scenarios, /api/lab/options")
     watchlists: bool = Field(default=False, description="persistent watchlists are served; /api/watchlists")
