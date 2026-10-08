@@ -1,5 +1,7 @@
 # Sentiment model (`tfidf-lr-v1`)
 
+> **Status (2026-10-08).** This page was written when sentiment was the first trained stage; its sentence below saying event and impact are "still placeholder rules" is historical: both are now trained, experimental models ([EVENT_MODEL.md](EVENT_MODEL.md), [IMPACT_MODEL.md](IMPACT_MODEL.md)). The text, tables and numbers describe `tfidf-lr-v1`, which is now the *reference* model; the product serves `tfidf-lr-v2` (section "v2" at the end). Final table: [FINAL_MODEL_REPORT.md](FINAL_MODEL_REPORT.md).
+
 The first real NLP stage in EventShock. It replaces the placeholder sentiment lexicon; **event classification and impact are still
 placeholder rules** (`placeholder-v0`) and are labelled as such everywhere. Every number below is read from
 `models/sentiment/tfidf-lr-v1/model_card.json`, which `make train-sentiment` writes and the UI shows (Data pipeline page).

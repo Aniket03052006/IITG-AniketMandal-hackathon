@@ -1,4 +1,4 @@
-# Decision intelligence (Stage 12)
+# Decision intelligence (Stage 12; review queue added in Stage 15)
 
 The decision loop on top of the frozen risk engine: **what changed → does it matter to my book → what if it gets worse → what would it take to lose X% → why am I seeing this → what do I tell someone.**
 Everything here is a *derived side-car*. Nothing is stored on a `RiskSignal`, so `GOLDEN_SERVED_DIGEST` (`70478b2d…` at the time of Stage 12; `078a70ae…` since Stage 13 served sentiment v2) and `GOLDEN_RUN_ID` (`run_10e9dc8e3b9a`) are unchanged; no trained model, severity anchor or replay-pack hash moved. Core packages
@@ -46,3 +46,15 @@ Replay results are identical across calls and after `rebuild_sidecars`; derived 
 
 ## Known limitations
 Thresholds, bounds, the basket, the digest order, and the oil/FX sector priors are unvalidated priors. FX and oil are engine factors but the Stage 11 *propagation* does not model them (unchanged on purpose, to keep its goldens). The digest's concentration section is dominated by market-wide factors on the replay. Live monitoring needs the live feed on. Reverse stress returns one combination among many.
+
+## 9. Analyst review queue (Stage 15, 2026-10-08)
+
+A further derived side-car, `src/eventshock/review/`, beside the ones above and under the same architecture guard (`review` is in `tests/unit/test_decision_architecture.py`; no core package may import it; nothing is stored on a `RiskSignal`). `GET /api/review/queue`, `POST/GET /api/review/decisions`, the `/review` page, and `configs/decision.yaml: review` (judgement priors, in the freeze manifest).
+
+* **What is queued** (`review/rules.py`; named rules over fields the monitor's `EventState` already holds, no model, no score): sources disagree (conflicted claims, never from tone); severity ≥ 6 with an unresolved subject; severity ≥ 7 with one independent source; material to the book (HIGH / CRITICAL); a generated-scenario loss of at least 1 % of the book; escalating lifecycle; and *changed since reviewed*.
+* **Order** is a documented lexicographic key (materiality tier, severity, number of rules fired, recency, id), shown on every item. Never a blended score.
+* **Decisions** are REVIEWED / DISMISSED / OPEN with an optional note and a reviewer name kept in the browser. They are append-only (`data/live/decision/review/`, git-ignored); the latest decision is current. A reviewed or dismissed event **reopens when its own evidence changes** (reports, sources, severity, lifecycle, evidence tier, conflict). A decision changes no model, score or served output (an API test hashes signals and digest before and after).
+* **On the frozen replay** 75 of 400 tracked events are queued; no event fires the conflict or escalating rule, so those two paths are covered by tests with constructed states, not by real data.
+* Not built, on purpose: assignment, SLAs, notifications, a blended priority score. Thresholds are unvalidated priors; a name on a decision is a label, not a login.
+* Tests: `tests/unit/test_review.py`, `tests/integration/test_review_api.py`, `web/src/pages/review.test.tsx`.
+

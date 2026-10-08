@@ -1,5 +1,7 @@
 # Event classification model (`tfidf-lr-event-v1`)
 
+> **Status (2026-10-08).** This page documents `tfidf-lr-event-v1`, the second trained stage; its statement that impact "is still the placeholder heuristic" is historical (impact is now the trained, experimental `impact-v2`). The product serves the hybrid `hybrid-event-v2` (TF-IDF plus a pinned e5-large vector; see the last section and [EVIDENCE_V2.md](EVIDENCE_V2.md)); `tfidf-lr-event-v1` remains the reference the impact models were trained on. Final table: [FINAL_MODEL_REPORT.md](FINAL_MODEL_REPORT.md).
+
 The second real NLP stage. It replaces the keyword placeholder for **event type** and, unlike the placeholder, can say "this is not a
 market event" or "I am not sure". Sentiment (see [SENTIMENT_MODEL.md](SENTIMENT_MODEL.md)) is unchanged; **impact is still the
 placeholder heuristic** and the stress engine is untouched. Every number below is in `models/event/tfidf-lr-event-v1/model_card.json`

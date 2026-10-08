@@ -3,34 +3,36 @@
 One deterministic path from an unstructured headline to a portfolio result, on real replay data. Nothing is typed, nothing calls out
 to a live API, and every number below is reproduced exactly on every start (the replay clock is pinned to 2026-10-01 12:00 UTC).
 
-**Start:** `make run`, open <http://127.0.0.1:8000> (light theme is the default; the toggle is in the left rail).
-**Hero event:** Nike's Q3 earnings preview (`sig_90ee2542ae`), the only all-model signal with a clean driver story, a filing before the
-report, a filing after it, and a recorded outcome. It is also reachable as `/events/sig_90ee2542ae`.
-**Answers the jury's eight questions in order:** what happened · what was detected · how the NLP works · how severe · why · what supports
-it · what it does to the portfolio · can I test another scenario.
+**Start:** `make run`, open <http://127.0.0.1:8000> (light theme is the default; the toggle is the sun/moon button at the right of the top bar).
+**Opening event:** the Desk opens on *After Iran Says Strait of Hormuz Is Closed Again, Oil Risk to Economy Rises Once More*
+(`sig_8f79c8bbd6`): a real replay signal whose whole chain completes in the served configuration (severity above the trigger, a generated
+scenario, a reached book). Its single source is shown as such: that honesty is part of the pitch.
+**Anywhere:** `⌘K` (or `/`) opens *Jump to anything*: every page, every explanation drawer of the current page, and every event.
+**Answers the jury's questions in order:** what happened · what the AI read · how severe · why trust it · what it does to the portfolio ·
+can I test another scenario.
 
 | # | Time | Presenter does | Judge sees | Presenter explains | Conclusion for the judge |
 |---|------|----------------|------------|--------------------|--------------------------|
-| 0 | 0:00 | Opens the Risk Feed. | Four real numbers in a row: **2,330** reports → **962** market events → **725** scored by the impact model → **19** reach impact ≥ 7. Below it, the featured event. | "EventShock reads financial text, works out what happened and how severe it is likely to be, then shows what that does to a portfolio. These counts are the whole pipeline on real data." | "This is a pipeline, not a sentiment dashboard." |
-| 1 | 0:25 | Clicks **Open the event story**. | The headline, company (Nike, NKE), time, and an **estimated impact 7 / 10** with an *Experimental model* tag and a bracket 1–9. Under it a five-node chain: Report → NLP → Impact → Scenario → Portfolio. | "What happened: Nike earnings preview. Who: Nike. When: 30 Sept 03:00 UTC. EventShock detected an earnings event and estimates a *High* impact. The tag says this model is experimental and the bracket says comparable events realised anywhere from 1 to 9." | "Severity and its honest uncertainty are on the first screen." |
-| 2 | 0:55 | Scrolls to **What the text says**; clicks **Why?**. | The input text, **Earnings / Performance** at 65 % calibrated confidence with the 50 % commit mark, and **Neutral +0.00** sentiment on a gauge. The drawer lists every class probability and the abstention rule. | "A trained text model reads the headline: word statistics plus semantic embeddings. It can say 'not an event' or 'uncertain' instead of guessing. Sentiment is tone; it is *not* impact: the note under the chain says so." | "The NLP is a real analytical stage, and it abstains when unsure." |
-| 3 | 1:25 | Clicks **Show inputs**, then **How calculated?**. | Inputs grouped as *The report / What the text models read / Calendar context / Market state*, each marked *Known in advance / Published before the report / Event time*, plus the list **Deliberately not used**. The next drawer shows typeset formulas. | "These are exactly the numbers the model saw: earnings are due (calendar), Nike's usual volatility, the VIX. Nothing from after the report is allowed, and the realised move is never an input. The score is the model's estimate ranked against past events, mapped to a 1–10 ladder." | "Explainable and leakage-disciplined, with the maths on demand." |
-| 4 | 2:00 | Scrolls to **What supports it**; drags the timeline slider to the end. | Comparable events: 197 past ticker-sessions, 26.9 % realised a move of 3σ or more against 3.2 % of all events. The timeline: an 8-K on 17 Sept (*Available at the time*), the report, then the earnings-release 8-K of 2 Oct (*Learned later*, hatched, "accepted after EventShock's replay clock"), then **Realised move 0.41σ**. | "Comparables are statistics of the model's own history, not individual events: we say so. Now watch what EventShock knew: at the moment it scored, only the 17 Sept filing. The earnings release came after and is never read. Finally, what actually happened: a 0.41σ move, which lies inside the 1–9 range the model stated. We show it because it was honest uncertainty, not because it flatters the score." | "Temporal integrity is demonstrated, not just asserted." |
-| 5 | 2:40 | Clicks **Run scenario**. | **Portfolio value $860.1M → $853.1M, estimated scenario change −$6.9M (−0.81 %)**, labelled *Scenario simulation*. A to-scale bar, a hatched bar for the **63.8 % of the book (84 positions)** outside this scenario's reach, and the propagation strip (4 risk factors, 19 of 103 positions hit). Below: a waterfall by asset class and the drill-down. | "The impact of 7 triggers the *Earnings repricing* scenario at full scale. Equities carry 92 % of the change; Nike's own equity is $3.4M of it. We state plainly that most of the book is untouched: that is exposure to *this* scenario's assumptions, not safety." Click *Equities*, then *NIKE*. | "A concrete portfolio consequence, with coverage stated, drillable to a position." |
-| 6 | 3:10 | Drags **Test a different severity** to 9. | Base **−$6.9M** vs scenario **−$8.9M (−1.04 %, ×1.29)**, recomputed by the real engine, tagged *Scenario simulation, not a prediction*. Optionally **How calculated?** shows the scale formula with these numbers. | "Same scenario, milder or harsher: the engine is deterministic arithmetic, no model, so the answer is reproducible. Drag down to 4 and the scale falls to ×0.57 (−$4.0M); the clamp only bites outside roughly 3.5 to 10.5." | "Interactive what-if on the real engine; simulation is never presented as prediction." |
-| 7 | 3:25 | Opens **Evidence** (left rail). | *How much evidence supports EventShock?*: four tiles, Sentiment / Event understanding / Impact (all *Experimental*, with checks passed out of total) and Stress engine (*Deterministic, not a model*). | "Nothing is called validated unless it passed a bar written before the results. Impact met 15 of 22 checks and failed 5, so it is experimental, and the page says which. The study shows the calendar and market state carry the real skill; the text models add none beyond them." | "Calibrated honesty: the jury can see the limits before asking." |
+| 0 | 0:00 | Opens the **Desk**. | Left: the incoming wire (962 market events from 2,330 reports, newest first, each with its event-type glyph). Right: the selected headline in serif, and under it **one wire through six stations**: *What happened* (aol.com, 1 independent source) → *What the AI read* (Geopolitical, 71 % confident, tone +0.02) → *How severe* (**8/10 High**, range 6–8) → *Scenario it triggers* (Geopolitical flight-to-safety, generated for this event) → *What it reaches* (**Critical** materiality, 84.5 % of the book) → *Portfolio impact* (**$860.1M → $822.8M, −$37.3M, −4.33 %**). | "News in, portfolio consequence out. This one headline: what was reported, what the AI read, how severe, which scenario it triggers, what it reaches, and what it costs the book. Every number comes from the engine; nothing on this screen is typed in." | "The whole product is legible in one screen." |
+| 1 | 0:30 | Points at **Why trust it** under the trace. | *1 independent source, insufficient evidence* · *4 quotes checked against the text* · *Lifecycle: developing*. | "We do not hide the weak part: one source only, so the evidence tier is *insufficient*. The reading is grounded in verbatim quotes, and the lifecycle is rule-driven." | "Confidence is shown as evidence, not as a badge." |
+| 2 | 0:45 | Clicks two other events on the wire (or presses **J/K**). | The trace re-draws for each, including one that stops honestly (e.g. a low-severity event: *Below the trigger*, *Scenario unavailable* with the failed gate). | "Each event gets the same trace. When the chain should stop, it stops and says which gate failed: no stand-in number." | "Abstention is a feature." |
+| 3 | 1:05 | Back on Hormuz, clicks **Open the event story**. | Serif headline, the severity verdict (**8/10 High**, rule-based reading, the four anchored answers: Severe · A market · Confirmed · Adverse), and the inspect buttons, each saying what it opens. | "Severity is a transparent scorecard of four anchored answers, not a black box. Each button says where it leads." Opens **Why this severity?**. | "Explainable at the surface, detail one click down." |
+| 4 | 1:35 | Scrolls: the chain, then **Event intelligence**. | The same wire as the Desk (News → AI understanding → Risk signal → Scenario → Portfolio impact, ending in −$37.3M), then four question groups: how well evidenced, what it is, how it is moving, who it touches. | "The same visual sentence on every page. Corroboration and the model's own confidence are kept apart on purpose." | "Trust is decomposed, not asserted." |
+| 5 | 2:05 | Clicks **Run the scenario** (or the Portfolio station). | **Stress Lab**: scenario cards (the event's own one marked *matches this event*), then **$860.1M → $822.8M, −$37.3M (−4.33 %)** and the value bridge: *The book* by asset class → *Shocks applied ×1.14* (−9.1 % market equity, −16.0 % event sector, −23 bp rates, +69 bp credit spread, PD ×1.29) → *Where it lands* (Equities −$29.3M, Bonds −$6.1M, Derivatives −$1.6M, Loans −$222.6K) → *Largest positions hit* → *After*. | "This is the mechanism, not just a number: which shocks, where they land, which positions carry them. Hover a class and it lights in both bars." | "A concrete, drillable portfolio consequence." |
+| 6 | 2:45 | Clicks the **Oil supply shock (multi-factor)** card. | The same event re-run under another scenario: **−$32.5M (−3.78 %)**, the card highlighted, the bridge redrawn. | "Same event, different assumptions, one click. The shocks are assumptions; the arithmetic is deterministic." | "Scenarios are first-class, not hidden in a menu." |
+| 7 | 3:05 | Drags **What if** severity, then opens **Evidence** in the sidebar. | The engine recomputes; then *How much evidence supports EventShock?* with its four verdict tiles (Impact met 15 of 22 checks, so *Experimental*). | "Nothing is called validated unless it passed a bar written before the results." | "Calibrated honesty: the limits are on screen before the question." |
 
-**Close (3:40):** "From unstructured text to a stress result: understandable at the surface, with inputs, evidence, mathematics and audit one click
-down, and a clear line between prediction, history, assumption and outcome."
+**Close (3:40):** "From unstructured text to a stress result: one wire from the news to the book, with inputs, evidence, mathematics and audit
+one click down, and a clear line between prediction, history, assumption and outcome."
 
 ## If something goes wrong
 
 - Server not up: `make run` (UI is served from `web/dist`; `make build` if it is missing). Everything is read from the frozen replay pack, so
   there is no network dependency and the figures never change.
-- Want a second example that shows graceful degradation: the Feed's *Also try* link (Apple's $5.7bn patent verdict). Three outlets
-  carried it, but its entity link is weak, so the impact is a labelled **placeholder rule** with no uncertainty range, no model inputs,
-  and no outcome: the UI says why and never shows an unvalidated number as authoritative.
-- Dark theme for a projector: the toggle at the bottom of the left rail (the choice is remembered in the browser).
+- Want a second example: the Desk's *Also try* link (Apple's $5.7bn patent verdict): three outlets carried it, so its evidence strip reads
+  *moderate*, against Hormuz's *insufficient*. Nike's earnings preview (`/?signal=sig_90ee2542ae`) shows a chain that stops: severity 2,
+  below the trigger, scenario unavailable, with the failed gate named.
+- Dark theme for a projector: the sun/moon button at the right of the top bar, or `⌘K` → *Switch to dark theme* (the choice is remembered in the browser).
 
 ## Likely questions, with the honest answer
 
@@ -65,21 +67,21 @@ Also try **Quantum Dynamics announces a major restructuring…**: the company is
 
 ## Stage 8 addendum: analogues, the honest scale, and the scenario reality check (about 3 minutes, no network)
 
-1. `make run`, open the Feed, pick a company event (for example a Microsoft data-centre report). On the Event page go to chapter 4, **Historical analogues**: past reports that look like this one, with the move after each, and the line "not distinguishable from an ordinary day" next to the ordinary-day yardstick. Say: precedent is context, never a score input.
+1. `make run`, open the Desk, pick a company event on the wire (for example a Microsoft data-centre report). On the Event page go to chapter 4, **Historical analogues**: past reports that look like this one, with the move after each, and the line "not distinguishable from an ordinary day" next to the ordinary-day yardstick. Say: precedent is context, never a score input.
 2. Open a report that could not be tied to anything (an unresolved one): **"No reliable historical analogue found"**, with the reason. Say: EventShock refuses rather than pad.
 3. Stress page -> *Scenario assumptions* drawer: **"How large are these shocks by historical standards?"** (for the macro scenario: the +100 bp rate shock is larger than any 21-session move on record; credit shocks are marked not checkable).
 4. Evidence page -> **Outcome check**: the verdict "Heuristic: not calibrated to outcomes", the 2025/2026 intervals that include zero, and why (ordinary news is barely distinguishable from an ordinary day). Say: we tested our own score, wrote the bar first, and report that it failed.
 
 
 ## Optional: "what does this do to *my* portfolio?" (about 90 seconds, after the main demo)
-1. Rail -> **Portfolios -> Create a portfolio**. Paste `AAPL 20%`, `JPM 15%`, `MSFT 15%`, `TLT 25%`, `Cash 25%` -> **Read these holdings**. Point at "What EventShock understood": TLT's duration is *looked up*, the Treasury fund takes no credit-spread shock, cash is never stressed. Save (it is used immediately).
-2. **Portfolio Stress** on the Apple patent verdict (company event): the three separate answers (severity 7/10, relevance High 20%, modeled impact -3%), then **Why is my portfolio exposed?** (issuer shock on your 20%, sector, market). Say: "a modeled scenario change, not a forecast".
+1. Sidebar -> **Portfolios -> Create a portfolio**. Paste `AAPL 20%`, `JPM 15%`, `MSFT 15%`, `TLT 25%`, `Cash 25%` -> **Read these holdings**. Point at "What EventShock understood": TLT's duration is *looked up*, the Treasury fund takes no credit-spread shock, cash is never stressed. Save (it is used immediately).
+2. **Stress Lab** on the Apple patent verdict (company event): the three separate answers (severity 7/10, relevance High 20%, modeled impact -3%), then **Why is my portfolio exposed?** (issuer shock on your 20%, sector, market). Say: "a modeled scenario change, not a forecast".
 3. Switch to an Energy-sector event: relevance **None** (you hold no Energy), only market shocks reach you. Compare with the default book.
-4. **Compare with another portfolio**, then **Use default portfolio** in the rail: one click and everything is the synthetic book again.
+4. **Compare with another portfolio**, then **Use default portfolio** in the top bar: one click and everything is the synthetic book again.
 
 ## Stage 12 addendum: from "what changed?" to an executive brief (about 4 minutes, no network)
 
-Start at **Today** (first in the left rail; `/today`). Replay data, the captured/fixture market data and every figure are deterministic.
+Start at **Today** (in the sidebar; `/today`). Replay data, the captured/fixture market data and every figure are deterministic.
 
 | # | Presenter does | Judge sees | Presenter says |
 |---|----------------|------------|----------------|
@@ -92,3 +94,16 @@ Start at **Today** (first in the left rail; `/today`). Replay data, the captured
 | 7 | **Portfolios → Watchlists**: watches Microsoft; gives feedback on an event. | Activity for the list; the feedback bar; the Evidence page's *Analyst feedback* tab says "not ground truth". | "Feedback is recorded for review; it does not train or change any model." |
 
 If the Kalshi snapshot shows no match for an event, say so: that is the honest answer. `EVENTSHOCK_MARKETS=fixture make run` shows the synthetic, labelled fixture markets (the nine required cases).
+
+## Stage 15 addendum: live switch, review queue, heatmaps and contagion map (about 3 minutes, no network)
+
+Start `make run`. Everything below is deterministic on the replay except the Live switch, which is OFF until you turn it on.
+
+| # | Presenter does | Judge sees | Presenter says |
+|---|----------------|------------|----------------|
+| 1 | Points at the **Live** switch in the top bar (it reads *Off*), opens its popover. | The source choices (*News + SEC filings*, *GDELT news feed*, *SEC EDGAR 8-K filings*, *Simulated live*); SEC choices are disabled with the reason when no SEC contact is configured. | "Live is off at every start; turning it on is the explicit act that allows outbound requests. A committed capture of real pack articles lets me show the live path with no network." |
+| 2 | Chooses **Simulated live (captured file, offline)**, switches Live on, watches the Desk. | New reports appear on the wire, labelled as a simulated channel; the monitor and Today update. | "Same engine as the replay and as pasted text, so a live item is scored exactly like a historical one." Switch it off again; the signals already ingested stay. |
+| 3 | Opens **Review** (sidebar). | A queue of events, each with the named rule that queued it (for example high severity from one source, material to the book), reviewed / dismissed / reopen buttons. | "Which events should a person look at, and why? Rules, not a score; the sort key is shown. A decision is append-only and the event reopens if its own evidence changes." (On the frozen replay the *sources disagree* and *escalating* rules fire for no event; they are covered by tests, not by this data.) |
+| 4 | Opens the Hormuz event (`/events/sig_8f79c8bbd6`) and scrolls to *What a scenario does to the portfolio* (the stress chapter). | *Why it matters* and *My exposure: event → risk factor → holdings*, then the **contagion map**: event → risk factors → where it lands → the largest holdings, each line labelled observed / scenario assumption / user assumption. | "Every edge has a rule and a basis. This is a mapping, not a causal model." |
+| 5 | Clicks **Run scenario**, scrolls to the **loss heatmap** in the attribution panel, then opens **Portfolios** for the **exposure heatmap**. | Sector × market factor cells that add up to the total loss; sector × asset class cells that add up to the book. | "Where the book sits, and where the shock landed. Every cell table reconciles to its total or the builder refuses to draw." |
+| 6 | Opens **Adjust** in the top bar, changes one gate, then resets. | The change is labelled *user assumption* and counted on every answer; reset restores every default. | "Every judgement prior is adjustable and visibly yours; the shipped configs are never edited." |

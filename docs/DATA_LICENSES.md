@@ -50,6 +50,7 @@ download (research access is by application). The Kaggle card-transaction datase
 | Source | What we take | Licence / terms | Committed? |
 |---|---|---|---|
 | **SEC EDGAR submissions index** (`data.sec.gov/submissions/`, `www.sec.gov/files/company_tickers.json`) | per filing of the 34 issuers (and predecessor registrants of GOOGL and XOM): form, exact acceptance time (UTC), 8-K item codes, accession, primary document name | US government work, public domain. SEC fair-access policy: declared contact in the User-Agent (`EVENTSHOCK_SEC_CONTACT`, kept in the git-ignored `.env`, never committed), at most 10 requests per second (we send about 4) | **Derived table only** (`data/events/sec_filings.jsonl`, 9,772 rows, 2 MB). Raw index pages: `data/raw/edgar/`, git-ignored |
+| **SEC EDGAR "current filings" Atom feed** (`www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=8-K&output=atom`), live source only, opt-in from the Live switch | per new 8-K: filer name, CIK, form, accession, exact acceptance time, item titles, filing index URL. The headline shown is composed from those fields and marked `synthesized_headline`; no filing text is read | US government work, public domain. Same fair-access policy and the same `EVENTSHOCK_SEC_CONTACT`; one request per poll (default every 5 minutes) | **Nothing stored in the repo.** Documents live in the git-ignored overlay and journal (`data/live/`) |
 | **FOMC calendars** (`federalreserve.gov/monetarypolicy/fomccalendars.htm`, `fomchistorical<year>.htm`) | decision dates (scheduled flag; cancelled meetings and notation votes dropped) | US government work, public domain | Derived (`data/events/fomc.json`). Raw pages git-ignored |
 | **GDELT GKG 2.1, 2023-2025 sample** | six fixed 15-minute files per UTC day, filtered on the fly to the entity master (same filter and fields as the 2026 slice): title, URL, domain, publisher timestamp where valid, machine tone, organisations | GDELT terms: free reuse with citation | **No** (raw filter output and the curated `data/history_v2/` are git-ignored; `make fetch-gkg-2023 history-v2` rebuilds them). No publisher text is stored |
 | **Gold v2** (`data/gold_v2/`) | about 300 titles from that sample, two independent blind AI passes, agreement report, human adjudication queue | titles are GDELT metadata (as above); labels are ours (`ai:claude`) | **Yes** (small) |
@@ -85,5 +86,6 @@ Not obtained, and said so: consensus earnings estimates (so no realised earnings
 - GDELT relevance ranking returns off-topic articles for some queries (e.g. a bank query returning an unrelated
   filing). That noise is kept deliberately: the pipeline must cope with it, and entity resolution decides from the
   text, never from the query that fetched the article.
-- Event type and impact are **placeholder rules** (`placeholder-v0`). Sentiment comes from a trained model (see
-  `SENTIMENT_MODEL.md`); the TFN tweets in the replay pack are part of its training data and are flagged in-sample.
+- Sentiment, event type and impact are **trained, experimental models** (see `SENTIMENT_MODEL.md`, `EVENT_MODEL.md`, `IMPACT_MODEL.md`); the placeholder
+  rule (`placeholder-v0`) only remains for signals the impact model cannot score, labelled per signal. The TFN tweets in the replay pack are part of the
+  sentiment model's training data and are flagged in-sample.
