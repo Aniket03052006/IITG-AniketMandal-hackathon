@@ -8,7 +8,8 @@ max_signals: 1500               # hard cap on the live overlay (oldest published
 journal: data/live/journal.jsonl  # raw inputs, git-ignored; replayed at start so a restart is warm
 
 source:
-  kind: gdelt                   # gdelt: GDELT DOC 2.0 (network) | capture: a file of captured GDELT lines delivered in batches
+  kind: gdelt                   # the source used when live starts on: gdelt (GDELT DOC 2.0) | capture (a file replayed as if live) | edgar (SEC 8-K filings) | both (gdelt + edgar)
+                                # (the UI switch can pick any of these at run time; live is OFF at every start unless enabled)
   gdelt:
     timespan_minutes: 90        # each poll asks for what GDELT saw in this trailing window
     maxrecords: 60
@@ -23,6 +24,24 @@ source:
       - '(bank OR lender OR "credit rating")'
       - '(earnings OR guidance OR "profit warning")'
       - '(acquisition OR merger OR takeover)'
+  # SEC EDGAR "current filings" Atom feed: one request per poll, declared User-Agent (EVENTSHOCK_SEC_CONTACT in .env). Which filings are
+  # worth reading is a judgement prior, not validated: every 8-K from an issuer in the entity master (matched by CIK) plus any 8-K that
+  # reports one of the items below for any company. Routine items (1.01 material agreements, which one real poll showed are mostly small-company
+  # financings, 2.02 results for untracked companies, 7.01, 8.01, 9.01) are dropped.
+  edgar:
+    count: 100
+    form: "8-K"
+    lookback_hours: 6
+    tracked_issuers: true
+    items:
+      - "1.03"   # bankruptcy or receivership
+      - "1.05"   # material cybersecurity incident
+      - "2.01"   # completion of an acquisition or disposition
+      - "2.04"   # triggering events that accelerate a financial obligation
+      - "2.06"   # material impairments
+      - "3.01"   # notice of delisting or failure to satisfy a listing rule
+      - "4.02"   # non-reliance on previously issued financial statements
+      - "5.01"   # changes in control of the registrant
   capture:
     path: data/live/sample_capture.jsonl   # create with `make capture-gdelt`; not shipped (GDELT rate-limited the capture run, see the journal)
     batch_size: 20

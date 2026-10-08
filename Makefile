@@ -34,6 +34,9 @@ run-live: build  ## like `run`, with the live feed on: polls GDELT DOC 2.0 every
 run-capture: build  ## like `run-live`, but replays a captured GDELT file as if live (offline, labelled "simulated")
 	EVENTSHOCK_LIVE=1 EVENTSHOCK_LIVE_SOURCE=capture $(PY) -m eventshock
 
+capture-from-replay:  ## rebuild the committed offline stream data/live/sample_capture.jsonl from the replay pack (no network)
+	$(PY) scripts/build_sample_capture.py
+
 capture-gdelt:  ## capture what GDELT saw recently into data/live/sample_capture.jsonl for `make run-capture` (network, ~2 min, throttled)
 	$(PY) scripts/capture_gdelt.py
 
@@ -252,7 +255,7 @@ train-impact-v2:  ## fit, calibrate, evaluate impact-v2 (document level, Stage 4
 outcomes:  ## export the realised moves after the replay reports -> data/outcomes/replay_outcomes.json (needs impact-table-v2; read by the per-signal context endpoint only)
 	$(PY) scripts/export_outcomes.py
 
-.PHONY: freeze-check freeze-write smoke run-live run-capture capture-gdelt scope-eval
+.PHONY: freeze-check freeze-write smoke run-live run-capture capture-gdelt capture-from-replay scope-eval
 freeze-check:  ## verify the final model state against docs/freeze_manifest.json (models, configs, gold, calendar, replay, evidence)
 	$(PY) scripts/freeze_manifest.py --check
 
