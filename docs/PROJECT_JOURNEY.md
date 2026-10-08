@@ -2,6 +2,75 @@
 
 Chronological log: **what we did · what broke · how we fixed it**. Updated after every task and at the end of every stage.
 
+## Journey at a glance (written 2026-10-08, after Stage 15)
+
+This section is a reader's map of the log below, for a reviewer or a jury: the whole path in one page, with pointers to the stage that holds the detail.
+Everything in it is taken from the stage entries; nothing here is new. (The project journey is this file. A separate `BUILD_LOG.md` was deliberately not created:
+two logs would drift apart.)
+
+### 1. Starting point
+- **Problem.** The S&P Global & Crisil case: ingest text from ≥ 2 sources, emit sentiment (−1…1), event class and impact (1-10), expose the signals, and build
+  **Module A** (tactical rebalancer) or **Module B** (strategic stress tester). Solo (team size 1), free and public sources only, no proprietary data.
+- **Interpretation.** Choose Module B; treat the three outputs as three different questions; make every number auditable; never invent a number (Stage 0, 1).
+- **Constraints.** One person, public/synthetic data, a ≤ 5-minute live demo, a public repository, reproducibility on a clean clone, Python 3.14 wheels (checked in Stage 0-1).
+
+### 2. Research and datasets
+Considered: GDELT (DOC API and GKG bulk), Kaggle financial-news/tweet datasets, Twitter Financial News, NewsAPI, Alpha Vantage, `yfinance`, Salad Money Open Banking, a
+Kaggle financial-transactions dataset. **Used:** GDELT, Twitter Financial News (sentiment and topic), Yahoo daily prices, SEC EDGAR filings, FOMC dates, the Kaggle
+card-transaction dataset (for the book's sector mix only). **Rejected or unavailable:** NewsAPI and Alpha Vantage (personal keys), Salad Money (not an open download), the
+Loughran-McDonald lexicon (licence), Financial PhraseBank for training (CC BY-NC-SA: evaluation only). See `DATA_LICENSES.md` and Stage 2-3 prep.
+
+### 3-4. Architecture exploration and the decision
+| Candidate | For | Against | Outcome |
+|---|---|---|---|
+| LLM-first reading and scoring | strong semantics, little data | non-reproducible, cost, hard to audit, rate limits | **rejected as the engine**; kept as an optional *reader* behind grounding (Stage 7) |
+| Fine-tuned transformer for every stage | state of the art on benchmarks | torch at run time, long training, hard to reproduce on a laptop | rejected; frozen encoders were evaluated instead (Stage 4 bake-off) |
+| Classical supervised models (TF-IDF/LR, boosting) + deterministic engine | cheap, reproducible, inspectable, calibratable | weaker semantics, domain shift | **chosen** for sentiment, event and impact |
+| Streamlit dashboard | fastest to build | cannot give a product-grade, accessible multi-page UI | **React** chosen (Stage 1) |
+| SQLite / DuckDB store | durability | nothing needed it; adds moving parts | deferred; repositories sit behind Protocols |
+| Kafka, Neo4j, vector database, autonomous agents | production patterns | overkill for one process and one window | excluded; a static, hash-pinned retrieval index was added instead (Stage 8) |
+
+### 5. Implementation phases (all completed; dates in the stage entries)
+Stage 1 schemas, deterministic stress engine, API, UI on fixtures → Stage 2 real-source ingestion, validation, entity resolution, dedup, frozen replay → Stage 3 sentiment, event and impact
+models → Stage 4 evidence foundation (SEC/FOMC calendar, 2023-25 history, pre-registered studies, hybrid event model, impact-v2) → Stage 5 judge-facing UI → Stage 6 one engine
+for replay, paste and live → Stage 7 risk assessment and the severity scorecard → Stage 8 outcome audit, analogues, scenario reality check → Stage 9 personal portfolios →
+Stage 10 multi-scope event intelligence → Stage 11 event-to-portfolio propagation → Stage 12 decision intelligence and external markets → Stage 13 sentiment v2 and stress-engine mechanics →
+Stage 14-15 judge-first UI, live switch, EDGAR source, heatmaps, contagion map, review queue → 2026-10-08 documentation and submission pass.
+
+### 6. Problems that shaped the project (full detail in the stage entries)
+| Problem | Investigation → decision → fix → result |
+|---|---|
+| GDELT rate limits and unreliable queries (Stage 2, 6, 15) | observed HTTP 429 and non-JSON answers → checkpointed, resumable fetch; a frozen replay pack; live made opt-in; a committed capture built from real pack articles |
+| Placeholder labels were circular (Stage 3 prep) | 80.6 % of history signals were the default class → placeholders can never be labels; a test forbids a `label` field |
+| Cluster counts leak the future (Stage 3 prep) | `source_count`, velocity count reports up to 72 h later → registered `POST_EVENT` and banned from impact features |
+| Impact has no event-specific skill (Stage 3c, 4, 8) | placebo window scored higher than the real one → labelled *experimental*; the severity scorecard became the headline, the trained score a reference |
+| Severity-v1 compressed the scale to 4-7 (Stage 7) | weighted average → replaced by an anchored scorecard; pre-registered benchmark; held-out set never used for tuning |
+| Golden digests moved when fields were added (Stage 3, 6) | instead of re-pinning blindly, tests prove the old digest is reproduced with the new fields removed |
+| An LLM evaluation was invalid (Stage 7) | the rubric was optional so the model skipped it → discarded, rubric required again, hard error on non-LLM replay |
+| A real bug in the stress path (Stage 13) | event-driven path dropped `currency` from FX shocks so base-currency positions took the shock → fixed, regression-tested |
+| Generated-vs-catalog scenario difference (found in the 2026-10-08 documentation audit) | the Desk shows the catalog scenario's loss, `/portfolio-stress` the propagation-generated one → documented, not hidden |
+
+### 7. Important revisions
+Streamlit → React (Stage 1); placeholder rules → three trained models (Stage 3-4); TF-IDF event model → hybrid with pinned vectors (Stage 4); impact-v1 → impact-v2 with an event calendar (Stage 4);
+severity-v1 → severity-v2 scorecard (Stage 7); sentiment v1 → v2 for serving while v1 stays the impact reference (Stage 13); Stage 14 "Wire → Ledger" look → Stage 15 "Harbour" re-skin.
+
+### 8. Current state (2026-10-08)
+- **Works:** the whole chain on a frozen replay (2,330 signals; 1,082 scored; 27 at severity ≥ 7), the stress engine and its attribution, personal portfolios, the live switch,
+  eight UI pages, 85 API operations, `make freeze-check`, 668 frontend tests and 2,174 collected backend tests.
+- **Partial:** all three models are *experimental*; live ingestion was not observed end to end against both real sources; human adjudication was skipped by decision.
+- **Open (submission):** public repository, slide deck, demo video, e-mail confirmation: see `SUBMISSION_CHECKLIST.md`.
+- **Known limits:** synthetic book, assumed shocks, weak event classes, sentiment weak out of domain, no authentication, no persistence.
+
+### 9. Lessons learned
+Technical: write the acceptance bar before the result and never edit it; leakage is mostly in features that look innocent (counts, velocities); a model that scores well on a regime proxy is not reading the
+news; a derived view must not be stored on the thing it derives from; a deterministic fallback makes an optional LLM safe. Domain: a headline's realised market move is a poor label for "how serious is this";
+severity, relevance to *your* book, scenario assumptions and modelled impact are four different things and must never share one number.
+
+### 10. Future evolution
+Next: human-adjudicated labels, an independent event evaluation, a FinBERT sentiment head compared with the shipped one, an LLM recording for the severity benchmark. Production: queue + workers, a signal store, authentication, drift monitoring,
+licensed data. Deliberately out of scope: Kafka, Neo4j, autonomous agents, generative RAG, and trading decisions.
+
+
 ## Stage 0 — Repository inspection (2026-10-01)
 
 **What we did**
@@ -983,3 +1052,190 @@ Scope agreed with the user: the NLP models and the Module B stress engine, with 
 **Measured (illustrative, one run each, not validation).** Highest-severity company event, `scn_market_drawdown`: default book −6.077% (−$52.3M); Book v2 −6.120%, with credit-spread losses −$6.7M → −$10.6M (the loan link) and equity −$45.5M → −$45.1M (oil and FX offsets). Highest market event, `scn_credit_funding_stress`: −1.515% vs −1.730%.
 
 **Not done / dropped.** The planned Herfindahl concentration report was dropped: Stage 11 already ships a concentration view (issuer, sector, industry, geography, asset class, risk factor, overlaps). Curve twist and liquidity haircuts were not built (they would need new risk factors and UI). Book v2 is not offered in the UI selector.
+
+## Stage 14: judge-first UI redesign, "Wire → Ledger" (2026-10-08)
+
+Scope agreed with the user: the frontend only. No backend, API contract, model, config, replay pack or pinned digest was touched; every number on screen comes from an existing endpoint. A design canvas (Desk light/dark, Stress Lab, Event story, system sheet) was published first as the visual target, then implemented in `web/`.
+
+**Why.** The UI read as generic: every block was the same flat bordered box with equal weight, one "equal columns + top rule + eyebrow" pattern repeated six times, tiny icons only in nav/tags, rows of identical grey drawer buttons, and key features (scenario choice, lab, adjust, brief) behind `<details>` links. A judge had to be told where to look.
+
+**Built.**
+- **Design system** (`web/src/styles/tokens.css`, re-stamped): warm bone paper / warm graphite dark, one ultramarine accent that is also "the wire", severity/sentiment/P&L ramps kept semantic. Three type voices mapped to provenance: Newsreader (serif, roman only) = what was *reported*, IBM Plex Mono = what was *computed*, IBM Plex Sans = the interface (`@fontsource-variable/space-grotesk` swapped for `@fontsource-variable/newsreader`, the only dependency change). New tokens (`band`, `wire`, `wire-dim`, `hatch`, `shadow`, `--shadow-1/2`), each in a WCAG pair in `tokens.test.ts` for both themes.
+- **Shell**: an N13 top bar (grouped nav Desk · Today · Analyze | Event · Stress Lab · Portfolios | Evidence) plus a context strip that always says which portfolio, which data/clock and how many assumptions are adjusted. **⌘K / "/" palette** (`components/CommandPalette.tsx`): every page, the current page's explanation drawers, every event, theme.
+- **Desk** (`/`, was Risk Feed): the incoming wire (`components/desk/EventStream.tsx`, J/K, type filter), the selected event in serif, and the **signal trace** (`components/trace/SignalTrace.tsx`): six stations on one wire (what happened → what the AI read → how severe → scenario → what it reaches → portfolio impact), each from a read-only endpoint, each with one action, each with an explicit "unavailable" state; plus **Why trust it** (`components/desk/TrustStrip.tsx`). The full signal table and the pipeline counts stay below.
+- **Event page**: the chain redrawn as the same wire with station icons and the intelligence endpoint's stress preview; inspect buttons that say what they open; Event intelligence as four question groups instead of twelve equal cards.
+- **Stress Lab** (was Portfolio Stress): visible scenario cards (`components/portfolio/ScenarioRail.tsx`; the event's own one marked, multi-factor ones labelled, a click runs it) and the **value bridge** (`components/portfolio/ValueBridge.tsx`): book by asset class → shocks applied → where it lands → largest positions → after, with linked hover; it refuses to draw a breakdown that does not reconcile to the reported change within a cent.
+- **Icon system** (`components/icons.tsx`, `components/Glyph.tsx`): station, risk-factor (equity, rates, spread, PD, LGD, FX, oil), asset-class and evidence glyphs. Event types stay the model's eight classes: FX, oil and supply shocks appear through risk factors and the multi-factor scenarios, never as invented categories.
+
+**What broke / decisions.**
+1. **The guided demo's hero no longer completes the chain.** Under the served assessment, Nike's earnings preview (`sig_90ee2542ae`) scores severity 2: its scenario is unavailable and nothing reaches the book, so a Desk opening on it showed a chain that stops. The Desk now opens on a named real signal whose chain completes (Strait of Hormuz, `sig_8f79c8bbd6`: severity 8, generated flight-to-safety scenario, critical materiality, −$37.3M / −4.33 %), with a rule-based fallback (`pickDeskDefault` in `lib/featured.ts`) and its single source shown as *insufficient evidence*. Nike stays reachable and is now the example of a chain that stops honestly.
+2. Headlines and amounts now appear in two places (wire + table, bridge + figures), so five existing tests that used `getByText` on them were scoped to their region or switched to `getAllByText`; the outage case showed two identical error boxes and now shows one.
+3. A scripted regrouping of the intelligence tiles failed on a one-line JSX element (nothing was written) and was redone by rewriting the function; a mid-edit `Brief` type/icon name clash broke hot reload once.
+4. The sticky top bar changed height on narrow screens, so sticky elements (the chain rail, the wire) now read a `--topbar-h` measured by a `ResizeObserver`; at 1024 px the nav was clipped until it moved to its own row below `lg` and the ⌘K pill collapsed to an icon below `xl`.
+
+**Verified.** `npm run typecheck`; `npx vitest run`: 580 tests in 32 files (9 new in `components/trace/trace.test.tsx`: trace stations and unavailable states, wire selection/J/K/filter, palette ⌘K navigation and drawer opening, bridge reconciliation, scenario cards); `npm run build`; `make smoke` passed. By eye in the in-app browser on the replay server: Desk, Event, Stress Lab (including a scenario switch to the oil supply shock: −$32.5M / −3.78 %), Today, Evidence, the palette, light and dark, 1440×900, 1024×768 and 390×844 (no horizontal scroll). Screenshots regenerated (`HERO=sig_8f79c8bbd6`).
+
+**Not done / not verified.** The Analyze page's *Analyze* button was not pressed in the browser: the running server had the language-model reader enabled, so it would have sent text to an external provider (the result view is covered by the existing tests). The production bundle is 873 kB minified and Vite warns about chunk size; no code splitting was added.
+
+## Stage 15: live switch and the missing demo features (2026-10-08)
+
+Plan (approved): a clear Live ON/OFF switch in the UI, then a committed simulated-live capture, a second live source (EDGAR 8-K Atom), an exposure heatmap, a contagion map and an analyst review queue. Audit of the 12 candidate features: seven already exist (alert prioritisation, narrative timeline, what-if lab, additive impact attribution, cross-source contradiction, reverse stress, historical analogues), three are partial (heatmap, contagion map, review queue), and the RAG chatbot and autonomous agents stay out (excluded by the architecture; nothing generative reads text here).
+
+### Task 1 (2026-10-08): runtime Live switch
+**Why.** Live was fixed at server start (`EVENTSHOCK_LIVE=1`); the UI could only show it. A judge needs one visible, honest control.
+
+**Built.**
+- `LiveService.set_state(enabled, kind)` + `PUT /api/live/state`. `LiveService` is now always built in the replay profile with a source factory and `source_choices` (GDELT; simulated capture, unavailable with its reason while no capture file exists). Off keeps every signal already ingested and starts no new request; a result that arrives after the switch was turned off is dropped. A source that cannot start leaves the feed OFF and returns 409 with the reason. OFF at every start (not persisted), so the offline default and "no outbound call unless explicitly enabled" hold: the click is the explicit enablement.
+- The poll loop now lives for the whole process and idles (one tick a second, no request) while off or after a capture finished, so a finished capture can be restarted from the switch. Switching to a capture extends the store's retention (as start-up capture mode already did); switching back restores it.
+- UI: `components/live/LiveToggle.tsx`, a `role="switch"` in the context strip (every page) with a status dot and a popover (source choice, last/next poll, Poll now, consent line), plus a ⌘K entry. It shows what the server reports, never an optimistic state; on a refusal it stays off and shows the reason.
+
+**What broke / decisions.**
+1. Wiring only built a source at start-up in three places (`main.py` poller, the monitor's `on_applied` hook, `deps` live-status lambda): with the feed off at start the monitor observer would never have been installed, so turning live on later would have updated signals but not the monitor/digest. The hook is now installed whenever a live service exists.
+2. The existing loop test assumed `run()` returns when a capture is exhausted; it now stays alive by design, so the test waits for the last batch and then stops it (deliberate contract change).
+3. The popover first ran off the right edge (anchored to its own summary); it is now anchored to the context strip (checked at 1024 and 375 px, and in dark).
+4. Deferred on purpose: "Clear live signals". It needs the engine's clustering window, the store, the journal and the monitor's live state reset together; a half-clear would make the engine skip re-ingested documents as duplicates. Not needed for the switch.
+
+**Verified.** `ruff` + `tsc`; unit tests for the switch (no request while off, on/off idempotent, signals kept on off, unavailable/failing source stays off with the reason, in-flight result dropped, capture restart and retention, loop idles then polls when switched on); integration test of `PUT /live/state` on the real replay app; 5 component tests; `npx vitest run` 587 passed; in the Browser pane the switch went OFF → ON (server reported `enabled`, source `gdelt`, `IDLE`, capability `live_enabled` true) → OFF (`OFF`, capability false), and the popover stayed on screen at 375 px and in dark.
+
+**Not done / not verified.** The simulated-live choice is selectable only once a capture file exists (next task commits one). The GDELT poll's success path against the real API was still not observed: the switch was turned on and off again within seconds.
+
+### Task 2 (2026-10-08): UI re-skin, sidebar + top bar, "Harbour" palette, Inter + Plex Mono
+**Why.** The Stage 14 look (warm paper, serif reported text, one top bar plus a context strip) was replaced at the user's request by a SaaS finance-workstation frame modelled on a reference they supplied: a left sidebar and a top bar on a navy→blue chrome, white rounded cards on a pale blue canvas, navy primary buttons, green/red outlined actions, a pink brand secondary and a navy dark mode. Frontend only: no API, model, config or digest change; routes, nav items (`lib/nav.ts`) and every page's content are unchanged.
+
+**Built.**
+- **Tokens** (`styles/tokens.css`): same token names, new values (so ~113 files re-skinned without edits), plus `chrome-*` (gradient stops, ink, muted, active pill, line, hover), `pink`/`pink-dim`, `--radius-xl`, `--gradient-chrome[-bar]`. Every new colour has a dark twin; `tokens.test.ts` gained nine contrast pairs (chrome text ≥ 7 / 4.5 on both gradient ends, selected item, pink). Headings are Inter (new dependency `@fontsource-variable/inter`), computed figures stay IBM Plex Mono; Newsreader and IBM Plex Sans were removed. Type scale trimmed (`text-3xl` 2.5→1.875 rem, hero sizes lowered); `.eyebrow` is now an uppercase overline.
+- **Shell** (`components/Shell.tsx`): sticky sidebar (logo, nav in three labelled groups, data-mode badge, collapse), top bar (breadcrumb, ⌘K, portfolio, Live, Adjust, theme) in one row that wraps on narrow screens, replacing the old context strip. ≥1280 px expanded, below that an icon rail by default, below 1024 px an off-canvas drawer (hamburger, scrim, Escape, route change, `inert` content). The collapse choice is stored in `localStorage` inside try/catch. Existing components (`PortfolioSwitcher`, `LiveToggle`, `ThemeSwitch`, `PalettePill`) keep their markup and are restyled by scoped CSS. `.btn-pos` / `.btn-neg` added and used for the watchlist delete confirmation.
+- Tests: `components/Shell.test.tsx` (nav gating and groups, active page, drawer open/close paths, collapse + persistence + blocked storage).
+
+**What broke / decisions.**
+1. The sidebar takes 4.5-15 rem from every page, so viewport breakpoints written for the old full-width layout fire too early: the six-station signal trace wrapped words ("Geopolitic / al") at 1440 px. The trace now answers to its own width with a container query (`.trace`: 3 columns ≥ 40 rem, 6 ≥ 56 rem). Other multi-column layouts still use viewport breakpoints; they were checked by eye at 1440, 1024 and 390 px (Desk, Event, Stress Lab, Analyze, Evidence) but not every page.
+2. First version of the sidebar "what is real here" note was squeezed into a 120 px column (a `<details>` that is `inline-flex`); it now opens in place as a block.
+3. A blanket `.topbar .btn` rule recoloured the buttons inside the white Live popover (white on pale); scoped to the bar's own icon buttons.
+4. Utility classes live in a later CSS layer than component rules, so `text-muted` on the chrome would have been navy on navy; chrome overrides are written in `@layer utilities` so the longer selector wins, with the popovers mapped back to card colours.
+5. The dark chrome's selected pill first failed the 3:1 graphic contrast against the chrome (2.0, then 2.8); the dark `chrome-bot` was darkened and the pill lightened, thresholds untouched.
+6. The Browser pane is 800×600, so full-size captures came from `scripts/screenshots.mjs` (headless Chrome) against the already-running Vite server.
+
+**Verified.** `tsc`, `npx vitest run` (613 passed, all 245 token checks on both themes), `npm run build`; by eye: Desk, Event, Stress Lab, Analyze, Evidence in light and dark at 1440 px, Desk/Evidence/Event at 1024 and 390 px, the mobile drawer opening and closing on Escape, no horizontal scroll at 390 px, both popovers open.
+
+**Also checked / regenerated.** Portfolios, the ⌘K dialog and the Adjust drawer were opened in the Browser pane after the re-skin; all 78 committed `docs/screenshots/*` were regenerated (`HERO=sig_8f79c8bbd6`, light and dark, 1440/1024/390).
+
+**Not done / not verified.** Today, the portfolio editor and the Scenario lab tab were not re-inspected after the re-skin; the 1024 px layouts of the other pages were only spot-checked; `make smoke` was not re-run; the production bundle was rebuilt (`npm run build`) but not served through the real API.
+
+### Task 2 (2026-10-08): committed simulated-live capture, built from the replay pack
+**Goal.** A small capture committed to the repo so the switch's "Simulated live" choice works with no news-feed access.
+
+**What broke.** Three throttled runs of `scripts/capture_gdelt.py` (12-20 s between requests, 12 h then 24 h windows, different query subsets, about 25 minutes in all) produced 6, then 0 new, then 1 new record: 7 in total and mostly off-topic. GDELT answered HTTP 429 or non-JSON to most queries from this machine, as it did in Stage 6. `capture_gdelt.py` now merges into an existing file (de-duplicated by URL; `--fresh` replaces) and takes `--only 0,2,5` to retry just the failed queries; it is a network script and has no test.
+
+**Decision (user's).** Use the real GDELT articles already in the hash-pinned replay pack instead. `scripts/build_sample_capture.py` (`make capture-from-replay`, `--check`) takes the 216 pack articles first seen on 2026-10-01, the day after the replay window ends, so they are in no REPLAY signal. They keep their true first-seen times (nothing re-dated), are de-duplicated by URL, sorted oldest first, and lose the pack's `x_query` bookkeeping field. Output: `data/live/sample_capture.jsonl` (71 KB, committed; `data/live/` is only ignored file by file). Licence and attribution are the pack's (GDELT terms, citation); the metadata-only note still holds.
+
+**Verified.** `tests/unit/test_sample_capture.py`: the committed file equals the pack's derivation, every record is after `window_end` with its pack timestamp and no `x_query`, `CaptureSource` reads it in batches to the end, the config points at it. Integration: on the real replay app the switch plays the capture (216 fetched, live signals appear, none shadows a replay id, every replay signal is still served, restart works, off keeps what arrived). In the Browser pane: pick "Simulated live", turn on, the wire grew while the header showed "On · simulated"; it ended `IDLE` with 216 fetched, 173 live signals and no error, then turned off. `make freeze-check` still passes (the file is not in the manifest). 614 web tests, ruff and tsc clean.
+
+**Found while checking.** (1) The dev server runs with the language-model reader on, so every new headline is also sent to the configured provider for extraction (it rate-limited, and each batch of 20 took about 25 s instead of the 10 s interval). The "no network" hint on the simulated source was therefore not accurate: it now reads "reads a local file; no news-feed requests". With the reader off, a full play takes about two minutes. (2) The shell layout in the browser had changed to a sidebar since my earlier screenshots; I did not make that change, and the Live switch works in it.
+
+**Not done.** Playback speed control (1x/10x) was dropped: the interval is fixed by `configs/live.yaml` (`capture.interval_seconds`). The stories also exist in the pack's earlier days, but none of these 216 is a duplicate of a REPLAY signal by id; same-story overlap with earlier replay days is possible and was not measured.
+
+### Task 3 (2026-10-08): SEC EDGAR 8-K filings as a second live source
+**Why.** The problem statement grades two or more text sources, and live had one (GDELT). EDGAR is a different kind of source: first-party, with an official event type (the 8-K item codes) and an exact acceptance time, free and public.
+
+**Built.**
+- `ingestion/edgar_live.py`: `EdgarLiveSource` reads the "current filings" Atom feed (one request per poll, SEC-declared User-Agent from `EVENTSHOCK_SEC_CONTACT`, never anonymous: an explicit contact is validated even when a transport is injected). Each kept filing becomes a `RawDocument` (source `sec.gov`, metadata `form`, `cik`, `accession`, `items`, `synthesized_headline: true`, timestamp origin SOURCE). The headline ("<Company> files Form 8-K: Item 2.04 ...") is composed from published fields only; no filing text is read. The domain has two source types, so a filing is carried as NEWS and says what it is in its metadata.
+- Which filings (`configs/live.yaml: source.edgar`, judgement priors, unvalidated): every 8-K from an issuer in the entity master (matched by CIK from `data/events/sec_filings.jsonl`, never by name) plus any 8-K reporting one of items 1.03, 1.05, 2.01, 2.04, 2.06, 3.01, 4.02, 5.01 for any company. Everything else is counted and dropped.
+- `CombinedSource` (`kind: both`) polls GDELT and EDGAR in one poll; one failing leaves the poll DEGRADED, not failed. `LivePoll.documents` lets a source hand over documents it built itself; `LiveStatus` gained `fetched_by_adapter` (which sources delivered) and `last_poll_note` ("SEC filings: 100 listed, 40 in the last 6 h, 0 matched").
+- Switch: four choices (News + SEC filings, GDELT, SEC filings, Simulated). The default is two sources when SEC filings are available; the SEC choices are disabled with the reason when no contact is configured.
+- `configs/live.yaml` is in the freeze manifest: re-pinned deliberately (`make freeze-write`; only that one hash moved).
+
+**What broke / decisions.**
+1. The unit tests caught that every real entry would have been dropped as invalid: the feed writes `<b>AccNo:</b> 0001...`, so a regex expecting whitespace after `AccNo:` never matched. Markup is now stripped before matching.
+2. A first real poll (100 entries, 10 kept, no failure) showed all ten kept filings were routine Item 1.01 material agreements of small companies (financings). Item 1.01 was removed from the defaults. This rests on one sample, so it is a judgement, not a measurement.
+3. The consequence is that the feed is sparse by design: two real polls minutes apart listed 100 filings, 40 within six hours, and matched none. A quiet source looked broken in the UI, so the poll note was added.
+4. A test fixture mistake (GDELT retries three times, so one scripted failure was followed by a success) briefly made a "both sources down" poll look healthy.
+
+**Verified.** `tests/unit/test_edgar_live.py` (parsing from the real feed shape; keep rules; counts; failed request / not-an-Atom document / oversized feed are failed polls with no documents; combined source merges and survives one failing or raising; filings flow through the engine, are journalled, counted per adapter and not re-ingested as new; the switch refuses the SEC choices without a contact; config validation; tracked CIKs come from the committed table); integration test of the four choices; 12 component tests; ruff, tsc, `make freeze-check`. Live on the real server: the switch to SEC filings reported source `edgar`, state OK, no error, note "SEC filings: 100 listed, 40 in the last 6 h, 0 matched".
+
+**Not done / not verified.** (1) The combined News + filings mode was exercised in unit tests only, not against the real GDELT, which is rate-limiting this machine. (2) No real SEC filing has yet flowed through the live engine end to end, because none matched the keep rules in the polls made; the same path is covered with feed-shaped test data. (3) The SEC choices need `EVENTSHOCK_SEC_CONTACT`, as `make fetch-edgar` already did.
+
+### Task 4 (2026-10-08): exposure heatmap and loss heatmap
+**Why.** The UI showed exposure only one dimension at a time (bars by sector, by asset class, by issuer), so "where does this book sit, and where did the shock land?" needed three tables read side by side.
+
+**Built.** One shared `CrossTab` (`portfolio/models.py`, `portfolio/crosstab.py::build_crosstab`) and one table component (`components/portfolio/Heatmap.tsx`), used twice:
+- **Where the value sits**: sector by asset class, from the holdings alone (`PortfolioExposureDetail.matrix`, shown in the Portfolios page's exposure panel; share of the whole book per cell).
+- **Where each shock landed**: sector by market factor, from the engine's own per-position, per-factor changes (`StressAttribution.matrix`, shown inside the existing attribution panel, so it appears on the Event page's stress chapter, the Stress Lab and a Lab result with no extra wiring).
+- Both fields are additive and optional (older servers and fixtures still type-check). No stress formula, model, config or pinned digest changed; `make freeze-check` still passes.
+- The builder raises if the cells do not add up to the total they claim to break down, the same rule as the one-way attribution tables. It is a plain `<table>`: row and column headers, the number in every cell, totals in the margins, an empty cell is printed as "·" with "none" for a screen reader, and a footer says the cells add up. The tint is a share of the largest cell and never the only signal. Colour comes from existing tokens only (`--color-accent`, `--color-neg`, `--color-pos` mixed into paper); no new colour.
+
+**What broke / decisions.**
+1. My first CSS insert anchored on a comment of the Live switch that the shell redesign had since reworded, so the script stopped half-way (the component file and the types were written, the CSS and mounts were not). Re-run on the new anchor; nothing was left half-applied after that.
+2. Column headers like "equity price shock" were first truncated with an ellipsis; they now wrap (balanced) so the full factor name is always readable.
+3. The tint contrast was measured, not assumed: rendered cell background versus text, the lowest of 24 cells is 8.67:1 in the light theme and 7.48:1 in the dark one (the WCAG text bar is 4.5).
+4. Not built on purpose: an issuer-by-factor table (34 issuers wide, unreadable at this size) and any chart library.
+
+**Verified.** `tests/unit/test_crosstab.py` (adds up, ordering, a table that does not add up raises, zero cells omitted), `test_portfolio_exposure.py` (matrix regroups the same value and agrees with the one-way breakdowns), `test_propagation_attribution.py` (matrix agrees with the sector and market-factor tables), the API tests for the default and a personal book, and the replay end-to-end test that builds an attribution for every available signal and asserts the matrix reconciles on each. Web: 6 component tests (`Heatmap.test.tsx`), 626 tests in all. Browser: exposure heatmap on the default book (6 sectors by 4 asset classes, adds up to $860.1M), loss heatmap on the featured Hormuz event (adds up to the run's -$37.3M), dark theme, and 375 px (the page stays 375 px wide; only the table scrolls).
+
+**Not done / known limits.** A cell is a regrouping of modeled change under the scenario's assumptions, not causal attribution. Sectors are the portfolio's own labels (six in the default book). No click-through from a cell to its positions: the tooltip gives the amount and the position count.
+
+### Task 5 (2026-10-08): contagion map
+**Why.** The exposure chain was a list of edges. It is complete and accessible, but the question "how does this one event reach my book?" is a picture question.
+
+**Built.** `ContagionMap` (`components/propagation/ContagionMap.tsx`) draws the propagation graph the endpoint already returns, with no backend or API change: event → risk factors → where it lands (asset classes, sectors, industries, each with its share of the book as a bar) → the largest holdings reached. Geometry comes from a pure function, `lib/contagion.ts::layoutContagion` (four fixed columns, centred, no force layout, so it is deterministic and testable). Styling: solid line = a fact, dashed = a configured assumption, dotted = the user's own; red = hurts the target, green = benefits it (the sign of the edge weight), thicker = larger weight. A holding is joined to the sector, industry and asset class it is actually in (a fact about the holding, `rule: held_in`, drawn as hairlines). Hover or focus a box and every other line fades while a live caption states the lines that remain, each with its status, weight, evidence and rule. It sits above the existing edge list in `PropagationChain`, which is unchanged and still carries every edge in words, so nothing is only visual. Colours are existing tokens only.
+
+**What broke / decisions.**
+1. Measured in the browser, not assumed: the event box's "About:" line ran 13 px past its box and one holding label 3.7 px, because the wrap limits were guessed and the secondary line was joined into one unwrapped string. Limits are now conservative for the 196 px box and both lines wrap; the least room on the right of any text is now 21.7 px, and a test pins that every wrapped line is within its limit and each box is exactly as tall as its text.
+2. The map's `<title>` tooltips repeat edge text, which broke an existing test that looked a rule id up page-wide (`getByText` found two). That test is now scoped to the edge list it was written about; its meaning is unchanged.
+3. Screenshots of the tall Event page went blank at very large scroll offsets (about 13,500 px), so hover, dark theme and the 375 px width were verified by measuring the DOM; the first screenshot of the map at desktop width was taken and checked by eye.
+4. Not drawn: subject nodes (they are the event box's "About:" line), the book's own "held by" edges, and holdings beyond the eight largest (the caption says "the 8 largest of 79", and the table below lists all). A graph with no risk factor or no landing place draws nothing, and an abstained graph keeps showing its explanation.
+
+**Verified.** `lib/contagion.test.ts` (wrapping; four columns left to right; no overlap; edges only between adjacent columns with the right status and tone; holdings joined only to what they are in; drawn count vs reached count; deterministic; null for an abstained or empty graph), `ContagionMap.test.tsx` (labelled focusable boxes, tooltips with status/weight/evidence/rule, line styles, focus fades the rest and states why, legend and note), and the whole web suite (652 tests), `tsc`, `make freeze-check`. In the browser on the featured Hormuz event: 19 boxes and 23 lines; hovering the oil box faded 18 of 23 lines and wrote the caption; at 375 px the page stays 375 px wide and the map scrolls inside its container; dark theme uses the same tokens.
+
+**Not done / known limits.** It draws a mapping, not a causal model, and the assumed lines are unvalidated priors (it says so in the legend). The layout is for graphs of the size the engine produces (a handful of factors and landing places, eight holdings); a much larger graph would need its own pass.
+
+### Task 6 (2026-10-08): analyst review queue
+**Why.** Feedback (thumbs on an event) existed, but nothing told a person *which* events deserve a look, and nothing let them say "I looked at this". A review queue is the smallest thing that closes that loop.
+
+**Built.** A derived side-car, `src/eventshock/review/` + `GET /api/review/queue`, `POST/GET /api/review/decisions`, `configs/decision.yaml: review` (judgement priors, in the freeze manifest: re-pinned, only that hash moved besides `live.yaml`'s earlier re-pin), the `/review` page (`pages/ReviewPage.tsx`, `components/review/ReviewCard.tsx`, a nav item gated on `capabilities.review`).
+- **What is queued** (`review/rules.py`, named rules over fields the monitor's `EventState` already holds; no model, no score): sources disagree (conflicted claims, never from tone); severity >= 6 with an unresolved subject; severity >= 7 with one independent source; material to the book (HIGH/CRITICAL); a generated-scenario loss of at least 1% of the book; escalating lifecycle; and **changed since reviewed**. Each item shows every rule that fired with the values that fired it.
+- **Order** is the digest's idea: a documented lexicographic key (materiality tier, severity, number of rules fired, recency, id), shown on every item under "Why this position?". Not a blended score.
+- **Decisions** are REVIEWED / DISMISSED / OPEN (reopen) with an optional note and a reviewer name (kept in the browser). Append-only JSONL in git-ignored `data/live/decision/review/`; the latest decision is current, earlier ones stay as history. A reviewed or dismissed event **reopens when its own evidence changes** (reports, sources, severity, lifecycle, evidence tier, conflict); the fingerprint deliberately excludes the book-dependent fields, so reading the same event against another portfolio does not reopen it.
+- Sits beside the others under the architecture guard: `review` added to the side-car list in `tests/unit/test_decision_architecture.py` (no core package may import it); nothing is stored on a `RiskSignal`; a decision changes no served output (an API test hashes signals + digest before and after).
+
+**What broke / decisions.**
+1. **My own timing broke a full test run.** I added the `review:` key to `decision.yaml` while the full Python suite was running; the already-loaded config class rejected it (138 errors, all "extra inputs not permitted"). Not a regression, but that run proved nothing, so it was discarded and the suite was re-run clean at the end, with no edits during it.
+2. **Decision timestamps used the replay's pinned clock**, so every decision was stamped 1 Oct 12:00 and "newest first" fell back to a random id. Found by an API test. Fixed twice over: history is ordered by recording order (timestamps can tie, the log's order cannot), and decisions are stamped with real time (a decision made today must not read "reviewed on 1 Oct"). Feedback (Stage 12) still uses the replay clock; left as it was.
+3. A test helper kept the reviewer's name in memory across tests even after storage was cleared; the in-memory copy now exists only for when storage is blocked.
+4. **What the real replay produces**: 75 of 400 tracked events are queued, led by CRITICAL-materiality, high-severity, single-source events. **No event fired the conflict or the escalating rule** in the frozen window, so those two paths are covered by tests with built event states, not by anything seen on real data (a pinned conflicting-claims demo event is still open).
+5. Decided against: assignment/owners, SLAs and notifications (this is a single-user prototype; they would be theatre), and a blended priority score.
+
+**Verified.** `tests/unit/test_review.py` (every rule at its threshold and just below, null severity, fingerprint ignores the book and notices new evidence, ordering, the queue only lists events with a reason, decisions move items and counts, reopen, history ties, changed-evidence reopening, a reviewed event stays listed when no rule fires, cap, bad input records nothing, untracked event refused, live vs replay, restart survival and a damaged line skipped, limit, analyst id precedence, config validation); `tests/integration/test_review_api.py` on the real replay (capability, ordering by tier, a decision round trip that restores the queue and leaves signals/digest byte-identical, 404/422, live availability); 10 page tests; web suite 668 passing. In the browser: 75 open items, a real "Mark reviewed" with a note moved it to Reviewed (counts 74/1), it survived a server restart, and Reopen restored 75; 375 px has no overflow and 44 px buttons. The decision made during checking remains in the git-ignored dev log (one REVIEWED and one OPEN line).
+
+**Not done / known limits.** The thresholds are unvalidated priors. The queue reads only what the monitor tracks (severity or materiality at its floor). One reviewer identity per browser, no authentication: a name on a decision is a label, not a login.
+
+## Documentation and submission-readiness pass (2026-10-08)
+
+**Why.** The README still said *Stage 1 — fixtures*, `docs/ARCHITECTURE.md` described Stages 1-4, there was no `docs/architecture.png` or submission checklist, and the early guiding notes still carried the working name *SignalForge*. The task: make every public document describe what is actually implemented, under the name **EventShock**, and say honestly what is still open.
+
+**What was audited first.** Repository tree, README, all `docs/*.md`, configs, the OpenAPI schema (85 operations), the replay pack and the running server, the git state and remote, `.gitignore`, requirements. Contradictions found: README header/status and the "Real vs simulated" table were out of date (Stage 1 status line, sentiment v1, a UI description from before Stages 14-15); the clone command did `cd` into a folder that `git clone` would not create; `ARCHITECTURE.md` listed Stage-1 API/decisions as current; `SENTIMENT_MODEL.md` and `EVENT_MODEL.md` still said event/impact were placeholders; `DATA_LICENSES.md` said the same in its last caveat; the SignalForge-era PRD asked for FinBERT, XGBoost + SHAP, Streamlit, SQLite and DuckDB, none of which is what was built.
+
+**Done.**
+- `README.md` rewritten on the mandatory five-section template (plus API, ML, stress, evaluation, failure handling, limitations, security, reproducibility, future work), every number taken from a model card, the OpenAPI schema or the running server.
+- `docs/ARCHITECTURE.md`: new authoritative sections 1-17 (system overview, components, data flow, API flow, storage, ML/training/evaluation, stress, dashboard, errors, configuration, deployment, security, reproducibility, trade-off table, PRD coverage table, production evolution, generated API reference); the Stage-1 text is kept as a labelled design record with its stale tables updated.
+- `docs/architecture.png` (2400 × 1420) and `docs/architecture.svg`, generated by `scripts/make_architecture_diagram.py` (headless Chrome renders the PNG; the generator fails if text would overflow a box).
+- `docs/SUBMISSION_CHECKLIST.md` with PASS / PARTIAL / TODO and a measured-numbers table; this *Journey at a glance* section; status notes on `SENTIMENT_MODEL.md`, `EVENT_MODEL.md`, `DATA_LICENSES.md`.
+- `docs/interview/PROJECT_WALKTHROUGH.md` (git-ignored via `docs/interview/`).
+
+**What broke / was found, and what was decided.**
+1. **The repository is not public.** An unauthenticated request for the GitHub URL returned 404. Recorded as a TODO in the checklist; not something a documentation pass can fix.
+2. **Two numbers for one event.** The Desk (and `POST /api/stress-test`) report **−$37.3M (−4.33 %)** for the Hormuz event under the catalog Geopolitical scenario, labelled "generated for this event"; `POST /api/signals/{id}/portfolio-stress` runs the propagation-generated scenario for the same event and reports **−$42.2M (−4.91 %)**. Both are right for their scenario; the Desk label is loose. Documented, not changed (no code or config was touched in this pass).
+3. **Severity 8 vs trained impact 2 for the same text.** Expected by design (two different questions), but a jury will ask; the README and the interview notes now say so up front.
+4. **FinBERT.** The research notes asked for FinBERT sentiment. It was only probed (93 % on a 30-pair polarity probe against 77 % for the shipped model) and used as frozen features; it is not served. The docs now say exactly that instead of implying either "used" or "never considered".
+5. **My first diagram was unreadable** (text overflowing boxes, tangled arrows). The generator now measures text against box width and refuses to write a diagram that overflows; arrows were reduced to lane-to-lane flows with numbered steps.
+6. **The suite is slow on a busy machine.** A second full `pytest` run (another process) was already in the repository while I started mine; the two doubled the load (server start-up 188 s in-process, 45 s as a server). I stopped my duplicate, ran the doc-related tests and `make freeze-check` separately, then started the full suite again, which finished with exit 0 (2,170 passed, 4 skipped, 0 failed; counted from the progress output). Timings in the checklist are labelled upper bounds.
+7. **My own validation touched the developer's journal.** Starting the real server and calling `POST /api/analyze` appended pasted-text lines to `data/live/journal.jsonl` (git-ignored). Those lines were removed afterwards; tests are unaffected because `tests/conftest.py` redirects the journal.
+
+**Not done / not verified.** `docs/presentation.pdf`, the demo video, the e-mail confirmation, making the repository public, committing anything. `make smoke` result and the full pytest result are in the checklist's validation log. The FinBERT head and human adjudication remain future work.
+
+### Follow-up (2026-10-08): the rest of `docs/` brought to the Stage 15 state
+After the first pass the question was whether every file under `docs/` was current. It was not. What was done:
+- `FEATURES_AND_PAIN_POINTS.md` described the Stage 5 interface (Risk Feed, a left rail, "no per-event retrieval exists", impact as the headline). Corrected, and sections 10-15 added for Stages 6-15 (severity scorecard, analogues, Analyze, personal portfolios, heatmaps, propagation, contagion map, Today, Review, watchlists, brief, scenario lab, reverse stress, external markets, Live switch), each row naming a test or file that exists.
+- `DEMO_SCRIPT.md`: "rail" wording fixed; a Stage 15 addendum (Live switch, Review, contagion map, heatmaps, Adjust) written after checking its steps against the running app (the Review page showed 75 of 400 events queued; the Live popover offered *News + SEC filings*, *GDELT news feed*, *SEC EDGAR 8-K filings* and *Simulated live*; the Hormuz event page shows the exposure chain and the run-scenario button).
+- `PORTFOLIOS.md`, `PORTFOLIO_PROPAGATION.md`, `DECISION_INTELLIGENCE.md`: Stage 15 addenda (exposure heatmap, loss heatmap, contagion map, review queue).
+- Checked and left unchanged because they are dated stage reports that already carry update notes: `IMPACT_MODEL.md`, `EVIDENCE_V2.md`, `MODELING_READINESS.md`, `FINAL_MODEL_REPORT.md`, `FINANCE_THEORY.md`, `ANALOGUES.md`, `RISK_ASSESSMENT.md`, `EVENT_INTELLIGENCE.md`, `EXTERNAL_MARKETS.md`, `GOLD_LABELING_GUIDE.md`. The check was mechanical (every `make` target and every path they name exists; no stale digest is presented as current) plus the existing number-pinning tests; their figures were not re-derived by hand.
+- Found while checking: the Desk still tells the user to "start with make run-live" although the runtime Live switch exists (UI copy, not changed here); `configs/app.yaml` still comments `mode: LIVE (not implemented yet)`.

@@ -48,3 +48,6 @@ data/event_labels/batches/
 # Stage 4: derived 2023-2025 history snapshot and the blind annotation inputs (regenerable)
 data/history_v2/
 data/gold_v2/batches/
+
+# Interview preparation: intentionally local, never part of the submission
+docs/interview/
