@@ -35,6 +35,70 @@ def test_capabilities_and_live_are_off_by_default(app_client) -> None:
     assert app_client.post("/api/live/refresh").status_code == 409
 
 
+def test_the_live_switch_turns_the_feed_on_and_off_without_a_restart(app_client) -> None:
+    """PUT /live/state: no request is made by switching (the poll loop is not running under TestClient); the capture choice is refused
+    with its reason while no capture file exists; the feed is off again at the end so the other tests keep their premise."""
+    st = app_client.get("/api/live/status").json()
+    assert st["state"] == "OFF" and [c["kind"] for c in st["source_choices"]] == ["both", "gdelt", "edgar", "capture"]
+    net = {c["kind"]: c["network"] for c in st["source_choices"]}
+    assert net == {"both": True, "gdelt": True, "edgar": True, "capture": False}
+    try:
+        on = app_client.put("/api/live/state", json={"enabled": True, "source": "gdelt"})
+        assert on.status_code == 200 and on.json()["enabled"] is True and on.json()["source_kind"] == "gdelt" and on.json()["state"] == "IDLE"
+        assert app_client.get("/api/meta").json()["capabilities"]["live_enabled"] is True
+    finally:
+        off = app_client.put("/api/live/state", json={"enabled": False})
+    assert off.status_code == 200 and off.json()["enabled"] is False and off.json()["state"] == "OFF"
+    assert app_client.get("/api/meta").json()["capabilities"]["live_enabled"] is False
+    assert app_client.post("/api/live/refresh").status_code == 409
+
+
+def test_the_live_switch_refuses_an_unavailable_source_and_a_malformed_body(app_client) -> None:
+    capture = next(c for c in app_client.get("/api/live/status").json()["source_choices"] if c["kind"] == "capture")
+    if not capture["available"]:
+        r = app_client.put("/api/live/state", json={"enabled": True, "source": "capture"})
+        assert r.status_code == 409 and "capture" in r.json()["detail"]
+        assert app_client.get("/api/live/status").json()["state"] == "OFF"
+    edgar = next(c for c in app_client.get("/api/live/status").json()["source_choices"] if c["kind"] == "edgar")
+    if not edgar["available"]:  # no declared SEC contact in this environment: an anonymous request is never sent
+        r = app_client.put("/api/live/state", json={"enabled": True, "source": "edgar"})
+        assert r.status_code == 409 and "EVENTSHOCK_SEC_CONTACT" in r.json()["detail"]
+        assert app_client.get("/api/live/status").json()["state"] == "OFF"
+    assert app_client.put("/api/live/state", json={"enabled": True, "source": "rss"}).status_code == 422
+    assert app_client.put("/api/live/state", json={"source": "gdelt"}).status_code == 422
+    assert app_client.put("/api/live/state", json={"enabled": True, "surprise": 1}).status_code == 422
+
+
+@pytest.fixture(scope="module")
+def capture_client(tmp_path_factory):
+    """A private app for playing the committed capture: it adds hundreds of signals to the live overlay."""
+    return TestClient(create_app(Settings(profile="replay", journal_path=tmp_path_factory.mktemp("cap") / "journal.jsonl")))
+
+
+def test_the_simulated_live_capture_plays_through_the_switch_without_touching_replay(capture_client) -> None:
+    c = capture_client
+    before = c.get("/api/signals").json()
+    replay_ids = {s["id"] for s in before["items"]}
+    choices = {x["kind"]: x for x in c.get("/api/live/status").json()["source_choices"]}
+    assert choices["capture"]["available"] is True and choices["capture"]["network"] is False
+    on = c.put("/api/live/state", json={"enabled": True, "source": "capture"}).json()
+    assert on["simulated"] is True and on["source_kind"] == "capture" and on["source_mode"] == "CAPTURE"
+    st = on
+    for _ in range(60):  # 216 records in batches of 20
+        st = c.post("/api/live/refresh").json()
+        if st["state"] == "IDLE":
+            break
+    assert st["state"] == "IDLE" and st["fetched_total"] >= 100 and st["live_signal_count"] > 0 and st["last_error"] is None
+    after = c.get("/api/signals").json()
+    live = [s for s in after["items"] if s["channel"] == "LIVE"]
+    assert live and not ({s["id"] for s in live} & replay_ids)  # no live signal shadows a replay one
+    assert replay_ids <= {s["id"] for s in after["items"]}  # every replay signal is still served
+    again = c.put("/api/live/state", json={"enabled": True, "source": "capture"}).json()  # a finished capture can be started over
+    assert again["state"] == "IDLE" and again["live_signal_count"] == st["live_signal_count"]
+    off = c.put("/api/live/state", json={"enabled": False}).json()
+    assert off["state"] == "OFF" and off["live_signal_count"] == st["live_signal_count"]  # off keeps what arrived
+
+
 def test_a_company_paste_is_company_scope_and_reaches_the_book_directly(app_client) -> None:
     r = analyze(app_client, COMPANY)
     s = r["signal"]

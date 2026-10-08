@@ -22,7 +22,7 @@ from eventshock.ingestion.live import (
 )
 from eventshock.pipeline.engine import Outcome
 from eventshock.services.analyze import AnalysisInputError, Analyzer, split_paste
-from eventshock.services.live import Journal, LiveService, load_live_config
+from eventshock.services.live import Journal, LiveService, LiveUnavailable, SourceChoice, load_live_config
 from eventshock.store import CombinedSignalRepository, InMemorySignalRepository
 from tests.pipe_helpers import AS_OF, CFG
 from tests.unit.test_risk_engine import make_engine
@@ -302,10 +302,159 @@ def test_the_background_loop_polls_and_stops_cleanly(tmp_path: Path) -> None:
 
     async def go() -> None:
         stop = asyncio.Event()
-        await asyncio.wait_for(svc.run(stop), timeout=10)  # exhausts the capture and returns
+        task = asyncio.create_task(svc.run(stop))
+        for _ in range(100):  # the loop outlives a finished capture (so the switch can restart it): wait for the last batch, then stop it
+            if svc.status().fetched_total >= 4:
+                break
+            await asyncio.sleep(0.1)
+        stop.set()
+        await asyncio.wait_for(task, timeout=10)
 
     asyncio.run(go())
     assert len(store) == 4 and svc.status().state == "IDLE"
+
+
+# ----------------------------------------------------------------------------------------------------------------- the UI switch
+class Counting:
+    """A source that counts how often it was asked: the proof that an OFF feed makes no request."""
+
+    mode = "GDELT"
+    interval_seconds = None
+
+    def __init__(self) -> None:
+        self.polls = 0
+
+    def poll(self) -> LivePoll:
+        self.polls += 1
+        return LivePoll(self.mode, AS_OF, [], queries_ok=1)
+
+
+def switchable(tmp_path: Path, *, capture_ok: bool = True, factory=None):
+    built: list[str] = []
+    counting = Counting()
+
+    def make(kind: str):
+        built.append(kind)
+        if factory is not None:
+            return factory(kind)
+        return counting
+
+    choices = lambda: [  # noqa: E731
+        SourceChoice(kind="gdelt", label="g", network=True, available=True, reason=None),
+        SourceChoice(kind="capture", label="c", network=False, available=capture_ok, reason=None if capture_ok else "no capture file"),
+    ]
+    svc, store = make_service(None, tmp_path, source_factory=make, source_choices=choices)
+    return svc, store, counting, built
+
+
+def test_the_feed_starts_off_and_makes_no_request_until_the_switch_is_turned_on(tmp_path: Path) -> None:
+    svc, _, counting, built = switchable(tmp_path)
+    st = svc.status()
+    assert st.state == "OFF" and not st.enabled and st.source_kind is None and [c.kind for c in st.source_choices] == ["gdelt", "capture"]
+    assert svc.refresh().state == "OFF" and counting.polls == 0 and built == []
+
+
+def test_turning_it_on_uses_the_first_available_source_and_turning_it_off_stops_polling(tmp_path: Path) -> None:
+    svc, _, counting, built = switchable(tmp_path)
+    on = svc.set_state(True)
+    assert on.enabled and on.state == "IDLE" and on.source_kind == "gdelt" and built == ["gdelt"]
+    assert svc.refresh().state == "OK" and counting.polls == 1
+    off = svc.set_state(False)
+    assert not off.enabled and off.state == "OFF" and off.source_kind is None and off.next_attempt_at is None
+    svc.refresh()
+    assert counting.polls == 1  # no request after the switch was turned off
+    assert svc.set_state(False).state == "OFF"  # idempotent
+
+
+def test_turning_it_off_keeps_the_signals_already_ingested(tmp_path: Path) -> None:
+    t = FakeTransport({"articles": [gdelt_record(1, "Goldman Sachs fined $50 million over trading violations")]}, {})
+    svc, store, _, _ = switchable(tmp_path, factory=lambda kind: make_source(t))
+    svc.set_state(True)
+    svc.refresh()
+    kept = len(store)
+    assert kept >= 1
+    svc.set_state(False)
+    assert len(store) == kept and svc.status().live_signal_count == kept
+
+
+def test_an_unavailable_source_is_refused_with_the_reason_and_the_feed_stays_off(tmp_path: Path) -> None:
+    svc, _, _, built = switchable(tmp_path, capture_ok=False)
+    with pytest.raises(LiveUnavailable, match="no capture file"):
+        svc.set_state(True, "capture")
+    with pytest.raises(LiveUnavailable, match="unknown live source"):
+        svc.set_state(True, "rss")
+    assert svc.status().state == "OFF" and built == []
+
+
+def test_a_source_that_fails_to_start_leaves_the_feed_off_and_says_why(tmp_path: Path) -> None:
+    def boom(kind: str):
+        raise ConfigError("capture file missing: /x")
+
+    svc, *_ = switchable(tmp_path, factory=boom)
+    with pytest.raises(LiveUnavailable, match="capture file missing"):
+        svc.set_state(True)
+    st = svc.status()
+    assert st.state == "OFF" and not st.enabled and "capture file missing" in (st.last_error or "")
+
+
+def test_no_switch_is_offered_without_a_factory(tmp_path: Path) -> None:
+    svc, _ = make_service(None, tmp_path)
+    with pytest.raises(LiveUnavailable, match="not available in this profile"):
+        svc.set_state(True)
+
+
+def test_a_result_that_arrives_after_the_switch_was_turned_off_is_dropped(tmp_path: Path) -> None:
+    holder: dict = {}
+
+    class Slow:
+        mode = "GDELT"
+        interval_seconds = None
+
+        def poll(self) -> LivePoll:
+            holder["svc"].set_state(False)  # the user flips the switch while the request is in flight
+            return LivePoll(self.mode, AS_OF, [gdelt_record(1, "Goldman Sachs fined $50 million over trading violations")], queries_ok=1)
+
+    svc, store, *_ = switchable(tmp_path, factory=lambda kind: Slow())
+    holder["svc"] = svc
+    svc.set_state(True)
+    assert svc.refresh().state == "OFF" and len(store) == 0
+
+
+def test_switching_to_a_capture_restarts_it_and_extends_the_store_retention(tmp_path: Path) -> None:
+    write_capture(tmp_path / "cap.jsonl", 4)
+    svc, store, *_ = switchable(tmp_path, factory=lambda kind: CaptureSource(CaptureSourceConfig(path=tmp_path / "cap.jsonl", batch_size=2), base=tmp_path)
+                                if kind == "capture" else make_source(FakeTransport()))
+    on = svc.set_state(True, "capture")
+    assert on.simulated and on.source_kind == "capture" and store.retention >= timedelta(days=365)
+    svc.refresh(), svc.refresh()
+    assert svc.status().state == "IDLE" and len(store) == 4
+    again = svc.set_state(True, "capture")  # a finished capture can be started over from the switch
+    assert again.state == "IDLE" and not svc._exhausted  # noqa: SLF001
+    svc.set_state(True, "gdelt")
+    assert store.retention == timedelta(hours=LIVE_CFG.retention_hours)
+
+
+def test_the_background_loop_idles_while_off_and_starts_polling_when_switched_on(tmp_path: Path) -> None:
+    svc, _, counting, _ = switchable(tmp_path)
+
+    async def go() -> tuple[int, int]:
+        stop = asyncio.Event()
+        task = asyncio.create_task(svc.run(stop))
+        await asyncio.sleep(1.3)
+        before = counting.polls
+        svc.set_state(True)
+        for _ in range(60):
+            if counting.polls:
+                break
+            await asyncio.sleep(0.1)
+        after = counting.polls
+        svc.set_state(False)
+        stop.set()
+        await asyncio.wait_for(task, timeout=10)
+        return before, after
+
+    before, after = asyncio.run(go())
+    assert before == 0 and after >= 1
 
 
 # ---------------------------------------------------------------------------------------------------------------------- config
