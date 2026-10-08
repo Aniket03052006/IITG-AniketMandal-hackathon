@@ -18,6 +18,9 @@ import {
   when,
 } from "../../lib/intelligence";
 import { pct } from "../../lib/format";
+import { Eye, Lifecycle, Sources, STATION_ICON } from "../icons";
+
+const Target = STATION_ICON.exposure;
 import { Chapter } from "../event/Chapter";
 import { Drawer, DrawerSection, useOpenDrawer } from "../Drawer";
 import { StateNotice } from "../StateNotice";
@@ -32,19 +35,31 @@ type Intel = EventIntelligence;
 
 function Tile({ label, value, note, aside, children }: { label: string; value: ReactNode; note?: ReactNode; aside?: ReactNode; children?: ReactNode }) {
   return (
-    <div className="tile" role="group" aria-label={label}>
-      <p className="eyebrow">{label}</p>
-      <p className="mt-1.5 font-display text-xl font-semibold leading-tight">{value}</p>
-      {note && <p className="mt-1 text-sm text-ink-2">{note}</p>}
+    <div className="intel-row" role="group" aria-label={label}>
+      <p className="intel-k">{label}</p>
+      <p className="intel-v">{value}</p>
+      {note && <p className="intel-note">{note}</p>}
       {children}
-      {aside && <div className="mt-3">{aside}</div>}
+      {aside && <div className="mt-1.5">{aside}</div>}
     </div>
+  );
+}
+
+/** One question about the event, answered by a few rows: a spec sheet, not a wall of equal cards. */
+function Group({ title, icon: I, lead = false, children }: { title: string; icon: (p: { size?: number }) => React.JSX.Element; lead?: boolean; children: ReactNode }) {
+  return (
+    <section className={lead ? "intel-group intel-lead" : "intel-group"} aria-label={title}>
+      <h3 className="intel-group-title">
+        <I size={15} /> {title}
+      </h3>
+      {children}
+    </section>
   );
 }
 
 const strengthTone = (t: string) => (t === "STRONG" ? "ok" : t === "MODERATE" ? "demo" : "warn");
 
-/** The tiles keep what is known about an event apart: corroboration (how well it is evidenced) and the model's own confidence are different tiles on purpose. */
+/** Four questions, kept apart on purpose: how well it is evidenced (corroboration) and the model's own confidence are different rows. */
 export function IntelligenceTiles({ i }: { i: Intel }) {
   const e = i.evidence;
   const conf = e.model_confidence;
@@ -52,71 +67,77 @@ export function IntelligenceTiles({ i }: { i: Intel }) {
   const se = conf.find((m) => m.stage === "sentiment");
   const strength = e.evidence_strength;
   return (
-    <div className="tiles" role="list" aria-label="Event intelligence at a glance">
-      <Tile
-        label="Event"
-        value={i.event.event_label ?? (i.event.event_status === "CLASSIFIED" ? i.event.event_type : "Not a classified event")}
-        note={<>{i.event.event_subtype_label && i.event.event_subtype_label !== "Other" ? `${i.event.event_subtype_label} · ` : ""}tone {i.event.sentiment_label ?? ""} ({i.event.sentiment >= 0 ? "+" : "−"}{Math.abs(i.event.sentiment).toFixed(2)})</>}
-      />
-      <Tile
-        label="Scope"
-        value={i.scope.scope_value ? `${SCOPE_TYPE_LABEL[i.scope.scope_type]} · ${i.scope.scope_value}` : SCOPE_TYPE_LABEL[i.scope.scope_type]}
-        note={`${SCOPE_TYPE_BLURB[i.scope.scope_type]} Confidence tier: ${TIER_LABEL[i.scope.scope_confidence.tier]}.`}
-      />
-      <Tile
-        label="Lifecycle"
-        value={i.lifecycle.state ? LIFECYCLE_LABEL[i.lifecycle.state] : AVAILABILITY_LABEL[i.lifecycle.availability]}
-        note={i.lifecycle.state ? LIFECYCLE_BLURB[i.lifecycle.state] : i.lifecycle.reason}
-      />
-      <Tile label="Novelty" value={NOVELTY_LABEL[i.novelty.label] ?? i.novelty.label} note={i.novelty.reason ?? NOVELTY_BLURB[i.novelty.label]} />
-
-      <Tile
-        label="Impact"
-        value={i.event.severity_score != null ? `Severity ${i.event.severity_score}/10` : "Severity unavailable"}
-        note={
-          <>
-            {i.event.severity_band ? `${i.event.severity_band}. ` : ""}A triage scale, not outcome-calibrated.
-            {i.event.impact_score != null ? ` The trained impact stage says ${i.event.impact_score}/10 (${i.event.impact_origin === "MODEL" ? "experimental model" : "placeholder rule"}).` : " No trained impact was scored."}
-          </>
-        }
-      />
-      <Tile
-        label="Evidence strength"
-        value={<StatusTag tone={strengthTone(strength.tier)}>{STRENGTH_LABEL[strength.tier] ?? strength.tier}</StatusTag>}
-        note={`${e.independent_sources} independent source${e.independent_sources === 1 ? "" : "s"} among ${e.source_count} report${e.source_count === 1 ? "" : "s"}.`}
-      />
-      <Tile
-        label="Model confidence"
-        value={ev?.value != null ? `Event ${pct(ev.value, 0)}` : "Event n/a"}
-        note={`${se?.value != null ? `Sentiment ${pct(se.value, 0)}. ` : ""}What the models say of their own output; it does not measure corroboration.`}
-        aside={<KindBadge kind="model" />}
-      />
-      <Tile
-        label="Corroboration"
-        value={e.source_diversity != null ? `Diversity ${e.source_diversity.toFixed(2)}` : "n/a"}
-        note={`${e.syndicated_copies} cop${e.syndicated_copies === 1 ? "y" : "ies"} of another report. ${e.authoritative_supported ? `${e.authoritative_sources} authoritative source${e.authoritative_sources === 1 ? "" : "s"}.` : "No source is known to be authoritative."}`}
-      />
-
-      <Tile
-        label="Conflicts"
-        value={CONFLICT_LABEL[i.contradiction.state]}
-        note={i.contradiction.claims_extracted === 0 ? "No tracked claim was found, so none could be compared." : `${i.contradiction.claims_extracted} claim${i.contradiction.claims_extracted === 1 ? "" : "s"} compared.`}
-      />
-      <Tile
-        label="Narrative velocity"
-        value={i.velocity.velocity_per_hour != null ? `${i.velocity.velocity_per_hour.toFixed(2)} sources/h` : AVAILABILITY_LABEL[i.velocity.availability]}
-        note={i.velocity.source_growth ?? i.velocity.reason}
-      />
-      <Tile
-        label="Affected entities"
-        value={i.affected.entities.length ? `${i.affected.entities.length} named` : "None named"}
-        note={i.affected.entities.length ? i.affected.entities.slice(0, 3).map((x) => `${x.name}${x.resolved ? "" : " (not in the entity master)"}`).join("; ") : "No company, institution or regulator was identified."}
-      />
-      <Tile
-        label="Affected sectors"
-        value={i.affected.sectors.length ? i.affected.sectors.map((s) => s.sector).join(", ") : "None identified"}
-        note={i.affected.regions.length ? `Regions: ${i.affected.regions.join(", ")}.` : undefined}
-      />
+    <div className="intel-groups" aria-label="Event intelligence at a glance">
+      <Group title="How well it is evidenced" icon={Sources} lead>
+        <Tile
+          label="Evidence strength"
+          value={<StatusTag tone={strengthTone(strength.tier)}>{STRENGTH_LABEL[strength.tier] ?? strength.tier}</StatusTag>}
+          note={`${e.independent_sources} independent source${e.independent_sources === 1 ? "" : "s"} among ${e.source_count} report${e.source_count === 1 ? "" : "s"}.`}
+        />
+        <Tile
+          label="Corroboration"
+          value={e.source_diversity != null ? `Diversity ${e.source_diversity.toFixed(2)}` : "n/a"}
+          note={`${e.syndicated_copies} cop${e.syndicated_copies === 1 ? "y" : "ies"} of another report. ${e.authoritative_supported ? `${e.authoritative_sources} authoritative source${e.authoritative_sources === 1 ? "" : "s"}.` : "No source is known to be authoritative."}`}
+        />
+        <Tile
+          label="Conflicts"
+          value={CONFLICT_LABEL[i.contradiction.state]}
+          note={i.contradiction.claims_extracted === 0 ? "No tracked claim was found, so none could be compared." : `${i.contradiction.claims_extracted} claim${i.contradiction.claims_extracted === 1 ? "" : "s"} compared.`}
+        />
+        <Tile
+          label="Model confidence"
+          value={ev?.value != null ? `Event ${pct(ev.value, 0)}` : "Event n/a"}
+          note={`${se?.value != null ? `Sentiment ${pct(se.value, 0)}. ` : ""}What the models say of their own output; it does not measure corroboration.`}
+          aside={<KindBadge kind="model" />}
+        />
+      </Group>
+      <Group title="What it is" icon={Eye}>
+        <Tile
+          label="Event"
+          value={i.event.event_label ?? (i.event.event_status === "CLASSIFIED" ? i.event.event_type : "Not a classified event")}
+          note={<>{i.event.event_subtype_label && i.event.event_subtype_label !== "Other" ? `${i.event.event_subtype_label} · ` : ""}tone {i.event.sentiment_label ?? ""} ({i.event.sentiment >= 0 ? "+" : "−"}{Math.abs(i.event.sentiment).toFixed(2)})</>}
+        />
+        <Tile
+          label="Scope"
+          value={i.scope.scope_value ? `${SCOPE_TYPE_LABEL[i.scope.scope_type]} · ${i.scope.scope_value}` : SCOPE_TYPE_LABEL[i.scope.scope_type]}
+          note={`${SCOPE_TYPE_BLURB[i.scope.scope_type]} Confidence tier: ${TIER_LABEL[i.scope.scope_confidence.tier]}.`}
+        />
+        <Tile
+          label="Impact"
+          value={i.event.severity_score != null ? `Severity ${i.event.severity_score}/10` : "Severity unavailable"}
+          note={
+            <>
+              {i.event.severity_band ? `${i.event.severity_band}. ` : ""}A triage scale, not outcome-calibrated.
+              {i.event.impact_score != null ? ` The trained impact stage says ${i.event.impact_score}/10 (${i.event.impact_origin === "MODEL" ? "experimental model" : "placeholder rule"}).` : " No trained impact was scored."}
+            </>
+          }
+        />
+      </Group>
+      <Group title="How it is moving" icon={Lifecycle}>
+        <Tile
+          label="Lifecycle"
+          value={i.lifecycle.state ? LIFECYCLE_LABEL[i.lifecycle.state] : AVAILABILITY_LABEL[i.lifecycle.availability]}
+          note={i.lifecycle.state ? LIFECYCLE_BLURB[i.lifecycle.state] : i.lifecycle.reason}
+        />
+        <Tile label="Novelty" value={NOVELTY_LABEL[i.novelty.label] ?? i.novelty.label} note={i.novelty.reason ?? NOVELTY_BLURB[i.novelty.label]} />
+        <Tile
+          label="Narrative velocity"
+          value={i.velocity.velocity_per_hour != null ? `${i.velocity.velocity_per_hour.toFixed(2)} sources/h` : AVAILABILITY_LABEL[i.velocity.availability]}
+          note={i.velocity.source_growth ?? i.velocity.reason}
+        />
+      </Group>
+      <Group title="Who it touches" icon={Target}>
+        <Tile
+          label="Affected entities"
+          value={i.affected.entities.length ? `${i.affected.entities.length} named` : "None named"}
+          note={i.affected.entities.length ? i.affected.entities.slice(0, 3).map((x) => `${x.name}${x.resolved ? "" : " (not in the entity master)"}`).join("; ") : "No company, institution or regulator was identified."}
+        />
+        <Tile
+          label="Affected sectors"
+          value={i.affected.sectors.length ? i.affected.sectors.map((s) => s.sector).join(", ") : "None identified"}
+          note={i.affected.regions.length ? `Regions: ${i.affected.regions.join(", ")}.` : undefined}
+        />
+      </Group>
     </div>
   );
 }
@@ -227,7 +248,7 @@ function Downstream({ i }: { i: Intel }) {
           <p className="mt-1 text-ink-2">Not run: {s.reason ?? "no defensible scenario mapping."} You can still run it as a what-if on the Stress page.</p>
         )}
         {i.event.severity_score != null && <p className="mt-1 text-xs text-muted">Severity {i.event.severity_score}/10{s.trigger_threshold != null ? `, automatic trigger ${s.trigger_threshold}` : ""}.</p>}
-        <Link to={`/stress?signal=${i.signal_id}`} className="mt-2 inline-block text-accent underline underline-offset-2">Open Portfolio Stress</Link>
+        <Link to={`/stress?signal=${i.signal_id}`} className="mt-2 inline-block text-accent underline underline-offset-2">Open the Stress Lab</Link>
       </div>
     </div>
   );

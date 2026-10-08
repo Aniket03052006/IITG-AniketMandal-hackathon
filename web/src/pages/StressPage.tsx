@@ -5,7 +5,8 @@ import { useActivePortfolioItem, useAssessment, useConcentration, useMeta, usePo
 import type { ExposureRow, StressResult } from "../api/types";
 import { FlowRail } from "../components/FlowRail";
 import { useOpenDrawer } from "../components/Drawer";
-import { ArrowRight, Play, Spinner, Wrench } from "../components/icons";
+import { ArrowRight, Command, Play, Spinner, Wrench } from "../components/icons";
+import { ScenarioRail } from "../components/portfolio/ScenarioRail";
 import { ComparePanel } from "../components/portfolio/ComparePanel";
 import { RunAttribution } from "../components/propagation/AttributionPanel";
 import { ConcentrationPanel } from "../components/propagation/ConcentrationPanel";
@@ -171,6 +172,17 @@ export function StressPage() {
   const shown: StressResult | undefined = differs && sim.data?.status === "COMPLETED" ? sim.data : base;
   const result = main.data;
 
+  // a scenario card both records the choice in the URL and runs it: one click, one result
+  const pickScenario = (id: string) => {
+    if (!signalId) return;
+    const next = new URLSearchParams(params);
+    if (id === defaultScenarioId) next.delete("scenario");
+    else next.set("scenario", id);
+    next.delete("run");
+    setParams(next, { replace: true });
+    main.mutate({ signal_id: signalId, scenario_id: id === defaultScenarioId ? undefined : id, force: !!main.data?.audit.forced });
+  };
+
   const set = (key: string, value: string | null) => {
     const next = new URLSearchParams(params);
     if (value) next.set(key, value);
@@ -196,14 +208,14 @@ export function StressPage() {
         />
       )}
 
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Portfolio Stress</h1>
-        <p className="mt-1 max-w-[66ch] text-md text-ink-2">
+      <header className="mb-5">
+        <h1 className="text-3xl">Stress Lab</h1>
+        <p className="mt-1 max-w-[90ch] text-ink-2">
           {personal
-            ? "What the event's scenario would do to your portfolio, as a modeled change. The shocks are assumptions, not forecasts; the arithmetic is deterministic and shown."
-            : "What the event's scenario does to a synthetic wholesale-banking book. The shocks are assumptions; the arithmetic is deterministic and shown."}
+            ? "Run a scenario on your portfolio and see where the change lands. The shocks are assumptions, not forecasts; the arithmetic is deterministic and shown."
+            : "Run a scenario on a synthetic wholesale-banking book and see where the change lands. The shocks are assumptions; the arithmetic is deterministic and shown."}
         </p>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm" aria-label="Portfolio in use">
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-sm" aria-label="Portfolio in use">
           <span className="text-muted">Stressing</span>
           <span className="font-medium text-ink">{personal ? (pfItem?.name ?? "your portfolio") : "the default synthetic book"}</span>
           <StatusTag tone={personal ? "ok" : "demo"}>{personal ? "Your portfolio" : "Default · synthetic"}</StatusTag>
@@ -219,7 +231,7 @@ export function StressPage() {
       </header>
 
       {/* The event and scenario in play */}
-      <section className="mb-8" aria-label="Event and scenario">
+      <section className="mb-6" aria-label="Event and scenario">
         {s && (
           <div className="ctl">
             <div className="min-w-0">
@@ -250,8 +262,13 @@ export function StressPage() {
             </div>
           </div>
         )}
+        {s && !partial && scenarios.data && (
+          <div className="mt-5">
+            <ScenarioRail scenarios={scenarios.data.scenarios} selected={scenarioId} mapped={defaultScenarioId} onPick={pickScenario} disabled={main.isPending} pending={main.isPending} />
+          </div>
+        )}
         <details className="disclosure mt-3" open={!signalId || undefined}>
-          <summary>{signalId ? "Change event or scenario" : "Choose an event"}</summary>
+          <summary>{signalId ? "Stress a different event" : "Choose an event"}</summary>
           <div className="mt-3 grid gap-4 md:grid-cols-2">
             <label className="block">
               <span className="eyebrow mb-1.5 block">Event</span>
@@ -266,18 +283,6 @@ export function StressPage() {
                       {(assessed ? x.severity_score : x.impact_score) ?? "–"} · {subjectLine(subjectOfSummary(x))}: {x.headline.slice(0, 70)}
                     </option>
                   ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="eyebrow mb-1.5 block">Scenario template</span>
-              <select className="field" value={scenarioId} disabled={!s} onChange={(e) => set("scenario", e.target.value === defaultScenarioId ? null : e.target.value)}>
-                {!s && <option value="">Select an event first</option>}
-                {scenarios.data?.scenarios.map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.name}
-                    {x.id === defaultScenarioId ? " (mapped to this event)" : ""}
-                  </option>
-                ))}
               </select>
             </label>
           </div>
@@ -434,21 +439,28 @@ export function StressPage() {
             </section>
           )}
 
-          <div className="flex flex-wrap items-center gap-2 border-t border-rule pt-5" role="group" aria-label="Explanations">
-            <button type="button" className="btn" aria-haspopup="dialog" onClick={() => setOpen("math")}>
-              <Sigma size={14} /> How calculated?
-            </button>
-            <button type="button" className="btn" aria-haspopup="dialog" onClick={() => setOpen("assumptions")}>
-              <Wrench size={14} /> Assumptions
-            </button>
-            <button type="button" className="btn" aria-haspopup="dialog" onClick={() => setOpen("positions")}>
-              <ListIcon size={14} /> Show every position
-            </button>
-            <button type="button" className="btn btn-ghost" aria-haspopup="dialog" onClick={() => setOpen("audit")}>
-              Audit trail
-            </button>
-            {s && meta?.capabilities.propagation === true && <WhyButtons subjects={["STRESS"]} size="md" />}
-          </div>
+          <section aria-label="Inspect this run" className="border-t border-rule pt-5">
+            <h2 className="mb-3 font-sans text-md font-semibold">Inspect this run</h2>
+            <div className="inspect" role="group" aria-label="Explanations">
+              <button type="button" className="inspect-btn" aria-label="How calculated?" aria-haspopup="dialog" onClick={() => setOpen("math")}>
+                <Sigma size={16} />
+                <span><b>How calculated?</b><small aria-hidden="true">every formula, step by step</small></span>
+              </button>
+              <button type="button" className="inspect-btn" aria-label="Assumptions" aria-haspopup="dialog" onClick={() => setOpen("assumptions")}>
+                <Wrench size={16} />
+                <span><b>Assumptions</b><small aria-hidden="true">the shocks and why they were chosen</small></span>
+              </button>
+              <button type="button" className="inspect-btn" aria-label="Show every position" aria-haspopup="dialog" onClick={() => setOpen("positions")}>
+                <ListIcon size={16} />
+                <span><b>Show every position</b><small aria-hidden="true">the full table, before and after</small></span>
+              </button>
+              <button type="button" className="inspect-btn" aria-label="Audit trail" aria-haspopup="dialog" onClick={() => setOpen("audit")}>
+                <Command size={16} />
+                <span><b>Audit trail</b><small aria-hidden="true">run id, engine, portfolio hash</small></span>
+              </button>
+            </div>
+            {s && meta?.capabilities.propagation === true && <div className="mt-3"><WhyButtons subjects={["STRESS"]} size="md" /></div>}
+          </section>
         </div>
       )}
 

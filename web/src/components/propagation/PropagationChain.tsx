@@ -3,6 +3,7 @@ import { money, pct } from "../../lib/format";
 import { NODE_KIND_LABEL } from "../../lib/propagation";
 import { StateNotice } from "../StateNotice";
 import { AdjustedChip } from "./AdjustedChip";
+import { ContagionMap } from "./ContagionMap";
 import { BasisChip, StatusChip } from "./StatusChip";
 
 const RELATION: Record<string, string> = {
@@ -88,6 +89,9 @@ export function PropagationChain({ g }: { g: PropagationGraph }) {
           ))}
         </ul>
       )}
+      <div className="mt-5">
+        <ContagionMap g={g} />
+      </div>
       <ol className="mt-4 grid max-w-[60rem] gap-2" aria-label="Edges from the event to the portfolio">
         {flow.map((e) => <EdgeRow key={`${e.source}>${e.target}>${e.rule_id}`} e={e} byId={byId} />)}
       </ol>

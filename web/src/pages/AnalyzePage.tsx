@@ -374,7 +374,7 @@ export function AnalyzePage() {
             <p>Nothing leaves this server.</p>
           )}
           <p>
-            A pasted text becomes an ordinary signal: it appears in the Risk Feed as “Pasted”, joins a story if the same one is already there, and can be stress-tested like any other. Long
+            A pasted text becomes an ordinary signal: it appears on the Desk as “Pasted”, joins a story if the same one is already there, and can be stress-tested like any other. Long
             articles are read by their opening 2,000 characters, because the models were fitted on headlines and short posts.
           </p>
         </div>

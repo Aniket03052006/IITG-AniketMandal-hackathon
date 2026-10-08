@@ -17,7 +17,7 @@ export function WhyButtons({ subjects, size = "sm" }: { subjects: ExplainSubject
   return (
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Why?">
       {subjects.map((s) => (
-        <button key={s} type="button" className={size === "sm" ? "btn btn-sm" : "btn"} aria-haspopup="dialog" onClick={() => setOpen(whyKey(s))}>
+        <button key={s} type="button" className={size === "sm" ? "btn btn-sm btn-ghost" : "btn"} aria-haspopup="dialog" onClick={() => setOpen(whyKey(s))}>
           <Question size={14} /> {SUBJECT_TITLE[s] ?? "Why?"}
         </button>
       ))}

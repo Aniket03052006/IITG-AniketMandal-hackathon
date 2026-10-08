@@ -3,6 +3,9 @@ import type { SignalSummary } from "../../api/types";
 import { dateTime } from "../../lib/format";
 import { sentimentLabel } from "../../lib/severity";
 import { signed } from "../../lib/assessment";
+import { STATION_ICON, type Station } from "../icons";
+
+const STATIONS: Station[] = ["source", "reading", "severity", "scenario", "portfolio"];
 
 /** The whole product in five steps, drawn small: news -> AI understanding -> risk signal -> scenario -> portfolio impact. Each step says what it holds, or that it is not reached. */
 export function MiniChain({
@@ -51,6 +54,7 @@ export function MiniChain({
     <ol className="mini-chain" aria-label="How EventShock got from this text to a portfolio result">
       {steps.map((st, i) => (
         <li key={st.k} className="mini-step" data-state={st.on ? "on" : "off"}>
+          <MiniNode station={STATIONS[i]!} />
           <p className="mini-step-k">
             <span className="num">{i + 1}</span> · {st.k}
           </p>
@@ -59,5 +63,14 @@ export function MiniChain({
         </li>
       ))}
     </ol>
+  );
+}
+
+function MiniNode({ station }: { station: Station }) {
+  const I = STATION_ICON[station];
+  return (
+    <span className="mini-node" aria-hidden="true">
+      <I size={13} />
+    </span>
   );
 }

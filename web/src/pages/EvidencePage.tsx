@@ -733,7 +733,7 @@ export function EvidencePage() {
   return (
     <>
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold">How much evidence supports EventShock?</h1>
+        <h1 className="text-3xl">How much evidence supports EventShock?</h1>
         <p className="mt-1 max-w-[68ch] text-md text-ink-2">
           Four stages, each with an honest verdict. Nothing is called validated unless it passed the bar written before the results were seen, and what is missing is named.
         </p>

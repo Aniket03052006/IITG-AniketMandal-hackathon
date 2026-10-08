@@ -162,7 +162,7 @@ export function PortfoliosPage() {
         <PortfoliosList />
       ) : active === "watchlists" ? (
         <div className="space-y-6">
-          <PageHeader title="Watchlists and monitor" sub="What you follow, and what changed about it. Everything here comes from the same monitor as the Risk Feed." />
+          <PageHeader title="Watchlists and monitor" sub="What you follow, and what changed about it. Everything here comes from the same monitor as the Desk." />
           <ChangesFeed limit={4} heading="Current risk monitor" />
           <WatchlistsPanel />
         </div>

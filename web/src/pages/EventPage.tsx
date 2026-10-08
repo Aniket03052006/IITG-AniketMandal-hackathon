@@ -71,7 +71,7 @@ export function EventPage() {
   return (
     <>
       <Link to="/" className="btn btn-ghost mb-3 -ml-3">
-        <ArrowLeft size={14} /> Risk Feed
+        <ArrowLeft size={14} /> Desk
       </Link>
       {isLoading && <EventSkeleton />}
       {error && (

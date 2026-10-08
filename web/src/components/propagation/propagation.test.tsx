@@ -121,7 +121,7 @@ describe("PropagationChain", () => {
     expect(screen.getAllByText("Observed").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Scenario assumption").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Your assumption").length).toBeGreaterThan(0);
-    expect(screen.getByText(/risk_factors\.RATES\.transmission\.tech_long_duration/)).toBeInTheDocument();
+    expect(within(edges).getByText(/risk_factors\.RATES\.transmission\.tech_long_duration/)).toBeInTheDocument(); // in the list (the map also carries it in a tooltip)
     expect(screen.getByText(/not causal inference/)).toBeInTheDocument();
   });
 
@@ -243,7 +243,7 @@ describe("PropagationSection", () => {
     await userEvent.click(screen.getByRole("button", { name: /run on my portfolio/i }));
     await screen.findByLabelText("Portfolio impact");
     expect(screen.getByText(/Total modeled change -\$100/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /open portfolio stress/i })).toHaveAttribute("href", "/stress?signal=s1");
+    expect(screen.getByRole("link", { name: /open the stress lab/i })).toHaveAttribute("href", "/stress?signal=s1");
     await waitFor(() => expect(calls.some((c) => c.includes("/portfolio-stress"))).toBe(true));
   });
 

@@ -6,7 +6,7 @@ import type { Brief } from "../../api/types";
 import { useActivePortfolio } from "../../lib/portfolio";
 import { BRIEF_KEY, STATEMENT_KIND, sectionAnchor } from "../../lib/brief";
 import { Drawer, useOpenDrawer } from "../Drawer";
-import { Question } from "../icons";
+import { Brief as BriefIcon } from "../icons";
 import { ErrorState, Skeleton } from "../ui";
 
 /** The button that opens the executive brief drawer (`?open=brief`). Hidden where the brief is not served. */
@@ -16,7 +16,7 @@ export function BriefButton({ size = "sm" }: { size?: "sm" | "md" }) {
   if (meta?.capabilities.executive_brief !== true) return null;
   return (
     <button type="button" className={size === "sm" ? "btn btn-sm" : "btn"} aria-haspopup="dialog" onClick={() => setOpen(BRIEF_KEY)}>
-      <Question size={14} /> Executive brief
+      <BriefIcon size={14} /> Executive brief
     </button>
   );
 }

@@ -3,6 +3,7 @@ import type { ExposureRowV2, PortfolioMetric } from "../../api/types";
 import { ASSET_CLASS_LABEL, money, pct } from "../../lib/format";
 import { currencySymbol } from "../../lib/portfolio";
 import { KindBadge } from "../ProvenanceKind";
+import { Heatmap } from "./Heatmap";
 import { ErrorState, Skeleton, Stat } from "../ui";
 
 function Bars({ rows, label, max = 6 }: { rows: ExposureRowV2[]; label?: (r: ExposureRowV2) => string; max?: number }) {
@@ -75,6 +76,11 @@ export function ExposurePanel({ id }: { id: string | null }) {
           <Bars rows={d.by_issuer} max={5} />
         </div>
       </div>
+      {d.matrix && (
+        <div className="mt-6">
+          <Heatmap tab={d.matrix} title="Where the value sits: sector by asset class" unitLabel="share of the whole book; hover a cell for the amount and positions" />
+        </div>
+      )}
       <div className="mt-6">
         <h4 className="mb-2 text-sm font-semibold">Concentration and sensitivity</h4>
         <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2">

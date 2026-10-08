@@ -35,8 +35,8 @@ function ListCard({ w, onEdit }: { w: Watchlist; onEdit: () => void }) {
         {confirm ? (
           <span className="flex items-center gap-2 text-sm">
             Delete “{w.name}”?
-            <button type="button" className="btn" onClick={() => m.remove.mutate(w.id)}>Yes, delete</button>
-            <button type="button" className="btn btn-ghost" onClick={() => setConfirm(false)}>Keep</button>
+            <button type="button" className="btn btn-neg" onClick={() => m.remove.mutate(w.id)}>Yes, delete</button>
+            <button type="button" className="btn btn-pos" onClick={() => setConfirm(false)}>Keep</button>
           </span>
         ) : (
           <button type="button" className="btn btn-ghost" onClick={() => setConfirm(true)}>Delete</button>
@@ -59,7 +59,7 @@ export function WatchlistsPanel() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-[64ch] text-sm text-ink-2">Watch companies, sectors, industries, regions, event types, risk themes or your own holdings. Each item shows the matching events and what changed, from the same monitor as the Risk Feed.</p>
+        <p className="max-w-[64ch] text-sm text-ink-2">Watch companies, sectors, industries, regions, event types, risk themes or your own holdings. Each item shows the matching events and what changed, from the same monitor as the Desk.</p>
         {editing === null && <button type="button" className="btn btn-primary" onClick={() => setEditing("new")}><Plus size={14} /> New watchlist</button>}
       </div>
       {editing === "new" && <WatchlistEditor onDone={() => setEditing(null)} />}

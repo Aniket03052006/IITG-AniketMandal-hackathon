@@ -6,6 +6,7 @@ import { DIMENSION_ORDER } from "../../lib/propagation";
 import { Waterfall } from "../portfolio/Waterfall";
 import { KindBadge } from "../ProvenanceKind";
 import { Tabs } from "../Tabs";
+import { Heatmap } from "../portfolio/Heatmap";
 import { Check } from "../icons";
 
 function Bars({ t }: { t: AttributionTable }) {
@@ -58,6 +59,11 @@ export function AttributionPanel({ att }: { att: StressAttribution }) {
           </div>
         </Tabs>
       </div>
+      {att.matrix && (
+        <div className="mt-6">
+          <Heatmap tab={att.matrix} title="Where each shock landed: sector by market factor" unitLabel="modeled change; the darkest cells are the largest" />
+        </div>
+      )}
       <p className="mt-3 max-w-[70ch] text-xs text-muted">{att.note} {att.labels.join(" ")}</p>
     </section>
   );

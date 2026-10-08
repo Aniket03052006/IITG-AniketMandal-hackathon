@@ -9,13 +9,46 @@ import { StatusTag } from "../ui";
  * Which portfolio is being stressed. Personal portfolios are OPTIONAL: with none chosen EventShock uses its synthetic wholesale book, and
  * "Use default portfolio" always puts it back. A stored choice that no longer exists falls back to the default by itself.
  */
-export function PortfolioSwitcher({ compact = false }: { compact?: boolean }) {
+export function PortfolioSwitcher({ compact = false, variant = "panel" }: { compact?: boolean; variant?: "panel" | "bar" }) {
   const list = usePortfolios();
   const { id, item, stale } = useActivePortfolioItem();
   useEffect(() => {
     if (stale) setActivePortfolio(null);
   }, [stale]);
   const personal = !!id;
+  if (variant === "bar")
+    return (
+      <div className="ctx-item" aria-label="Portfolio in use">
+        <PortfolioIcon size={14} />
+        <label className="flex items-center gap-1.5">
+          <span className="text-muted">Portfolio</span>
+          <span className="sr-only">Portfolio to use</span>
+          <select
+            className="ctx-select"
+            value={id ?? "default"}
+            onChange={(e) => setActivePortfolio(e.target.value === "default" ? null : e.target.value)}
+            disabled={!list.data}
+          >
+            {(list.data ?? []).map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.kind === "DEFAULT" ? "Default synthetic book" : p.name}
+              </option>
+            ))}
+            {!list.data && <option value="default">Default synthetic book</option>}
+          </select>
+        </label>
+        {item && personal && <span className="num text-muted">{item.holding_count} holdings</span>}
+        {personal ? (
+          <button type="button" className="ctx-link" onClick={() => setActivePortfolio(null)}>
+            Use default portfolio
+          </button>
+        ) : (
+          <Link className="ctx-link" to="/portfolios">
+            Use your own
+          </Link>
+        )}
+      </div>
+    );
   return (
     <div className="rounded-md border border-rule bg-paper-2 p-3 text-xs" aria-label="Portfolio in use">
       <p className="eyebrow flex items-center gap-1.5">

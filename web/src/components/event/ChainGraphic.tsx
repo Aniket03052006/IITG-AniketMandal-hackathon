@@ -6,15 +6,25 @@ import { impactKind } from "../../lib/impact";
 import { stageKind } from "../../lib/provenance";
 import { sentimentLabel, severityBand } from "../../lib/severity";
 import { signed as signedScore } from "../../lib/assessment";
-import { ArrowRight } from "../icons";
+import { useIntelligence, useMeta } from "../../api/hooks";
+import { money, pct } from "../../lib/format";
+import { ArrowRight, STATION_ICON, type Station } from "../icons";
+
+const STATION_OF: Record<number, Station> = { 1: "source", 2: "reading", 3: "severity", 4: "scenario", 5: "portfolio" };
 
 const INPUT_CHIPS = ["Event type", "Sentiment", "Calendar", "Market state", "Timing"];
 
 function Node({ i, n, title, to, onGo, children }: { i: number; n: number; title: string; to?: string; onGo?: () => void; children: React.ReactNode }) {
+  const I = STATION_ICON[STATION_OF[n] ?? "source"];
   const head = (
     <span className="chain-head">
-      <span className="chain-n num">{n}</span>
-      {title}
+      <span className={clsx("chain-n", n === 4 && "chain-n-dashed")} aria-hidden="true">
+        <I size={15} />
+      </span>
+      <span>
+        <span className="num text-muted">{n} · </span>
+        {title}
+      </span>
     </span>
   );
   return (
@@ -32,6 +42,23 @@ function Node({ i, n, title, to, onGo, children }: { i: number; n: number; title
       )}
       <div className="chain-body">{children}</div>
     </li>
+  );
+}
+
+/** The intelligence endpoint's stress preview, when it ran: the before/after the chain ends in, without starting a run from here. */
+function PortfolioPreview({ id }: { id: string }) {
+  const { data: meta } = useMeta();
+  const q = useIntelligence(id, meta?.capabilities.intelligence === true);
+  const st = q.data?.stress;
+  if (!st || st.availability !== "AVAILABLE" || st.pnl == null || st.baseline_value == null || st.stressed_value == null) return null;
+  return (
+    <>
+      <p className="chain-sub num">
+        {money(st.baseline_value)} → {money(st.stressed_value)}
+      </p>
+      <p className={clsx("chain-result num", st.pnl < 0 ? "text-neg" : "text-ink")}>{money(st.pnl, { signed: true })}</p>
+      {st.pnl_pct != null && <p className="chain-sub num">{pct(st.pnl_pct, 2, true)} of the book</p>}
+    </>
   );
 }
 
@@ -214,6 +241,7 @@ function AssessedChain({
         </Node>
         <Node i={4} n={5} title="Portfolio impact">
           <p className="chain-main">Value before vs after</p>
+          <PortfolioPreview id={s.id} />
           <p className="chain-sub">Deterministic engine</p>
           {sev && (
             <Link className="btn btn-sm mt-2" to={`/stress?signal=${s.id}${crosses ? "&run=1" : ""}`}>

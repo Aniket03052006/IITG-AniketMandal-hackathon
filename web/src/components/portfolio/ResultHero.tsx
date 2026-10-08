@@ -1,39 +1,15 @@
-import { subjectLine, subjectOf } from "../../lib/scope";
 import clsx from "clsx";
 import type { RiskSignal, StressResult } from "../../api/types";
-import { money, moneyFull, pct, shockValue, FACTOR_LABEL } from "../../lib/format";
+import { money, moneyFull, pct } from "../../lib/format";
 import { lifecycleKind } from "../../lib/impact";
 import { useTween } from "../../lib/motion";
 import { ImpactLifecycleTag } from "../ImpactLifecycleTag";
 import { KindBadge } from "../ProvenanceKind";
 import { StatusTag } from "../ui";
-
-/** The propagation, once: event -> scenario -> shocks -> positions hit -> change. Each node rises in turn when a result arrives. */
-function Propagation({ r, s }: { r: StressResult; s?: RiskSignal }) {
-  const hit = r.positions.filter((p) => p.shocks.length > 0).length;
-  const applied = r.shocks.filter((x) => x.applicable);
-  const nodes = [
-    { k: "Event", v: s ? subjectLine(subjectOf(s)) : "Event", d: s ? `${r.audit.impact_origin === "ASSESSMENT" ? "severity" : "impact"} ${r.severity?.impact_used}` : "" },
-    { k: "Scenario", v: r.scenario?.name ?? "", d: r.severity ? `severity ×${r.severity.scale.toFixed(2)}` : "" },
-    { k: "Shocks", v: `${applied.length} risk factor${applied.length === 1 ? "" : "s"}`, d: applied.slice(0, 2).map((x) => `${FACTOR_LABEL[x.factor] ?? x.factor} ${shockValue(x.factor, x.scaled_value)}`).join(" · ") },
-    { k: "Positions hit", v: `${hit} of ${r.positions.length}`, d: r.uncovered ? `${r.uncovered.asset_count} untouched` : "" },
-    { k: "Change", v: r.summary ? money(r.summary.pnl, { signed: true }) : "", d: r.summary ? pct(r.summary.pnl_pct, 2, true) : "" },
-  ];
-  return (
-    <ol className="prop" aria-label="How the event reaches the portfolio" key={r.run_id}>
-      {nodes.map((n, i) => (
-        <li key={n.k} className="prop-node" style={{ ["--i" as string]: i }}>
-          <p className="chain-k">{n.k}</p>
-          <p className="font-medium text-ink">{n.v}</p>
-          {n.d && <p className="text-xs text-muted">{n.d}</p>}
-        </li>
-      ))}
-    </ol>
-  );
-}
+import { ValueBridge } from "./ValueBridge";
 
 /** The payoff: portfolio value before and after, the change in dollars and percent, drawn to scale, with what was not reached. */
-export function ResultHero({ r, s, onShowAssumptions }: { r: StressResult; s?: RiskSignal; onShowAssumptions: () => void }) {
+export function ResultHero({ r, onShowAssumptions }: { r: StressResult; s?: RiskSignal; onShowAssumptions: () => void }) {
   const sum = r.summary;
   const before = useTween(sum?.baseline_value ?? 0);
   const after = useTween(sum?.stressed_value ?? 0);
@@ -43,7 +19,7 @@ export function ResultHero({ r, s, onShowAssumptions }: { r: StressResult; s?: R
   const unc = r.uncovered;
   const tone = sum.pnl < 0 ? "text-neg" : sum.pnl > 0 ? "text-pos" : "text-ink-2";
   return (
-    <section className="rhero" aria-label="Portfolio value before and after the scenario">
+    <section className="rhero hero-surface" aria-label="Portfolio value before and after the scenario">
       <div className="flex flex-wrap items-center gap-2">
         <KindBadge kind="scenario" label="Scenario simulation" />
         <StatusTag tone="ok">Deterministic engine</StatusTag>
@@ -79,7 +55,9 @@ export function ResultHero({ r, s, onShowAssumptions }: { r: StressResult; s?: R
         </div>
       </div>
 
-      <div className="mt-6 space-y-4">
+      <ValueBridge r={r} key={r.run_id} />
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <div>
           <div className="scale-bar" role="img" aria-label={`Drawn to scale: the scenario removes ${pct(lossFrac, 2)} of portfolio value`}>
             <span className="scale-keep" style={{ width: `${(1 - lossFrac) * 100}%` }} />
@@ -99,8 +77,6 @@ export function ResultHero({ r, s, onShowAssumptions }: { r: StressResult; s?: R
           </div>
         )}
       </div>
-
-      <Propagation r={r} s={s} />
 
       <p className="mt-4 text-sm text-muted">
         <span className="text-ink-2">{r.scenario.name}</span>: illustrative assumptions, scaled by the event's impact, not forecasts.{" "}

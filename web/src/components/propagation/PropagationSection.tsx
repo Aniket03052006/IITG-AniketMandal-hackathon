@@ -66,7 +66,7 @@ export function PropagationSection({ signalId, blindSpots = true, variant = "eve
       {ran?.run && ran.run.status === "COMPLETED" && (
         <p className="mt-4 text-sm">
           <Link className="inline-flex items-center gap-1 text-ink underline underline-offset-2 hover:text-accent" to={`/stress?signal=${signalId}`}>
-            Open Portfolio Stress for the catalog scenario and what-if severity <ArrowRight size={13} />
+            Open the Stress Lab for the catalog scenario and what-if severity <ArrowRight size={13} />
           </Link>
         </p>
       )}
