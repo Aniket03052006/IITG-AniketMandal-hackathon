@@ -96,6 +96,10 @@ def test_exposure_for_default_and_personal(replay_client, made) -> None:
     assert next(m for m in mine["metrics"] if m["key"] == "bond_duration")["value"] == 17.0
     default = replay_client.get("/api/portfolios/default/exposure").json()
     assert default["kind"] == "DEFAULT" and default["position_count"] > 50
+    for d in (mine, default):  # the sector-by-asset-class table regroups the whole book
+        mx = d["matrix"]
+        assert mx["unit"] == "market_value" and mx["reconciled"] and sum(c["value"] for c in mx["cells"]) == pytest.approx(d["total_value"])
+        assert {r["key"]: r["total"] for r in mx["cols"]} == pytest.approx({r["key"]: r["market_value"] for r in d["by_asset_class"]})
     assert replay_client.get("/api/portfolios/pf_doesnotexist/exposure").status_code == 404
     legacy = replay_client.get("/api/portfolio/summary", params={"portfolio_id": pid}).json()
     assert legacy["kind"] == "USER" and legacy["synthetic"] is False and legacy["asset_count"] == 5

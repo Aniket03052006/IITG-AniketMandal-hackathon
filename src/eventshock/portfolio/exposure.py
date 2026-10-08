@@ -9,6 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 from ..domain import AssetClass, Portfolio, PortfolioAsset
+from .crosstab import build_crosstab
 from .models import ExposureRowV2, Metric, PortfolioExposureDetail, PositionWeight
 
 TOP_N = 8
@@ -90,7 +91,9 @@ def compute_exposure(pf: Portfolio, *, kind: str = "USER") -> PortfolioExposureD
     ]
     if not_stressed:
         notes.append(f"{sum(r.share for r in not_stressed):.1%} of the value is in instruments EventShock cannot stress (held at its value, not treated as safe).")
+    matrix = build_crosstab(((a.sector, a.sector, a.asset_type.value, a.asset_type.value, a.market_value, a.asset_id) for a in pf.assets),
+                            unit="market_value", row_label="Sector", col_label="Asset class", total=total)
     return PortfolioExposureDetail(
         portfolio_id=pf.portfolio_id, name=pf.name, kind=kind, base_currency=pf.base_currency, total_value=total, position_count=len(pf.assets),  # type: ignore[arg-type]
         by_asset_class=by_class, by_sector=by_sector, by_region=by_region, by_issuer=by_issuer, split=split, largest_positions=largest,
-        metrics=metrics, not_stressed=not_stressed, notes=notes)
+        metrics=metrics, not_stressed=not_stressed, matrix=matrix, notes=notes)

@@ -219,6 +219,35 @@ class PositionWeight(ContractModel):
     weight: float
 
 
+class AxisItem(ContractModel):
+    key: str
+    label: str
+    total: float = Field(description="the row's (or column's) cells added up, in the table's own unit")
+
+
+class CrossCell(ContractModel):
+    row: str
+    col: str
+    value: float = Field(description="market value for an exposure table, modeled change for a loss table; in the portfolio's currency")
+    position_count: int
+
+
+class CrossTab(ContractModel):
+    """Two dimensions at once (sector by asset class, sector by market factor). Every cell is a regrouping of figures that exist elsewhere,
+    and the cells add up to ``total`` (the builder raises otherwise): a heatmap that does not reconcile is a bug, not a picture."""
+
+    unit: Literal["market_value", "pnl"]
+    row_label: str
+    col_label: str
+    rows: list[AxisItem]
+    cols: list[AxisItem]
+    cells: list[CrossCell]
+    total: float = Field(description="the whole portfolio's value, or the run's total modeled change")
+    sum: float = Field(description="the cells added up")
+    residual: float = Field(description="total - sum; within tolerance by construction")
+    reconciled: bool
+
+
 class PortfolioExposureDetail(ContractModel):
     portfolio_id: str
     name: str
@@ -234,6 +263,7 @@ class PortfolioExposureDetail(ContractModel):
     largest_positions: list[PositionWeight]
     metrics: list[Metric]
     not_stressed: list[ExposureRowV2] = Field(description="value the engine cannot shock at all (OTHER): shown, never counted as safe")
+    matrix: CrossTab | None = Field(default=None, description="sector by asset class: where the value sits, both ways at once")
     notes: list[str]
 
 

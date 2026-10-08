@@ -96,6 +96,9 @@ class TestAutoStress:
             assert sum(x["delta"] for x in t["rows"]) == pytest.approx(total, abs=0.02), t["dimension"]
         assert r["chain"]["total_impact"] == pytest.approx(total, abs=0.02)
         assert sum(s["impact"] for s in r["chain"]["steps"]) == pytest.approx(total, abs=1.0)
+        mx = att["matrix"]
+        assert mx["unit"] == "pnl" and mx["reconciled"] and sum(c["value"] for c in mx["cells"]) == pytest.approx(total, abs=0.02)
+        assert {c["row"] for c in mx["cells"]} <= {x["key"] for x in mx["rows"]} and {c["col"] for c in mx["cells"]} <= {x["key"] for x in mx["cols"]}
 
     def test_same_request_same_run(self, replay_client, sigs):
         a = replay_client.post(f"/api/signals/{sigs[0]}/portfolio-stress", json={}).json()

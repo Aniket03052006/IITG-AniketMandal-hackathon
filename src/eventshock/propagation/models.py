@@ -16,7 +16,7 @@ from ..adjust.models import AdjustmentNotice
 from ..domain import Scenario, StressResult
 from ..domain.base import ContractModel
 from ..intelligence.model import Availability
-from ..portfolio.models import ExposureChain
+from ..portfolio.models import CrossTab, ExposureChain
 from ..stress.history_check import ScenarioHistoryCheck
 
 VERSION = "propagation-v1"
@@ -213,6 +213,7 @@ class StressAttribution(ContractModel):
     tables: list[AttributionTable]
     tolerance: float
     reconciled: bool
+    matrix: CrossTab | None = Field(default=None, description="sector by market factor: where each shock landed, both ways at once; adds up to the same total")
     note: str
     labels: list[str]
 

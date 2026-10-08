@@ -73,6 +73,7 @@ def test_generated_scenarios_run_and_every_attribution_table_adds_up(replay_cont
         for t in [att.drivers, *att.tables]:
             assert abs(sum(x.delta for x in t.rows) - r.run.summary.pnl) <= att.tolerance + 1e-6, (s.id, t.dimension)
         assert abs(r.chain.total_impact - r.run.summary.pnl) <= 0.02
+        assert att.matrix is not None and att.matrix.reconciled and abs(att.matrix.sum - r.run.summary.pnl) <= att.tolerance + 1e-6, s.id  # sector by factor
         ran += 1
         if ran >= 12:
             break

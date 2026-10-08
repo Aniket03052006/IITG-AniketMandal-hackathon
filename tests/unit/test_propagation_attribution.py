@@ -44,6 +44,13 @@ def test_generated_scenario_attribution_reconciles_in_every_dimension():
     att = attribute(run, pf, g.origins)
     assert_reconciles(att, run)
     assert {t.dimension for t in att.tables} == {"issuer", "sector", "industry", "market_factor", "risk_factor", "asset_class", "position"}
+    # the sector-by-market-factor table is the same total regrouped again, and agrees with the one-way tables
+    mx = att.matrix
+    assert mx is not None and mx.unit == "pnl" and mx.reconciled and mx.sum == pytest.approx(att.total_pnl, abs=att.tolerance)
+    by_sector = {r.key: r.delta for r in next(t for t in att.tables if t.dimension == "sector").rows}
+    by_factor = {r.key: r.delta for r in next(t for t in att.tables if t.dimension == "market_factor").rows}
+    assert {r.key: r.total for r in mx.rows} == pytest.approx(by_sector) and {c.key: c.total for c in mx.cols} == pytest.approx(by_factor)
+    assert [r.total for r in mx.rows] == sorted(r.total for r in mx.rows)  # the largest loss first
     assert att.drivers.dimension == "driver" and {r.key for r in att.drivers.rows} <= {"MARKET", "SECTOR", "ISSUER", OTHER}
     # propagated sector shocks are attributed to the risk factor that wrote them
     rf = {r.key for r in next(t for t in att.tables if t.dimension == "risk_factor").rows}

@@ -13,6 +13,7 @@ from collections.abc import Callable, Mapping
 
 from ..domain import Portfolio, PortfolioAsset, RiskFactor, StressResult, StressStatus
 from ..portfolio.chain import FACTOR_LABEL, money
+from ..portfolio.crosstab import build_crosstab
 from .models import AttributionRow, AttributionTable, ShockOrigin, StressAttribution
 
 LABELS = [
@@ -73,6 +74,7 @@ def build_attribution(result: StressResult, portfolio: Portfolio, *, industry_of
     by_market: dict[str, _Acc] = defaultdict(_Acc)
     by_rf: dict[str, _Acc] = defaultdict(_Acc)
     by_pos: dict[str, _Acc] = defaultdict(_Acc)
+    grid: list[tuple[str, str, str, str, float, str]] = []  # (sector, sector, engine factor, its label, change, asset id): the sector-by-factor table
 
     for p in result.positions:
         a = assets.get(p.asset_id)
@@ -109,6 +111,7 @@ def build_attribution(result: StressResult, portfolio: Portfolio, *, industry_of
             by_industry[ind].add(ind, amount, p.asset_id, p.baseline_value)
             by_class[p.asset_class.value].add(p.asset_class.value.title(), amount, p.asset_id, p.baseline_value)
             by_pos[p.asset_id].add(p.name, amount, p.asset_id, p.baseline_value)
+            grid.append((p.sector, p.sector, fkey, flabel, amount, p.asset_id))
 
     d = _table("driver", "By kind of shock", drivers, total)
     tables = [
@@ -120,10 +123,11 @@ def build_attribution(result: StressResult, portfolio: Portfolio, *, industry_of
         _table("asset_class", "By asset class", by_class, total),
         _table("position", "By position", by_pos, total),
     ]
+    matrix = build_crosstab(grid, unit="pnl", row_label="Sector", col_label="Market factor", total=total, largest_first=False) if grid else None
     pct = result.summary.pnl_pct
     parts_txt = ", ".join(f"{r.label.lower().replace(' shocks', '')} {money(r.delta, ccy, True)}" for r in d.rows[:4])
     headline = f"Total modeled change {money(total, ccy, True)} ({pct:+.2%} of the portfolio)" + (f": {parts_txt}." if parts_txt else ".")
     return StressAttribution(
         run_id=result.run_id, portfolio_id=portfolio.portfolio_id, total_pnl=total, baseline_value=base, pnl_pct=pct, headline=headline, drivers=d, tables=tables,
-        tolerance=_tolerance(total), reconciled=True, labels=LABELS,
+        tolerance=_tolerance(total), reconciled=True, matrix=matrix, labels=LABELS,
         note="Each table is the same total regrouped. Holdings the scenario does not move (cash, unsupported instruments, no shock reaching them) contribute zero and are omitted.")

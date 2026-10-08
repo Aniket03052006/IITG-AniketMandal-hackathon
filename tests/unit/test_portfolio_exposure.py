@@ -61,3 +61,17 @@ def test_all_cash_has_no_beta_or_duration_metric() -> None:
     d = compute_exposure(make_portfolio([make_asset(asset_id="c", asset_type=AssetClass.CASH, entity_id="CASH", sector="Cash")]))
     assert {m.key for m in d.metrics}.isdisjoint({"equity_beta", "market_beta", "bond_duration", "dv01"})
     assert d.largest_positions[0].weight == pytest.approx(1.0)
+
+
+# ------------------------------------------------------------------------------------------------------------ sector by asset class
+def test_the_exposure_matrix_regroups_the_same_value_both_ways_and_adds_up() -> None:
+    m = compute_exposure(PF).matrix
+    assert m is not None and m.unit == "market_value" and m.reconciled and m.total == 1_000_000 and m.sum == pytest.approx(1_000_000)
+    cells = {(c.row, c.col): c for c in m.cells}
+    assert cells[("Fin", "EQUITY")].value == 400_000 and cells[("Fin", "BOND")].value == 200_000  # one sector, two asset classes
+    assert cells[("Fin", "BOND")].position_count == 1 and ("Tech", "BOND") not in cells  # a cell with nothing in it is not drawn
+    assert {r.key: r.total for r in m.rows}["Fin"] == 600_000 and {c.key: c.total for c in m.cols}["EQUITY"] == 600_000
+    assert [r.key for r in m.rows][0] == "Fin" and [c.key for c in m.cols][0] == "EQUITY"  # the biggest sit first
+    # each marginal equals the existing one-way breakdown
+    assert {r.key: r.total for r in m.rows} == pytest.approx({r.key: r.market_value for r in compute_exposure(PF).by_sector})
+    assert {c.key: c.total for c in m.cols} == pytest.approx({r.key: r.market_value for r in compute_exposure(PF).by_asset_class})
