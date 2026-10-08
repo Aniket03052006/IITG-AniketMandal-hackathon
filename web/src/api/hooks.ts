@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActivePortfolio } from "../lib/portfolio";
 import { api, type SignalFilters } from "./client";
-import type { AutoStressRequest, CompareRequest, ExplainSubject, FeedbackInput, MonitorMode, PortfolioInput, ReverseStressRequest, ScenarioRequest, StressRequest, WatchlistInput } from "./types";
+import type { ReviewDecisionInput, AutoStressRequest, CompareRequest, ExplainSubject, FeedbackInput, MonitorMode, PortfolioInput, ReverseStressRequest, ScenarioRequest, StressRequest, WatchlistInput } from "./types";
 
 export const useMeta = () => useQuery({ queryKey: ["meta"], queryFn: api.meta, staleTime: Infinity });
 
@@ -72,6 +72,19 @@ export const useLiveRefresh = () => {
       qc.setQueryData(["live-status"], st);
       qc.invalidateQueries({ queryKey: ["signals"] });
     },
+  });
+};
+
+/** The Live switch. Everything that depends on whether the feed is on (capabilities, the feed, the monitor and digest in LIVE mode) is refetched. */
+export const useLiveSwitch = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.liveSetState,
+    onSuccess: (st) => {
+      qc.setQueryData(["live-status"], st);
+      for (const key of ["meta", "signals", "monitor-status", "monitor-changes", "digest", "watchlist-activity"]) qc.invalidateQueries({ queryKey: [key] });
+    },
+    onError: () => qc.invalidateQueries({ queryKey: ["live-status"] }),
   });
 };
 
@@ -334,4 +347,19 @@ export const useFeedbackStats = (enabled = true) => useQuery({ queryKey: ["feedb
 export const usePostFeedback = () => {
   const qc = useQueryClient();
   return useMutation({ mutationFn: (b: FeedbackInput) => api.postFeedback(b), onSuccess: () => qc.invalidateQueries({ queryKey: ["feedback-stats"] }) });
+};
+
+/** The analyst review queue: events a person should look at, with the named rule(s) that put them there. */
+export const useReviewQueue = (mode: MonitorMode, status: string, enabled = true) => {
+  const pf = useActivePortfolio();
+  return useQuery({ queryKey: ["review-queue", mode, status, pf], queryFn: () => api.reviewQueue({ mode, status, pf }), enabled, staleTime: 5_000, retry: false, placeholderData: (prev) => prev });
+};
+
+/** A decision is a note: it refreshes the queue and nothing else (no model, score or served output depends on it). */
+export const useReviewDecide = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ReviewDecisionInput) => api.reviewDecide(body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["review-queue"] }),
+  });
 };

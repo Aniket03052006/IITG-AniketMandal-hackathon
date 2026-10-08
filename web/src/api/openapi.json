@@ -1991,6 +1991,30 @@
         "title": "AxisBound",
         "type": "object"
       },
+      "AxisItem": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "total": {
+            "description": "the row's (or column's) cells added up, in the table's own unit",
+            "title": "Total",
+            "type": "number"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "total"
+        ],
+        "title": "AxisItem",
+        "type": "object"
+      },
       "BandRow": {
         "properties": {
           "band": {
@@ -2615,6 +2639,12 @@
             "title": "Propagation",
             "type": "boolean"
           },
+          "review": {
+            "default": false,
+            "description": "the analyst review queue is served; /api/review/queue and /api/review/decisions",
+            "title": "Review",
+            "type": "boolean"
+          },
           "scenario_lab": {
             "default": false,
             "description": "the scenario lab is served: build, run and compare scenarios (BASE / ASSESSED / CUSTOM); /api/scenarios, /api/lab/options",
@@ -2642,6 +2672,7 @@
           "external_markets",
           "executive_brief",
           "feedback",
+          "review",
           "explanations",
           "scenario_lab",
           "watchlists",
@@ -4035,6 +4066,110 @@
           "deterministic"
         ],
         "title": "CostRow",
+        "type": "object"
+      },
+      "CrossCell": {
+        "properties": {
+          "col": {
+            "title": "Col",
+            "type": "string"
+          },
+          "position_count": {
+            "title": "Position Count",
+            "type": "integer"
+          },
+          "row": {
+            "title": "Row",
+            "type": "string"
+          },
+          "value": {
+            "description": "market value for an exposure table, modeled change for a loss table; in the portfolio's currency",
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "row",
+          "col",
+          "value",
+          "position_count"
+        ],
+        "title": "CrossCell",
+        "type": "object"
+      },
+      "CrossTab": {
+        "description": "Two dimensions at once (sector by asset class, sector by market factor). Every cell is a regrouping of figures that exist elsewhere,\nand the cells add up to ``total`` (the builder raises otherwise): a heatmap that does not reconcile is a bug, not a picture.",
+        "properties": {
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/CrossCell"
+            },
+            "title": "Cells",
+            "type": "array"
+          },
+          "col_label": {
+            "title": "Col Label",
+            "type": "string"
+          },
+          "cols": {
+            "items": {
+              "$ref": "#/components/schemas/AxisItem"
+            },
+            "title": "Cols",
+            "type": "array"
+          },
+          "reconciled": {
+            "title": "Reconciled",
+            "type": "boolean"
+          },
+          "residual": {
+            "description": "total - sum; within tolerance by construction",
+            "title": "Residual",
+            "type": "number"
+          },
+          "row_label": {
+            "title": "Row Label",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/AxisItem"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "sum": {
+            "description": "the cells added up",
+            "title": "Sum",
+            "type": "number"
+          },
+          "total": {
+            "description": "the whole portfolio's value, or the run's total modeled change",
+            "title": "Total",
+            "type": "number"
+          },
+          "unit": {
+            "enum": [
+              "market_value",
+              "pnl"
+            ],
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "unit",
+          "row_label",
+          "col_label",
+          "rows",
+          "cols",
+          "cells",
+          "total",
+          "sum",
+          "residual",
+          "reconciled"
+        ],
+        "title": "CrossTab",
         "type": "object"
       },
       "DataFoundation": {
@@ -11279,6 +11414,37 @@
         "title": "LifecycleView",
         "type": "object"
       },
+      "LiveStateRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "enum": [
+                  "gdelt",
+                  "edgar",
+                  "both",
+                  "capture"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "LiveStateRequest",
+        "type": "object"
+      },
       "LiveStatus": {
         "properties": {
           "consecutive_failures": {
@@ -11306,6 +11472,14 @@
             "description": "why it is not the served hybrid, when it is not",
             "title": "Event Model Note"
           },
+          "fetched_by_adapter": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "documents received per adapter (gdelt-live, sec-edgar-live): shows which sources actually delivered",
+            "title": "Fetched By Adapter",
+            "type": "object"
+          },
           "fetched_total": {
             "title": "Fetched Total",
             "type": "integer"
@@ -11332,6 +11506,18 @@
               }
             ],
             "title": "Last Error"
+          },
+          "last_poll_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "what the last poll saw, when the source can say (SEC filings listed, recent, matched)",
+            "title": "Last Poll Note"
           },
           "last_success_at": {
             "anyOf": [
@@ -11405,6 +11591,26 @@
             "title": "Simulated",
             "type": "boolean"
           },
+          "source_choices": {
+            "description": "what the switch can turn on, and why a choice is unavailable",
+            "items": {
+              "$ref": "#/components/schemas/SourceChoice"
+            },
+            "title": "Source Choices",
+            "type": "array"
+          },
+          "source_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the selected source (gdelt | capture); null while off",
+            "title": "Source Kind"
+          },
           "source_mode": {
             "anyOf": [
               {
@@ -11431,14 +11637,18 @@
           "enabled",
           "state",
           "source_mode",
+          "source_kind",
+          "source_choices",
           "simulated",
           "poll_interval_seconds",
           "last_attempt_at",
           "last_success_at",
           "next_attempt_at",
           "last_error",
+          "last_poll_note",
           "consecutive_failures",
           "fetched_total",
+          "fetched_by_adapter",
           "new_total",
           "updated_total",
           "quarantined_total",
@@ -13789,6 +13999,17 @@
             "title": "Largest Positions",
             "type": "array"
           },
+          "matrix": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CrossTab"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "sector by asset class: where the value sits, both ways at once"
+          },
           "metrics": {
             "items": {
               "$ref": "#/components/schemas/Metric"
@@ -13851,6 +14072,7 @@
           "largest_positions",
           "metrics",
           "not_stressed",
+          "matrix",
           "notes"
         ],
         "title": "PortfolioExposureDetail",
@@ -15423,6 +15645,224 @@
         "title": "QuarantinedRecord",
         "type": "object"
       },
+      "QueueCounts": {
+        "properties": {
+          "dismissed": {
+            "title": "Dismissed",
+            "type": "integer"
+          },
+          "in_queue": {
+            "description": "events with at least one reason, before any status filter",
+            "title": "In Queue",
+            "type": "integer"
+          },
+          "open": {
+            "title": "Open",
+            "type": "integer"
+          },
+          "reviewed": {
+            "title": "Reviewed",
+            "type": "integer"
+          },
+          "tracked_events": {
+            "description": "events the monitor tracks at this moment (the pool the rules read)",
+            "title": "Tracked Events",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "open",
+          "reviewed",
+          "dismissed",
+          "in_queue",
+          "tracked_events"
+        ],
+        "title": "QueueCounts",
+        "type": "object"
+      },
+      "QueueItem": {
+        "properties": {
+          "changed_since_review": {
+            "description": "it was reviewed or dismissed, and its evidence has changed since: it is open again",
+            "title": "Changed Since Review",
+            "type": "boolean"
+          },
+          "conflict": {
+            "title": "Conflict",
+            "type": "string"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReviewDecision"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the latest decision on this event, if any"
+          },
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "evidence_tier": {
+            "title": "Evidence Tier",
+            "type": "string"
+          },
+          "exposure_share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exposure Share"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "independent_sources": {
+            "title": "Independent Sources",
+            "type": "integer"
+          },
+          "last_seen": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Seen"
+          },
+          "lifecycle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lifecycle"
+          },
+          "materiality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materiality"
+          },
+          "rank_key": {
+            "items": {
+              "$ref": "#/components/schemas/RankPart"
+            },
+            "title": "Rank Key",
+            "type": "array"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewReason"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "report_count": {
+            "title": "Report Count",
+            "type": "integer"
+          },
+          "scope_type": {
+            "title": "Scope Type",
+            "type": "string"
+          },
+          "scope_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope Value"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity"
+          },
+          "severity_band": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Severity Band"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          },
+          "stress_pnl_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stress Pnl Pct"
+          }
+        },
+        "required": [
+          "event_id",
+          "signal_id",
+          "headline",
+          "scope_type",
+          "scope_value",
+          "severity",
+          "severity_band",
+          "materiality",
+          "exposure_share",
+          "independent_sources",
+          "report_count",
+          "evidence_tier",
+          "conflict",
+          "lifecycle",
+          "stress_pnl_pct",
+          "last_seen",
+          "reasons",
+          "rank_key",
+          "status",
+          "changed_since_review",
+          "decision"
+        ],
+        "title": "QueueItem",
+        "type": "object"
+      },
       "RankPart": {
         "properties": {
           "name": {
@@ -15663,7 +16103,7 @@
       "Reason": {
         "properties": {
           "code": {
-            "$ref": "#/components/schemas/ReasonCode"
+            "$ref": "#/components/schemas/eventshock__explain__models__ReasonCode"
           },
           "detail": {
             "anyOf": [
@@ -15735,49 +16175,6 @@
         ],
         "title": "Reason",
         "type": "object"
-      },
-      "ReasonCode": {
-        "enum": [
-          "SEVERITY",
-          "SEVERITY_UNSCORED",
-          "EVENT_CLASS",
-          "SCOPE",
-          "SCOPE_UNRESOLVED",
-          "EVIDENCE_TIER",
-          "INDEPENDENT_SOURCES",
-          "LIFECYCLE",
-          "CONFLICT_OPEN",
-          "NOVELTY",
-          "MATERIALITY",
-          "EXPOSURE_SHARE",
-          "MAPPING_BASIS",
-          "MATERIALITY_RULE",
-          "WATCHLIST_MATCH",
-          "RECENT_CHANGE",
-          "CHANGE_RULE",
-          "CHANGE_FIELD",
-          "STRESS_TOTAL",
-          "STRESS_SCENARIO",
-          "STRESS_SHOCK",
-          "STRESS_NOT_RUN",
-          "STRESS_DRIVER_KIND",
-          "STRESS_DRIVER_SECTOR",
-          "STRESS_DRIVER_FACTOR",
-          "STRESS_DRIVER_RISK_FACTOR",
-          "STRESS_DRIVER_ISSUER",
-          "STRESS_HISTORY",
-          "REVERSE_TARGET",
-          "REVERSE_METHOD",
-          "REVERSE_SHOCK",
-          "REVERSE_BOUND",
-          "REVERSE_BINDING",
-          "MARKET_MATCH",
-          "MARKET_MOVE",
-          "MARKET_INTERPRETATION",
-          "MARKET_UNAVAILABLE"
-        ],
-        "title": "ReasonCode",
-        "type": "string"
       },
       "ReasonKind": {
         "description": "What KIND of statement a reason is. Never blurred: a model output is not an observation, a scenario assumption is not a fact, a rule is not a model.",
@@ -17047,6 +17444,281 @@
         "title": "ReverseStressResult",
         "type": "object"
       },
+      "ReviewDecision": {
+        "properties": {
+          "analyst_id": {
+            "title": "Analyst Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "fingerprint": {
+            "description": "hash of the event's own evidence when it was decided (report count, sources, severity, lifecycle, evidence tier, conflict); a change reopens it",
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "label": {
+            "default": "ANALYST REVIEW QUEUE: a triage list derived from existing signals. A decision here is a note: never ground truth, and it never changes a model, a score, a threshold or any served output",
+            "title": "Label",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          }
+        },
+        "required": [
+          "decision_id",
+          "event_id",
+          "status",
+          "note",
+          "analyst_id",
+          "created_at",
+          "fingerprint",
+          "headline",
+          "label"
+        ],
+        "title": "ReviewDecision",
+        "type": "object"
+      },
+      "ReviewDecisionInput": {
+        "properties": {
+          "analyst_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analyst Id"
+          },
+          "event_id": {
+            "description": "an event id (evt_...) or the id of any signal in it",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Event Id",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReviewStatus"
+          }
+        },
+        "required": [
+          "event_id",
+          "status"
+        ],
+        "title": "ReviewDecisionInput",
+        "type": "object"
+      },
+      "ReviewDecisionList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewDecision"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "label": {
+            "default": "ANALYST REVIEW QUEUE: a triage list derived from existing signals. A decision here is a note: never ground truth, and it never changes a model, a score, a threshold or any served output",
+            "title": "Label",
+            "type": "string"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "label",
+          "total",
+          "items"
+        ],
+        "title": "ReviewDecisionList",
+        "type": "object"
+      },
+      "ReviewQueue": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "availability": {
+            "description": "AVAILABLE | UNAVAILABLE",
+            "title": "Availability",
+            "type": "string"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/QueueCounts"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QueueItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "label": {
+            "default": "ANALYST REVIEW QUEUE: a triage list derived from existing signals. A decision here is a note: never ground truth, and it never changes a model, a score, a threshold or any served output",
+            "title": "Label",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "matching": {
+            "description": "items matching the filter before the cap",
+            "title": "Matching",
+            "type": "integer"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/Mode"
+          },
+          "portfolio_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Portfolio Id"
+          },
+          "ranking": {
+            "title": "Ranking",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/RuleInfo"
+            },
+            "title": "Rules",
+            "type": "array"
+          },
+          "status_filter": {
+            "description": "OPEN | REVIEWED | DISMISSED | ALL",
+            "title": "Status Filter",
+            "type": "string"
+          },
+          "version": {
+            "default": "review-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "label",
+          "mode",
+          "availability",
+          "reason",
+          "as_of",
+          "portfolio_id",
+          "status_filter",
+          "counts",
+          "matching",
+          "items",
+          "ranking",
+          "rules",
+          "limitations"
+        ],
+        "title": "ReviewQueue",
+        "type": "object"
+      },
+      "ReviewReason": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/eventshock__review__models__ReasonCode"
+          },
+          "detail": {
+            "description": "the values that fired the rule, in words",
+            "title": "Detail",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "detail"
+        ],
+        "title": "ReviewReason",
+        "type": "object"
+      },
+      "ReviewStatus": {
+        "enum": [
+          "OPEN",
+          "REVIEWED",
+          "DISMISSED"
+        ],
+        "title": "ReviewStatus",
+        "type": "string"
+      },
       "RiskAssessment": {
         "properties": {
           "agreement": {
@@ -17588,6 +18260,29 @@
           "quote_verified"
         ],
         "title": "RubricProposal",
+        "type": "object"
+      },
+      "RuleInfo": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/eventshock__review__models__ReasonCode"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "rule": {
+            "description": "the rule and its threshold, as configured in configs/decision.yaml",
+            "title": "Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "rule"
+        ],
+        "title": "RuleInfo",
         "type": "object"
       },
       "RunMode": {
@@ -20171,6 +20866,49 @@
         "title": "SkippedShock",
         "type": "object"
       },
+      "SourceChoice": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "kind": {
+            "description": "gdelt | capture",
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "network": {
+            "description": "turning it on makes outbound requests",
+            "title": "Network",
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "why it cannot be selected, when it cannot",
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "kind",
+          "label",
+          "network",
+          "available",
+          "reason"
+        ],
+        "title": "SourceChoice",
+        "type": "object"
+      },
       "SourceEvidence": {
         "properties": {
           "entity_match": {
@@ -20691,6 +21429,17 @@
             "title": "Labels",
             "type": "array"
           },
+          "matrix": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CrossTab"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "sector by market factor: where each shock landed, both ways at once; adds up to the same total"
+          },
           "note": {
             "title": "Note",
             "type": "string"
@@ -20744,6 +21493,7 @@
           "tables",
           "tolerance",
           "reconciled",
+          "matrix",
           "note",
           "labels"
         ],
@@ -22808,6 +23558,49 @@
         "title": "SourceReport",
         "type": "object"
       },
+      "eventshock__explain__models__ReasonCode": {
+        "enum": [
+          "SEVERITY",
+          "SEVERITY_UNSCORED",
+          "EVENT_CLASS",
+          "SCOPE",
+          "SCOPE_UNRESOLVED",
+          "EVIDENCE_TIER",
+          "INDEPENDENT_SOURCES",
+          "LIFECYCLE",
+          "CONFLICT_OPEN",
+          "NOVELTY",
+          "MATERIALITY",
+          "EXPOSURE_SHARE",
+          "MAPPING_BASIS",
+          "MATERIALITY_RULE",
+          "WATCHLIST_MATCH",
+          "RECENT_CHANGE",
+          "CHANGE_RULE",
+          "CHANGE_FIELD",
+          "STRESS_TOTAL",
+          "STRESS_SCENARIO",
+          "STRESS_SHOCK",
+          "STRESS_NOT_RUN",
+          "STRESS_DRIVER_KIND",
+          "STRESS_DRIVER_SECTOR",
+          "STRESS_DRIVER_FACTOR",
+          "STRESS_DRIVER_RISK_FACTOR",
+          "STRESS_DRIVER_ISSUER",
+          "STRESS_HISTORY",
+          "REVERSE_TARGET",
+          "REVERSE_METHOD",
+          "REVERSE_SHOCK",
+          "REVERSE_BOUND",
+          "REVERSE_BINDING",
+          "MARKET_MATCH",
+          "MARKET_MOVE",
+          "MARKET_INTERPRETATION",
+          "MARKET_UNAVAILABLE"
+        ],
+        "title": "ReasonCode",
+        "type": "string"
+      },
       "eventshock__markets__models__Candidate": {
         "properties": {
           "chosen": {
@@ -23276,6 +24069,19 @@
         ],
         "title": "TrainingInfo",
         "type": "object"
+      },
+      "eventshock__review__models__ReasonCode": {
+        "enum": [
+          "CONFLICTED_CLAIMS",
+          "UNRESOLVED_HIGH_SEVERITY",
+          "SINGLE_SOURCE_HIGH_SEVERITY",
+          "MATERIAL_TO_BOOK",
+          "LARGE_STRESS_LOSS",
+          "ESCALATING",
+          "CHANGED_SINCE_REVIEW"
+        ],
+        "title": "ReasonCode",
+        "type": "string"
       }
     }
   },
@@ -24387,6 +25193,48 @@
         ]
       }
     },
+    "/api/live/state": {
+      "put": {
+        "description": "The switch. ``enabled: true`` starts polling the chosen source (the first available when omitted); ``false`` stops it.\n\nOff keeps every signal already ingested and starts no further request. The feed is OFF at every start unless configured on, and a\nsource that cannot start (for example a capture file that does not exist) is a 409 that says why and leaves the feed OFF.",
+        "operationId": "live_set_state_api_live_state_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiveStateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Live Set State",
+        "tags": [
+          "live"
+        ]
+      }
+    },
     "/api/live/status": {
       "get": {
         "description": "The live feed's health, honestly: OFF by default; DEGRADED / ERROR when the source fails (replay data keeps serving).",
@@ -25490,6 +26338,221 @@
         "summary": "Explain Reverse",
         "tags": [
           "scenario-lab"
+        ]
+      }
+    },
+    "/api/review/decisions": {
+      "get": {
+        "description": "Recorded decisions, newest first; `event_id` (an event id or a signal id) narrows it to one event's history.",
+        "operationId": "list_decisions_api_review_decisions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "event_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Event Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 2000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDecisionList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Decisions",
+        "tags": [
+          "review"
+        ]
+      },
+      "post": {
+        "description": "Record what an analyst decided about an event: REVIEWED, DISMISSED, or OPEN (reopen), with an optional note. Append-only; the latest decision is the current one. A decision is a note, never ground truth: it does not change a model, a score, a threshold or any served output.",
+        "operationId": "post_decision_api_review_decisions_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-analyst-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Analyst-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewDecisionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDecision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Decision",
+        "tags": [
+          "review"
+        ]
+      }
+    },
+    "/api/review/queue": {
+      "get": {
+        "description": "The events a person should look at, each with the named rule(s) that put it there (sources disagree, high severity with an unresolved subject or one source, material to the book, a large modeled loss, escalating, or changed since it was reviewed). Ordered by a key shown on every item, not scored. `status` filters OPEN (default), REVIEWED, DISMISSED or ALL. REPLAY reads the fixed replay clock; LIVE reads the live monitor. A triage list derived from existing signals: never ground truth, and it changes nothing that is served.",
+        "operationId": "get_queue_api_review_queue_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "mode",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Mode",
+              "default": "REPLAY"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "default": "OPEN",
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 500,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+            "in": "query",
+            "name": "portfolio_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "a saved personal portfolio; absent or 'default' = the synthetic wholesale book",
+              "title": "Portfolio Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewQueue"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Queue",
+        "tags": [
+          "review"
         ]
       }
     },

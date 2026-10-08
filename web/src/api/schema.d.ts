@@ -399,6 +399,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/live/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Live Set State
+         * @description The switch. ``enabled: true`` starts polling the chosen source (the first available when omitted); ``false`` stops it.
+         *
+         *     Off keeps every signal already ingested and starts no further request. The feed is OFF at every start unless configured on, and a
+         *     source that cannot start (for example a capture file that does not exist) is a 409 that says why and leaves the feed OFF.
+         */
+        put: operations["live_set_state_api_live_state_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/live/status": {
         parameters: {
             query?: never;
@@ -855,6 +878,50 @@ export interface paths {
          * @description Why these shocks reach the target: the method, each shock's share of its limit, the axes that were not used and why, the binding bounds, and the engine's decomposition.
          */
         post: operations["explain_reverse_api_reverse_stress_explanation_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/review/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Decisions
+         * @description Recorded decisions, newest first; `event_id` (an event id or a signal id) narrows it to one event's history.
+         */
+        get: operations["list_decisions_api_review_decisions_get"];
+        put?: never;
+        /**
+         * Post Decision
+         * @description Record what an analyst decided about an event: REVIEWED, DISMISSED, or OPEN (reopen), with an optional note. Append-only; the latest decision is the current one. A decision is a note, never ground truth: it does not change a model, a score, a threshold or any served output.
+         */
+        post: operations["post_decision_api_review_decisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/review/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Queue
+         * @description The events a person should look at, each with the named rule(s) that put it there (sources disagree, high severity with an unresolved subject or one source, material to the book, a large modeled loss, escalating, or changed since it was reviewed). Ordered by a key shown on every item, not scored. `status` filters OPEN (default), REVIEWED, DISMISSED or ALL. REPLAY reads the fixed replay clock; LIVE reads the live monitor. A triage list derived from existing signals: never ground truth, and it changes nothing that is served.
+         */
+        get: operations["get_queue_api_review_queue_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2171,6 +2238,18 @@ export interface components {
             /** Used */
             used: boolean;
         };
+        /** AxisItem */
+        AxisItem: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Total
+             * @description the row's (or column's) cells added up, in the table's own unit
+             */
+            total: number;
+        };
         /** BandRow */
         BandRow: {
             /** Band */
@@ -2441,6 +2520,12 @@ export interface components {
              * @default false
              */
             propagation: boolean;
+            /**
+             * Review
+             * @description the analyst review queue is served; /api/review/queue and /api/review/decisions
+             * @default false
+             */
+            review: boolean;
             /**
              * Scenario Lab
              * @description the scenario lab is served: build, run and compare scenarios (BASE / ASSESSED / CUSTOM); /api/scenarios, /api/lab/options
@@ -2960,6 +3045,59 @@ export interface components {
             parameters_m: number | null;
             /** Peak Rss Mb */
             peak_rss_mb: number | null;
+        };
+        /** CrossCell */
+        CrossCell: {
+            /** Col */
+            col: string;
+            /** Position Count */
+            position_count: number;
+            /** Row */
+            row: string;
+            /**
+             * Value
+             * @description market value for an exposure table, modeled change for a loss table; in the portfolio's currency
+             */
+            value: number;
+        };
+        /**
+         * CrossTab
+         * @description Two dimensions at once (sector by asset class, sector by market factor). Every cell is a regrouping of figures that exist elsewhere,
+         *     and the cells add up to ``total`` (the builder raises otherwise): a heatmap that does not reconcile is a bug, not a picture.
+         */
+        CrossTab: {
+            /** Cells */
+            cells: components["schemas"]["CrossCell"][];
+            /** Col Label */
+            col_label: string;
+            /** Cols */
+            cols: components["schemas"]["AxisItem"][];
+            /** Reconciled */
+            reconciled: boolean;
+            /**
+             * Residual
+             * @description total - sum; within tolerance by construction
+             */
+            residual: number;
+            /** Row Label */
+            row_label: string;
+            /** Rows */
+            rows: components["schemas"]["AxisItem"][];
+            /**
+             * Sum
+             * @description the cells added up
+             */
+            sum: number;
+            /**
+             * Total
+             * @description the whole portfolio's value, or the run's total modeled change
+             */
+            total: number;
+            /**
+             * Unit
+             * @enum {string}
+             */
+            unit: "market_value" | "pnl";
         };
         /** DataFoundation */
         DataFoundation: {
@@ -5675,6 +5813,13 @@ export interface components {
             /** Transitions */
             transitions: components["schemas"]["LifecycleTransition"][];
         };
+        /** LiveStateRequest */
+        LiveStateRequest: {
+            /** Enabled */
+            enabled: boolean;
+            /** Source */
+            source?: ("gdelt" | "edgar" | "both" | "capture") | null;
+        };
         /** LiveStatus */
         LiveStatus: {
             /** Consecutive Failures */
@@ -5691,12 +5836,24 @@ export interface components {
              * @description why it is not the served hybrid, when it is not
              */
             event_model_note: string | null;
+            /**
+             * Fetched By Adapter
+             * @description documents received per adapter (gdelt-live, sec-edgar-live): shows which sources actually delivered
+             */
+            fetched_by_adapter: {
+                [key: string]: number;
+            };
             /** Fetched Total */
             fetched_total: number;
             /** Last Attempt At */
             last_attempt_at: string | null;
             /** Last Error */
             last_error: string | null;
+            /**
+             * Last Poll Note
+             * @description what the last poll saw, when the source can say (SEC filings listed, recent, matched)
+             */
+            last_poll_note: string | null;
             /** Last Success At */
             last_success_at: string | null;
             /** Live Signal Count */
@@ -5723,6 +5880,16 @@ export interface components {
             seq: number;
             /** Simulated */
             simulated: boolean;
+            /**
+             * Source Choices
+             * @description what the switch can turn on, and why a choice is unavailable
+             */
+            source_choices: components["schemas"]["SourceChoice"][];
+            /**
+             * Source Kind
+             * @description the selected source (gdelt | capture); null while off
+             */
+            source_kind: string | null;
             /**
              * Source Mode
              * @description GDELT (the live API) | CAPTURE (a file replayed as if live: simulated)
@@ -6589,6 +6756,8 @@ export interface components {
             kind: "DEFAULT" | "USER" | "PRESET";
             /** Largest Positions */
             largest_positions: components["schemas"]["PositionWeight"][];
+            /** @description sector by asset class: where the value sits, both ways at once */
+            matrix: components["schemas"]["CrossTab"] | null;
             /** Metrics */
             metrics: components["schemas"]["Metric"][];
             /** Name */
@@ -7212,6 +7381,72 @@ export interface components {
             /** Source */
             source: string;
         };
+        /** QueueCounts */
+        QueueCounts: {
+            /** Dismissed */
+            dismissed: number;
+            /**
+             * In Queue
+             * @description events with at least one reason, before any status filter
+             */
+            in_queue: number;
+            /** Open */
+            open: number;
+            /** Reviewed */
+            reviewed: number;
+            /**
+             * Tracked Events
+             * @description events the monitor tracks at this moment (the pool the rules read)
+             */
+            tracked_events: number;
+        };
+        /** QueueItem */
+        QueueItem: {
+            /**
+             * Changed Since Review
+             * @description it was reviewed or dismissed, and its evidence has changed since: it is open again
+             */
+            changed_since_review: boolean;
+            /** Conflict */
+            conflict: string;
+            /** @description the latest decision on this event, if any */
+            decision: components["schemas"]["ReviewDecision"] | null;
+            /** Event Id */
+            event_id: string;
+            /** Evidence Tier */
+            evidence_tier: string;
+            /** Exposure Share */
+            exposure_share: number | null;
+            /** Headline */
+            headline: string;
+            /** Independent Sources */
+            independent_sources: number;
+            /** Last Seen */
+            last_seen: string | null;
+            /** Lifecycle */
+            lifecycle: string | null;
+            /** Materiality */
+            materiality: string | null;
+            /** Rank Key */
+            rank_key: components["schemas"]["RankPart"][];
+            /** Reasons */
+            reasons: components["schemas"]["ReviewReason"][];
+            /** Report Count */
+            report_count: number;
+            /** Scope Type */
+            scope_type: string;
+            /** Scope Value */
+            scope_value: string | null;
+            /** Severity */
+            severity: number | null;
+            /** Severity Band */
+            severity_band: string | null;
+            /** Signal Id */
+            signal_id: string;
+            status: components["schemas"]["ReviewStatus"];
+            /** Stress Pnl Pct */
+            stress_pnl_pct: number | null;
+        };
         /** RankPart */
         RankPart: {
             /** Name */
@@ -7329,7 +7564,7 @@ export interface components {
         };
         /** Reason */
         Reason: {
-            code: components["schemas"]["ReasonCode"];
+            code: components["schemas"]["eventshock__explain__models__ReasonCode"];
             /** Detail */
             detail: string | null;
             kind: components["schemas"]["ReasonKind"];
@@ -7353,11 +7588,6 @@ export interface components {
              */
             value: string | number | null;
         };
-        /**
-         * ReasonCode
-         * @enum {string}
-         */
-        ReasonCode: "SEVERITY" | "SEVERITY_UNSCORED" | "EVENT_CLASS" | "SCOPE" | "SCOPE_UNRESOLVED" | "EVIDENCE_TIER" | "INDEPENDENT_SOURCES" | "LIFECYCLE" | "CONFLICT_OPEN" | "NOVELTY" | "MATERIALITY" | "EXPOSURE_SHARE" | "MAPPING_BASIS" | "MATERIALITY_RULE" | "WATCHLIST_MATCH" | "RECENT_CHANGE" | "CHANGE_RULE" | "CHANGE_FIELD" | "STRESS_TOTAL" | "STRESS_SCENARIO" | "STRESS_SHOCK" | "STRESS_NOT_RUN" | "STRESS_DRIVER_KIND" | "STRESS_DRIVER_SECTOR" | "STRESS_DRIVER_FACTOR" | "STRESS_DRIVER_RISK_FACTOR" | "STRESS_DRIVER_ISSUER" | "STRESS_HISTORY" | "REVERSE_TARGET" | "REVERSE_METHOD" | "REVERSE_SHOCK" | "REVERSE_BOUND" | "REVERSE_BINDING" | "MARKET_MATCH" | "MARKET_MOVE" | "MARKET_INTERPRETATION" | "MARKET_UNAVAILABLE";
         /**
          * ReasonKind
          * @description What KIND of statement a reason is. Never blurred: a model output is not an observation, a scenario assumption is not a fact, a rule is not a model.
@@ -7842,6 +8072,120 @@ export interface components {
              */
             version: string;
         };
+        /** ReviewDecision */
+        ReviewDecision: {
+            /** Analyst Id */
+            analyst_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Decision Id */
+            decision_id: string;
+            /** Event Id */
+            event_id: string;
+            /**
+             * Fingerprint
+             * @description hash of the event's own evidence when it was decided (report count, sources, severity, lifecycle, evidence tier, conflict); a change reopens it
+             */
+            fingerprint: string;
+            /** Headline */
+            headline: string;
+            /**
+             * Label
+             * @default ANALYST REVIEW QUEUE: a triage list derived from existing signals. A decision here is a note: never ground truth, and it never changes a model, a score, a threshold or any served output
+             */
+            label: string;
+            /** Note */
+            note: string | null;
+            status: components["schemas"]["ReviewStatus"];
+        };
+        /** ReviewDecisionInput */
+        ReviewDecisionInput: {
+            /** Analyst Id */
+            analyst_id?: string | null;
+            /**
+             * Event Id
+             * @description an event id (evt_...) or the id of any signal in it
+             */
+            event_id: string;
+            /** Note */
+            note?: string | null;
+            status: components["schemas"]["ReviewStatus"];
+        };
+        /** ReviewDecisionList */
+        ReviewDecisionList: {
+            /** Items */
+            items: components["schemas"]["ReviewDecision"][];
+            /**
+             * Label
+             * @default ANALYST REVIEW QUEUE: a triage list derived from existing signals. A decision here is a note: never ground truth, and it never changes a model, a score, a threshold or any served output
+             */
+            label: string;
+            /** Total */
+            total: number;
+        };
+        /** ReviewQueue */
+        ReviewQueue: {
+            /** As Of */
+            as_of: string | null;
+            /**
+             * Availability
+             * @description AVAILABLE | UNAVAILABLE
+             */
+            availability: string;
+            counts: components["schemas"]["QueueCounts"];
+            /** Items */
+            items: components["schemas"]["QueueItem"][];
+            /**
+             * Label
+             * @default ANALYST REVIEW QUEUE: a triage list derived from existing signals. A decision here is a note: never ground truth, and it never changes a model, a score, a threshold or any served output
+             */
+            label: string;
+            /** Limitations */
+            limitations: string[];
+            /**
+             * Matching
+             * @description items matching the filter before the cap
+             */
+            matching: number;
+            mode: components["schemas"]["Mode"];
+            /** Portfolio Id */
+            portfolio_id: string | null;
+            /** Ranking */
+            ranking: string;
+            /** Reason */
+            reason: string | null;
+            /** Rules */
+            rules: components["schemas"]["RuleInfo"][];
+            /**
+             * Status Filter
+             * @description OPEN | REVIEWED | DISMISSED | ALL
+             */
+            status_filter: string;
+            /**
+             * Version
+             * @default review-v1
+             */
+            version: string;
+        };
+        /** ReviewReason */
+        ReviewReason: {
+            code: components["schemas"]["eventshock__review__models__ReasonCode"];
+            /**
+             * Detail
+             * @description the values that fired the rule, in words
+             */
+            detail: string;
+            /** Label */
+            label: string;
+        };
+        /**
+         * ReviewStatus
+         * @enum {string}
+         */
+        ReviewStatus: "OPEN" | "REVIEWED" | "DISMISSED";
         /** RiskAssessment */
         RiskAssessment: {
             agreement: components["schemas"]["Agreement"];
@@ -8057,6 +8401,17 @@ export interface components {
             reason: string;
             /** Value */
             value: string;
+        };
+        /** RuleInfo */
+        RuleInfo: {
+            code: components["schemas"]["eventshock__review__models__ReasonCode"];
+            /** Label */
+            label: string;
+            /**
+             * Rule
+             * @description the rule and its threshold, as configured in configs/decision.yaml
+             */
+            rule: string;
         };
         /**
          * RunMode
@@ -9082,6 +9437,28 @@ export interface components {
             /** Scope Label */
             scope_label: string;
         };
+        /** SourceChoice */
+        SourceChoice: {
+            /** Available */
+            available: boolean;
+            /**
+             * Kind
+             * @description gdelt | capture
+             */
+            kind: string;
+            /** Label */
+            label: string;
+            /**
+             * Network
+             * @description turning it on makes outbound requests
+             */
+            network: boolean;
+            /**
+             * Reason
+             * @description why it cannot be selected, when it cannot
+             */
+            reason: string | null;
+        };
         /** SourceEvidence */
         SourceEvidence: {
             /**
@@ -9290,6 +9667,8 @@ export interface components {
             headline: string;
             /** Labels */
             labels: string[];
+            /** @description sector by market factor: where each shock landed, both ways at once; adds up to the same total */
+            matrix: components["schemas"]["CrossTab"] | null;
             /** Note */
             note: string;
             /** Pnl Pct */
@@ -10052,6 +10431,11 @@ export interface components {
             /** Used In Score */
             used_in_score: boolean;
         };
+        /**
+         * ReasonCode
+         * @enum {string}
+         */
+        eventshock__explain__models__ReasonCode: "SEVERITY" | "SEVERITY_UNSCORED" | "EVENT_CLASS" | "SCOPE" | "SCOPE_UNRESOLVED" | "EVIDENCE_TIER" | "INDEPENDENT_SOURCES" | "LIFECYCLE" | "CONFLICT_OPEN" | "NOVELTY" | "MATERIALITY" | "EXPOSURE_SHARE" | "MAPPING_BASIS" | "MATERIALITY_RULE" | "WATCHLIST_MATCH" | "RECENT_CHANGE" | "CHANGE_RULE" | "CHANGE_FIELD" | "STRESS_TOTAL" | "STRESS_SCENARIO" | "STRESS_SHOCK" | "STRESS_NOT_RUN" | "STRESS_DRIVER_KIND" | "STRESS_DRIVER_SECTOR" | "STRESS_DRIVER_FACTOR" | "STRESS_DRIVER_RISK_FACTOR" | "STRESS_DRIVER_ISSUER" | "STRESS_HISTORY" | "REVERSE_TARGET" | "REVERSE_METHOD" | "REVERSE_SHOCK" | "REVERSE_BOUND" | "REVERSE_BINDING" | "MARKET_MATCH" | "MARKET_MOVE" | "MARKET_INTERPRETATION" | "MARKET_UNAVAILABLE";
         /** Candidate */
         eventshock__markets__models__Candidate: {
             /** Chosen */
@@ -10217,6 +10601,11 @@ export interface components {
             /** Table Sha256 */
             table_sha256: string;
         };
+        /**
+         * ReasonCode
+         * @enum {string}
+         */
+        eventshock__review__models__ReasonCode: "CONFLICTED_CLAIMS" | "UNRESOLVED_HIGH_SEVERITY" | "SINGLE_SOURCE_HIGH_SEVERITY" | "MATERIAL_TO_BOOK" | "LARGE_STRESS_LOSS" | "ESCALATING" | "CHANGED_SINCE_REVIEW";
     };
     responses: never;
     parameters: never;
@@ -10870,6 +11259,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LiveStatus"];
+                };
+            };
+        };
+    };
+    live_set_state_api_live_state_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LiveStateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveStatus"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -11616,6 +12038,108 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Explanation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_decisions_api_review_decisions_get: {
+        parameters: {
+            query?: {
+                event_id?: string | null;
+                limit?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewDecisionList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_decision_api_review_decisions_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-analyst-id"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewDecisionInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewDecision"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_queue_api_review_queue_get: {
+        parameters: {
+            query?: {
+                mode?: components["schemas"]["Mode"];
+                status?: string;
+                limit?: number | null;
+                /** @description a saved personal portfolio; absent or 'default' = the synthetic wholesale book */
+                portfolio_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewQueue"];
                 };
             };
             /** @description Validation Error */

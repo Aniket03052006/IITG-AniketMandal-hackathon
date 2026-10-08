@@ -17,6 +17,10 @@ import type {
   AnalyzeRequest,
   AnalyzeResponse,
   LiveStatus,
+  ReviewDecision,
+  ReviewDecisionInput,
+  ReviewQueue,
+  LiveSourceKind,
   PortfolioRelevance,
   ScopeInfo,
   AnalogueSet,
@@ -153,6 +157,8 @@ export const api = {
   analyze: (body: AnalyzeRequest) => request<AnalyzeResponse>("/analyze", { method: "POST", body: JSON.stringify(body) }),
   liveStatus: () => request<LiveStatus>("/live/status"),
   liveRefresh: () => request<LiveStatus>("/live/refresh", { method: "POST" }),
+  liveSetState: (body: { enabled: boolean; source?: LiveSourceKind | null }) =>
+    request<LiveStatus>("/live/state", { method: "PUT", body: JSON.stringify(body) }),
   scopeInfo: () => request<ScopeInfo>("/scope"),
   scenarios: () => request<ScenarioList>("/scenarios"),
   pipelineReport: () => request<PipelineReport>("/pipeline/report"),
@@ -222,6 +228,10 @@ export const api = {
   explainReverse: (body: ReverseStressRequest) => request<Explanation>("/reverse-stress/explanation", { method: "POST", body: JSON.stringify(body) }),
   monitorDigest: (q: { mode: MonitorMode; cycle?: number | null; window?: number; pf?: string | null }) =>
     request<Digest>(`/monitor/digest${qs(`mode=${q.mode}`, q.cycle != null ? `cycle=${q.cycle}` : "", q.window ? `window=${q.window}` : "", pfParam(q.pf ?? null))}`),
+  reviewQueue: (q: { mode: MonitorMode; status: string; pf?: string | null }) =>
+    request<ReviewQueue>(`/review/queue${qs(`mode=${q.mode}`, `status=${q.status}`, pfParam(q.pf ?? null))}`),
+  reviewDecide: (body: ReviewDecisionInput) =>
+    request<ReviewDecision>("/review/decisions", { method: "POST", body: JSON.stringify(body) }),
   postFeedback: (body: FeedbackInput) => request<Feedback>("/feedback", { method: "POST", body: JSON.stringify(body) }),
   feedbackStats: () => request<FeedbackStats>("/feedback/statistics"),
   stressTest: (body: StressRequest) =>
