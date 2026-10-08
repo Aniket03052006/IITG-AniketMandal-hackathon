@@ -1,0 +1,407 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3600 2578" width="3600" height="2578" font-family="Helvetica Neue, Arial, sans-serif">
+<defs><marker id='ah' viewBox='0 0 10 10' refX='7' refY='5' markerWidth='5' markerHeight='5' orient='auto-start-reverse'><path d='M0,0 L10,5 L0,10 z' fill='#3a4655'/></marker></defs>
+<style>.t1{font:800 60px 'Helvetica Neue',Arial,sans-serif;fill:#0f1c2e}.t2{font:400 28px 'Helvetica Neue',Arial,sans-serif;fill:#44505f}.gt{font:800 24px 'Helvetica Neue',Arial,sans-serif;fill:#fff;letter-spacing:0.5px}.gt2{font:800 26px 'Helvetica Neue',Arial,sans-serif;letter-spacing:0.5px}.gs{font:600 18px 'Helvetica Neue',Arial,sans-serif;fill:#44505f}.in{font:700 21px 'Helvetica Neue',Arial,sans-serif;fill:#14202e}.id{font:400 18px 'Helvetica Neue',Arial,sans-serif;fill:#3a4756}.lb{font:700 18px 'Helvetica Neue',Arial,sans-serif;fill:#2c3a4a}.foot{font:400 23px 'Helvetica Neue',Arial,sans-serif;fill:#4b5a6b}</style>
+<rect width="3600" height="2578" fill="#fbfcfe"/>
+<text x="30" y="70" class="t1">EventShock: component architecture</text>
+<text x="30" y="110" class="t2">Every module, model, store and route group, left to right along the life of one report, then down through side-cars, stress, API and dashboard.</text>
+<rect x="18" y="1004" width="3566" height="694" rx="26" fill="#fdf0f4" stroke="#b8567a" stroke-width="3" stroke-dasharray="14 9"/>
+<rect x="30" y="150" width="470" height="796" rx="20" fill="#ffffff" stroke="#5f7fb5" stroke-width="3.5"/>
+<path d="M30 170 a20 20 0 0 1 20 -20 h430 a20 20 0 0 1 20 20 v38 h-470 z" fill="#5f7fb5"/>
+<text x="52" y="190" class="gt">EXTERNAL INPUTS</text>
+<circle cx="56" cy="227" r="5" fill="#5f7fb5"/>
+<text x="72" y="234" class="in">GDELT DOC 2.0 · GKG 2.1</text>
+<text x="72" y="258" class="id">news article metadata, tone,</text>
+<text x="72" y="280" class="id">organisations; free with citation</text>
+<circle cx="56" cy="311" r="5" fill="#5f7fb5"/>
+<text x="72" y="318" class="in">Twitter Financial News</text>
+<text x="72" y="342" class="id">finance posts with human sentiment labels</text>
+<text x="72" y="364" class="id">(MIT); the social source</text>
+<circle cx="56" cy="395" r="5" fill="#5f7fb5"/>
+<text x="72" y="402" class="in">SEC EDGAR 8-K</text>
+<text x="72" y="426" class="id">filings with exact acceptance times; live</text>
+<text x="72" y="448" class="id">Atom feed (opt-in)</text>
+<circle cx="56" cy="479" r="5" fill="#5f7fb5"/>
+<text x="72" y="486" class="in">FOMC calendars</text>
+<text x="72" y="510" class="id">decision dates, public domain</text>
+<circle cx="56" cy="541" r="5" fill="#5f7fb5"/>
+<text x="72" y="548" class="in">Yahoo Finance prices</text>
+<text x="72" y="572" class="id">daily prices; only derived statistics are</text>
+<text x="72" y="594" class="id">kept</text>
+<circle cx="56" cy="625" r="5" fill="#5f7fb5"/>
+<text x="72" y="632" class="in">Kaggle card transactions</text>
+<text x="72" y="656" class="id">merchant-category spend mix only</text>
+<text x="72" y="678" class="id">(Apache-2.0)</text>
+<circle cx="56" cy="709" r="5" fill="#5f7fb5"/>
+<text x="72" y="716" class="in">Kalshi prediction markets</text>
+<text x="72" y="740" class="id">public API or captured snapshot;</text>
+<text x="72" y="762" class="id">observation only</text>
+<circle cx="56" cy="793" r="5" fill="#5f7fb5"/>
+<text x="72" y="800" class="in">Pasted text · personal portfolios</text>
+<text x="72" y="824" class="id">POST /api/analyze · /api/portfolios</text>
+<circle cx="56" cy="855" r="5" fill="#5f7fb5"/>
+<text x="72" y="862" class="in">LLM provider (optional)</text>
+<text x="72" y="886" class="id">Groq or Anthropic; OFF unless</text>
+<text x="72" y="908" class="id">EVENTSHOCK_LLM=1</text>
+<rect x="528" y="150" width="540" height="796" rx="20" fill="#ffffff" stroke="#2f9a82" stroke-width="3.5"/>
+<path d="M528 170 a20 20 0 0 1 20 -20 h500 a20 20 0 0 1 20 20 v38 h-540 z" fill="#2f9a82"/>
+<text x="550" y="190" class="gt">INGESTION  ingestion/ + services/live.py</text>
+<circle cx="554" cy="227" r="5" fill="#2f9a82"/>
+<text x="570" y="234" class="in">gdelt.py · gkg.py · tfn.py · edgar.py ·</text>
+<text x="570" y="260" class="in">fomc.py · prices.py</text>
+<text x="570" y="284" class="id">provider adapters: RawDocument or</text>
+<text x="570" y="306" class="id">Rejected(reason)</text>
+<circle cx="554" cy="337" r="5" fill="#2f9a82"/>
+<text x="570" y="344" class="in">edgar_live.py · live.py</text>
+<text x="570" y="368" class="id">live sources, CombinedSource, CaptureSource</text>
+<text x="570" y="390" class="id">(simulated live from a committed capture)</text>
+<circle cx="554" cy="421" r="5" fill="#2f9a82"/>
+<text x="570" y="428" class="in">fetch.py</text>
+<text x="570" y="452" class="id">the ONLY module that opens a network socket:</text>
+<text x="570" y="474" class="id">throttle, retry, resumable</text>
+<circle cx="554" cy="505" r="5" fill="#2f9a82"/>
+<text x="570" y="512" class="in">snapshot.py · replay.py</text>
+<text x="570" y="536" class="id">sha256-verified frozen pack; a changed file</text>
+<text x="570" y="558" class="id">stops start-up</text>
+<circle cx="554" cy="589" r="5" fill="#2f9a82"/>
+<text x="570" y="596" class="in">LiveService</text>
+<text x="570" y="620" class="id">runtime ON/OFF switch (PUT /api/live/state),</text>
+<text x="570" y="642" class="id">poller, status OFF/OK/DEGRADED/ERROR/IDLE</text>
+<circle cx="554" cy="673" r="5" fill="#2f9a82"/>
+<text x="570" y="680" class="in">data/replay/</text>
+<text x="570" y="704" class="id">manifest, GDELT + tweet sample, entities,</text>
+<text x="570" y="726" class="id">synthetic book, e5 vectors, market context;</text>
+<text x="570" y="748" class="id">replay clock 2026-10-01 12:00Z</text>
+<rect x="1096" y="150" width="600" height="796" rx="20" fill="#ffffff" stroke="#2f9a82" stroke-width="3.5"/>
+<path d="M1096 170 a20 20 0 0 1 20 -20 h560 a20 20 0 0 1 20 20 v38 h-600 z" fill="#2f9a82"/>
+<text x="1118" y="190" class="gt">PIPELINE  pipeline/</text>
+<circle cx="1122" cy="227" r="5" fill="#2f9a82"/>
+<text x="1138" y="234" class="in">normalize.py → validate.py</text>
+<text x="1138" y="258" class="id">clean documents; closed reject codes; bad rows to</text>
+<text x="1138" y="280" class="id">quarantine with a reason</text>
+<circle cx="1122" cy="311" r="5" fill="#2f9a82"/>
+<text x="1138" y="318" class="in">entities.py</text>
+<text x="1138" y="342" class="id">dictionary resolver for 34 issuers: cashtag &gt; legal</text>
+<text x="1138" y="364" class="id">name &gt; alias &gt; weak alias (finance-context guard) &gt;</text>
+<text x="1138" y="386" class="id">restrained fuzzy; UNKNOWN_ENTITY is a state</text>
+<circle cx="1122" cy="417" r="5" fill="#2f9a82"/>
+<text x="1138" y="424" class="in">dedup.py</text>
+<text x="1138" y="448" class="id">exact duplicates folded; syndicated, near and same-</text>
+<text x="1138" y="470" class="id">event reports become corroboration</text>
+<circle cx="1122" cy="501" r="5" fill="#2f9a82"/>
+<text x="1138" y="508" class="in">scope.py + configs/scope.yaml</text>
+<text x="1138" y="532" class="id">COMPANY / SECTOR / MARKET / UNRESOLVED with the</text>
+<text x="1138" y="554" class="id">matched terms</text>
+<circle cx="1122" cy="585" r="5" fill="#2f9a82"/>
+<text x="1138" y="592" class="in">engine.py  RiskEngine</text>
+<text x="1138" y="616" class="id">prepare_record, cluster_items, build_signal: replay,</text>
+<text x="1138" y="638" class="id">paste and live share every stage function</text>
+<circle cx="1122" cy="669" r="5" fill="#2f9a82"/>
+<text x="1138" y="676" class="in">enrich.py</text>
+<text x="1138" y="700" class="id">ModelEnricher, ImpactModelEnricher (post-pass after</text>
+<text x="1138" y="722" class="id">novelty), PlaceholderEnricher (labelled fallback)</text>
+<rect x="1724" y="150" width="760" height="796" rx="20" fill="#ffffff" stroke="#c4811f" stroke-width="3.5"/>
+<path d="M1724 170 a20 20 0 0 1 20 -20 h720 a20 20 0 0 1 20 20 v38 h-760 z" fill="#c4811f"/>
+<text x="1746" y="190" class="gt">MODELS  models/ + pipeline/*_model.py</text>
+<circle cx="1750" cy="227" r="5" fill="#c4811f"/>
+<text x="1766" y="234" class="in">sentiment_model.py  tfidf-lr-v2 (v1 = impact reference)</text>
+<text x="1766" y="258" class="id">TF-IDF word + char n-grams, class-balanced logistic regression,</text>
+<text x="1766" y="280" class="id">temperature scaling; score = P(pos) - P(neg)</text>
+<circle cx="1750" cy="311" r="5" fill="#c4811f"/>
+<text x="1766" y="318" class="in">hybrid_event_model.py  hybrid-event-v2 (tfidf-lr-event-v1 =</text>
+<text x="1766" y="344" class="in">reference)</text>
+<text x="1766" y="368" class="id">TF-IDF + pinned e5-large vectors (embeddings.py), 9-way LR, abstains</text>
+<text x="1766" y="390" class="id">below P 0.5</text>
+<circle cx="1750" cy="421" r="5" fill="#c4811f"/>
+<text x="1766" y="428" class="in">impact_model.py  impact-v2 (impact-v1 fallback)</text>
+<text x="1766" y="452" class="id">additive gradient boosting, scopes ISSUER and MARKET, rank-calibrated</text>
+<text x="1766" y="474" class="id">to 1-10 with an empirical interval</text>
+<circle cx="1750" cy="505" r="5" fill="#c4811f"/>
+<text x="1766" y="512" class="in">impact_features(_v2).py · market_context.py ·</text>
+<text x="1766" y="538" class="in">event_context.py</text>
+<text x="1766" y="562" class="id">event-time features, frozen market context, EventCalendar (FOMC, 8-K</text>
+<text x="1766" y="584" class="id">schedule)</text>
+<circle cx="1750" cy="615" r="5" fill="#c4811f"/>
+<text x="1766" y="622" class="in">modeling/leakage.py</text>
+<text x="1766" y="646" class="id">feature availability registry AT_EVENT_TIME / POST_EVENT; future-</text>
+<text x="1766" y="668" class="id">invariance checks</text>
+<circle cx="1750" cy="699" r="5" fill="#c4811f"/>
+<text x="1766" y="706" class="in">*_card.py → model_card.json</text>
+<text x="1766" y="730" class="id">metrics, pre-registered acceptance verdict, lifecycle, artifact</text>
+<text x="1766" y="752" class="id">sha256; integrity-checked at load</text>
+<rect x="2512" y="150" width="440" height="796" rx="20" fill="#ffffff" stroke="#7a63b8" stroke-width="3.5"/>
+<path d="M2512 170 a20 20 0 0 1 20 -20 h400 a20 20 0 0 1 20 20 v38 h-440 z" fill="#7a63b8"/>
+<text x="2534" y="190" class="gt">SIGNAL CORE  domain/ + store.py</text>
+<circle cx="2538" cy="227" r="5" fill="#7a63b8"/>
+<text x="2554" y="234" class="in">RiskSignal</text>
+<text x="2554" y="258" class="id">entity, scope, sentiment, event,</text>
+<text x="2554" y="280" class="id">impact, evidence; status COMPLETE or</text>
+<text x="2554" y="302" class="id">PARTIAL</text>
+<circle cx="2538" cy="333" r="5" fill="#7a63b8"/>
+<text x="2554" y="340" class="in">SignalProvenance · ModelVersions</text>
+<text x="2554" y="364" class="id">model id, artifact sha256 and origin</text>
+<text x="2554" y="386" class="id">recorded per stage</text>
+<circle cx="2538" cy="417" r="5" fill="#7a63b8"/>
+<text x="2554" y="424" class="in">InMemorySignalRepository</text>
+<text x="2554" y="448" class="id">the frozen replay run, digest 078a70ae</text>
+<circle cx="2538" cy="479" r="5" fill="#7a63b8"/>
+<text x="2554" y="486" class="in">LiveSignalStore</text>
+<text x="2554" y="510" class="id">bounded overlay of live and pasted</text>
+<text x="2554" y="532" class="id">signals; git-ignored journal</text>
+<circle cx="2538" cy="563" r="5" fill="#7a63b8"/>
+<text x="2554" y="570" class="in">CombinedSignalRepository</text>
+<text x="2554" y="594" class="id">what every reader sees; change counter</text>
+<text x="2554" y="616" class="id">seq</text>
+<rect x="2980" y="150" width="590" height="796" rx="20" fill="#ffffff" stroke="#6b7a8c" stroke-width="3.5"/>
+<path d="M2980 170 a20 20 0 0 1 20 -20 h550 a20 20 0 0 1 20 20 v38 h-590 z" fill="#6b7a8c"/>
+<text x="3002" y="190" class="gt">OFFLINE RESEARCH AND QA</text>
+<circle cx="3006" cy="227" r="5" fill="#6b7a8c"/>
+<text x="3022" y="234" class="in">modeling/ + make train-*</text>
+<text x="3022" y="258" class="id">tables, training, impact study, outcome audit,</text>
+<text x="3022" y="280" class="id">evidence studies; deterministic</text>
+<circle cx="3006" cy="311" r="5" fill="#6b7a8c"/>
+<text x="3022" y="318" class="in">docs/evidence/*.json</text>
+<text x="3022" y="342" class="id">committed results the Evidence page reads</text>
+<circle cx="3006" cy="373" r="5" fill="#6b7a8c"/>
+<text x="3022" y="380" class="in">configs/ (29 YAML)</text>
+<text x="3022" y="404" class="id">taxonomy, scenarios, severity, live, decision,</text>
+<text x="3022" y="426" class="id">propagation; pre-registered bars never edited after</text>
+<text x="3022" y="448" class="id">results</text>
+<circle cx="3006" cy="479" r="5" fill="#6b7a8c"/>
+<text x="3022" y="486" class="in">docs/freeze_manifest.json</text>
+<text x="3022" y="510" class="id">sha256 of models, configs, gold sets, replay,</text>
+<text x="3022" y="532" class="id">evidence; make freeze-check</text>
+<circle cx="3006" cy="563" r="5" fill="#6b7a8c"/>
+<text x="3022" y="570" class="in">tests/</text>
+<text x="3022" y="594" class="id">pytest 2,174 (unit 105 files, integration 19, e2e</text>
+<text x="3022" y="616" class="id">15); Vitest 668; architecture tests enforce import</text>
+<text x="3022" y="638" class="id">rules</text>
+<circle cx="3006" cy="669" r="5" fill="#6b7a8c"/>
+<text x="3022" y="676" class="in">scripts/smoke_e2e.py</text>
+<text x="3022" y="700" class="id">make smoke: real server, API, model hashes, stress,</text>
+<text x="3022" y="722" class="id">UI</text>
+<rect x="30" y="1066" width="700" height="610" rx="20" fill="#ffffff" stroke="#b8567a" stroke-width="3.5"/>
+<path d="M30 1086 a20 20 0 0 1 20 -20 h660 a20 20 0 0 1 20 20 v38 h-700 z" fill="#b8567a"/>
+<text x="52" y="1106" class="gt">ASSESSMENT  assessment/ + llm/</text>
+<circle cx="56" cy="1143" r="5" fill="#b8567a"/>
+<text x="72" y="1150" class="in">service.py  AssessmentService</text>
+<text x="72" y="1174" class="id">derives a RiskAssessment from a signal; memoised; never stored</text>
+<text x="72" y="1196" class="id">on it</text>
+<circle cx="56" cy="1227" r="5" fill="#b8567a"/>
+<text x="72" y="1234" class="in">extractor.py → grounding.py</text>
+<text x="72" y="1258" class="id">LLM (forced tool call, closed enums) is checked against the</text>
+<text x="72" y="1280" class="id">text; any failure falls back to the rule extractor</text>
+<circle cx="56" cy="1311" r="5" fill="#b8567a"/>
+<text x="72" y="1318" class="in">rubric.py · cues.py · rules.py · vocab.py</text>
+<text x="72" y="1342" class="id">four anchored answers (intensity, reach, certainty, direction);</text>
+<text x="72" y="1364" class="id">AI may move one by one step</text>
+<circle cx="56" cy="1395" r="5" fill="#b8567a"/>
+<text x="72" y="1402" class="in">severity.py · freshness.py</text>
+<text x="72" y="1426" class="id">fixed matrix, certainty x direction scaling, VIX-regime and</text>
+<text x="72" y="1448" class="id">novelty adjustments; market data at most one session old</text>
+<circle cx="56" cy="1479" r="5" fill="#b8567a"/>
+<text x="72" y="1486" class="in">views.py · benchmark.py · reference.py</text>
+<text x="72" y="1510" class="id">provenance AI / DATA / RULES / HYBRID / ASSUMPTION; 64 + 32</text>
+<text x="72" y="1532" class="id">headline benchmark; impact-v2 as labelled reference</text>
+<circle cx="56" cy="1563" r="5" fill="#b8567a"/>
+<text x="72" y="1570" class="in">llm/ client · cache · schema · prompt · config</text>
+<text x="72" y="1594" class="id">urllib only; 30 s budget, 30 calls/min; cached by text + model</text>
+<text x="72" y="1616" class="id">+ prompt</text>
+<rect x="758" y="1066" width="560" height="610" rx="20" fill="#ffffff" stroke="#b8567a" stroke-width="3.5"/>
+<path d="M758 1086 a20 20 0 0 1 20 -20 h520 a20 20 0 0 1 20 20 v38 h-560 z" fill="#b8567a"/>
+<text x="780" y="1106" class="gt">EVENT INTELLIGENCE  intelligence/</text>
+<circle cx="784" cy="1143" r="5" fill="#b8567a"/>
+<text x="800" y="1150" class="in">scope.py</text>
+<text x="800" y="1174" class="id">COMPANY, INDUSTRY, SECTOR, GEOGRAPHY, MACRO,</text>
+<text x="800" y="1196" class="id">MARKET, THEME, UNRESOLVED path</text>
+<circle cx="784" cy="1227" r="5" fill="#b8567a"/>
+<text x="800" y="1234" class="in">grouping.py</text>
+<text x="800" y="1258" class="id">report clusters to events; first report of each</text>
+<text x="800" y="1280" class="id">outlet is independent</text>
+<circle cx="784" cy="1311" r="5" fill="#b8567a"/>
+<text x="800" y="1318" class="in">evidence.py</text>
+<text x="800" y="1342" class="id">evidence tier from independent sources, kept</text>
+<text x="800" y="1364" class="id">apart from model confidence</text>
+<circle cx="784" cy="1395" r="5" fill="#b8567a"/>
+<text x="800" y="1402" class="in">novelty.py · velocity.py</text>
+<text x="800" y="1426" class="id">NEW / CONTINUATION / UPDATE / RECURRING;</text>
+<text x="800" y="1448" class="id">narrative velocity; unavailable on replay-</text>
+<text x="800" y="1470" class="id">assigned clocks</text>
+<circle cx="784" cy="1501" r="5" fill="#b8567a"/>
+<text x="800" y="1508" class="in">claims.py</text>
+<text x="800" y="1532" class="id">closed-lexicon claims and contradiction, never</text>
+<text x="800" y="1554" class="id">from tone</text>
+<circle cx="784" cy="1585" r="5" fill="#b8567a"/>
+<text x="800" y="1592" class="in">lifecycle.py · service.py</text>
+<text x="800" y="1616" class="id">rule-driven state machine with timeline; every</text>
+<text x="800" y="1638" class="id">section may abstain</text>
+<rect x="1346" y="1066" width="520" height="610" rx="20" fill="#ffffff" stroke="#b8567a" stroke-width="3.5"/>
+<path d="M1346 1086 a20 20 0 0 1 20 -20 h480 a20 20 0 0 1 20 20 v38 h-520 z" fill="#b8567a"/>
+<text x="1368" y="1106" class="gt">ANALOGUES AND CONTEXT</text>
+<circle cx="1372" cy="1143" r="5" fill="#b8567a"/>
+<text x="1388" y="1150" class="in">retrieval/ index · search · corpus</text>
+<text x="1388" y="1174" class="id">6,531 trusted-clock episodes as pinned e5</text>
+<text x="1388" y="1196" class="id">vectors; point-in-time, story-collapsed</text>
+<circle cx="1372" cy="1227" r="5" fill="#b8567a"/>
+<text x="1388" y="1234" class="in">retrieval/ relevance_eval ·</text>
+<text x="1388" y="1260" class="in">outcome_value</text>
+<text x="1388" y="1284" class="id">pre-registered tests; similarity floor read</text>
+<text x="1388" y="1306" class="id">from evidence, not typed</text>
+<circle cx="1372" cy="1337" r="5" fill="#b8567a"/>
+<text x="1388" y="1344" class="in">services/analogues.py</text>
+<text x="1388" y="1368" class="id">display-only: no analogue quantity enters any</text>
+<text x="1388" y="1390" class="id">score</text>
+<circle cx="1372" cy="1421" r="5" fill="#b8567a"/>
+<text x="1388" y="1428" class="in">services/signal_context.py</text>
+<text x="1388" y="1452" class="id">model inputs by availability class; filings</text>
+<text x="1388" y="1474" class="id">before / after; realised outcome</text>
+<circle cx="1372" cy="1505" r="5" fill="#b8567a"/>
+<text x="1388" y="1512" class="in">services/outcome_check.py ·</text>
+<text x="1388" y="1538" class="in">relevance.py</text>
+<text x="1388" y="1562" class="id">severity vs realised moves; what the event</text>
+<text x="1388" y="1584" class="id">means for the book</text>
+<rect x="1894" y="1066" width="620" height="610" rx="20" fill="#ffffff" stroke="#b8567a" stroke-width="3.5"/>
+<path d="M1894 1086 a20 20 0 0 1 20 -20 h580 a20 20 0 0 1 20 20 v38 h-620 z" fill="#b8567a"/>
+<text x="1916" y="1106" class="gt">PROPAGATION  propagation/ + adjust/</text>
+<circle cx="1920" cy="1143" r="5" fill="#b8567a"/>
+<text x="1936" y="1150" class="in">mapping.py</text>
+<text x="1936" y="1174" class="id">event, scope, risk factor, holdings graph; each edge</text>
+<text x="1936" y="1196" class="id">has a rule and a basis</text>
+<circle cx="1920" cy="1227" r="5" fill="#b8567a"/>
+<text x="1936" y="1234" class="in">materiality.py</text>
+<text x="1936" y="1258" class="id">LOW..CRITICAL by exposure x severity lookup; abstains</text>
+<circle cx="1920" cy="1289" r="5" fill="#b8567a"/>
+<text x="1936" y="1296" class="in">scenario_gen.py</text>
+<text x="1936" y="1320" class="id">catalog scenario of the class plus propagated sector</text>
+<text x="1936" y="1342" class="id">shocks; gated</text>
+<circle cx="1920" cy="1373" r="5" fill="#b8567a"/>
+<text x="1936" y="1380" class="in">attribution.py · concentration.py</text>
+<text x="1936" y="1404" class="id">loss by shock, issuer, sector, factor, class, position;</text>
+<text x="1936" y="1426" class="id">concentration and overlaps</text>
+<circle cx="1920" cy="1457" r="5" fill="#b8567a"/>
+<text x="1936" y="1464" class="in">adjust/ registry · store · service</text>
+<text x="1936" y="1488" class="id">whitelisted manual overrides, patched into raw YAML</text>
+<text x="1936" y="1510" class="id">before validation, rolled back on failure</text>
+<rect x="2542" y="1066" width="1030" height="610" rx="20" fill="#ffffff" stroke="#b8567a" stroke-width="3.5"/>
+<path d="M2542 1086 a20 20 0 0 1 20 -20 h990 a20 20 0 0 1 20 20 v38 h-1030 z" fill="#b8567a"/>
+<text x="2564" y="1106" class="gt">DECISION INTELLIGENCE</text>
+<circle cx="2568" cy="1143" r="5" fill="#b8567a"/>
+<text x="2584" y="1150" class="in">monitor/</text>
+<text x="2584" y="1174" class="id">EventState, diff_states to RiskChange by named rule, digest, event memory; replay is a pure</text>
+<text x="2584" y="1196" class="id">function over frozen signals</text>
+<circle cx="2568" cy="1227" r="5" fill="#b8567a"/>
+<text x="2584" y="1234" class="in">watchlist/ · review/</text>
+<text x="2584" y="1258" class="id">watchlists matched on resolved scope; review queue by named rules, append-only decisions</text>
+<circle cx="2568" cy="1289" r="5" fill="#b8567a"/>
+<text x="2584" y="1296" class="in">lab/</text>
+<text x="2584" y="1320" class="id">scenario lab (base, assessed, custom) and bounded-grid reverse stress</text>
+<circle cx="2568" cy="1351" r="5" fill="#b8567a"/>
+<text x="2584" y="1358" class="in">explain/ · brief/</text>
+<text x="2584" y="1382" class="id">structured reasons; 16-section executive brief, template-written, every statement sourced</text>
+<circle cx="2568" cy="1413" r="5" fill="#b8567a"/>
+<text x="2584" y="1420" class="in">feedback/ · markets/</text>
+<text x="2584" y="1444" class="id">append-only feedback; Kalshi observation, never an input to a score</text>
+<text x="36" y="1042" class="gt2" fill="#b8567a">SIDE-CARS: derived on read from a RiskSignal, never stored on it (core packages may not import them; tests enforce it)</text>
+<rect x="30" y="1826" width="1180" height="562" rx="20" fill="#ffffff" stroke="#c94f4f" stroke-width="3.5"/>
+<path d="M30 1846 a20 20 0 0 1 20 -20 h1140 a20 20 0 0 1 20 20 v38 h-1180 z" fill="#c94f4f"/>
+<text x="52" y="1866" class="gt">STRESS AND PORTFOLIO  stress/ + portfolio/</text>
+<circle cx="56" cy="1903" r="5" fill="#c94f4f"/>
+<text x="72" y="1910" class="in">services/stress_service.py  StressService</text>
+<text x="72" y="1934" class="id">the only door to the engine: trigger severity &gt;= 7, scale clamp(sev/7, 0.5, 1.5), shocks bound by scope, run id</text>
+<text x="72" y="1956" class="id">= sha256 of inputs, audit block</text>
+<circle cx="56" cy="1987" r="5" fill="#c94f4f"/>
+<text x="72" y="1994" class="in">stress/scenarios.py</text>
+<text x="72" y="2018" class="id">catalog: 8 single-factor and 4 multi-factor scenarios; event class to default scenario</text>
+<circle cx="56" cy="2049" r="5" fill="#c94f4f"/>
+<text x="72" y="2056" class="in">stress/engine.py</text>
+<text x="72" y="2080" class="id">pure revaluation: equity beta x shock; bond -D(drates + dspread) (+ convexity); loan EAD(PD'LGD' - PD LGD) (+</text>
+<text x="72" y="2102" class="id">spread link, CVA); derivative delta (+ gamma); FX/commodity only where a position carries it</text>
+<circle cx="56" cy="2133" r="5" fill="#c94f4f"/>
+<text x="72" y="2140" class="in">stress/attribution.py · history_check.py</text>
+<text x="72" y="2164" class="id">per-factor attribution that reconciles; shocks ranked against 1/5/21-session history</text>
+<circle cx="56" cy="2195" r="5" fill="#c94f4f"/>
+<text x="72" y="2202" class="in">portfolio/ resolve · store · exposure · chain · compare · crosstab</text>
+<text x="72" y="2226" class="id">personal portfolios (atomic files), exposure matrix, event &gt; shock &gt; exposure chain</text>
+<circle cx="56" cy="2257" r="5" fill="#c94f4f"/>
+<text x="72" y="2264" class="in">portfolio/ book_v2 · betas · catalog</text>
+<text x="72" y="2288" class="id">read-only Wholesale Book v2 preset; Vasicek-shrunk betas; instrument catalog</text>
+<circle cx="56" cy="2319" r="5" fill="#c94f4f"/>
+<text x="72" y="2326" class="in">data/replay/portfolio.json</text>
+<text x="72" y="2350" class="id">synthetic book: 103 positions, USD 860.1M, 34 real issuers (34 equities, 41 bonds, 19 loans, 9 derivatives)</text>
+<rect x="1238" y="1826" width="1170" height="562" rx="20" fill="#ffffff" stroke="#2f74c8" stroke-width="3.5"/>
+<path d="M1238 1846 a20 20 0 0 1 20 -20 h1130 a20 20 0 0 1 20 20 v38 h-1170 z" fill="#2f74c8"/>
+<text x="1260" y="1866" class="gt">API  api/ (FastAPI, 85 operations)</text>
+<circle cx="1264" cy="1903" r="5" fill="#2f74c8"/>
+<text x="1280" y="1910" class="in">main.py · deps.py · schemas.py</text>
+<text x="1280" y="1934" class="id">app factory, CORS, serves web/dist; builds the service container and rebuilds side-cars after an override;</text>
+<text x="1280" y="1956" class="id">typed Pydantic responses</text>
+<circle cx="1264" cy="1987" r="5" fill="#2f74c8"/>
+<text x="1280" y="1994" class="in">routers: signals · analyze · stress · scenarios · propagation · events</text>
+<text x="1280" y="2018" class="id">feed, paste, stress-test, scenario catalog and lab, event-to-portfolio, brief/analogues/timeline</text>
+<circle cx="1264" cy="2049" r="5" fill="#2f74c8"/>
+<text x="1280" y="2056" class="in">routers: portfolio · portfolios · adjustments · scope · pipeline</text>
+<text x="1280" y="2080" class="id">default book, personal portfolios, overrides, scope vocabulary, ingestion report</text>
+<circle cx="1264" cy="2111" r="5" fill="#2f74c8"/>
+<text x="1280" y="2118" class="in">routers: monitor · watchlists · lab · review · feedback</text>
+<text x="1280" y="2142" class="id">digest and changes, watchlists, reverse stress, review queue, feedback</text>
+<circle cx="1264" cy="2173" r="5" fill="#2f74c8"/>
+<text x="1280" y="2180" class="in">routers: evidence · models · live · meta</text>
+<text x="1280" y="2204" class="id">model cards and lifecycle, outcome check, live switch, capabilities that gate the UI</text>
+<circle cx="1264" cy="2235" r="5" fill="#2f74c8"/>
+<text x="1280" y="2242" class="in">contract</text>
+<text x="1280" y="2266" class="id">valid stress request always 200 with a status (COMPLETED, NOT_TRIGGERED, NO_SCENARIO, NOT_APPLICABLE,</text>
+<text x="1280" y="2288" class="id">UNAVAILABLE); 404 unknown id; 422 invalid input</text>
+<circle cx="1264" cy="2319" r="5" fill="#2f74c8"/>
+<text x="1280" y="2326" class="in">OpenAPI → web/src/api/schema.d.ts</text>
+<text x="1280" y="2350" class="id">make types: the UI and API cannot drift silently</text>
+<rect x="2436" y="1826" width="1130" height="562" rx="20" fill="#ffffff" stroke="#2f9a55" stroke-width="3.5"/>
+<path d="M2436 1846 a20 20 0 0 1 20 -20 h1090 a20 20 0 0 1 20 20 v38 h-1130 z" fill="#2f9a55"/>
+<text x="2458" y="1866" class="gt">DASHBOARD  web/ (React 19, Vite, TypeScript, Tailwind v4)</text>
+<circle cx="2462" cy="1903" r="5" fill="#2f9a55"/>
+<text x="2478" y="1910" class="in">pages/</text>
+<text x="2478" y="1934" class="id">Desk · Today · Review · Analyze · Event · Stress Lab · Portfolios · Portfolio editor · Evidence · Pipeline</text>
+<circle cx="2462" cy="1965" r="5" fill="#2f9a55"/>
+<text x="2478" y="1972" class="in">components/</text>
+<text x="2478" y="1996" class="id">trace (six-station wire), desk, event, assessment, intelligence, propagation (contagion map), portfolio</text>
+<text x="2478" y="2018" class="id">(heatmaps, value bridge), lab, monitor, watchlist, markets, brief, adjust, live switch, review</text>
+<circle cx="2462" cy="2049" r="5" fill="#2f9a55"/>
+<text x="2478" y="2056" class="in">lib/</text>
+<text x="2478" y="2080" class="id">pure, tested view-models: timeline (no future fact in an earlier state), contagion layout, severity,</text>
+<text x="2478" y="2102" class="id">formulas, nav</text>
+<circle cx="2462" cy="2133" r="5" fill="#2f9a55"/>
+<text x="2478" y="2140" class="in">api/</text>
+<text x="2478" y="2164" class="id">TanStack Query hooks over generated types</text>
+<circle cx="2462" cy="2195" r="5" fill="#2f9a55"/>
+<text x="2478" y="2202" class="in">styles/tokens.css</text>
+<text x="2478" y="2226" class="id">Harbour tokens, light and dark, WCAG pairs checked by tests</text>
+<circle cx="2462" cy="2257" r="5" fill="#2f9a55"/>
+<text x="2478" y="2264" class="in">Shell · CommandPalette</text>
+<text x="2478" y="2288" class="id">sidebar and top bar, portfolio and live switches, Cmd-K jump to anything</text>
+<polyline points="500,670 528,670" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<polyline points="1068,670 1096,670" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<polyline points="1696,670 1724,670" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<polyline points="2484,670 2512,670" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<polyline points="2732,946 2732,1004" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<rect x="2740" y="973" width="355" height="30" rx="6" fill="#fbfcfe" fill-opacity="0.92"/>
+<text x="2746" y="995" class="lb">RiskSignal read by every side-car</text>
+<polyline points="265,946 265,1004" fill="none" stroke="#3a4655" stroke-width="4.5" stroke-dasharray="12 9" marker-end="url(#ah)"/>
+<rect x="273" y="973" width="209" height="30" rx="6" fill="#fbfcfe" fill-opacity="0.92"/>
+<text x="279" y="995" class="lb">optional LLM reader</text>
+<polyline points="500,1698 500,1826" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<rect x="508" y="1744" width="292" height="30" rx="6" fill="#fbfcfe" fill-opacity="0.92"/>
+<text x="514" y="1766" class="lb">severity (trigger, scaling)</text>
+<polyline points="2204,1698 2204,1786 920,1786 920,1826" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<rect x="2212" y="1744" width="199" height="30" rx="6" fill="#fbfcfe" fill-opacity="0.92"/>
+<text x="2218" y="1766" class="lb">generated scenario</text>
+<polyline points="2702,1698 2702,1736 1888,1736 1888,1826" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<rect x="2710" y="1744" width="188" height="30" rx="6" fill="#fbfcfe" fill-opacity="0.92"/>
+<text x="2716" y="1766" class="lb">side-car services</text>
+<polyline points="1210,1956 1238,1956" fill="none" stroke="#3a4655" stroke-width="4.5" marker-start='url(#ah)' marker-end="url(#ah)"/>
+<rect x="1186" y="1792" width="53" height="30" rx="6" fill="#fbfcfe" fill-opacity="0.92"/>
+<text x="1192" y="1814" class="lb">runs</text>
+<polyline points="2408,1956 2436,1956" fill="none" stroke="#3a4655" stroke-width="4.5" marker-end="url(#ah)"/>
+<rect x="2384" y="1792" width="53" height="30" rx="6" fill="#fbfcfe" fill-opacity="0.92"/>
+<text x="2390" y="1814" class="lb">JSON</text>
+<text x="30" y="2468" class="foot">Solid arrow: data flow. Dashed: optional or read-only. Colours: grey-blue inputs, green ingestion and UI, amber models, purple signal core, pink side-cars, red stress, blue API.</text>
+<text x="30" y="2502" class="foot">Storage: no SQL database; files (JSON, JSONL, NPZ, joblib) and in-memory repositories behind Protocols (ports.py).</text>
+<text x="30" y="2536" class="foot">All trained models are experimental; the portfolio is synthetic; scenario shocks are assumptions. Plainer views: docs/architecture.png and docs/architecture_simple.png.</text>
+</svg>

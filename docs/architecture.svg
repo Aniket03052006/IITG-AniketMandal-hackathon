@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1420" width="2400" height="1420" font-family="Helvetica Neue, Arial, sans-serif">
+<defs><marker id='ah' viewBox='0 0 10 10' refX='8' refY='5' markerWidth='5.5' markerHeight='5.5' orient='auto-start-reverse'><path d='M0,0 L10,5 L0,10 z' fill='#44505f'/></marker></defs><style>.t{font:700 23px 'Helvetica Neue',Arial,sans-serif;fill:#14202e}.s{font:400 19px 'Helvetica Neue',Arial,sans-serif;fill:#3a4756}.lane{font:800 21px 'Helvetica Neue',Arial,sans-serif;letter-spacing:3px}.l{font:700 18px 'Helvetica Neue',Arial,sans-serif;fill:#2c3a4a}.h1{font:800 44px 'Helvetica Neue',Arial,sans-serif;fill:#0f1c2e}.h2{font:400 22px 'Helvetica Neue',Arial,sans-serif;fill:#44505f}</style>
+<rect width="2400" height="1420" fill="#fbfcfe"/>
+<text x="30" y="58" class="h1">EventShock: architecture</text>
+<text x="30" y="94" class="h2">news + social + filings → trained NLP risk signal → deterministic, portfolio-aware stress test → dashboard. Numbers 1-8 give the order a report takes through the pipeline; arrows between lanes show data flow.</text>
+<rect x="30" y="120" width="390" height="610" rx="22" fill="#eef3fb" stroke="#6b86b8" stroke-width="2.5" stroke-dasharray="10 7"/>
+<text x="52" y="156" class="lane" fill="#6b86b8">SOURCES</text>
+<rect x="440" y="120" width="440" height="610" rx="22" fill="#e9f5f1" stroke="#3f9a84" stroke-width="2.5" stroke-dasharray="10 7"/>
+<text x="462" y="156" class="lane" fill="#3f9a84">INGESTION</text>
+<rect x="900" y="120" width="900" height="610" rx="22" fill="#fbf1e4" stroke="#c98a3b" stroke-width="2.5" stroke-dasharray="10 7"/>
+<text x="922" y="156" class="lane" fill="#c98a3b">ML / SIGNAL</text>
+<rect x="1820" y="120" width="550" height="610" rx="22" fill="#f1eefa" stroke="#7d6bb8" stroke-width="2.5" stroke-dasharray="10 7"/>
+<text x="1842" y="156" class="lane" fill="#7d6bb8">STORAGE</text>
+<rect x="50" y="165" width="350" height="118" rx="14" fill="#ffffff" stroke="#6b86b8" stroke-width="2"/>
+<rect x="50" y="165" width="9" height="118" rx="4" fill="#6b86b8"/>
+<text x="74" y="199" class="t">News: GDELT</text>
+<text x="74" y="225" class="s">DOC 2.0 article metadata,</text>
+<text x="74" y="249" class="s">GKG 2.1 bulk (title, tone, orgs)</text>
+<text x="74" y="273" class="s">34 issuers + market queries</text>
+<rect x="50" y="297" width="350" height="92" rx="14" fill="#ffffff" stroke="#6b86b8" stroke-width="2"/>
+<rect x="50" y="297" width="9" height="92" rx="4" fill="#6b86b8"/>
+<text x="74" y="331" class="t">Social: Fin. tweets</text>
+<text x="74" y="357" class="s">finance tweets, MIT licence</text>
+<text x="74" y="381" class="s">(300-row replay sample)</text>
+<rect x="50" y="403" width="350" height="92" rx="14" fill="#ffffff" stroke="#6b86b8" stroke-width="2"/>
+<rect x="50" y="403" width="9" height="92" rx="4" fill="#6b86b8"/>
+<text x="74" y="437" class="t">Filings and calendar</text>
+<text x="74" y="463" class="s">SEC EDGAR 8-K, FOMC dates</text>
+<text x="74" y="487" class="s">event-time features; live source</text>
+<rect x="50" y="509" width="350" height="92" rx="14" fill="#ffffff" stroke="#6b86b8" stroke-width="2"/>
+<rect x="50" y="509" width="9" height="92" rx="4" fill="#6b86b8"/>
+<text x="74" y="543" class="t">Market data</text>
+<text x="74" y="569" class="s">Yahoo daily prices (not committed)</text>
+<text x="74" y="593" class="s">kept only as derived statistics</text>
+<rect x="50" y="615" width="350" height="92" rx="14" fill="#ffffff" stroke="#6b86b8" stroke-width="2"/>
+<rect x="50" y="615" width="9" height="92" rx="4" fill="#6b86b8"/>
+<text x="74" y="649" class="t">Paste · Live switch</text>
+<text x="74" y="675" class="s">POST /api/analyze; GDELT/EDGAR</text>
+<text x="74" y="699" class="s">poll. Live is OFF at every start</text>
+<rect x="460" y="165" width="400" height="118" rx="14" fill="#ffffff" stroke="#3f9a84" stroke-width="2"/>
+<rect x="460" y="165" width="9" height="118" rx="4" fill="#3f9a84"/>
+<text x="484" y="199" class="t">1  Source adapters</text>
+<text x="484" y="225" class="s">ingestion/{gdelt,tfn,edgar_live}.py</text>
+<text x="484" y="249" class="s">hash-pinned frozen pack data/replay</text>
+<text x="484" y="273" class="s">(sha256 checked at start-up)</text>
+<rect x="460" y="297" width="400" height="92" rx="14" fill="#ffffff" stroke="#3f9a84" stroke-width="2"/>
+<rect x="460" y="297" width="9" height="92" rx="4" fill="#3f9a84"/>
+<text x="484" y="331" class="t">2  Normalise, validate</text>
+<text x="484" y="357" class="s">pipeline/{normalise,validate}.py</text>
+<text x="484" y="381" class="s">bad rows -&gt; quarantine + reason code</text>
+<rect x="460" y="403" width="400" height="92" rx="14" fill="#ffffff" stroke="#3f9a84" stroke-width="2"/>
+<rect x="460" y="403" width="9" height="92" rx="4" fill="#3f9a84"/>
+<text x="484" y="437" class="t">3  Entity resolution</text>
+<text x="484" y="463" class="s">pipeline/entities.py: 34-issuer dictionary,</text>
+<text x="484" y="487" class="s">weak-alias guard, UNKNOWN_ENTITY kept</text>
+<rect x="460" y="509" width="400" height="92" rx="14" fill="#ffffff" stroke="#3f9a84" stroke-width="2"/>
+<rect x="460" y="509" width="9" height="92" rx="4" fill="#3f9a84"/>
+<text x="484" y="543" class="t">4  De-duplication</text>
+<text x="484" y="569" class="s">pipeline/dedup.py: exact folded; syndicated</text>
+<text x="484" y="593" class="s">and near reports become corroboration</text>
+<rect x="460" y="615" width="400" height="92" rx="14" fill="#ffffff" stroke="#3f9a84" stroke-width="3.5"/>
+<rect x="460" y="615" width="9" height="92" rx="4" fill="#3f9a84"/>
+<text x="484" y="649" class="t">5  RiskEngine: one door</text>
+<text x="484" y="675" class="s">pipeline/engine.py: replay, paste and</text>
+<text x="484" y="699" class="s">live share every stage function</text>
+<rect x="920" y="165" width="420" height="118" rx="14" fill="#ffffff" stroke="#c98a3b" stroke-width="2"/>
+<rect x="920" y="165" width="9" height="118" rx="4" fill="#c98a3b"/>
+<text x="944" y="199" class="t">6  Sentiment</text>
+<text x="944" y="225" class="s">tfidf-lr-v2: TF-IDF + logistic</text>
+<text x="944" y="249" class="s">regression, temperature-scaled</text>
+<text x="944" y="273" class="s">score in [-1, 1]</text>
+<rect x="1360" y="165" width="420" height="118" rx="14" fill="#ffffff" stroke="#c98a3b" stroke-width="2"/>
+<rect x="1360" y="165" width="9" height="118" rx="4" fill="#c98a3b"/>
+<text x="1384" y="199" class="t">6  Event type</text>
+<text x="1384" y="225" class="s">hybrid-event-v2: TF-IDF + pinned e5</text>
+<text x="1384" y="249" class="s">vector, 8 classes + NONE, abstains</text>
+<text x="1384" y="273" class="s">to UNCERTAIN below P 0.5</text>
+<rect x="920" y="297" width="420" height="92" rx="14" fill="#ffffff" stroke="#c98a3b" stroke-width="2"/>
+<rect x="920" y="297" width="9" height="92" rx="4" fill="#c98a3b"/>
+<text x="944" y="331" class="t">6  Scope (rules)</text>
+<text x="944" y="357" class="s">COMPANY, SECTOR, MARKET or</text>
+<text x="944" y="381" class="s">UNRESOLVED, plus the deciding rule</text>
+<rect x="1360" y="297" width="420" height="92" rx="14" fill="#ffffff" stroke="#c98a3b" stroke-width="2"/>
+<rect x="1360" y="297" width="9" height="92" rx="4" fill="#c98a3b"/>
+<text x="1384" y="331" class="t">6  Novelty, corroboration</text>
+<text x="1384" y="357" class="s">independent sources; evidence kept</text>
+<text x="1384" y="381" class="s">apart from model confidence</text>
+<rect x="920" y="403" width="860" height="92" rx="14" fill="#ffffff" stroke="#c98a3b" stroke-width="3.5"/>
+<rect x="920" y="403" width="9" height="92" rx="4" fill="#c98a3b"/>
+<text x="944" y="437" class="t">7  Impact post-pass: impact-v2 (experimental)</text>
+<text x="944" y="463" class="s">gradient boosting on market state + event calendar + TF-IDF event probabilities; rank-calibrated</text>
+<text x="944" y="487" class="s">to 1-10 with an empirical interval; labelled placeholder rule where it cannot score</text>
+<rect x="920" y="509" width="860" height="92" rx="14" fill="#ffffff" stroke="#c98a3b" stroke-width="3.5"/>
+<rect x="920" y="509" width="9" height="92" rx="4" fill="#c98a3b"/>
+<text x="944" y="543" class="t">8  RiskSignal + provenance</text>
+<text x="944" y="569" class="s">every stage records model id, artifact sha256, origin; a PARTIAL signal never gets an invented</text>
+<text x="944" y="593" class="s">score (domain/ Pydantic contracts; models/ artifacts integrity-checked at load)</text>
+<rect x="920" y="615" width="860" height="92" rx="14" fill="#ffffff" stroke="#c98a3b" stroke-width="2"/>
+<rect x="920" y="615" width="9" height="92" rx="4" fill="#c98a3b"/>
+<text x="944" y="649" class="t">Side-cars (derived on read, never stored on the signal)</text>
+<text x="944" y="675" class="s">assessment (severity-v2 scorecard, LLM optional) · intelligence · analogues · propagation ·</text>
+<text x="944" y="699" class="s">monitor / watchlists / review / brief (decision intelligence) · external markets (observation only)</text>
+<rect x="1840" y="165" width="510" height="118" rx="14" fill="#ffffff" stroke="#7d6bb8" stroke-width="2"/>
+<rect x="1840" y="165" width="9" height="118" rx="4" fill="#7d6bb8"/>
+<text x="1864" y="199" class="t">Frozen replay pack</text>
+<text x="1864" y="225" class="s">data/replay: GDELT metadata, tweet sample,</text>
+<text x="1864" y="249" class="s">entities, book, e5 vectors, market context,</text>
+<text x="1864" y="273" class="s">analogue index; manifest with sha256</text>
+<rect x="1840" y="297" width="510" height="118" rx="14" fill="#ffffff" stroke="#7d6bb8" stroke-width="2"/>
+<rect x="1840" y="297" width="9" height="118" rx="4" fill="#7d6bb8"/>
+<text x="1864" y="331" class="t">Models and configs</text>
+<text x="1864" y="357" class="s">models/{sentiment,event,impact}: joblib +</text>
+<text x="1864" y="381" class="s">model_card.json; configs/*.yaml, all pinned</text>
+<text x="1864" y="405" class="s">by docs/freeze_manifest.json</text>
+<rect x="1840" y="429" width="510" height="118" rx="14" fill="#ffffff" stroke="#7d6bb8" stroke-width="2"/>
+<rect x="1840" y="429" width="9" height="118" rx="4" fill="#7d6bb8"/>
+<text x="1864" y="463" class="t">Signal repositories (memory)</text>
+<text x="1864" y="489" class="s">InMemorySignalRepository (replay) +</text>
+<text x="1864" y="513" class="s">LiveSignalStore (bounded) behind</text>
+<text x="1864" y="537" class="s">CombinedSignalRepository</text>
+<rect x="1840" y="561" width="510" height="146" rx="14" fill="#ffffff" stroke="#7d6bb8" stroke-width="2"/>
+<rect x="1840" y="561" width="9" height="146" rx="4" fill="#7d6bb8"/>
+<text x="1864" y="595" class="t">Local state (git-ignored)</text>
+<text x="1864" y="621" class="s">data/live/: journal, portfolios, overrides,</text>
+<text x="1864" y="645" class="s">decision store, LLM cache.</text>
+<text x="1864" y="669" class="s">No SQL / DuckDB in the MVP: files and</text>
+<text x="1864" y="693" class="s">in-memory only</text>
+<rect x="30" y="760" width="850" height="530" rx="22" fill="#fbeaea" stroke="#c95a5a" stroke-width="2.5" stroke-dasharray="10 7"/>
+<text x="52" y="796" class="lane" fill="#c95a5a">STRESS</text>
+<rect x="900" y="760" width="900" height="530" rx="22" fill="#e8f1fb" stroke="#3b78c9" stroke-width="2.5" stroke-dasharray="10 7"/>
+<text x="922" y="796" class="lane" fill="#3b78c9">API</text>
+<rect x="1820" y="760" width="550" height="530" rx="22" fill="#eaf6ee" stroke="#3f9a5c" stroke-width="2.5" stroke-dasharray="10 7"/>
+<text x="1842" y="796" class="lane" fill="#3f9a5c">UI</text>
+<rect x="50" y="805" width="400" height="130" rx="14" fill="#ffffff" stroke="#c95a5a" stroke-width="2"/>
+<rect x="50" y="805" width="9" height="130" rx="4" fill="#c95a5a"/>
+<text x="74" y="839" class="t">Scenario mapper</text>
+<text x="74" y="865" class="s">event class -&gt; catalog template</text>
+<text x="74" y="889" class="s">(8 single-factor, 4 multi-factor)</text>
+<text x="74" y="913" class="s">or a generated, gated scenario</text>
+<rect x="470" y="805" width="390" height="130" rx="14" fill="#ffffff" stroke="#c95a5a" stroke-width="3.5"/>
+<rect x="470" y="805" width="9" height="130" rx="4" fill="#c95a5a"/>
+<text x="494" y="839" class="t">Deterministic engine</text>
+<text x="494" y="865" class="s">stress/engine.py, pure functions:</text>
+<text x="494" y="889" class="s">equity beta, bond duration, loan</text>
+<text x="494" y="913" class="s">PD/LGD, derivative delta</text>
+<rect x="50" y="949" width="400" height="118" rx="14" fill="#ffffff" stroke="#c95a5a" stroke-width="2"/>
+<rect x="50" y="949" width="9" height="118" rx="4" fill="#c95a5a"/>
+<text x="74" y="983" class="t">Attribution</text>
+<text x="74" y="1009" class="s">by asset class, issuer, sector, risk</text>
+<text x="74" y="1033" class="s">factor, position; every table</text>
+<text x="74" y="1057" class="s">reconciles or the builder raises</text>
+<rect x="470" y="949" width="390" height="118" rx="14" fill="#ffffff" stroke="#c95a5a" stroke-width="2"/>
+<rect x="470" y="949" width="9" height="118" rx="4" fill="#c95a5a"/>
+<text x="494" y="983" class="t">Synthetic book</text>
+<text x="494" y="1009" class="s">103 positions, USD 860.1M, 34 real</text>
+<text x="494" y="1033" class="s">issuers; Wholesale Book v2 preset</text>
+<text x="494" y="1057" class="s">(read-only), shipped as data</text>
+<rect x="50" y="1081" width="810" height="92" rx="14" fill="#ffffff" stroke="#c95a5a" stroke-width="2"/>
+<rect x="50" y="1081" width="9" height="92" rx="4" fill="#c95a5a"/>
+<text x="74" y="1115" class="t">Personal portfolios (opt-in)</text>
+<text x="74" y="1141" class="s">portfolio/: resolver, atomic file store, exposure chain, comparison;</text>
+<text x="74" y="1165" class="s">used only when a request carries portfolio_id; default stays the synthetic book</text>
+<rect x="50" y="1187" width="810" height="92" rx="14" fill="#ffffff" stroke="#c95a5a" stroke-width="2"/>
+<rect x="50" y="1187" width="9" height="92" rx="4" fill="#c95a5a"/>
+<text x="74" y="1221" class="t">Honest abstention</text>
+<text x="74" y="1247" class="s">no scenario reaches a position -&gt; NOT_APPLICABLE, never a zero P&amp;L;</text>
+<text x="74" y="1271" class="s">uncovered exposure is listed, not treated as safe</text>
+<rect x="920" y="805" width="860" height="130" rx="14" fill="#ffffff" stroke="#3b78c9" stroke-width="3.5"/>
+<rect x="920" y="805" width="9" height="130" rx="4" fill="#3b78c9"/>
+<text x="944" y="839" class="t">FastAPI /api: 85 operations, OpenAPI at /api/docs</text>
+<text x="944" y="865" class="s">signals · assessment · intelligence · propagation · analogues · scenarios · stress-test ·</text>
+<text x="944" y="889" class="s">portfolios · monitor · watchlists · lab · review · evidence · models · live · analyze</text>
+<text x="944" y="913" class="s">typed contracts shared with the UI (make types)</text>
+<rect x="920" y="949" width="860" height="118" rx="14" fill="#ffffff" stroke="#3b78c9" stroke-width="2"/>
+<rect x="920" y="949" width="9" height="118" rx="4" fill="#3b78c9"/>
+<text x="944" y="983" class="t">Stress service: the only door to the engine</text>
+<text x="944" y="1009" class="s">trigger rule severity &gt;= 7 (a product rule), severity scaling clamp(I/7, 0.5, 1.5),</text>
+<text x="944" y="1033" class="s">run id = hash of inputs (same request -&gt; same result), audit block with the origin of the score</text>
+<rect x="920" y="1081" width="860" height="92" rx="14" fill="#ffffff" stroke="#3b78c9" stroke-width="2"/>
+<rect x="920" y="1081" width="9" height="92" rx="4" fill="#3b78c9"/>
+<text x="944" y="1115" class="t">Error contract</text>
+<text x="944" y="1141" class="s">valid stress request -&gt; 200 + status (COMPLETED, NOT_TRIGGERED, NO_SCENARIO,</text>
+<text x="944" y="1165" class="s">NOT_APPLICABLE, UNAVAILABLE); 404 unknown id; 422 invalid input</text>
+<rect x="920" y="1187" width="860" height="92" rx="14" fill="#ffffff" stroke="#3b78c9" stroke-width="2"/>
+<rect x="920" y="1187" width="9" height="92" rx="4" fill="#3b78c9"/>
+<text x="944" y="1221" class="t">Configuration and secrets</text>
+<text x="944" y="1247" class="s">configs/*.yaml validated by strict Pydantic models; EVENTSHOCK_* env; keys only from the</text>
+<text x="944" y="1271" class="s">environment or the git-ignored .env; the language model is OFF unless EVENTSHOCK_LLM=1</text>
+<rect x="1840" y="805" width="510" height="160" rx="14" fill="#ffffff" stroke="#3f9a5c" stroke-width="3.5"/>
+<rect x="1840" y="805" width="9" height="160" rx="4" fill="#3f9a5c"/>
+<text x="1864" y="839" class="t">React 19 + Vite + TypeScript</text>
+<text x="1864" y="865" class="s">Desk: wire traced from news to book</text>
+<text x="1864" y="889" class="s">Today · Review · Analyze · Event</text>
+<text x="1864" y="913" class="s">Stress Lab · Portfolios · Evidence</text>
+<text x="1864" y="937" class="s">light/dark, phone to desktop</text>
+<rect x="1840" y="979" width="510" height="200" rx="14" fill="#ffffff" stroke="#3f9a5c" stroke-width="2"/>
+<rect x="1840" y="979" width="9" height="200" rx="4" fill="#3f9a5c"/>
+<text x="1864" y="1013" class="t">What it shows</text>
+<text x="1864" y="1039" class="s">portfolio value before vs after,</text>
+<text x="1864" y="1063" class="s">value bridge, loss heatmap, contagion</text>
+<text x="1864" y="1087" class="s">map; sentiment, event class, severity</text>
+<text x="1864" y="1111" class="s">with Why? and provenance; timeline of</text>
+<text x="1864" y="1135" class="s">what was known when; model evidence</text>
+<rect x="1840" y="1193" width="510" height="86" rx="14" fill="#ffffff" stroke="#3f9a5c" stroke-width="2"/>
+<rect x="1840" y="1193" width="9" height="86" rx="4" fill="#3f9a5c"/>
+<text x="1864" y="1227" class="t">Served by the same process</text>
+<text x="1864" y="1253" class="s">python src/main.py (API + built web/dist)</text>
+<polyline points="420,425 440,425" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
+<polyline points="880,425 900,425" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
+<polyline points="1800,425 1820,425" fill="none" stroke="#44505f" stroke-width="3.5" marker-start='url(#ah)' marker-end="url(#ah)"/>
+<polyline points="1350,730 1350,760" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
+<text x="1362" y="752" class="l">RiskSignal</text>
+<polyline points="920,1020 880,1020" fill="none" stroke="#44505f" stroke-width="3.5" marker-start='url(#ah)' marker-end="url(#ah)"/>
+<polyline points="1800,1020 1820,1020" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
+<polyline points="450,870 470,870" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
+<text x="30" y="1325" class="h2">Cross-cutting: fail loudly (a modified artifact or snapshot file stops start-up; no silent fallback) · deterministic replay (fixed clock, content-derived ids, pinned digests) ·</text>
+<text x="30" y="1355" class="h2">four kinds of number never blurred (model prediction, historical observation, scenario assumption, realised outcome).</text>
+</svg>

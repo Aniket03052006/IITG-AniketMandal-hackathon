@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1590" width="2400" height="1590" font-family="Helvetica Neue, Arial, sans-serif">
+<defs><marker id='ah' viewBox='0 0 10 10' refX='7' refY='5' markerWidth='5' markerHeight='5' orient='auto'><path d='M0,0 L10,5 L0,10 z' fill='#44505f'/></marker></defs><style>.h1{font:800 56px 'Helvetica Neue',Arial,sans-serif;fill:#0f1c2e}.h2{font:400 29px 'Helvetica Neue',Arial,sans-serif;fill:#44505f}.num{font:800 34px 'Helvetica Neue',Arial,sans-serif}.title{font:800 31px 'Helvetica Neue',Arial,sans-serif;fill:#fff;letter-spacing:1px}.sub{font:700 27px 'Helvetica Neue',Arial,sans-serif;fill:#14202e}.pill{font:800 15px 'Helvetica Neue',Arial,sans-serif;letter-spacing:1.2px}.body{font:400 25px 'Helvetica Neue',Arial,sans-serif;fill:#26323f}.exh{font:800 15px 'Helvetica Neue',Arial,sans-serif;fill:#6b7a8c;letter-spacing:1.5px}.ex{font:italic 400 22px 'Helvetica Neue',Arial,sans-serif;fill:#26323f}.sh{font:800 28px 'Helvetica Neue',Arial,sans-serif;fill:#14202e}.sb{font:400 24px 'Helvetica Neue',Arial,sans-serif;fill:#26323f}.foot{font:400 23px 'Helvetica Neue',Arial,sans-serif;fill:#4b5a6b}</style>
+<rect width="2400" height="1590" fill="#fbfcfe"/>
+<text x="40" y="76" class="h1">EventShock: from a headline to a portfolio loss, in 7 steps</text>
+<text x="40" y="122" class="h2">It reads financial news, works out how serious each story is, then asks: what would this do to a bank’s investments if it really happened?</text>
+<rect x="40" y="160" width="520" height="600" rx="26" fill="#ffffff" stroke="#3b78c9" stroke-width="4"/>
+<rect x="40" y="160" width="520" height="92" rx="26" fill="#3b78c9"/>
+<rect x="40" y="220" width="520" height="32" fill="#3b78c9"/>
+<circle cx="96" cy="206" r="30" fill="#ffffff"/>
+<text x="96" y="218" text-anchor="middle" class="num" fill="#3b78c9">1</text>
+<text x="144" y="218" class="title">COLLECT</text>
+<text x="68" y="300" class="sub">Gather the raw material</text>
+<rect x="68" y="320" width="224" height="34" rx="17" fill="#3b78c9" fill-opacity="0.14"/>
+<text x="85" y="344" class="pill" fill="#3b78c9">READS PUBLIC DATA</text>
+<circle cx="78" cy="390" r="5" fill="#3b78c9"/>
+<text x="96" y="398" class="body">News articles (GDELT)</text>
+<circle cx="78" cy="430" r="5" fill="#3b78c9"/>
+<text x="96" y="438" class="body">Finance posts (Twitter)</text>
+<circle cx="78" cy="470" r="5" fill="#3b78c9"/>
+<text x="96" y="478" class="body">Company filings (SEC), if</text>
+<text x="96" y="509" class="body">switched on</text>
+<circle cx="78" cy="541" r="5" fill="#3b78c9"/>
+<text x="96" y="549" class="body">Or any text you paste in</text>
+<rect x="60" y="634" width="480" height="104" rx="14" fill="#f3f6fb"/>
+<text x="76" y="662" class="exh">REAL EXAMPLE</text>
+<text x="76" y="690" class="ex">“Iran Says Strait of Hormuz Is Closed</text>
+<text x="76" y="718" class="ex">Again, Oil Risk to Economy Rises”</text>
+<line x1="568" y1="460" x2="632" y2="460" stroke="#44505f" stroke-width="6" marker-end="url(#ah)"/>
+<rect x="640" y="160" width="520" height="600" rx="26" fill="#ffffff" stroke="#3f9a84" stroke-width="4"/>
+<rect x="640" y="160" width="520" height="92" rx="26" fill="#3f9a84"/>
+<rect x="640" y="220" width="520" height="32" fill="#3f9a84"/>
+<circle cx="696" cy="206" r="30" fill="#ffffff"/>
+<text x="696" y="218" text-anchor="middle" class="num" fill="#3f9a84">2</text>
+<text x="744" y="218" class="title">CLEAN UP</text>
+<text x="668" y="300" class="sub">Make sure it is usable</text>
+<rect x="668" y="320" width="168" height="34" rx="17" fill="#3f9a84" fill-opacity="0.14"/>
+<text x="685" y="344" class="pill" fill="#3f9a84">SIMPLE RULES</text>
+<circle cx="678" cy="390" r="5" fill="#3f9a84"/>
+<text x="696" y="398" class="body">Reject broken records and say why</text>
+<circle cx="678" cy="430" r="5" fill="#3f9a84"/>
+<text x="696" y="438" class="body">Merge copies of the same story,</text>
+<text x="696" y="469" class="body">so one story is not counted five</text>
+<text x="696" y="500" class="body">times</text>
+<circle cx="678" cy="532" r="5" fill="#3f9a84"/>
+<text x="696" y="540" class="body">Work out which company it is</text>
+<text x="696" y="571" class="body">about, or say “none”</text>
+<rect x="660" y="634" width="480" height="104" rx="14" fill="#f3f6fb"/>
+<text x="676" y="662" class="exh">REAL EXAMPLE</text>
+<text x="676" y="690" class="ex">No company named, so it is treated as</text>
+<text x="676" y="718" class="ex">a market-wide story</text>
+<line x1="1168" y1="460" x2="1232" y2="460" stroke="#44505f" stroke-width="6" marker-end="url(#ah)"/>
+<rect x="1240" y="160" width="520" height="600" rx="26" fill="#ffffff" stroke="#c98a3b" stroke-width="4"/>
+<rect x="1240" y="160" width="520" height="92" rx="26" fill="#c98a3b"/>
+<rect x="1240" y="220" width="520" height="32" fill="#c98a3b"/>
+<circle cx="1296" cy="206" r="30" fill="#ffffff"/>
+<text x="1296" y="218" text-anchor="middle" class="num" fill="#c98a3b">3</text>
+<text x="1344" y="218" class="title">UNDERSTAND</text>
+<text x="1268" y="300" class="sub">Three questions about the text</text>
+<rect x="1268" y="320" width="347" height="34" rx="17" fill="#c98a3b" fill-opacity="0.14"/>
+<text x="1285" y="344" class="pill" fill="#c98a3b">TRAINED PROGRAMS + SCORECARD</text>
+<circle cx="1278" cy="390" r="5" fill="#c98a3b"/>
+<text x="1296" y="398" class="body">Tone: is it good or bad news? (−1</text>
+<text x="1296" y="429" class="body">to +1)</text>
+<circle cx="1278" cy="461" r="5" fill="#c98a3b"/>
+<text x="1296" y="469" class="body">Type: what happened? (8 kinds,</text>
+<text x="1296" y="500" class="body">such as geopolitical or credit)</text>
+<circle cx="1278" cy="532" r="5" fill="#c98a3b"/>
+<text x="1296" y="540" class="body">Seriousness: how big is it? (1 to</text>
+<text x="1296" y="571" class="body">10)</text>
+<rect x="1260" y="634" width="480" height="104" rx="14" fill="#f3f6fb"/>
+<text x="1276" y="662" class="exh">REAL EXAMPLE</text>
+<text x="1276" y="690" class="ex">Neutral tone · Geopolitical ·</text>
+<text x="1276" y="718" class="ex">seriousness 8 out of 10</text>
+<line x1="1768" y1="460" x2="1832" y2="460" stroke="#44505f" stroke-width="6" marker-end="url(#ah)"/>
+<rect x="1840" y="160" width="520" height="600" rx="26" fill="#ffffff" stroke="#7d6bb8" stroke-width="4"/>
+<rect x="1840" y="160" width="520" height="92" rx="26" fill="#7d6bb8"/>
+<rect x="1840" y="220" width="520" height="32" fill="#7d6bb8"/>
+<circle cx="1896" cy="206" r="30" fill="#ffffff"/>
+<text x="1896" y="218" text-anchor="middle" class="num" fill="#7d6bb8">4</text>
+<text x="1944" y="218" class="title">CHECK THE TRUST</text>
+<text x="1868" y="300" class="sub">How sure can we be?</text>
+<rect x="1868" y="320" width="168" height="34" rx="17" fill="#7d6bb8" fill-opacity="0.14"/>
+<text x="1885" y="344" class="pill" fill="#7d6bb8">SIMPLE RULES</text>
+<circle cx="1878" cy="390" r="5" fill="#7d6bb8"/>
+<text x="1896" y="398" class="body">Count the independent sources</text>
+<circle cx="1878" cy="430" r="5" fill="#7d6bb8"/>
+<text x="1896" y="438" class="body">Keep quotes from the text as</text>
+<text x="1896" y="469" class="body">proof</text>
+<circle cx="1878" cy="501" r="5" fill="#7d6bb8"/>
+<text x="1896" y="509" class="body">Record which program produced</text>
+<text x="1896" y="540" class="body">each number</text>
+<rect x="1860" y="634" width="480" height="104" rx="14" fill="#f3f6fb"/>
+<text x="1876" y="662" class="exh">REAL EXAMPLE</text>
+<text x="1876" y="690" class="ex">Only 1 source, so the screen says:</text>
+<text x="1876" y="718" class="ex">weak evidence</text>
+<polyline points="2100,766 2100,815 300,815 300,862" fill="none" stroke="#44505f" stroke-width="6" marker-end="url(#ah)"/>
+<rect x="40" y="870" width="520" height="600" rx="26" fill="#ffffff" stroke="#c95a5a" stroke-width="4"/>
+<rect x="40" y="870" width="520" height="92" rx="26" fill="#c95a5a"/>
+<rect x="40" y="930" width="520" height="32" fill="#c95a5a"/>
+<circle cx="96" cy="916" r="30" fill="#ffffff"/>
+<text x="96" y="928" text-anchor="middle" class="num" fill="#c95a5a">5</text>
+<text x="144" y="928" class="title">WHAT-IF TEST</text>
+<text x="68" y="1010" class="sub">Pretend it really happens</text>
+<rect x="68" y="1030" width="168" height="34" rx="17" fill="#c95a5a" fill-opacity="0.14"/>
+<text x="85" y="1054" class="pill" fill="#c95a5a">SIMPLE RULES</text>
+<circle cx="78" cy="1100" r="5" fill="#c95a5a"/>
+<text x="96" y="1108" class="body">Runs only if seriousness is 7 or</text>
+<text x="96" y="1139" class="body">more</text>
+<circle cx="78" cy="1171" r="5" fill="#c95a5a"/>
+<text x="96" y="1179" class="body">Picks a scenario, for example</text>
+<text x="96" y="1210" class="body">“investors flee to safety”:</text>
+<text x="96" y="1241" class="body">shares fall</text>
+<circle cx="78" cy="1273" r="5" fill="#c95a5a"/>
+<text x="96" y="1281" class="body">The sizes are assumptions, not</text>
+<text x="96" y="1312" class="body">predictions</text>
+<rect x="60" y="1372" width="480" height="76" rx="14" fill="#f3f6fb"/>
+<text x="76" y="1400" class="exh">REAL EXAMPLE</text>
+<text x="76" y="1428" class="ex">Shares −8%, energy companies −14%</text>
+<line x1="568" y1="1170" x2="632" y2="1170" stroke="#44505f" stroke-width="6" marker-end="url(#ah)"/>
+<rect x="640" y="870" width="520" height="600" rx="26" fill="#ffffff" stroke="#c95a5a" stroke-width="4"/>
+<rect x="640" y="870" width="520" height="92" rx="26" fill="#c95a5a"/>
+<rect x="640" y="930" width="520" height="32" fill="#c95a5a"/>
+<circle cx="696" cy="916" r="30" fill="#ffffff"/>
+<text x="696" y="928" text-anchor="middle" class="num" fill="#c95a5a">6</text>
+<text x="744" y="928" class="title">RE-PRICE HOLDINGS</text>
+<text x="668" y="1010" class="sub">Do the sums for every holding</text>
+<rect x="668" y="1030" width="269" height="34" rx="17" fill="#c95a5a" fill-opacity="0.14"/>
+<text x="685" y="1054" class="pill" fill="#c95a5a">FIXED FORMULAS, NO AI</text>
+<circle cx="678" cy="1100" r="5" fill="#c95a5a"/>
+<text x="696" y="1108" class="body">103 pretend holdings: shares,</text>
+<text x="696" y="1139" class="body">bonds, loans, derivatives</text>
+<circle cx="678" cy="1171" r="5" fill="#c95a5a"/>
+<text x="696" y="1179" class="body">Same inputs always give the same</text>
+<text x="696" y="1210" class="body">answer</text>
+<circle cx="678" cy="1242" r="5" fill="#c95a5a"/>
+<text x="696" y="1250" class="body">Shows which holdings lose the</text>
+<text x="696" y="1281" class="body">most</text>
+<rect x="660" y="1344" width="480" height="104" rx="14" fill="#f3f6fb"/>
+<text x="676" y="1372" class="exh">REAL EXAMPLE</text>
+<text x="676" y="1400" class="ex">$860.1M becomes $822.8M  (−$37.3M,</text>
+<text x="676" y="1428" class="ex">−4.3%)</text>
+<line x1="1168" y1="1170" x2="1232" y2="1170" stroke="#44505f" stroke-width="6" marker-end="url(#ah)"/>
+<rect x="1240" y="870" width="520" height="600" rx="26" fill="#ffffff" stroke="#3f9a5c" stroke-width="4"/>
+<rect x="1240" y="870" width="520" height="92" rx="26" fill="#3f9a5c"/>
+<rect x="1240" y="930" width="520" height="32" fill="#3f9a5c"/>
+<circle cx="1296" cy="916" r="30" fill="#ffffff"/>
+<text x="1296" y="928" text-anchor="middle" class="num" fill="#3f9a5c">7</text>
+<text x="1344" y="928" class="title">SHOW THE RESULT</text>
+<text x="1268" y="1010" class="sub">A dashboard anyone can read</text>
+<rect x="1268" y="1030" width="179" height="34" rx="17" fill="#3f9a5c" fill-opacity="0.14"/>
+<text x="1285" y="1054" class="pill" fill="#3f9a5c">WEB DASHBOARD</text>
+<circle cx="1278" cy="1100" r="5" fill="#3f9a5c"/>
+<text x="1296" y="1108" class="body">Value before and after</text>
+<circle cx="1278" cy="1140" r="5" fill="#3f9a5c"/>
+<text x="1296" y="1148" class="body">Where the loss comes from</text>
+<circle cx="1278" cy="1180" r="5" fill="#3f9a5c"/>
+<text x="1296" y="1188" class="body">A “Why?” button behind every</text>
+<text x="1296" y="1219" class="body">number</text>
+<circle cx="1278" cy="1251" r="5" fill="#3f9a5c"/>
+<text x="1296" y="1259" class="body">What was known at each moment</text>
+<rect x="1260" y="1344" width="480" height="104" rx="14" fill="#f3f6fb"/>
+<text x="1276" y="1372" class="exh">REAL EXAMPLE</text>
+<text x="1276" y="1400" class="ex">News in, portfolio consequence out, on</text>
+<text x="1276" y="1428" class="ex">one screen</text>
+<rect x="1840" y="870" width="520" height="600" rx="26" fill="#fff8e6" stroke="#d9a62e" stroke-width="4" stroke-dasharray="12 8"/>
+<text x="1868" y="926" class="sh">BUILT-IN SAFETY RULES</text>
+<text x="1868" y="982" class="sb" fill="#d9a62e">✓</text>
+<text x="1906" y="982" class="sb">Unsure? It says “unknown” instead</text>
+<text x="1906" y="1013" class="sb">of guessing a number.</text>
+<text x="1868" y="1064" class="sb" fill="#d9a62e">✓</text>
+<text x="1906" y="1064" class="sb">Every number shows where it came</text>
+<text x="1906" y="1095" class="sb">from.</text>
+<text x="1868" y="1146" class="sb" fill="#d9a62e">✓</text>
+<text x="1906" y="1146" class="sb">Nothing is called “validated”</text>
+<text x="1906" y="1177" class="sb">unless it passed a test fixed in</text>
+<text x="1906" y="1208" class="sb">advance (so far, nothing has).</text>
+<text x="1868" y="1259" class="sb" fill="#d9a62e">✓</text>
+<text x="1906" y="1259" class="sb">The demo runs on saved real data.</text>
+<text x="1906" y="1290" class="sb">The live feed is OFF unless you</text>
+<text x="1906" y="1321" class="sb">turn it on.</text>
+<text x="40" y="1522" class="foot">Under the hood, for the curious: Python and FastAPI on the server, scikit-learn for the trained programs, React for the dashboard. All numbers on this page come from the shipped demo data.</text>
+<text x="40" y="1556" class="foot">All models are experimental and the portfolio is made up (real companies, invented positions): this is decision support, not a forecast. The detailed technical diagram is docs/architecture.png.</text>
+</svg>
