@@ -1,3 +1,4 @@
+import { ReviewPage } from "./pages/ReviewPage";
 import { TodayPage } from "./pages/TodayPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
@@ -24,7 +25,7 @@ const queryClient = new QueryClient({
 
 function NotFound() {
   return (
-    <EmptyState title="Page not found" action={<Link className="btn" to="/">Back to the Risk Feed</Link>}>
+    <EmptyState title="Page not found" action={<Link className="btn" to="/">Back to the Desk</Link>}>
       That address does not exist in EventShock.
     </EmptyState>
   );
@@ -38,6 +39,7 @@ export function App() {
           <Route element={<Shell />}>
             <Route index element={<FeedPage />} />
             <Route path="today" element={<TodayPage />} />
+            <Route path="review" element={<ReviewPage />} />
             <Route path="analyze" element={<AnalyzePage />} />
             <Route path="events/:id" element={<EventPage />} />
             <Route path="pipeline" element={<Navigate to="/evidence?tab=pipeline" replace />} />
