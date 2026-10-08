@@ -9,6 +9,9 @@ import type { SignalSummary } from "../api/types";
 export const FEATURED = {
   hero: { id: "sig_90ee2542ae", why: "Model-scored, with a filing before the report, one after it, and a realised outcome." },
   also: [{ id: "sig_3c84db95ae", why: "Three outlets reported it, but the impact is a labelled placeholder rule: see how EventShock degrades." }],
+  /** The Desk's opening event when the risk assessment is served: a real replay signal whose whole chain completes (severity above the
+   * trigger, a generated scenario, a reached book), so the first screen shows every station with data. Its single source is shown as such. */
+  desk: { id: "sig_8f79c8bbd6", why: "A geopolitical oil shock read at severity 8: it crosses the trigger, generates a scenario and reaches most of the book. One source only, and the evidence strip says so." },
 } as const;
 
 const LAST_KEY = "eventshock-last-event";
@@ -51,4 +54,19 @@ export function pickFeatured(items: SignalSummary[]): SignalSummary | undefined 
 
 export function pickAlso(items: SignalSummary[]): SignalSummary[] {
   return FEATURED.also.map((f) => items.find((s) => s.id === f.id)).filter((s): s is SignalSummary => !!s);
+}
+
+/**
+ * The event the Desk opens on. With the assessment served: the named desk event if present, else the highest-severity event above the
+ * trigger that reaches the portfolio (ties: more sources, then most recent, then id). Otherwise the guided demo's featured event.
+ */
+export function pickDeskDefault(items: SignalSummary[], assessed: boolean): SignalSummary | undefined {
+  if (!assessed) return pickFeatured(items);
+  const named = items.find((s) => s.id === FEATURED.desk.id);
+  if (named) return named;
+  const pool = items.filter((s) => s.above_trigger && s.relevance_level !== "NONE" && s.relevance_level !== "UNDETERMINED" && s.severity_score != null);
+  const best = [...pool].sort(
+    (a, b) => (b.severity_score ?? 0) - (a.severity_score ?? 0) || b.source_count - a.source_count || b.published_at.localeCompare(a.published_at) || a.id.localeCompare(b.id),
+  )[0];
+  return best ?? pickFeatured(items);
 }

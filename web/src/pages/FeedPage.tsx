@@ -3,11 +3,14 @@ import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
-import { useLiveStatus, useMeta, useScenarios, useSignals } from "../api/hooks";
-import { MiniChain } from "../components/assessment/MiniChain";
+import { useLiveStatus, useMeta, useSignals } from "../api/hooks";
+import { EventStream } from "../components/desk/EventStream";
+import { TrustStrip } from "../components/desk/TrustStrip";
+import { CategoryGlyph } from "../components/Glyph";
+import { SignalTrace } from "../components/trace/SignalTrace";
 import type { EventCategory, Meta, SignalSummary } from "../api/types";
 import { EVENT_CATEGORIES } from "../api/types";
-import { Alert, ArrowRight, CATEGORY_ICON, Chevron, Search } from "../components/icons";
+import { Alert, ArrowRight, CATEGORY_ICON, Chevron, LabIcon, Search, TodayIcon } from "../components/icons";
 import { EmptyState, ErrorState, ImpactMeter, SentimentBar, Skeleton, SourceBadge, StatusTag } from "../components/ui";
 import { EventStatusTag } from "../components/EventStatusTag";
 import { StageStrip } from "../components/StageStrip";
@@ -15,8 +18,8 @@ import { LiveBar } from "../components/live/LiveBar";
 import { ChannelTag, RelevanceTag, ScopeTag } from "../components/scope/Tags";
 import { SCOPE_TYPE_LABEL } from "../lib/intelligence";
 import { CHANNEL_LABEL, subjectLine, subjectOfSummary, type ScopeLevel } from "../lib/scope";
-import { ago } from "../lib/format";
-import { FEATURED, pickAlso, pickFeatured } from "../lib/featured";
+import { ago, dateTime } from "../lib/format";
+import { FEATURED, pickDeskDefault } from "../lib/featured";
 import { impactIsModel, servedKinds, summaryKind } from "../lib/impact";
 import { eventIsModel, sentimentIsModel } from "../lib/provenance";
 import { categoryLabeler } from "../lib/taxonomy";
@@ -49,8 +52,10 @@ function FeedRow({ s, asOf, label, baseline, assessed }: { s: SignalSummary; asO
             />
           )}
         </div>
-        <div className="min-w-0">
-          <p className="font-medium leading-snug text-ink group-hover:text-accent-strong">{s.headline}</p>
+        <div className="flex min-w-0 gap-3">
+          <CategoryGlyph category={s.category} size="sm" className="mt-0.5" />
+          <div className="min-w-0">
+          <p className="feed-headline group-hover:text-accent-strong">{s.headline}</p>
           <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
             {s.scope_level === "COMPANY" ? (
               <>
@@ -83,6 +88,7 @@ function FeedRow({ s, asOf, label, baseline, assessed }: { s: SignalSummary; asO
             {s.relevance_level !== "NONE" && s.event_status !== "NO_EVENT" && <RelevanceTag level={s.relevance_level} share={s.relevance_share} />}
             {isNew && <StatusTag tone="ok">New</StatusTag>}
             {isUpdated && <StatusTag tone="ok">Updated · {s.source_count} reports</StatusTag>}
+          </div>
           </div>
         </div>
         <div className="col-span-2 flex flex-wrap items-center gap-x-4 gap-y-2 xl:contents">
@@ -166,54 +172,37 @@ function StoryStrip({ items, threshold, loading, assessed }: { items: SignalSumm
   );
 }
 
-function FeaturedPanel({ items, label, assessed, threshold }: { items: SignalSummary[]; label: (c: string) => string; assessed: boolean; threshold: number }) {
-  const scenarios = useScenarios();
-  const hero = pickFeatured(items);
-  const also = pickAlso(items);
-  if (!hero) return null;
+/** The selected event, as reported: serif headline, where it came from, and the three next steps in one clear hierarchy. */
+function SelectedHead({ s, label, why, also }: { s: SignalSummary; label: (c: string) => string; why: string | null; also: SignalSummary[] }) {
   return (
-    <section className="featured" aria-labelledby="featured-h">
+    <section className="desk-head" aria-labelledby="desk-selected">
       <div className="min-w-0">
-        <p className="eyebrow" id="featured-h">
-          Start the guided demo
+        <p className="desk-meta">
+          <SourceBadge type={s.source_type} name={s.source} />
+          <span className="num">{dateTime(s.published_at)}</span>
+          <span className="text-ink-2">{subjectLine(subjectOfSummary(s))}</span>
+          <EventStatusTag status={s.event_status} category={s.category} label={label} />
         </p>
-        <p className="mt-2 font-display text-xl font-semibold leading-snug">{hero.headline}</p>
-        <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
-          <span className="text-ink-2">{subjectLine(subjectOfSummary(hero))}</span>
-          <EventStatusTag status={hero.event_status} category={hero.category} label={label} />
-        </p>
-        <p className="mt-3 max-w-[58ch] text-sm text-muted">{hero.id === FEATURED.hero.id ? FEATURED.hero.why : "The highest-impact model-scored event in this data."}</p>
+        <h2 id="desk-selected" className="desk-headline">{s.headline}</h2>
+        {why && <p className="mt-2 max-w-[70ch] text-sm text-muted">Why this one: {why}</p>}
       </div>
-      <div className="flex flex-col items-start gap-4 sm:items-end">
-        {assessed ? (
-          <ImpactMeter score={hero.severity_score ?? null} noun="Severity" showLabel />
-        ) : (
-          <ImpactMeter score={hero.impact_score} kind={hero.impact_score === null ? undefined : summaryKind(hero)} showKind range={hero.impact_score_low != null && hero.impact_score_high != null ? [hero.impact_score_low, hero.impact_score_high] : null} />
-        )}
-        <Link to={`/events/${hero.id}`} className="btn btn-primary">
-          Open the event story <ArrowRight size={14} />
+      <div className="desk-actions">
+        <Link to={`/events/${s.id}`} className="btn btn-primary">
+          Open the event story <ArrowRight size={15} />
+        </Link>
+        <Link to={`/stress?signal=${s.id}`} className="btn">
+          <LabIcon size={15} /> Stress-test in Stress Lab
         </Link>
       </div>
-      {assessed && (
-        <div className="col-span-full mt-2">
-          <MiniChain
-            s={hero}
-            threshold={threshold}
-            label={label}
-            scenarioName={hero.assessed_category ? scenarios.data?.scenarios.find((x) => x.id === scenarios.data?.default_by_category[hero.assessed_category as keyof typeof scenarios.data.default_by_category])?.name : undefined}
-            portfolioText={hero.relevance_share != null ? `${(hero.relevance_share * 100).toFixed(0)}% of the book reached` : undefined}
-          />
-        </div>
-      )}
       {also.length > 0 && (
-        <p className="featured-also">
+        <p className="desk-also">
           Also try:{" "}
           {also.map((a) => (
-            <Link key={a.id} to={`/events/${a.id}`} className="text-accent underline underline-offset-2">
-              {a.headline.length > 70 ? `${a.headline.slice(0, 68)}…` : a.headline}
+            <Link key={a.id} to={`/?signal=${a.id}`} className="text-accent underline underline-offset-2">
+              {a.headline.length > 80 ? `${a.headline.slice(0, 78)}…` : a.headline}
             </Link>
           ))}{" "}
-          <span className="text-muted">({FEATURED.also[0].why})</span>
+          <span className="text-muted">({also[0]!.source_count} reports of one story: compare the evidence strip).</span>
         </p>
       )}
     </section>
@@ -281,33 +270,65 @@ export function FeedPage() {
   const newCount = baseline === null ? 0 : everything.filter((s) => (s.updated_seq ?? 0) > baseline).length;
   const nonEvents = everything.filter((s) => (assessed && s.assessed_category ? s.assessed_category === "NO_EVENT" : s.event_status === "NO_EVENT")).length;
   const moreFilters = !!(category || source || sort !== "newest" || scope || scopeType);
+  // the Desk's selection lives in ?signal= (a link a presenter can share); default: the guided demo's featured event
+  const signalParam = params.get("signal");
+  const selected = everything.find((x) => x.id === signalParam) ?? pickDeskDefault(everything, assessed);
+  const select = (id: string) => {
+    const next = new URLSearchParams(params);
+    next.set("signal", id);
+    setParams(next, { replace: true, preventScrollReset: true });
+  };
 
   return (
     <>
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold">Risk Feed</h1>
-        <p className="mt-1 max-w-[64ch] text-md text-ink-2">
-          EventShock reads financial text, works out what happened and how severe it is likely to be, and shows what that does to a portfolio. Start with the featured event, or browse.
-        </p>
+      <header className="desk-title">
+        <div className="min-w-0">
+          <h1 className="text-3xl">Desk</h1>
+          <p className="mt-0.5 max-w-[80ch] text-ink-2">
+            Financial news in, portfolio consequence out. Pick an event on the wire: the trace follows it from the source to the book.
+          </p>
+        </div>
         {meta?.capabilities.monitor === true && (
-          <p className="mt-3"><Link className="btn" to="/today">What should I care about right now? <ArrowRight size={14} /></Link></p>
+          <Link className="btn" to="/today">
+            <TodayIcon size={15} /> What changed today? <ArrowRight size={14} />
+          </Link>
         )}
       </header>
 
-      {live.data && (
-        <LiveBar
-          st={live.data}
-          newCount={newCount}
-          onJumpNew={() => {
-            setParams(new URLSearchParams(), { replace: true });
-            if (all.data) setBaseline(all.data.seq);
-            window.scrollTo({ top: 0 });
-          }}
-        />
-      )}
+      <div className="desk">
+        <EventStream items={everything} selected={selected?.id ?? null} onSelect={select} label={label} assessed={assessed} total={processed.length} />
+        <div className="desk-main">
+          {all.isLoading ? (
+            <div className="space-y-3"><Skeleton className="h-8 w-2/3" /><Skeleton className="h-56 w-full" /></div>
+          ) : all.error ? (
+            <ErrorState error={all.error} retry={() => all.refetch()} />
+          ) : selected ? (
+            <>
+              <SelectedHead s={selected} label={label} why={selected.id === FEATURED.desk.id ? FEATURED.desk.why : selected.id === FEATURED.hero.id ? FEATURED.hero.why : null} also={selected.id === FEATURED.hero.id || selected.id === FEATURED.desk.id ? FEATURED.also.map((f) => everything.find((x) => x.id === f.id)).filter((x): x is SignalSummary => !!x && x.id !== selected.id) : []} />
+              <SignalTrace signalId={selected.id} />
+              <TrustStrip signalId={selected.id} />
+            </>
+          ) : (
+            <EmptyState title="No market events yet">The wire has no classified events in this data. Paste a text on the Analyze page to create one.</EmptyState>
+          )}
+        </div>
+      </div>
+
       <StoryStrip items={processed} threshold={threshold} loading={all.isLoading} assessed={assessed} />
-      {!all.isLoading && <FeaturedPanel items={everything} label={label} assessed={assessed} threshold={threshold} />}
-      <div className="mt-6"><ChangesFeed limit={5} /></div>
+      {live.data && (
+        <div className="mt-6">
+          <LiveBar
+            st={live.data}
+            newCount={newCount}
+            onJumpNew={() => {
+              setParams(new URLSearchParams(), { replace: true });
+              if (all.data) setBaseline(all.data.seq);
+              window.scrollTo({ top: 0 });
+            }}
+          />
+        </div>
+      )}
+      <div className="mt-8"><ChangesFeed limit={5} /></div>
 
       <details className="disclosure mt-5">
         <summary>What is real here, and what is a stand-in?</summary>
@@ -406,7 +427,7 @@ export function FeedPage() {
           ))}
         </div>
         {error ? (
-          <div className="p-4"><ErrorState error={error} retry={() => refetch()} /></div>
+          all.error ? <p className="p-4 text-sm text-muted">The signal list could not be loaded either: see the message above.</p> : <div className="p-4"><ErrorState error={error} retry={() => refetch()} /></div>
         ) : isLoading ? (
           <FeedSkeleton />
         ) : items.length === 0 ? (

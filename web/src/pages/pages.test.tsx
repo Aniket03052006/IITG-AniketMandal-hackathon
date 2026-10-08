@@ -418,7 +418,8 @@ describe("Risk Feed", () => {
   it("lists signals with impact, entity and event type", async () => {
     renderAt("/");
     expect(await screen.findAllByText("Meridian flags funding gap")).not.toHaveLength(0);
-    expect(screen.getByText("Kestrel launches jet")).toBeInTheDocument();
+    const table = screen.getByRole("region", { name: "Risk signals" });
+    expect(within(table).getByText("Kestrel launches jet")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Impact 9 of 10, Extreme" })).toBeInTheDocument();
     expect(screen.getByText("2 of 2 signals shown", { exact: false })).toBeInTheDocument();
   });
@@ -435,7 +436,7 @@ describe("Risk Feed", () => {
 
   it("filters by event type through the API", async () => {
     renderAt("/");
-    await screen.findByText("Kestrel launches jet");
+    await screen.findAllByText("Kestrel launches jet");
     await userEvent.click(screen.getByText("More filters and sorting"));
     await userEvent.click(screen.getByRole("button", { name: /Product \/ Operations/ }));
     const list = screen.getByRole("region", { name: "Risk signals" });
@@ -711,8 +712,8 @@ describe("Portfolio Stress", () => {
     signalDetail = detail(8);
     renderAt("/stress?signal=sig_2&run=1");
     const hero = await screen.findByRole("region", { name: /Portfolio value before and after the scenario/i });
-    expect(within(hero).getByText("$1.0M")).toBeInTheDocument();
-    expect(within(hero).getByText("$900.0K")).toBeInTheDocument();
+    expect(within(hero).getAllByText("$1.0M").length).toBeGreaterThan(0);
+    expect(within(hero).getAllByText("$900.0K").length).toBeGreaterThan(0);
     expect(within(hero).getAllByText("−$100.0K").length).toBeGreaterThan(0);
     expect(within(hero).getByText("−10.00% of portfolio value")).toBeInTheDocument();
     expect(within(hero).getByText("Scenario simulation")).toBeInTheDocument();
@@ -937,7 +938,7 @@ describe("Real-source replay with the trained event model", () => {
 
   it("hides what the model judged not to be a market event, says how many, and can show them", async () => {
     renderAt("/");
-    expect(await screen.findByText("Kestrel launches jet")).toBeInTheDocument();
+    expect((await screen.findAllByText("Kestrel launches jet")).length).toBeGreaterThan(0);
     expect(screen.queryByText("Great chart lol join discord")).not.toBeInTheDocument();
     expect(screen.getByText("Regional bank may be eyeing a deal")).toBeInTheDocument();
     expect(screen.getByText("Type uncertain")).toBeInTheDocument();
