@@ -38,3 +38,22 @@ export function storeTheme(theme: Theme): void {
     /* private window / blocked storage: the toggle still works for this page view */
   }
 }
+
+const EVENT = "eventshock-theme-change";
+
+/** Switch theme from anywhere (the ⌘K palette); every ThemeSwitch listens so its label stays true. */
+export function setTheme(theme: Theme): void {
+  applyTheme(theme);
+  storeTheme(theme);
+  window.dispatchEvent(new CustomEvent<Theme>(EVENT, { detail: theme }));
+}
+
+export function onThemeChange(fn: (t: Theme) => void): () => void {
+  const h = (e: Event) => fn((e as CustomEvent<Theme>).detail);
+  window.addEventListener(EVENT, h);
+  return () => window.removeEventListener(EVENT, h);
+}
+
+export function currentTheme(): Theme {
+  return parseTheme(document.documentElement.dataset.theme) ?? "light";
+}

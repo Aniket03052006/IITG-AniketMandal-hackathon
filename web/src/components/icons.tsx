@@ -1,5 +1,5 @@
 import type { SVGProps } from "react";
-import type { EventCategory } from "../api/types";
+import type { AssetClass, EventCategory, RiskFactor } from "../api/types";
 
 type P = SVGProps<SVGSVGElement> & { size?: number };
 
@@ -85,6 +85,13 @@ export const TodayIcon = (p: P) => (
   <Icon {...p}>
     <circle cx="8" cy="8" r="5.5" />
     <path d="M8 4.5V8l2.5 1.5" />
+  </Icon>
+);
+/** A checklist: items waiting for a person's decision. */
+export const ReviewIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="2.5" y="2.5" width="11" height="11" rx="2" />
+    <path d="M5 6l1.2 1.2L8.4 5M5 10.5l1.2 1.2L8.4 9.5M10 6.2h1.8M10 10.7h1.8" />
   </Icon>
 );
 export const FeedIcon = (p: P) => (
@@ -268,5 +275,199 @@ export const PortfolioIcon = (p: P) => (
 export const Plus = (p: P) => (
   <Icon {...p}>
     <path d="M8 3v10M3 8h10" />
+  </Icon>
+);
+
+/* ---- shell ---- */
+/** The Desk: incoming lines of the wire, read into a column. */
+export const DeskIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 4h3M2 8h5M2 12h3M8 4h6M10 8h4M8 12h6" />
+  </Icon>
+);
+/** Stress Lab: a flask, an experiment you run on the book. */
+export const LabIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M6 2h4M7 2v4L3.500 12.500A1 1 0 0 0 4.400 14h7.200a1 1 0 0 0 .9-1.500L9 6V2" />
+    <path d="M5 10h6" />
+  </Icon>
+);
+export const Command = (p: P) => (
+  <Icon {...p}>
+    <path d="M6 6V4.500A1.500 1.500 0 1 0 4.500 6H6Zm0 0h4m-4 0v4m4-4V4.500A1.500 1.500 0 1 1 11.500 6H10Zm0 0v4m0 0h1.500A1.500 1.500 0 1 1 10 11.500V10Zm0 0H6m0 0v1.500A1.500 1.500 0 1 1 4.500 10H6Z" />
+  </Icon>
+);
+export const Brief = (p: P) => (
+  <Icon {...p}>
+    <path d="M4 2h6l3 3v9H4z" />
+    <path d="M10 2v3h3M6.500 8h4M6.500 10.500h4" />
+  </Icon>
+);
+export const Eye = (p: P) => (
+  <Icon {...p}>
+    <path d="M1.800 8S4 3.500 8 3.500 14.200 8 14.200 8 12 12.500 8 12.500 1.800 8 1.800 8Z" />
+    <circle cx="8" cy="8" r="1.800" />
+  </Icon>
+);
+
+/* ---- the six trace stations ---- */
+const Severity = (p: P) => (
+  <Icon {...p}>
+    <path d="M2.500 12a5.500 5.500 0 0 1 11 0" />
+    <path d="M8 12 10.800 7.400" />
+  </Icon>
+);
+const Target = (p: P) => (
+  <Icon {...p}>
+    <circle cx="8" cy="8" r="5.500" />
+    <circle cx="8" cy="8" r="2" />
+    <path d="M8 1v2M15 8h-2" />
+  </Icon>
+);
+const Ledger = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 4h12v9H2zM2 7h12" />
+    <path d="M10 10h2" />
+  </Icon>
+);
+export type Station = "source" | "reading" | "severity" | "scenario" | "exposure" | "portfolio";
+export const STATION_ICON: Record<Station, (p: P) => React.JSX.Element> = {
+  source: NewsIcon,
+  reading: Eye,
+  severity: Severity,
+  scenario: Scenario,
+  exposure: Target,
+  portfolio: Ledger,
+};
+
+/* ---- risk factors: what a shock moves ---- */
+const EquityFactor = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 12 6 7l3 3 5-6" />
+  </Icon>
+);
+const RatesFactor = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 11.500c4 0 4-6.500 12-6.500" />
+    <path d="M10 5h4v4" />
+  </Icon>
+);
+const SpreadFactor = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 10c3 0 3-5 6-5s3 5 6 5M2 13h12" />
+  </Icon>
+);
+const PdFactor = (p: P) => (
+  <Icon {...p}>
+    <path d="M8 2.500 14 13H2L8 2.500Z" />
+    <path d="M8 6.800v2.700M8 11.300v.1" />
+  </Icon>
+);
+const LgdFactor = (p: P) => (
+  <Icon {...p}>
+    <rect x="2.500" y="2.500" width="11" height="11" rx="1" />
+    <path d="M2.500 9h11" />
+  </Icon>
+);
+const FxFactor = (p: P) => (
+  <Icon {...p}>
+    <path d="M3 5h9.500l-2-2M13 11H3.500l2 2" />
+  </Icon>
+);
+/** Commodity: an oil drop (the multi-factor scenarios' commodity leg is oil). */
+const OilFactor = (p: P) => (
+  <Icon {...p}>
+    <path d="M8 2c2.500 3.200 4 5.400 4 7.300A4 4 0 0 1 4 9.300C4 7.400 5.500 5.200 8 2Z" />
+  </Icon>
+);
+export const FACTOR_ICON: Record<RiskFactor, (p: P) => React.JSX.Element> = {
+  EQUITY: EquityFactor,
+  RATES_BPS: RatesFactor,
+  CREDIT_SPREAD_BPS: SpreadFactor,
+  PD_MULTIPLIER: PdFactor,
+  LGD_ADD: LgdFactor,
+  FX_PCT: FxFactor,
+  COMMODITY_PCT: OilFactor,
+};
+
+/* ---- asset classes: where the loss lands ---- */
+const BondAsset = (p: P) => (
+  <Icon {...p}>
+    <rect x="2" y="4" width="12" height="8" rx="1" />
+    <path d="M5 8h6M4.500 4v8M11.500 4v8" />
+  </Icon>
+);
+const LoanAsset = (p: P) => (
+  <Icon {...p}>
+    <path d="M2.500 13.500V6.500L8 3l5.500 3.500v7" />
+    <path d="M6 13.500V9.500h4v4M1.500 13.500h13" />
+  </Icon>
+);
+const DerivativeAsset = (p: P) => (
+  <Icon {...p}>
+    <path d="M2 8c1.500-4 3.500-4 6 0s4.500 4 6 0" />
+  </Icon>
+);
+const CashAsset = (p: P) => (
+  <Icon {...p}>
+    <rect x="1.500" y="4" width="13" height="8" rx="1" />
+    <circle cx="8" cy="8" r="1.800" />
+  </Icon>
+);
+const OtherAsset = (p: P) => (
+  <Icon {...p}>
+    <circle cx="4" cy="8" r="1" />
+    <circle cx="8" cy="8" r="1" />
+    <circle cx="12" cy="8" r="1" />
+  </Icon>
+);
+export const ASSET_ICON: Record<AssetClass, (p: P) => React.JSX.Element> = {
+  EQUITY: EquityFactor,
+  BOND: BondAsset,
+  LOAN: LoanAsset,
+  DERIVATIVE: DerivativeAsset,
+  CASH: CashAsset,
+  OTHER: OtherAsset,
+};
+
+/* ---- evidence ---- */
+export const Sources = (p: P) => (
+  <Icon {...p}>
+    <rect x="1.500" y="5" width="5" height="7" rx="1" />
+    <rect x="9.500" y="3" width="5" height="9" rx="1" />
+    <path d="M6.500 8.500h3" />
+  </Icon>
+);
+export const Contradiction = (p: P) => (
+  <Icon {...p}>
+    <path d="M3 4.500h7l-2-2M13 11.500H6l2 2" />
+    <path d="M12 3.500 4 12.500" strokeDasharray="1.500 1.500" />
+  </Icon>
+);
+export const Lifecycle = (p: P) => (
+  <Icon {...p}>
+    <circle cx="3" cy="8" r="1.500" />
+    <circle cx="8" cy="8" r="1.500" />
+    <circle cx="13" cy="8" r="1.500" />
+    <path d="M4.500 8h2M9.500 8h2" />
+  </Icon>
+);
+export const Quote = (p: P) => (
+  <Icon {...p}>
+    <path d="M3 9.500c0-2.500 1-4 3-5M3 9.500h2.500V12H3zM9 9.500c0-2.500 1-4 3-5M9 9.500h2.500V12H9z" />
+  </Icon>
+);
+
+/* ---- shell ---- */
+export const MenuIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" />
+  </Icon>
+);
+/** collapse / expand the sidebar: a panel with its left rail marked */
+export const SidebarIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="2" y="3" width="12" height="10" rx="2" />
+    <path d="M6 3v10" />
   </Icon>
 );

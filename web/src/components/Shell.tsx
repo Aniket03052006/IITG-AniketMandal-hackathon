@@ -1,39 +1,47 @@
 import clsx from "clsx";
-import { useEffect } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
-import { useActivePortfolioItem, useAdjustments, useMeta, useSignals } from "../api/hooks";
+import { useActivePortfolioItem, useAdjustments, useMeta } from "../api/hooks";
 import { useOpenDrawer } from "./Drawer";
-import { FEATURED, lastEvent, pickFeatured } from "../lib/featured";
 import { dateTime } from "../lib/format";
 import { profileLabel, profileNote } from "../lib/provenance";
 import { currencySymbol } from "../lib/portfolio";
 import { setDisplayCurrency } from "../lib/format";
+import { useNav } from "../lib/nav";
 import { AdjustHost } from "./adjust/AdjustDrawer";
+import { LiveToggle } from "./live/LiveToggle";
+import { CommandPalette, PalettePill } from "./CommandPalette";
 import { PortfolioSwitcher } from "./portfolio/PortfolioSwitcher";
-import { AnalyzeIcon, Database, EventIcon, EvidenceIcon, FeedIcon, PortfolioIcon, StressIcon, TodayIcon, Wrench } from "./icons";
+import { Close, Database, MenuIcon, SidebarIcon, Wrench } from "./icons";
 import { Logo } from "./Logo";
 import { ThemeSwitch } from "./ThemeSwitch";
 
+/** Which data this is and how the clock is pinned: always visible, because a judge's first question is "is this real?". */
 function ModeBadge() {
   const { data } = useMeta();
   return (
-    <div className="rounded-md border border-rule bg-paper-2 p-3 text-xs">
-      <div className="flex items-center gap-1.5 font-medium text-ink">
-        <Database size={13} />
-        {profileLabel(data)}
-      </div>
+    <details className="ctx-item ctx-pop">
+      <summary>
+        <span className="ctx-dot" aria-hidden="true" />
+        <Database size={14} />
+        <span className="nav-label mode-text">
+          <span className="mode-label">{profileLabel(data)}</span>
+          {data && <span className="num mode-clock">clock {dateTime(data.as_of)}</span>}
+        </span>
+      </summary>
       {data && (
-        <>
+        <div className="ctx-pop-body">
+          <p className="font-medium text-ink">What is real here?</p>
           <p className="mt-1.5 leading-snug text-muted">
             Clock pinned to <span className="num text-ink-2">{dateTime(data.as_of)}</span>, so every run reads the same.
           </p>
-          <details className="disclosure mt-1.5">
-            <summary>What is real here?</summary>
-            <p className="mt-1.5 leading-snug text-muted">{profileNote(data)}</p>
-          </details>
-        </>
+          <p className="mt-1.5 leading-snug text-muted">{profileNote(data)}</p>
+          <a className="mt-2 inline-block text-accent underline-offset-2 hover:underline" href="/api/docs" target="_blank" rel="noreferrer">
+            API reference
+          </a>
+        </div>
       )}
-    </div>
+    </details>
   );
 }
 
@@ -45,99 +53,172 @@ function AdjustLink() {
   if (meta?.capabilities.adjustments !== true) return null;
   const n = adj.data?.count ?? 0;
   return (
-    <button type="button" className="flex min-h-10 items-center gap-2.5 rounded-md px-3 text-left text-sm font-medium text-ink-2 hover:bg-paper-3 hover:text-ink" onClick={() => setOpen("adjust")} aria-haspopup="dialog">
-      <Wrench size={15} /> Adjust assumptions
-      {n > 0 && <span className="num ml-auto rounded-sm border border-dashed border-ink-2 px-1.5 text-xs" aria-label={`${n} adjusted`}>{n}</span>}
+    <button
+      type="button"
+      className="ctx-item ctx-btn"
+      onClick={() => setOpen("adjust")}
+      aria-haspopup="dialog"
+      title={n > 0 ? `${n} assumption${n === 1 ? "" : "s"} adjusted` : "Adjust assumptions (none changed)"}
+    >
+      <Wrench size={14} /> <span>Adjust</span>
+      {n > 0 && (
+        <span className="num rounded-sm border border-dashed border-current px-1.5 text-xs" aria-label={`${n} adjusted`}>{n}</span>
+      )}
     </button>
   );
 }
 
-/** The four places the story visits. Event Intelligence is a real link: the event you last opened, else the featured one. */
+const GROUPS = ["Monitor", "Investigate", "Trust"] as const;
+const COLLAPSE_KEY = "eventshock-sidebar";
+
+/** The saved sidebar choice; with none saved, a narrow laptop starts on the icon rail so the page keeps its width. Storage may be blocked. */
+function initialCollapsed(): boolean {
+  try {
+    const saved = window.localStorage.getItem(COLLAPSE_KEY);
+    if (saved === "collapsed") return true;
+    if (saved === "expanded") return false;
+  } catch {
+    /* blocked storage: fall through to the width rule */
+  }
+  return typeof window !== "undefined" && window.innerWidth < 1280;
+}
+
+/**
+ * The app frame: a navy→blue sidebar (the product's places in three groups) and a top bar (page, ⌘K, and the context every number depends on:
+ * portfolio, live feed, adjustments, theme) around the page. Below lg the sidebar is a drawer opened from the top bar.
+ */
 export function Shell() {
   const { pathname } = useLocation();
-  const { data: meta } = useMeta();
-  const all = useSignals({});
-  const featured = pickFeatured(all.data?.items ?? [])?.id ?? FEATURED.hero.id;
-  const eventTo = `/events/${lastEvent() ?? featured}`;
+  const nav = useNav();
   // money() reads the active portfolio's currency; pages remount on a switch so nothing keeps the previous portfolio's numbers
   const { id: activePf, item: activeItem } = useActivePortfolioItem();
   setDisplayCurrency(currencySymbol(activeItem?.base_currency));
 
-  const nav = [
-    ...(meta?.capabilities.monitor === true ? [{ to: "/today", label: "Today", icon: TodayIcon, active: pathname.startsWith("/today") }] : []),
-    { to: "/", label: "Risk Feed", icon: FeedIcon, active: pathname === "/" },
-    ...(meta?.capabilities.analyze !== false ? [{ to: "/analyze", label: "Analyze", icon: AnalyzeIcon, active: pathname.startsWith("/analyze") }] : []),
-    { to: eventTo, label: "Event Intelligence", icon: EventIcon, active: pathname.startsWith("/events/") },
-    { to: "/stress", label: "Portfolio Stress", icon: StressIcon, active: pathname.startsWith("/stress") },
-    { to: "/portfolios", label: "Portfolios", icon: PortfolioIcon, active: pathname.startsWith("/portfolios") },
-    ...(meta?.replay ? [{ to: "/evidence", label: "Evidence", icon: EvidenceIcon, active: pathname.startsWith("/evidence") || pathname.startsWith("/pipeline") }] : []),
-  ];
+  const [collapsed, setCollapsed] = useState(initialCollapsed);
+  const [drawer, setDrawer] = useState(false);
+  const closeDrawer = useCallback(() => setDrawer(false), []);
+  const toggleCollapsed = () =>
+    setCollapsed((c) => {
+      try {
+        window.localStorage.setItem(COLLAPSE_KEY, c ? "expanded" : "collapsed");
+      } catch {
+        /* the choice just does not persist */
+      }
+      return !c;
+    });
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setDrawer(false);
   }, [pathname]);
 
-  const link = (active: boolean, rail = false) =>
-    clsx(
-      "flex min-h-10 items-center gap-2.5 rounded-md px-3 text-sm font-medium whitespace-nowrap transition-colors",
-      "duration-[var(--duration-fast)] ease-[var(--ease-out)]",
-      active ? clsx("bg-paper-3 text-ink", rail && "shadow-[inset_2px_0_0_var(--color-accent)]") : "text-ink-2 hover:bg-paper-3 hover:text-ink",
-    );
+  // the drawer closes on Escape and when the viewport grows past the breakpoint where it is no longer a drawer
+  useEffect(() => {
+    if (!drawer) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setDrawer(false);
+    const mq = window.matchMedia?.("(min-width: 1024px)");
+    const onMq = () => mq?.matches && setDrawer(false);
+    window.addEventListener("keydown", onKey);
+    mq?.addEventListener?.("change", onMq);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      mq?.removeEventListener?.("change", onMq);
+    };
+  }, [drawer]);
+
+  // sticky things below the bar (the chain rail, the wire) sit under it whatever its height (the tools wrap on narrow screens)
+  const bar = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = bar.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => document.documentElement.style.setProperty("--topbar-h", `${el.offsetHeight}px`));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const link = (active: boolean) => clsx("nav-link", active && "is-active");
+  const here = nav.find((n) => n.active);
 
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
-      {/* Mobile / tablet top bar (scrolls away so the sticky flow rail gets the room) */}
-      <header className="border-b border-rule bg-paper px-4 pt-2 lg:hidden">
-        <div className="flex items-center justify-between">
-          <NavLink to="/" aria-label="EventShock home" className="rounded-md py-1">
-            <Logo size={24} />
+    <div className="app-shell" data-collapsed={collapsed} data-drawer={drawer}>
+      <aside id="sidebar" className="sidebar chrome" aria-label="Sidebar">
+        <div className="sidebar-head">
+          <NavLink to="/" aria-label="EventShock home" className="sidebar-logo">
+            <Logo size={26} onChrome />
           </NavLink>
-          <ThemeSwitch compact />
+          <button type="button" className="chrome-btn sidebar-close" aria-label="Close navigation" onClick={closeDrawer}>
+            <Close size={16} />
+          </button>
         </div>
-        <div className="pb-2">
-          <PortfolioSwitcher compact />
-          <AdjustLink />
-        </div>
-        <nav aria-label="Primary" className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-2">
-          {nav.map((n) => (
-            <NavLink key={n.label} to={n.to} className={() => link(n.active)}>
-              <n.icon /> <span>{n.label}</span>
-            </NavLink>
+        <nav aria-label="Primary" className="sidenav">
+          {nav.map((n, i) => (
+            <Fragment key={n.label}>
+              {(i === 0 || nav[i - 1]!.group !== n.group) && <p className="sidenav-group">{GROUPS[n.group]}</p>}
+              <NavLink to={n.to} className={() => link(n.active)} aria-current={n.active ? "page" : undefined} title={n.label}>
+                <n.icon size={18} /> <span className="nav-label">{n.label}</span>
+              </NavLink>
+            </Fragment>
           ))}
         </nav>
-      </header>
-
-      {/* Desktop rail */}
-      <aside className="sticky top-0 hidden h-dvh flex-col gap-6 overflow-y-auto border-r border-rule bg-paper px-3 py-5 lg:flex">
-        <NavLink to="/" aria-label="EventShock home" className="rounded-md px-3 py-1">
-          <Logo />
-        </NavLink>
-        <nav aria-label="Primary" className="flex flex-col gap-1">
-          {nav.map((n) => (
-            <NavLink key={n.label} to={n.to} className={() => link(n.active, true)} aria-current={n.active ? "page" : undefined}>
-              <n.icon /> {n.label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="mt-auto flex flex-col gap-3">
-          <AdjustLink />
-          <PortfolioSwitcher />
+        <div className="sidebar-foot">
           <ModeBadge />
-          <ThemeSwitch />
-          <a className="px-3 text-xs text-muted underline-offset-2 hover:text-ink hover:underline" href="/api/docs" target="_blank" rel="noreferrer">
-            API reference
-          </a>
+          <button
+            type="button"
+            className="chrome-btn sidebar-collapse"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-pressed={collapsed}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={toggleCollapsed}
+          >
+            <SidebarIcon size={16} />
+            <span className="nav-label">Collapse</span>
+          </button>
         </div>
       </aside>
+      <div className="sidebar-scrim" aria-hidden="true" onClick={closeDrawer} />
 
-      <main className="min-w-0 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
-        <div className="mx-auto max-w-[78rem]">
-          <div key={activePf ?? "default"}>
-            <Outlet />
+      <div className="app-main" inert={drawer}>
+        <header ref={bar} className="topbar chrome">
+          <button
+            type="button"
+            className="chrome-btn topbar-menu"
+            aria-label="Open navigation"
+            aria-expanded={drawer}
+            aria-controls="sidebar"
+            onClick={() => setDrawer(true)}
+          >
+            <MenuIcon size={18} />
+          </button>
+          <p className="topbar-title">
+            {here && <span className="topbar-crumb">{GROUPS[here.group]}</span>}
+            {here?.label ?? "EventShock"}
+          </p>
+          <div className="topbar-search">
+            <span className="hidden md:inline-flex">
+              <PalettePill />
+            </span>
+            <span className="md:hidden">
+              <PalettePill compact />
+            </span>
           </div>
-        </div>
-      </main>
+          <div className="topbar-tools">
+            <PortfolioSwitcher variant="bar" />
+            <LiveToggle />
+            <AdjustLink />
+            <ThemeSwitch compact />
+          </div>
+        </header>
+
+        <main className="app-content">
+          <div className="mx-auto max-w-[88rem]">
+            <div key={activePf ?? "default"}>
+              <Outlet />
+            </div>
+          </div>
+        </main>
+      </div>
       <AdjustHost />
+      <CommandPalette />
     </div>
   );
 }

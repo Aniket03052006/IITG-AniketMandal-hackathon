@@ -156,8 +156,8 @@ export function PageHeader({ title, sub, actions }: { title: string; sub?: React
   return (
     <header className="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold">{title}</h1>
-        {sub && <p className="mt-1 max-w-[62ch] text-muted">{sub}</p>}
+        <h1 className="text-3xl">{title}</h1>
+        {sub && <p className="mt-1 max-w-[72ch] text-ink-2">{sub}</p>}
       </div>
       {actions}
     </header>

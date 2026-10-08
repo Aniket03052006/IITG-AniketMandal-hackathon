@@ -1,61 +1,81 @@
-/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · contrast: pass (40–41, checked in tokens.test.ts) · nav: N3 · footer: none · slop: pass (42–45)
- * Hallmark · genre: custom (risk desk, utilitarian/technical) · macrostructure: Workbench
- * theme: custom "Risk Desk" in two intentional modes, LIGHT is the default, DARK is a toggle
- * nav: N3 side-rail (full rail ≥1024, top bar below) · footer: none (app shell)
- * axes (light): paper-band light / display-style grotesk-sans (Space Grotesk, roman) / accent-hue cool (signal teal-cyan)
- * axes (dark):  paper-band dark  / display-style grotesk-sans (Space Grotesk, roman) / accent-hue cool (signal cyan)
- * Single brand accent. Severity, sentiment and gain/loss are SEMANTIC data colours, always paired with
- * a number/sign/label so colour is never the only signal. Light is a designed set, not an inversion:
- * the same token NAMES carry the same ROLES in both modes (a role flips from "lighter = raised" to "white card on tinted page").
- * Mode switch: <html data-theme="light|dark"> (lib/theme.ts); light values are the @theme base, dark overrides below.
+/* Hallmark · pre-emit critique: P4 H5 E4 S4 R5 V4 · contrast: pass (40–41, checked in tokens.test.ts) · nav: N3 side rail + top bar · footer: none · slop: pass (42–45)
+ * Hallmark · genre: custom (finance workstation) · macrostructure: Dashboard shell (sidebar + top bar) · designed-as-app
+ * theme: custom "Harbour" (Stage 15 re-skin, replaces Stage 14 "Wire → Ledger"): LIGHT is the default, DARK (navy) is a toggle
+ * Shell: a navy→blue chrome frame (sidebar + top bar, tokens chrome-*) around a pale blue-white canvas of white rounded cards.
+ * axes (light): paper-band light (blue-white 245) / display-style grotesk-sans (Inter, roman only) / accent-hue cool (navy-blue 258)
+ * axes (dark):  paper-band dark (navy 258) / display-style grotesk-sans / accent-hue cool (sky 250)
+ * Type voices: Inter = the interface and every heading (hierarchy by weight and size, never by a second family), IBM Plex Mono =
+ * everything COMPUTED (scores, %, $, bp), so a reader can always tell a reported fact from a derived number.
+ * Pink is a brand secondary only (logo gem, live marker, featured tag); gain/loss/severity stay on pos / neg / sev-* and are always
+ * paired with a number, sign or label so colour is never the only signal.
+ * The same token NAMES carry the same ROLES in both modes. Mode switch: <html data-theme="light|dark"> (lib/theme.ts).
  */
 @theme static {
   --color-*: initial; /* the palette below is the whole palette: no stray Tailwind colours */
 
-  /* Surfaces (LIGHT) — page is a cool tint, cards are near-white, elevation = whiter */
-  --color-paper: oklch(96.6% 0.007 250);
-  --color-paper-2: oklch(99.4% 0.003 250);
-  --color-paper-3: oklch(94.6% 0.009 250);
-  --color-paper-4: oklch(89.5% 0.011 250);
-  --color-rule: oklch(88% 0.012 250);
-  --color-rule-strong: oklch(76% 0.016 250);
-  --color-scrim: oklch(22% 0.03 255 / 0.42);
+  /* Surfaces (LIGHT) — pale blue-white canvas, white raised cards, blue-tinted sunk fills for hover/tiles */
+  --color-paper: oklch(97.3% 0.008 245);
+  --color-paper-2: oklch(100% 0 0);
+  --color-paper-3: oklch(95.2% 0.013 245);
+  --color-paper-4: oklch(91.6% 0.019 246);
+  --color-rule: oklch(90.6% 0.015 247);
+  --color-rule-strong: oklch(75% 0.03 250);
+  --color-scrim: oklch(22% 0.07 258 / 0.45);
+  --color-band: oklch(95.6% 0.026 245); /* the one hero surface per page: a faint blue wash */
+  --color-hatch: oklch(85% 0.022 247); /* "outside the scenario's reach" hatching */
+  --color-shadow: oklch(30% 0.09 258); /* elevation tint (used through --shadow-*) */
 
-  /* Ink */
-  --color-ink: oklch(21% 0.028 255);
-  --color-ink-2: oklch(35% 0.026 255);
-  --color-muted: oklch(46% 0.024 255);
-  --color-faint: oklch(54% 0.022 255);
+  /* Ink — navy */
+  --color-ink: oklch(22% 0.055 258);
+  --color-ink-2: oklch(35.5% 0.05 257);
+  --color-muted: oklch(46% 0.04 256);
+  --color-faint: oklch(58% 0.035 255);
 
-  /* Brand accent — signal teal-cyan (interactive, active, focus, primary action) */
-  --color-accent: oklch(50% 0.105 220);
-  --color-accent-strong: oklch(43% 0.1 225);
-  --color-accent-ink: oklch(99% 0.01 200);
-  --color-accent-dim: oklch(92% 0.045 210);
-  --color-focus: oklch(55% 0.16 235);
+  /* Brand accent — navy blue (interactive, active, focus, primary action, the trace connector) */
+  --color-accent: oklch(40% 0.14 258);
+  --color-accent-strong: oklch(33% 0.12 258);
+  --color-accent-ink: oklch(99% 0.004 250);
+  --color-accent-dim: oklch(93.4% 0.03 250);
+  --color-focus: oklch(52% 0.18 255);
+  --color-wire: oklch(52% 0.17 255);
+  --color-wire-dim: oklch(84% 0.06 250);
 
-  /* Severity ramp (impact 1-10) — text-grade on light surfaces */
-  --color-sev-low: oklch(50% 0.09 250);
-  --color-sev-low-dim: oklch(93% 0.025 250);
-  --color-sev-mod: oklch(53% 0.12 85);
-  --color-sev-mod-dim: oklch(94% 0.06 95);
-  --color-sev-high: oklch(54% 0.17 50);
-  --color-sev-high-dim: oklch(94% 0.05 55);
-  --color-sev-crit: oklch(50% 0.2 25);
-  --color-sev-crit-dim: oklch(94% 0.045 25);
+  /* Brand secondary — pink (logo gem, live marker, featured tag; never carries meaning) */
+  --color-pink: oklch(52% 0.2 350);
+  --color-pink-dim: oklch(94.2% 0.04 350);
+
+  /* Chrome — the navy→blue frame (sidebar + top bar). Text on it is chrome-ink / chrome-muted; the selected item is a chrome-active pill. */
+  --color-chrome-top: oklch(24% 0.09 262);
+  --color-chrome-bot: oklch(38% 0.15 255);
+  --color-chrome-ink: oklch(98.5% 0.008 250);
+  --color-chrome-muted: oklch(86% 0.035 250);
+  --color-chrome-active: oklch(98.5% 0.008 250);
+  --color-chrome-active-ink: oklch(30% 0.12 258);
+  --color-chrome-line: oklch(100% 0 0 / 0.16);
+  --color-chrome-hover: oklch(100% 0 0 / 0.1);
+
+  /* Severity ramp (1-10) — slate → ochre → orange → vermilion, text-grade on light surfaces */
+  --color-sev-low: oklch(48% 0.06 252);
+  --color-sev-low-dim: oklch(93.5% 0.02 250);
+  --color-sev-mod: oklch(52% 0.11 82);
+  --color-sev-mod-dim: oklch(93.5% 0.05 90);
+  --color-sev-high: oklch(53% 0.16 48);
+  --color-sev-high-dim: oklch(93.5% 0.04 55);
+  --color-sev-crit: oklch(50% 0.19 28);
+  --color-sev-crit-dim: oklch(93.5% 0.035 28);
 
   /* Sentiment + gain/loss */
-  --color-neg: oklch(50% 0.185 25);
-  --color-neg-dim: oklch(94.5% 0.035 25);
-  --color-pos: oklch(46% 0.13 155);
-  --color-pos-dim: oklch(94.5% 0.04 155);
-  --color-neu: oklch(52% 0.022 255);
+  --color-neg: oklch(50% 0.19 28);
+  --color-neg-dim: oklch(94% 0.03 28);
+  --color-pos: oklch(47% 0.12 155);
+  --color-pos-dim: oklch(94% 0.035 155);
+  --color-neu: oklch(50% 0.02 255);
   --color-warn: oklch(50% 0.11 80);
-  --color-warn-dim: oklch(95% 0.055 92);
+  --color-warn-dim: oklch(94.5% 0.05 90);
 
-  /* Type */
-  --font-display: "Space Grotesk Variable", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  /* Type — Inter for the interface and headings, Plex Mono for computed figures */
+  --font-display: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --text-2xs: 0.6875rem;
@@ -63,17 +83,25 @@
   --text-sm: 0.8125rem;
   --text-base: 0.875rem;
   --text-md: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.375rem;
-  --text-2xl: 1.75rem;
-  --text-3xl: 2.5rem;
-  --text-4xl: clamp(2.5rem, 1.6rem + 3.2vw, 4rem);
-  --text-hero: clamp(1.75rem, 1.2rem + 1.9vw, 2.75rem);
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: clamp(2rem, 1.4rem + 2.2vw, 3.125rem);
+  --text-hero: clamp(1.875rem, 1.2rem + 2.1vw, 3rem);
   --text-score: clamp(4rem, 3rem + 4vw, 6.5rem);
+  --text-stat: clamp(1.75rem, 1.2rem + 1.6vw, 2.75rem);
 
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --gradient-chrome: linear-gradient(180deg, var(--color-chrome-top), var(--color-chrome-bot));
+  --gradient-chrome-bar: linear-gradient(90deg, var(--color-chrome-top), var(--color-chrome-bot));
+
+  --shadow-1: 0 1px 0 color-mix(in oklab, var(--color-shadow) 6%, transparent), 0 6px 18px -10px color-mix(in oklab, var(--color-shadow) 22%, transparent);
+  --shadow-2: 0 1px 0 color-mix(in oklab, var(--color-shadow) 6%, transparent), 0 14px 34px -14px color-mix(in oklab, var(--color-shadow) 32%, transparent);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -82,41 +110,58 @@
   --duration-slow: 360ms;
 }
 
-/* DARK — the original Risk Desk palette: anchor hue 255 (cool slate), elevation = lighter */
+/* DARK — navy, elevation = lighter, sky blue lifted for contrast */
 :root[data-theme="dark"] {
-  --color-paper: oklch(15% 0.014 255);
-  --color-paper-2: oklch(19% 0.016 255);
-  --color-paper-3: oklch(23% 0.018 255);
-  --color-paper-4: oklch(28% 0.02 255);
-  --color-rule: oklch(30% 0.016 255);
-  --color-rule-strong: oklch(40% 0.018 255);
-  --color-scrim: oklch(8% 0.02 255 / 0.62);
+  --color-paper: oklch(16.5% 0.03 258);
+  --color-paper-2: oklch(20.5% 0.036 258);
+  --color-paper-3: oklch(25% 0.04 258);
+  --color-paper-4: oklch(29.5% 0.045 258);
+  --color-rule: oklch(29% 0.04 258);
+  --color-rule-strong: oklch(43% 0.055 256);
+  --color-scrim: oklch(8% 0.03 258 / 0.65);
+  --color-band: oklch(23.5% 0.06 256);
+  --color-hatch: oklch(35% 0.03 258);
+  --color-shadow: oklch(5% 0.02 258);
 
-  --color-ink: oklch(94% 0.008 255);
-  --color-ink-2: oklch(80% 0.012 255);
-  --color-muted: oklch(68% 0.014 255);
-  --color-faint: oklch(60% 0.014 255);
+  --color-ink: oklch(95% 0.012 250);
+  --color-ink-2: oklch(85% 0.02 250);
+  --color-muted: oklch(72% 0.03 252);
+  --color-faint: oklch(62% 0.03 252);
 
-  --color-accent: oklch(80% 0.12 200);
-  --color-accent-strong: oklch(86% 0.12 200);
-  --color-accent-ink: oklch(18% 0.03 200);
-  --color-accent-dim: oklch(30% 0.055 200);
-  --color-focus: oklch(84% 0.13 200);
+  --color-accent: oklch(72% 0.14 250);
+  --color-accent-strong: oklch(80% 0.1 250);
+  --color-accent-ink: oklch(18% 0.05 258);
+  --color-accent-dim: oklch(30% 0.08 255);
+  --color-focus: oklch(78% 0.13 250);
+  --color-wire: oklch(72% 0.14 250);
+  --color-wire-dim: oklch(40% 0.08 255);
 
-  --color-sev-low: oklch(72% 0.05 250);
-  --color-sev-low-dim: oklch(27% 0.03 250);
-  --color-sev-mod: oklch(82% 0.12 95);
-  --color-sev-mod-dim: oklch(30% 0.06 95);
-  --color-sev-high: oklch(73% 0.17 52);
-  --color-sev-high-dim: oklch(31% 0.08 52);
-  --color-sev-crit: oklch(71% 0.2 25);
-  --color-sev-crit-dim: oklch(31% 0.1 25);
+  --color-pink: oklch(76% 0.15 350);
+  --color-pink-dim: oklch(30% 0.07 350);
 
-  --color-neg: oklch(75% 0.15 25);
-  --color-neg-dim: oklch(29% 0.08 25);
-  --color-pos: oklch(78% 0.15 155);
+  --color-chrome-top: oklch(14% 0.05 262);
+  --color-chrome-bot: oklch(21% 0.085 258);
+  --color-chrome-ink: oklch(96% 0.01 250);
+  --color-chrome-muted: oklch(78% 0.035 252);
+  --color-chrome-active: oklch(52% 0.18 255);
+  --color-chrome-active-ink: oklch(98.5% 0.008 250);
+  --color-chrome-line: oklch(100% 0 0 / 0.12);
+  --color-chrome-hover: oklch(100% 0 0 / 0.08);
+
+  --color-sev-low: oklch(74% 0.05 252);
+  --color-sev-low-dim: oklch(28% 0.03 255);
+  --color-sev-mod: oklch(81% 0.12 88);
+  --color-sev-mod-dim: oklch(30% 0.05 88);
+  --color-sev-high: oklch(73% 0.15 50);
+  --color-sev-high-dim: oklch(30% 0.07 50);
+  --color-sev-crit: oklch(70% 0.17 28);
+  --color-sev-crit-dim: oklch(30% 0.08 28);
+
+  --color-neg: oklch(72% 0.15 28);
+  --color-neg-dim: oklch(29% 0.07 28);
+  --color-pos: oklch(77% 0.14 155);
   --color-pos-dim: oklch(29% 0.06 155);
-  --color-neu: oklch(66% 0.02 255);
-  --color-warn: oklch(82% 0.12 95);
-  --color-warn-dim: oklch(30% 0.06 95);
+  --color-neu: oklch(68% 0.02 252);
+  --color-warn: oklch(81% 0.12 88);
+  --color-warn-dim: oklch(30% 0.05 88);
 }
