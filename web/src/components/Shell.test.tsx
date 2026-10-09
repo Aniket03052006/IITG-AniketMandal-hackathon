@@ -146,3 +146,25 @@ describe("app frame: sidebar + top bar", () => {
     }
   });
 });
+
+describe("rebalancer link", () => {
+  it("is absent when the server cannot rebalance", async () => {
+    mount("/stress");
+    const nav = await screen.findByRole("navigation", { name: "Primary" });
+    await waitFor(() => expect(within(nav).getByRole("link", { name: "Evidence" })).toBeInTheDocument());
+    expect(within(nav).queryByRole("link", { name: "Rebalancer" })).toBeNull();
+  });
+
+  it("appears, and marks the current page, when the server can rebalance", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "Content-Type": "application/json" } });
+      if (url.endsWith("/api/meta")) return json({ ...meta, capabilities: { ...meta.capabilities, rebalancer: true } });
+      if (url.includes("/api/signals")) return json({ items: [], total: 0 });
+      return json({ detail: "not found" }, 404);
+    }));
+    mount("/rebalancer");
+    const nav = await screen.findByRole("navigation", { name: "Primary" });
+    await waitFor(() => expect(within(nav).getByRole("link", { name: "Rebalancer" })).toHaveAttribute("aria-current", "page"));
+  });
+});

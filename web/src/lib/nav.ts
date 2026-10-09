@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useMeta, useSignals } from "../api/hooks";
-import { AnalyzeIcon, DeskIcon, EventIcon, EvidenceIcon, LabIcon, PortfolioIcon, ReviewIcon, TodayIcon } from "../components/icons";
+import { AnalyzeIcon, DeskIcon, EventIcon, EvidenceIcon, LabIcon, PortfolioIcon, RebalanceIcon, ReviewIcon, TodayIcon } from "../components/icons";
 import { FEATURED, lastEvent, pickFeatured } from "./featured";
 
 export type NavItem = {
@@ -34,6 +34,9 @@ export function useNav(): NavItem[] {
       : []),
     { to: eventTo, label: "Event", hint: "One event's full story: text, severity, evidence, stress", icon: EventIcon, active: pathname.startsWith("/events/"), group: 1 },
     { to: "/stress", label: "Stress Lab", hint: "Run a scenario on the portfolio and see where the loss lands", icon: LabIcon, active: pathname.startsWith("/stress"), group: 1 },
+    ...(meta?.capabilities.rebalancer === true
+      ? [{ to: "/rebalancer", label: "Rebalancer", hint: "A mock index whose weights follow the engine's sentiment, over time", icon: RebalanceIcon, active: pathname.startsWith("/rebalancer"), group: 1 as const }]
+      : []),
     { to: "/portfolios", label: "Portfolios", hint: "Your own holdings, watchlists and the scenario lab", icon: PortfolioIcon, active: pathname.startsWith("/portfolios"), group: 1 },
     ...(meta?.replay
       ? [{ to: "/evidence", label: "Evidence", hint: "How far to trust each model, with the numbers", icon: EvidenceIcon, active: pathname.startsWith("/evidence") || pathname.startsWith("/pipeline"), group: 2 as const }]

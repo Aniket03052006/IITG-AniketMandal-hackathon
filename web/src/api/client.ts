@@ -72,6 +72,15 @@ import type {
   Feedback,
   FeedbackInput,
   FeedbackStats,
+  RebalanceCycleDetail,
+  RebalanceDecisions,
+  RebalancerBacktestView,
+  RebalancerLabView,
+  RebalancerOverview,
+  RebalancerTimeline,
+  DecisionRequest,
+  LedgerEntry,
+  LedgerView,
 } from "./types";
 import { pfParam } from "../lib/portfolio";
 
@@ -132,7 +141,33 @@ export interface SignalFilters {
   portfolio_id?: string | null;
 }
 
+/** What-if overrides for one rebalancer request (omitted = the shipped configuration). */
+export interface RebalancerQuery {
+  tilt?: number | null;
+  half_life_hours?: number | null;
+  max_turnover?: number | null;
+  include_live?: boolean;
+  /** a strategy id from the overview; omitted = the baseline sentiment rule */
+  strategy?: string | null;
+}
+const rbQuery = (q: RebalancerQuery): string =>
+  qs(
+    q.tilt != null ? `tilt=${q.tilt}` : "",
+    q.half_life_hours != null ? `half_life_hours=${q.half_life_hours}` : "",
+    q.max_turnover != null ? `max_turnover=${q.max_turnover}` : "",
+    q.include_live ? "include_live=true" : "",
+    q.strategy ? `strategy=${encodeURIComponent(q.strategy)}` : "",
+  );
+
 export const api = {
+  rebalancerOverview: () => request<RebalancerOverview>("/rebalancer/overview"),
+  rebalancerTimeline: (q: RebalancerQuery = {}) => request<RebalancerTimeline>(`/rebalancer/timeline${rbQuery(q)}`),
+  rebalancerCycle: (index: number, q: RebalancerQuery = {}) => request<RebalanceCycleDetail>(`/rebalancer/cycles/${index}${rbQuery(q)}`),
+  rebalancerBacktest: () => request<RebalancerBacktestView>("/rebalancer/backtest"),
+  rebalancerDecisions: (index: number, q: RebalancerQuery = {}) => request<RebalanceDecisions>(`/rebalancer/cycles/${index}/decisions${rbQuery(q)}`),
+  rebalancerLab: () => request<RebalancerLabView>("/rebalancer/lab"),
+  rebalancerLedger: () => request<LedgerView>("/rebalancer/ledger"),
+  rebalancerDecide: (body: DecisionRequest) => request<LedgerEntry>("/rebalancer/proposals/decision", { method: "POST", body: JSON.stringify(body) }),
   meta: () => request<Meta>("/meta"),
   signals: (f: SignalFilters = {}) => {
     const p = new URLSearchParams();

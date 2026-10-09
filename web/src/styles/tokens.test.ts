@@ -86,6 +86,18 @@ const PAIRS: [string, string, number, string][] = [
   ["pink", "paper-2", 4.5, "pink tag / marker text on a card"],
   ["ink", "pink-dim", 4.5, "text on a pink tag"],
   ["pink", "pink-dim", 4.5, "pink tag"],
+  ["sector-technology", "paper-2", 3, "technology band / swatch (graphic)"],
+  ["sector-technology", "paper", 3, "technology band on the page (graphic)"],
+  ["sector-financials", "paper-2", 3, "financials band / swatch (graphic)"],
+  ["sector-financials", "paper", 3, "financials band on the page (graphic)"],
+  ["sector-energy", "paper-2", 3, "energy band / swatch (graphic)"],
+  ["sector-energy", "paper", 3, "energy band on the page (graphic)"],
+  ["sector-healthcare", "paper-2", 3, "healthcare band / swatch (graphic)"],
+  ["sector-healthcare", "paper", 3, "healthcare band on the page (graphic)"],
+  ["sector-industrials", "paper-2", 3, "industrials band / swatch (graphic)"],
+  ["sector-industrials", "paper", 3, "industrials band on the page (graphic)"],
+  ["sector-consumer", "paper-2", 3, "consumer band / swatch (graphic)"],
+  ["sector-consumer", "paper", 3, "consumer band on the page (graphic)"],
 ];
 
 describe.each([

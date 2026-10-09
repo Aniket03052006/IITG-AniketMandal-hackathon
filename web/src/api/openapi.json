@@ -2639,6 +2639,12 @@
             "title": "Propagation",
             "type": "boolean"
           },
+          "rebalancer": {
+            "default": false,
+            "description": "the tactical index rebalancer (Module A: a mock index whose weights follow the engine's sentiment) is served; /api/rebalancer/*",
+            "title": "Rebalancer",
+            "type": "boolean"
+          },
           "review": {
             "default": false,
             "description": "the analyst review queue is served; /api/review/queue and /api/review/decisions",
@@ -2676,6 +2682,7 @@
           "explanations",
           "scenario_lab",
           "watchlists",
+          "rebalancer",
           "monitor"
         ],
         "title": "Capabilities",
@@ -3713,6 +3720,39 @@
         "title": "ConsistencyInfo",
         "type": "object"
       },
+      "ConstraintCode": {
+        "description": "Which rule held a weight back, in the order the rules are applied (tilt -> bounds -> sector cap -> volatility limit -> liquidity floor -> turnover cap -> minimum trade).",
+        "enum": [
+          "UPPER_BOUND",
+          "LOWER_BOUND",
+          "SECTOR_CAP",
+          "VOL_LIMIT",
+          "LIQUIDITY_FLOOR",
+          "TURNOVER_CAP",
+          "MIN_TRADE"
+        ],
+        "title": "ConstraintCode",
+        "type": "string"
+      },
+      "ConstraintEffect": {
+        "description": "One rule that bound a stock at a cycle, and how far it moved the weight. The effect of adding that rule to the ones before it (an order-defined attribution of a joint projection).",
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ConstraintCode"
+          },
+          "effect": {
+            "description": "signed change in this stock's weight caused by adding this rule, as a fraction of the index (negative = it cut the weight)",
+            "title": "Effect",
+            "type": "number"
+          }
+        },
+        "required": [
+          "code",
+          "effect"
+        ],
+        "title": "ConstraintEffect",
+        "type": "object"
+      },
       "ContextInput": {
         "description": "One numeric input the impact model saw for this signal, with its family and availability class.",
         "properties": {
@@ -4286,6 +4326,107 @@
         ],
         "title": "DataOrigin",
         "type": "string"
+      },
+      "DecisionRequest": {
+        "description": "A simulated decision on one proposal. ``proposal_sha256`` must be the digest of the proposal the analyst was looking at: a proposal that has changed since is refused, not decided.",
+        "properties": {
+          "accepted_tickers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "APPROVE only: the trades accepted; omitted = every trade of the proposal",
+            "title": "Accepted Tickers"
+          },
+          "action": {
+            "$ref": "#/components/schemas/LedgerAction"
+          },
+          "analyst": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Analyst",
+            "type": "string"
+          },
+          "cycle_index": {
+            "minimum": 0.0,
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "half_life_hours": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Half Life Hours"
+          },
+          "include_live": {
+            "default": false,
+            "title": "Include Live",
+            "type": "boolean"
+          },
+          "max_turnover": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Turnover"
+          },
+          "note": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Note",
+            "type": "string"
+          },
+          "proposal_sha256": {
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Proposal Sha256",
+            "type": "string"
+          },
+          "strategy": {
+            "default": "sentiment",
+            "title": "Strategy",
+            "type": "string"
+          },
+          "tilt": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tilt"
+          }
+        },
+        "required": [
+          "cycle_index",
+          "action",
+          "analyst",
+          "proposal_sha256"
+        ],
+        "title": "DecisionRequest",
+        "type": "object"
       },
       "DedupAudit": {
         "properties": {
@@ -7391,6 +7532,15 @@
         "title": "EvidenceProfile",
         "type": "object"
       },
+      "EvidenceQuality": {
+        "enum": [
+          "NONE",
+          "THIN",
+          "OK"
+        ],
+        "title": "EvidenceQuality",
+        "type": "string"
+      },
       "EvidenceQuote": {
         "properties": {
           "end": {
@@ -10009,6 +10159,46 @@
         "title": "Increment",
         "type": "object"
       },
+      "IndexConstituent": {
+        "properties": {
+          "benchmark_weight": {
+            "title": "Benchmark Weight",
+            "type": "number"
+          },
+          "lower": {
+            "description": "the lowest weight the bounds allow",
+            "title": "Lower",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          },
+          "upper": {
+            "description": "the highest weight the bounds allow",
+            "title": "Upper",
+            "type": "number"
+          }
+        },
+        "required": [
+          "ticker",
+          "name",
+          "sector",
+          "benchmark_weight",
+          "lower",
+          "upper"
+        ],
+        "title": "IndexConstituent",
+        "type": "object"
+      },
       "IndicatorBasis": {
         "enum": [
           "QUOTED",
@@ -10756,6 +10946,61 @@
         "title": "LLMInfo",
         "type": "object"
       },
+      "LabCell": {
+        "properties": {
+          "active_return": {
+            "title": "Active Return",
+            "type": "number"
+          },
+          "half_life_hours": {
+            "title": "Half Life Hours",
+            "type": "number"
+          },
+          "max_active_ratio": {
+            "title": "Max Active Ratio",
+            "type": "number"
+          },
+          "max_turnover": {
+            "title": "Max Turnover",
+            "type": "number"
+          },
+          "mean_daily_turnover": {
+            "title": "Mean Daily Turnover",
+            "type": "number"
+          },
+          "placebo_percentile": {
+            "title": "Placebo Percentile",
+            "type": "number"
+          },
+          "rank_ic": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank Ic"
+          },
+          "tilt": {
+            "title": "Tilt",
+            "type": "number"
+          }
+        },
+        "required": [
+          "half_life_hours",
+          "max_turnover",
+          "tilt",
+          "max_active_ratio",
+          "active_return",
+          "rank_ic",
+          "placebo_percentile",
+          "mean_daily_turnover"
+        ],
+        "title": "LabCell",
+        "type": "object"
+      },
       "LabCompareRequest": {
         "properties": {
           "portfolio_id": {
@@ -10783,6 +11028,96 @@
           "scenarios"
         ],
         "title": "LabCompareRequest",
+        "type": "object"
+      },
+      "LabCost": {
+        "properties": {
+          "active_return": {
+            "title": "Active Return",
+            "type": "number"
+          },
+          "benchmark_return": {
+            "title": "Benchmark Return",
+            "type": "number"
+          },
+          "cost_bps": {
+            "title": "Cost Bps",
+            "type": "number"
+          },
+          "strategy_return": {
+            "title": "Strategy Return",
+            "type": "number"
+          }
+        },
+        "required": [
+          "cost_bps",
+          "strategy_return",
+          "benchmark_return",
+          "active_return"
+        ],
+        "title": "LabCost",
+        "type": "object"
+      },
+      "LabGrid": {
+        "properties": {
+          "active_max": {
+            "title": "Active Max",
+            "type": "number"
+          },
+          "active_min": {
+            "title": "Active Min",
+            "type": "number"
+          },
+          "cells_outside_placebo_range": {
+            "description": "cells whose active return is above the 95th or below the 5th percentile of their own shuffled-score runs",
+            "title": "Cells Outside Placebo Range",
+            "type": "integer"
+          },
+          "cells_positive": {
+            "description": "cells whose active return is above zero",
+            "title": "Cells Positive",
+            "type": "integer"
+          },
+          "cells_total": {
+            "title": "Cells Total",
+            "type": "integer"
+          },
+          "expected_outside_by_chance": {
+            "description": "how many of that many cells would be outside the 5th-95th range by chance alone (10 % of them)",
+            "title": "Expected Outside By Chance",
+            "type": "number"
+          },
+          "half_life_by_turnover": {
+            "items": {
+              "$ref": "#/components/schemas/LabCell"
+            },
+            "title": "Half Life By Turnover",
+            "type": "array"
+          },
+          "placebo_runs": {
+            "title": "Placebo Runs",
+            "type": "integer"
+          },
+          "tilt_by_position_limit": {
+            "items": {
+              "$ref": "#/components/schemas/LabCell"
+            },
+            "title": "Tilt By Position Limit",
+            "type": "array"
+          }
+        },
+        "required": [
+          "half_life_by_turnover",
+          "tilt_by_position_limit",
+          "cells_total",
+          "cells_positive",
+          "cells_outside_placebo_range",
+          "expected_outside_by_chance",
+          "active_min",
+          "active_max",
+          "placebo_runs"
+        ],
+        "title": "LabGrid",
         "type": "object"
       },
       "LabIssue": {
@@ -10813,6 +11148,84 @@
           "message"
         ],
         "title": "LabIssue",
+        "type": "object"
+      },
+      "LabMetrics": {
+        "properties": {
+          "active_return": {
+            "description": "cumulative return minus the equal-weight benchmark's, in return points",
+            "title": "Active Return",
+            "type": "number"
+          },
+          "annualised_vol": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "daily standard deviation x sqrt(252); null with fewer than three sessions",
+            "title": "Annualised Vol"
+          },
+          "benchmark_return": {
+            "title": "Benchmark Return",
+            "type": "number"
+          },
+          "cumulative_return": {
+            "title": "Cumulative Return",
+            "type": "number"
+          },
+          "hit_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "share of sessions on which the strategy's net return beat the benchmark's; null for the benchmark itself",
+            "title": "Hit Rate"
+          },
+          "max_drawdown": {
+            "description": "the deepest fall from a previous peak of the cumulative net return (zero or negative)",
+            "title": "Max Drawdown",
+            "type": "number"
+          },
+          "mean_daily_turnover": {
+            "title": "Mean Daily Turnover",
+            "type": "number"
+          },
+          "rank_ic": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rank Ic"
+          },
+          "total_cost": {
+            "title": "Total Cost",
+            "type": "number"
+          }
+        },
+        "required": [
+          "cumulative_return",
+          "benchmark_return",
+          "active_return",
+          "annualised_vol",
+          "max_drawdown",
+          "hit_rate",
+          "mean_daily_turnover",
+          "total_cost",
+          "rank_ic"
+        ],
+        "title": "LabMetrics",
         "type": "object"
       },
       "LabOptions": {
@@ -10914,6 +11327,44 @@
           "label"
         ],
         "title": "LabOptions",
+        "type": "object"
+      },
+      "LabPlacebo": {
+        "properties": {
+          "active_return_p05": {
+            "title": "Active Return P05",
+            "type": "number"
+          },
+          "active_return_p50": {
+            "title": "Active Return P50",
+            "type": "number"
+          },
+          "active_return_p95": {
+            "title": "Active Return P95",
+            "type": "number"
+          },
+          "active_return_percentile": {
+            "title": "Active Return Percentile",
+            "type": "number"
+          },
+          "ic_percentile": {
+            "title": "Ic Percentile",
+            "type": "number"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "runs",
+          "active_return_p05",
+          "active_return_p50",
+          "active_return_p95",
+          "active_return_percentile",
+          "ic_percentile"
+        ],
+        "title": "LabPlacebo",
         "type": "object"
       },
       "LabPlan": {
@@ -11134,6 +11585,175 @@
         "title": "LabResult",
         "type": "object"
       },
+      "LabStrategy": {
+        "properties": {
+          "cumulative": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Cumulative",
+            "type": "array"
+          },
+          "daily_net": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Daily Net",
+            "type": "array"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "drawdown": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Drawdown",
+            "type": "array"
+          },
+          "experimental": {
+            "title": "Experimental",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "description": "TILT (a strategy the service serves) | REFERENCE (equal weight, buy and hold)",
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/LabMetrics"
+          },
+          "placebo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LabPlacebo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timeline_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "digest of the weight path this was built from; a mismatch with today's marks the lab stale",
+            "title": "Timeline Sha256"
+          },
+          "turnover": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Turnover",
+            "type": "array"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "WITHIN_PLACEBO_RANGE | ABOVE_PLACEBO_RANGE | BELOW_PLACEBO_RANGE, computed from the placebo; null for references",
+            "title": "Verdict"
+          },
+          "windows": {
+            "items": {
+              "$ref": "#/components/schemas/LabWindow"
+            },
+            "title": "Windows",
+            "type": "array"
+          },
+          "windows_positive": {
+            "description": "of the rolling windows, how many ended ahead of the benchmark",
+            "title": "Windows Positive",
+            "type": "integer"
+          },
+          "windows_total": {
+            "title": "Windows Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "description",
+          "kind",
+          "experimental",
+          "daily_net",
+          "cumulative",
+          "drawdown",
+          "turnover",
+          "metrics",
+          "windows",
+          "windows_positive",
+          "windows_total",
+          "placebo",
+          "verdict",
+          "timeline_sha256"
+        ],
+        "title": "LabStrategy",
+        "type": "object"
+      },
+      "LabWindow": {
+        "properties": {
+          "active_return": {
+            "title": "Active Return",
+            "type": "number"
+          },
+          "benchmark_return": {
+            "title": "Benchmark Return",
+            "type": "number"
+          },
+          "end": {
+            "title": "End",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "sessions": {
+            "title": "Sessions",
+            "type": "integer"
+          },
+          "start": {
+            "title": "Start",
+            "type": "string"
+          },
+          "strategy_return": {
+            "title": "Strategy Return",
+            "type": "number"
+          }
+        },
+        "required": [
+          "label",
+          "start",
+          "end",
+          "sessions",
+          "strategy_return",
+          "benchmark_return",
+          "active_return"
+        ],
+        "title": "LabWindow",
+        "type": "object"
+      },
       "LabelScores": {
         "additionalProperties": false,
         "description": "Accuracy and macro-F1 of one way of turning the output into a label.",
@@ -11234,6 +11854,241 @@
           "verdict"
         ],
         "title": "LadderEntry",
+        "type": "object"
+      },
+      "LedgerAction": {
+        "enum": [
+          "APPROVE",
+          "REJECT"
+        ],
+        "title": "LedgerAction",
+        "type": "string"
+      },
+      "LedgerEntry": {
+        "description": "One simulated decision on a proposed rebalance. A note, never an order: nothing is sent anywhere and the served index does not change.",
+        "properties": {
+          "accepted_tickers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Accepted Tickers",
+            "type": "array"
+          },
+          "action": {
+            "$ref": "#/components/schemas/LedgerAction"
+          },
+          "analyst": {
+            "title": "Analyst",
+            "type": "string"
+          },
+          "approved": {
+            "description": "the allocation the analyst accepted: the proposal for a full approval, the previous weights for a rejection",
+            "items": {
+              "type": "number"
+            },
+            "title": "Approved",
+            "type": "array"
+          },
+          "before": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Before",
+            "type": "array"
+          },
+          "cycle_at": {
+            "format": "date-time",
+            "title": "Cycle At",
+            "type": "string"
+          },
+          "cycle_index": {
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "entry_hash": {
+            "title": "Entry Hash",
+            "type": "string"
+          },
+          "est_cost": {
+            "title": "Est Cost",
+            "type": "number"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "include_live": {
+            "title": "Include Live",
+            "type": "boolean"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "params": {
+            "$ref": "#/components/schemas/RebalancerParams"
+          },
+          "prev_hash": {
+            "title": "Prev Hash",
+            "type": "string"
+          },
+          "proposal_sha256": {
+            "title": "Proposal Sha256",
+            "type": "string"
+          },
+          "proposed": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Proposed",
+            "type": "array"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "rejected_tickers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rejected Tickers",
+            "type": "array"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "stale": {
+            "default": false,
+            "description": "set on read: the proposal for this cycle and strategy is no longer the one that was decided",
+            "title": "Stale",
+            "type": "boolean"
+          },
+          "strategy": {
+            "title": "Strategy",
+            "type": "string"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tickers",
+            "type": "array"
+          },
+          "tracking_difference": {
+            "description": "one-way distance between the approved and the proposed allocation (0 = approved as proposed)",
+            "title": "Tracking Difference",
+            "type": "number"
+          },
+          "turnover": {
+            "description": "one-way turnover of before -> approved",
+            "title": "Turnover",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "seq",
+          "recorded_at",
+          "action",
+          "strategy",
+          "cycle_index",
+          "cycle_at",
+          "params",
+          "include_live",
+          "tickers",
+          "before",
+          "proposed",
+          "approved",
+          "accepted_tickers",
+          "rejected_tickers",
+          "turnover",
+          "est_cost",
+          "tracking_difference",
+          "proposal_sha256",
+          "analyst",
+          "note",
+          "prev_hash",
+          "entry_hash",
+          "stale"
+        ],
+        "title": "LedgerEntry",
+        "type": "object"
+      },
+      "LedgerView": {
+        "properties": {
+          "approvals": {
+            "title": "Approvals",
+            "type": "integer"
+          },
+          "broken_at": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "the sequence number of the first entry whose hash does not follow from the one before",
+            "title": "Broken At"
+          },
+          "chain_ok": {
+            "description": "false when a line of the ledger was edited or removed after it was written",
+            "title": "Chain Ok",
+            "type": "boolean"
+          },
+          "entries": {
+            "description": "newest first",
+            "items": {
+              "$ref": "#/components/schemas/LedgerEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "paper_book": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaperBook"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rejections": {
+            "title": "Rejections",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "chain_ok",
+          "broken_at",
+          "entries",
+          "total",
+          "approvals",
+          "rejections",
+          "paper_book",
+          "labels"
+        ],
+        "title": "LedgerView",
         "type": "object"
       },
       "LifecycleState": {
@@ -13186,6 +14041,47 @@
           "adjustments"
         ],
         "title": "OverlapView",
+        "type": "object"
+      },
+      "PaperBook": {
+        "description": "The simulated allocation after the latest approval: what an analyst who followed the ledger would hold. A record, not a position at any broker.",
+        "properties": {
+          "cycle_at": {
+            "format": "date-time",
+            "title": "Cycle At",
+            "type": "string"
+          },
+          "entry_id": {
+            "title": "Entry Id",
+            "type": "string"
+          },
+          "strategy": {
+            "title": "Strategy",
+            "type": "string"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tickers",
+            "type": "array"
+          },
+          "weights": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Weights",
+            "type": "array"
+          }
+        },
+        "required": [
+          "entry_id",
+          "cycle_at",
+          "strategy",
+          "tickers",
+          "weights"
+        ],
+        "title": "PaperBook",
         "type": "object"
       },
       "ParseRequest": {
@@ -16188,6 +17084,1069 @@
         "title": "ReasonKind",
         "type": "string"
       },
+      "RebalanceCycle": {
+        "description": "One cycle on the timeline, in the order of ``RebalancerTimeline.tickers`` (compact: this is what the chart draws).",
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "new_reports": {
+            "description": "company reports that entered the evidence window since the previous cycle",
+            "minimum": 0.0,
+            "title": "New Reports",
+            "type": "integer"
+          },
+          "reports": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Reports",
+            "type": "array"
+          },
+          "scores": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Scores",
+            "type": "array"
+          },
+          "status": {
+            "description": "TRADED | LIMITED_BY_TURNOVER | HELD_BELOW_MIN_TRADE | AT_TARGET",
+            "title": "Status",
+            "type": "string"
+          },
+          "turnover": {
+            "title": "Turnover",
+            "type": "number"
+          },
+          "wanted_turnover": {
+            "title": "Wanted Turnover",
+            "type": "number"
+          },
+          "weights": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Weights",
+            "type": "array"
+          }
+        },
+        "required": [
+          "index",
+          "at",
+          "weights",
+          "scores",
+          "reports",
+          "turnover",
+          "wanted_turnover",
+          "status",
+          "new_reports"
+        ],
+        "title": "RebalanceCycle",
+        "type": "object"
+      },
+      "RebalanceCycleDetail": {
+        "properties": {
+          "alpha": {
+            "description": "the fraction of the way to the target that was traded (1 = all of it)",
+            "title": "Alpha",
+            "type": "number"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "drivers": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/ScoreDriver"
+              },
+              "type": "array"
+            },
+            "description": "per ticker, the reports behind its score, largest absolute contribution first",
+            "title": "Drivers",
+            "type": "object"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "names": {
+            "items": {
+              "$ref": "#/components/schemas/RebalanceName"
+            },
+            "title": "Names",
+            "type": "array"
+          },
+          "params": {
+            "$ref": "#/components/schemas/RebalancerParams"
+          },
+          "previous_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "strategy": {
+            "default": "sentiment",
+            "title": "Strategy",
+            "type": "string"
+          },
+          "turnover": {
+            "title": "Turnover",
+            "type": "number"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "wanted_turnover": {
+            "title": "Wanted Turnover",
+            "type": "number"
+          }
+        },
+        "required": [
+          "version",
+          "strategy",
+          "params",
+          "index",
+          "at",
+          "previous_at",
+          "status",
+          "turnover",
+          "wanted_turnover",
+          "alpha",
+          "names",
+          "drivers",
+          "labels"
+        ],
+        "title": "RebalanceCycleDetail",
+        "type": "object"
+      },
+      "RebalanceDecisions": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "buys": {
+            "title": "Buys",
+            "type": "integer"
+          },
+          "cycles": {
+            "title": "Cycles",
+            "type": "integer"
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/TradeDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          },
+          "est_cost": {
+            "title": "Est Cost",
+            "type": "number"
+          },
+          "est_cost_usd": {
+            "title": "Est Cost Usd",
+            "type": "number"
+          },
+          "holds": {
+            "title": "Holds",
+            "type": "integer"
+          },
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "latest_decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LedgerEntry"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "params": {
+            "$ref": "#/components/schemas/RebalancerParams"
+          },
+          "previous_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous At"
+          },
+          "proposal_sha256": {
+            "description": "digest of the proposal (strategy, parameters, cycle and the three weight vectors); a decision on it is void if this changes",
+            "title": "Proposal Sha256",
+            "type": "string"
+          },
+          "sells": {
+            "title": "Sells",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "strategy": {
+            "title": "Strategy",
+            "type": "string"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tickers",
+            "type": "array"
+          },
+          "turnover": {
+            "title": "Turnover",
+            "type": "number"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "wanted_turnover": {
+            "title": "Wanted Turnover",
+            "type": "number"
+          }
+        },
+        "required": [
+          "version",
+          "strategy",
+          "params",
+          "index",
+          "cycles",
+          "at",
+          "previous_at",
+          "status",
+          "turnover",
+          "wanted_turnover",
+          "buys",
+          "sells",
+          "holds",
+          "est_cost",
+          "est_cost_usd",
+          "proposal_sha256",
+          "tickers",
+          "decisions",
+          "latest_decision",
+          "labels"
+        ],
+        "title": "RebalanceDecisions",
+        "type": "object"
+      },
+      "RebalanceName": {
+        "properties": {
+          "active": {
+            "description": "weight minus benchmark weight",
+            "title": "Active",
+            "type": "number"
+          },
+          "binding": {
+            "description": "every rule that bound this stock at this cycle, in the order the rules apply",
+            "items": {
+              "$ref": "#/components/schemas/ConstraintEffect"
+            },
+            "title": "Binding",
+            "type": "array"
+          },
+          "change": {
+            "description": "weight minus the previous cycle's weight",
+            "title": "Change",
+            "type": "number"
+          },
+          "evidence": {
+            "description": "effective evidence behind the score after decay and the one-source-one-vote cap",
+            "minimum": 0.0,
+            "title": "Evidence",
+            "type": "number"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/WeightReason"
+          },
+          "reports": {
+            "minimum": 0.0,
+            "title": "Reports",
+            "type": "integer"
+          },
+          "score": {
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "sources": {
+            "minimum": 0.0,
+            "title": "Sources",
+            "type": "integer"
+          },
+          "target_weight": {
+            "title": "Target Weight",
+            "type": "number"
+          },
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          },
+          "weight": {
+            "title": "Weight",
+            "type": "number"
+          }
+        },
+        "required": [
+          "ticker",
+          "score",
+          "evidence",
+          "reports",
+          "sources",
+          "target_weight",
+          "weight",
+          "active",
+          "change",
+          "reason",
+          "binding"
+        ],
+        "title": "RebalanceName",
+        "type": "object"
+      },
+      "RebalancerBacktest": {
+        "properties": {
+          "benchmark": {
+            "description": "daily net return of the equal-weight benchmark",
+            "items": {
+              "type": "number"
+            },
+            "title": "Benchmark",
+            "type": "array"
+          },
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "cost_bps": {
+            "title": "Cost Bps",
+            "type": "number"
+          },
+          "cumulative_benchmark": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Cumulative Benchmark",
+            "type": "array"
+          },
+          "cumulative_rebalanced": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Cumulative Rebalanced",
+            "type": "array"
+          },
+          "dates": {
+            "description": "the sessions, oldest first",
+            "items": {
+              "type": "string"
+            },
+            "title": "Dates",
+            "type": "array"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "sha256 of each price file read",
+            "title": "Inputs",
+            "type": "object"
+          },
+          "params": {
+            "$ref": "#/components/schemas/RebalancerParams"
+          },
+          "placebo": {
+            "$ref": "#/components/schemas/RebalancerPlacebo"
+          },
+          "rank_ic": {
+            "$ref": "#/components/schemas/RebalancerRankIC"
+          },
+          "rebalanced": {
+            "description": "daily net return of the rebalanced index",
+            "items": {
+              "type": "number"
+            },
+            "title": "Rebalanced",
+            "type": "array"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/RebalancerBacktestSummary"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tickers",
+            "type": "array"
+          },
+          "timeline_sha256": {
+            "description": "digest of the weight path the result was built from; a mismatch with the live timeline marks the file stale",
+            "title": "Timeline Sha256",
+            "type": "string"
+          },
+          "turnover": {
+            "description": "one-way turnover into each session's weights",
+            "items": {
+              "type": "number"
+            },
+            "title": "Turnover",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "params",
+          "cost_bps",
+          "tickers",
+          "dates",
+          "rebalanced",
+          "benchmark",
+          "cumulative_rebalanced",
+          "cumulative_benchmark",
+          "turnover",
+          "summary",
+          "rank_ic",
+          "placebo",
+          "inputs",
+          "timeline_sha256",
+          "caveats"
+        ],
+        "title": "RebalancerBacktest",
+        "type": "object"
+      },
+      "RebalancerBacktestSummary": {
+        "properties": {
+          "active_return": {
+            "description": "rebalanced minus benchmark, in return points (not compounded active)",
+            "title": "Active Return",
+            "type": "number"
+          },
+          "benchmark_return": {
+            "description": "compounded net return of the equal-weight benchmark",
+            "title": "Benchmark Return",
+            "type": "number"
+          },
+          "daily_active_mean": {
+            "title": "Daily Active Mean",
+            "type": "number"
+          },
+          "daily_active_std": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "null with fewer than three sessions",
+            "title": "Daily Active Std"
+          },
+          "mean_daily_turnover": {
+            "title": "Mean Daily Turnover",
+            "type": "number"
+          },
+          "rebalanced_return": {
+            "description": "compounded net return of the rebalanced index over the window",
+            "title": "Rebalanced Return",
+            "type": "number"
+          },
+          "total_cost": {
+            "description": "sum of daily costs charged to the rebalanced index, in return points",
+            "title": "Total Cost",
+            "type": "number"
+          }
+        },
+        "required": [
+          "rebalanced_return",
+          "benchmark_return",
+          "active_return",
+          "daily_active_mean",
+          "daily_active_std",
+          "mean_daily_turnover",
+          "total_cost"
+        ],
+        "title": "RebalancerBacktestSummary",
+        "type": "object"
+      },
+      "RebalancerBacktestView": {
+        "properties": {
+          "backtest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RebalancerBacktest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "description": "AVAILABLE | STALE | UNAVAILABLE",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "backtest"
+        ],
+        "title": "RebalancerBacktestView",
+        "type": "object"
+      },
+      "RebalancerLab": {
+        "properties": {
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Caveats",
+            "type": "array"
+          },
+          "cost_bps": {
+            "title": "Cost Bps",
+            "type": "number"
+          },
+          "cost_sensitivity": {
+            "items": {
+              "$ref": "#/components/schemas/LabCost"
+            },
+            "title": "Cost Sensitivity",
+            "type": "array"
+          },
+          "dates": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dates",
+            "type": "array"
+          },
+          "grid": {
+            "$ref": "#/components/schemas/LabGrid"
+          },
+          "impact_reports": {
+            "description": "reports in the window that carry an impact score",
+            "title": "Impact Reports",
+            "type": "integer"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Inputs",
+            "type": "object"
+          },
+          "params": {
+            "$ref": "#/components/schemas/RebalancerParams"
+          },
+          "reports_used": {
+            "title": "Reports Used",
+            "type": "integer"
+          },
+          "strategies": {
+            "items": {
+              "$ref": "#/components/schemas/LabStrategy"
+            },
+            "title": "Strategies",
+            "type": "array"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tickers",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "params",
+          "cost_bps",
+          "tickers",
+          "dates",
+          "strategies",
+          "grid",
+          "cost_sensitivity",
+          "impact_reports",
+          "reports_used",
+          "inputs",
+          "caveats"
+        ],
+        "title": "RebalancerLab",
+        "type": "object"
+      },
+      "RebalancerLabView": {
+        "properties": {
+          "lab": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RebalancerLab"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "description": "AVAILABLE | STALE | UNAVAILABLE",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "lab"
+        ],
+        "title": "RebalancerLabView",
+        "type": "object"
+      },
+      "RebalancerOverview": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "benchmark": {
+            "title": "Benchmark",
+            "type": "string"
+          },
+          "bounds": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Bounds",
+            "type": "object"
+          },
+          "constituents": {
+            "items": {
+              "$ref": "#/components/schemas/IndexConstituent"
+            },
+            "title": "Constituents",
+            "type": "array"
+          },
+          "curve": {
+            "description": "the rule drawn: for a stock alone at score S and every other at 0, its target weight before bounds",
+            "items": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "title": "Curve",
+            "type": "array"
+          },
+          "cycle_count": {
+            "title": "Cycle Count",
+            "type": "integer"
+          },
+          "first_cycle": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Cycle"
+          },
+          "half_life_hours_default": {
+            "title": "Half Life Hours Default",
+            "type": "number"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "last_cycle": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Cycle"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "max_turnover_limit": {
+            "title": "Max Turnover Limit",
+            "type": "number"
+          },
+          "params": {
+            "$ref": "#/components/schemas/RebalancerParams"
+          },
+          "step_hours": {
+            "title": "Step Hours",
+            "type": "number"
+          },
+          "strategies": {
+            "items": {
+              "$ref": "#/components/schemas/StrategyInfo"
+            },
+            "title": "Strategies",
+            "type": "array"
+          },
+          "tilt_max": {
+            "title": "Tilt Max",
+            "type": "number"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "available",
+          "params",
+          "tilt_max",
+          "max_turnover_limit",
+          "half_life_hours_default",
+          "benchmark",
+          "constituents",
+          "cycle_count",
+          "step_hours",
+          "first_cycle",
+          "last_cycle",
+          "bounds",
+          "strategies",
+          "curve",
+          "labels",
+          "limitations"
+        ],
+        "title": "RebalancerOverview",
+        "type": "object"
+      },
+      "RebalancerParams": {
+        "description": "The three knobs a caller may turn for one request; everything else is the shipped configuration.",
+        "properties": {
+          "half_life_hours": {
+            "description": "a report's weight halves every this many hours",
+            "exclusiveMinimum": 0.0,
+            "title": "Half Life Hours",
+            "type": "number"
+          },
+          "is_default": {
+            "description": "false when the caller overrode the shipped configuration (a what-if, not the index of record)",
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "max_turnover": {
+            "description": "most of the index traded in one cycle (one-way: 1/2 sum |new - old|)",
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.0,
+            "title": "Max Turnover",
+            "type": "number"
+          },
+          "tilt": {
+            "description": "tilt strength k in p_i = b_i exp(k S_i) / sum_j b_j exp(k S_j)",
+            "minimum": 0.0,
+            "title": "Tilt",
+            "type": "number"
+          }
+        },
+        "required": [
+          "tilt",
+          "half_life_hours",
+          "max_turnover",
+          "is_default"
+        ],
+        "title": "RebalancerParams",
+        "type": "object"
+      },
+      "RebalancerPlacebo": {
+        "properties": {
+          "active_return_p05": {
+            "title": "Active Return P05",
+            "type": "number"
+          },
+          "active_return_p50": {
+            "title": "Active Return P50",
+            "type": "number"
+          },
+          "active_return_p95": {
+            "title": "Active Return P95",
+            "type": "number"
+          },
+          "active_return_percentile": {
+            "description": "share of placebo runs whose active return is at or below the real one",
+            "title": "Active Return Percentile",
+            "type": "number"
+          },
+          "ic_percentile": {
+            "description": "share of placebo runs whose mean IC is at or below the real one",
+            "title": "Ic Percentile",
+            "type": "number"
+          },
+          "mean_ic_p05": {
+            "title": "Mean Ic P05",
+            "type": "number"
+          },
+          "mean_ic_p50": {
+            "title": "Mean Ic P50",
+            "type": "number"
+          },
+          "mean_ic_p95": {
+            "title": "Mean Ic P95",
+            "type": "number"
+          },
+          "runs": {
+            "title": "Runs",
+            "type": "integer"
+          },
+          "seed": {
+            "title": "Seed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "runs",
+          "seed",
+          "active_return_p05",
+          "active_return_p50",
+          "active_return_p95",
+          "mean_ic_p05",
+          "mean_ic_p50",
+          "mean_ic_p95",
+          "active_return_percentile",
+          "ic_percentile"
+        ],
+        "title": "RebalancerPlacebo",
+        "type": "object"
+      },
+      "RebalancerRankIC": {
+        "properties": {
+          "daily": {
+            "description": "Spearman correlation of the score at the previous close with the next session's return, across the stocks; null on a day with no variation",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Daily",
+            "type": "array"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          }
+        },
+        "required": [
+          "mean",
+          "daily",
+          "days"
+        ],
+        "title": "RebalancerRankIC",
+        "type": "object"
+      },
+      "RebalancerTimeline": {
+        "properties": {
+          "constituents": {
+            "items": {
+              "$ref": "#/components/schemas/IndexConstituent"
+            },
+            "title": "Constituents",
+            "type": "array"
+          },
+          "cumulative_turnover": {
+            "title": "Cumulative Turnover",
+            "type": "number"
+          },
+          "cycles": {
+            "items": {
+              "$ref": "#/components/schemas/RebalanceCycle"
+            },
+            "title": "Cycles",
+            "type": "array"
+          },
+          "excluded_other": {
+            "description": "reports about these companies that fail another rule (a sentiment that is a placeholder rule, or a company link below the confidence floor)",
+            "title": "Excluded Other",
+            "type": "integer"
+          },
+          "excluded_untrusted_clock": {
+            "description": "company reports left off the timeline because their time was assigned by the replay",
+            "title": "Excluded Untrusted Clock",
+            "type": "integer"
+          },
+          "include_live": {
+            "title": "Include Live",
+            "type": "boolean"
+          },
+          "labels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "mean_turnover": {
+            "title": "Mean Turnover",
+            "type": "number"
+          },
+          "params": {
+            "$ref": "#/components/schemas/RebalancerParams"
+          },
+          "reports_used": {
+            "title": "Reports Used",
+            "type": "integer"
+          },
+          "strategy": {
+            "default": "sentiment",
+            "title": "Strategy",
+            "type": "string"
+          },
+          "tickers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tickers",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "strategy",
+          "params",
+          "tickers",
+          "constituents",
+          "cycles",
+          "cumulative_turnover",
+          "mean_turnover",
+          "reports_used",
+          "excluded_untrusted_clock",
+          "excluded_other",
+          "include_live",
+          "labels",
+          "limitations"
+        ],
+        "title": "RebalancerTimeline",
+        "type": "object"
+      },
       "ReferenceReading": {
         "description": "The trained market-reaction model's own output, kept next to the severity score as a labelled reference. It is not used by the trigger.",
         "properties": {
@@ -19151,6 +21110,80 @@
         "title": "ScopeType",
         "type": "string"
       },
+      "ScoreDriver": {
+        "description": "One report behind a company's score. The contributions of every report add up exactly to the score.",
+        "properties": {
+          "age_hours": {
+            "title": "Age Hours",
+            "type": "number"
+          },
+          "contribution": {
+            "description": "this report's share of the score (signed); the contributions sum to the score",
+            "title": "Contribution",
+            "type": "number"
+          },
+          "decayed_weight": {
+            "description": "0.5 ** (age / half-life)",
+            "minimum": 0.0,
+            "title": "Decayed Weight",
+            "type": "number"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "multiplier": {
+            "default": 1.0,
+            "description": "the impact multiplier applied to this report's tone (1.0 unless the impact strategy is on)",
+            "title": "Multiplier",
+            "type": "number"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "sentiment": {
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Sentiment",
+            "type": "number"
+          },
+          "signal_id": {
+            "title": "Signal Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "required": [
+          "signal_id",
+          "headline",
+          "source",
+          "published_at",
+          "age_hours",
+          "sentiment",
+          "decayed_weight",
+          "contribution",
+          "url",
+          "multiplier"
+        ],
+        "title": "ScoreDriver",
+        "type": "object"
+      },
       "ScoreStep": {
         "description": "One line of the build-up: starts from the matrix and shows every change on the way to the final score.",
         "properties": {
@@ -21357,6 +23390,72 @@
         "title": "StoredPortfolio",
         "type": "object"
       },
+      "StrategyInfo": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "experimental": {
+            "title": "Experimental",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "liquidity_floor": {
+            "title": "Liquidity Floor",
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "why it cannot be served when available is false",
+            "title": "Reason"
+          },
+          "score": {
+            "title": "Score",
+            "type": "string"
+          },
+          "sector_cap": {
+            "title": "Sector Cap",
+            "type": "boolean"
+          },
+          "vol_limit": {
+            "title": "Vol Limit",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "description",
+          "score",
+          "sector_cap",
+          "vol_limit",
+          "liquidity_floor",
+          "available",
+          "reason",
+          "experimental"
+        ],
+        "title": "StrategyInfo",
+        "type": "object"
+      },
       "Stratum": {
         "additionalProperties": false,
         "properties": {
@@ -22478,6 +24577,218 @@
         "title": "TrackF",
         "type": "object"
       },
+      "TradeDecision": {
+        "description": "One stock at one cycle as a decision: where it was, where the rule wanted it, where it ended up, and what the reports and rules were behind that.",
+        "properties": {
+          "after": {
+            "description": "the weight held after the turnover step",
+            "title": "After",
+            "type": "number"
+          },
+          "before": {
+            "description": "the weight held going into this cycle",
+            "title": "Before",
+            "type": "number"
+          },
+          "binding": {
+            "items": {
+              "$ref": "#/components/schemas/ConstraintEffect"
+            },
+            "title": "Binding",
+            "type": "array"
+          },
+          "conflicting": {
+            "description": "both a positive and a negative side hold at least the configured share of the absolute contribution",
+            "title": "Conflicting",
+            "type": "boolean"
+          },
+          "drivers": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreDriver"
+            },
+            "title": "Drivers",
+            "type": "array"
+          },
+          "est_cost": {
+            "description": "|trade| x the one-way cost, as a fraction of the index (illustrative cost model)",
+            "minimum": 0.0,
+            "title": "Est Cost",
+            "type": "number"
+          },
+          "evidence": {
+            "minimum": 0.0,
+            "title": "Evidence",
+            "type": "number"
+          },
+          "evidence_quality": {
+            "$ref": "#/components/schemas/EvidenceQuality"
+          },
+          "explanation": {
+            "description": "a template-written sentence; every clause is backed by a field of this record, no model wrote it",
+            "title": "Explanation",
+            "type": "string"
+          },
+          "liquidity_flag": {
+            "description": "participation above the configured maximum",
+            "title": "Liquidity Flag",
+            "type": "boolean"
+          },
+          "lower": {
+            "title": "Lower",
+            "type": "number"
+          },
+          "mean_age_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "decayed-weight mean age of the reports inside the window",
+            "title": "Mean Age Hours"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "negative_share": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Negative Share",
+            "type": "number"
+          },
+          "newest_age_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "age of the newest report inside the window",
+            "title": "Newest Age Hours"
+          },
+          "notional_usd": {
+            "description": "|trade| of an imagined index of mock_aum_usd; display only",
+            "minimum": 0.0,
+            "title": "Notional Usd",
+            "type": "number"
+          },
+          "participation": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "notional as a share of the stock's average daily dollar volume (None when no volume data is built)",
+            "title": "Participation"
+          },
+          "positive_share": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Positive Share",
+            "type": "number"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/WeightReason"
+          },
+          "reports": {
+            "minimum": 0.0,
+            "title": "Reports",
+            "type": "integer"
+          },
+          "score": {
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "sector": {
+            "title": "Sector",
+            "type": "string"
+          },
+          "side": {
+            "$ref": "#/components/schemas/TradeSide"
+          },
+          "sources": {
+            "minimum": 0.0,
+            "title": "Sources",
+            "type": "integer"
+          },
+          "stale": {
+            "description": "the newest report is older than the configured number of half-lives",
+            "title": "Stale",
+            "type": "boolean"
+          },
+          "target": {
+            "description": "what the rule asked for after tilt and every constraint",
+            "title": "Target",
+            "type": "number"
+          },
+          "ticker": {
+            "title": "Ticker",
+            "type": "string"
+          },
+          "trade": {
+            "description": "after minus before, as a fraction of the index (positive = buy)",
+            "title": "Trade",
+            "type": "number"
+          },
+          "upper": {
+            "description": "the highest weight this strategy's constraints allow this stock",
+            "title": "Upper",
+            "type": "number"
+          }
+        },
+        "required": [
+          "ticker",
+          "name",
+          "sector",
+          "side",
+          "before",
+          "target",
+          "after",
+          "trade",
+          "lower",
+          "upper",
+          "est_cost",
+          "notional_usd",
+          "participation",
+          "liquidity_flag",
+          "score",
+          "evidence",
+          "reports",
+          "sources",
+          "evidence_quality",
+          "newest_age_hours",
+          "mean_age_hours",
+          "stale",
+          "conflicting",
+          "positive_share",
+          "negative_share",
+          "reason",
+          "binding",
+          "drivers",
+          "explanation"
+        ],
+        "title": "TradeDecision",
+        "type": "object"
+      },
+      "TradeSide": {
+        "enum": [
+          "BUY",
+          "SELL",
+          "HOLD"
+        ],
+        "title": "TradeSide",
+        "type": "string"
+      },
       "TypeStats": {
         "properties": {
           "agreement": {
@@ -23470,6 +25781,21 @@
         ],
         "title": "WatchlistList",
         "type": "object"
+      },
+      "WeightReason": {
+        "description": "Why a stock holds the weight it holds at a cycle (first matching rule wins; this is the order the rules are tried in).",
+        "enum": [
+          "AT_UPPER_BOUND",
+          "AT_LOWER_BOUND",
+          "LIMITED_BY_TURNOVER",
+          "HELD_BELOW_MIN_TRADE",
+          "NO_EVIDENCE",
+          "NO_CLEAR_SENTIMENT",
+          "TILT_UP",
+          "TILT_DOWN"
+        ],
+        "title": "WeightReason",
+        "type": "string"
       },
       "YearCount": {
         "additionalProperties": false,
@@ -26254,6 +28580,520 @@
         "summary": "Portfolio Exposure",
         "tags": [
           "portfolios"
+        ]
+      }
+    },
+    "/api/rebalancer/backtest": {
+      "get": {
+        "description": "An illustration of the mechanics over the replay window, built offline from price files that are not redistributed (`make rebalancer-backtest`): returns against the equal-weight benchmark after costs, the rank-IC of the score and a shuffled-score placebo. UNAVAILABLE when it has not been built; STALE when the weights it was built from differ from today's.",
+        "operationId": "get_backtest_api_rebalancer_backtest_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RebalancerBacktestView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Backtest",
+        "tags": [
+          "rebalancer"
+        ]
+      }
+    },
+    "/api/rebalancer/cycles/{index}": {
+      "get": {
+        "description": "One cycle in full: every stock's score, target weight, weight, change and the named reason, and the reports behind each score (their contributions add up to it).",
+        "operationId": "get_cycle_api_rebalancer_cycles__index__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "index",
+            "required": true,
+            "schema": {
+              "title": "Index",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "what-if: tilt strength k (default: the shipped configuration)",
+            "in": "query",
+            "name": "tilt",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: tilt strength k (default: the shipped configuration)",
+              "title": "Tilt"
+            }
+          },
+          {
+            "description": "what-if: hours for a report's weight to halve",
+            "in": "query",
+            "name": "half_life_hours",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: hours for a report's weight to halve",
+              "title": "Half Life Hours"
+            }
+          },
+          {
+            "description": "what-if: the most of the index traded in one cycle (one-way)",
+            "in": "query",
+            "name": "max_turnover",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: the most of the index traded in one cycle (one-way)",
+              "title": "Max Turnover"
+            }
+          },
+          {
+            "description": "also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed",
+            "in": "query",
+            "name": "include_live",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed",
+              "title": "Include Live",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule",
+            "in": "query",
+            "name": "strategy",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule",
+              "title": "Strategy"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RebalanceCycleDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Cycle",
+        "tags": [
+          "rebalancer"
+        ]
+      }
+    },
+    "/api/rebalancer/cycles/{index}/decisions": {
+      "get": {
+        "description": "One cycle as a rebalance proposal: for every stock the weight before, the target and the weight after, the trade, est. cost, the reports behind it (headline, time, sentiment, contribution), evidence-quality, freshness and conflict flags, the rules that bound it and a template-written explanation. `latest_decision` is the simulated decision recorded on this exact proposal, if any. `proposal_sha256` identifies the proposal: a decision made on a proposal that later changes is void.",
+        "operationId": "get_decisions_api_rebalancer_cycles__index__decisions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "index",
+            "required": true,
+            "schema": {
+              "title": "Index",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "what-if: tilt strength k (default: the shipped configuration)",
+            "in": "query",
+            "name": "tilt",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: tilt strength k (default: the shipped configuration)",
+              "title": "Tilt"
+            }
+          },
+          {
+            "description": "what-if: hours for a report's weight to halve",
+            "in": "query",
+            "name": "half_life_hours",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: hours for a report's weight to halve",
+              "title": "Half Life Hours"
+            }
+          },
+          {
+            "description": "what-if: the most of the index traded in one cycle (one-way)",
+            "in": "query",
+            "name": "max_turnover",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: the most of the index traded in one cycle (one-way)",
+              "title": "Max Turnover"
+            }
+          },
+          {
+            "description": "also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed",
+            "in": "query",
+            "name": "include_live",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed",
+              "title": "Include Live",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule",
+            "in": "query",
+            "name": "strategy",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule",
+              "title": "Strategy"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RebalanceDecisions"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Decisions",
+        "tags": [
+          "rebalancer"
+        ]
+      }
+    },
+    "/api/rebalancer/lab": {
+      "get": {
+        "description": "The strategy lab, built offline from price files that are not redistributed (`make rebalancer-lab`): the baseline sentiment rule, the experimental risk-limit and sentiment-x-impact strategies, equal weight and buy-and-hold, on the same window with the same costs and the same shuffled-score placebo; windows, a sensitivity grid (half-life, turnover cap, tilt, position limit) and cost sensitivity. Ten sessions: an illustration, never evidence of skill. UNAVAILABLE when not built; STALE when the weights it was built from differ from today's.",
+        "operationId": "get_lab_api_rebalancer_lab_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RebalancerLabView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Lab",
+        "tags": [
+          "rebalancer"
+        ]
+      }
+    },
+    "/api/rebalancer/ledger": {
+      "get": {
+        "description": "The simulated trade ledger, newest first: each decision with the allocation before, proposed and approved, the cost, and whether its proposal is stale. `chain_ok` is false if a line was edited or removed. `paper_book` is the allocation after the latest approval.",
+        "operationId": "get_ledger_api_rebalancer_ledger_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Ledger",
+        "tags": [
+          "rebalancer"
+        ]
+      }
+    },
+    "/api/rebalancer/overview": {
+      "get": {
+        "description": "The mock index (its stocks, equal-weight benchmark, bounds and the shipped parameters), the cycle clock, the rule drawn as a curve, and the labels and limitations. `available` is false when no company report exists to build a timeline from.",
+        "operationId": "get_overview_api_rebalancer_overview_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RebalancerOverview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Overview",
+        "tags": [
+          "rebalancer"
+        ]
+      }
+    },
+    "/api/rebalancer/proposals/decision": {
+      "post": {
+        "description": "Record a simulated decision on a proposed rebalance: approve all of it, approve a subset of its trades, or reject it. Nothing is sent anywhere and the served index does not change. `proposal_sha256` must be the digest of the proposal that was on screen (409 if it has changed). A partial approval must still be a fully invested allocation inside the strategy's bounds and sector caps (422 names the broken rule).",
+        "operationId": "post_decision_api_rebalancer_proposals_decision_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LedgerEntry"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Decision",
+        "tags": [
+          "rebalancer"
+        ]
+      }
+    },
+    "/api/rebalancer/timeline": {
+      "get": {
+        "description": "The weights of every stock at every cycle, with sentiment scores, report counts and turnover. The three optional parameters are a what-if for this request only (`params.is_default` is false); the server's configuration never changes. A pure function of the frozen signals: two calls give the same answer.",
+        "operationId": "get_timeline_api_rebalancer_timeline_get",
+        "parameters": [
+          {
+            "description": "what-if: tilt strength k (default: the shipped configuration)",
+            "in": "query",
+            "name": "tilt",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: tilt strength k (default: the shipped configuration)",
+              "title": "Tilt"
+            }
+          },
+          {
+            "description": "what-if: hours for a report's weight to halve",
+            "in": "query",
+            "name": "half_life_hours",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: hours for a report's weight to halve",
+              "title": "Half Life Hours"
+            }
+          },
+          {
+            "description": "what-if: the most of the index traded in one cycle (one-way)",
+            "in": "query",
+            "name": "max_turnover",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "maximum": 1,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "what-if: the most of the index traded in one cycle (one-way)",
+              "title": "Max Turnover"
+            }
+          },
+          {
+            "description": "also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed",
+            "in": "query",
+            "name": "include_live",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed",
+              "title": "Include Live",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule",
+            "in": "query",
+            "name": "strategy",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule",
+              "title": "Strategy"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RebalancerTimeline"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Timeline",
+        "tags": [
+          "rebalancer"
         ]
       }
     },

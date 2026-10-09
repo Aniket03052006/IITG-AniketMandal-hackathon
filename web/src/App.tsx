@@ -1,3 +1,4 @@
+import { RebalancerPage } from "./pages/RebalancerPage";
 import { ReviewPage } from "./pages/ReviewPage";
 import { TodayPage } from "./pages/TodayPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -44,6 +45,7 @@ export function App() {
             <Route path="events/:id" element={<EventPage />} />
             <Route path="pipeline" element={<Navigate to="/evidence?tab=pipeline" replace />} />
             <Route path="evidence" element={<EvidencePage />} />
+            <Route path="rebalancer" element={<RebalancerPage />} />
             <Route path="stress" element={<StressPage />} />
             <Route path="portfolios" element={<PortfoliosPage />} />
             <Route path="portfolios/:id" element={<PortfolioEditorPage />} />

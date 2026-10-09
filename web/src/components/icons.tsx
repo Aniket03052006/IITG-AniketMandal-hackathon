@@ -87,6 +87,14 @@ export const TodayIcon = (p: P) => (
     <path d="M8 4.5V8l2.5 1.5" />
   </Icon>
 );
+/** Three bars of different heights over a baseline with a balance tick: weights being re-balanced. */
+export const RebalanceIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M2.5 13.5h11" />
+    <path d="M4 13.5V8M8 13.5V4M12 13.5V9.5" />
+    <path d="M6 2.5h4" />
+  </Icon>
+);
 /** A checklist: items waiting for a person's decision. */
 export const ReviewIcon = (p: P) => (
   <Icon {...p}>

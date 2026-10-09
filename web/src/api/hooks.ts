@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useActivePortfolio } from "../lib/portfolio";
-import { api, type SignalFilters } from "./client";
-import type { ReviewDecisionInput, AutoStressRequest, CompareRequest, ExplainSubject, FeedbackInput, MonitorMode, PortfolioInput, ReverseStressRequest, ScenarioRequest, StressRequest, WatchlistInput } from "./types";
+import { api, type RebalancerQuery, type SignalFilters } from "./client";
+import type { DecisionRequest, ReviewDecisionInput, AutoStressRequest, CompareRequest, ExplainSubject, FeedbackInput, MonitorMode, PortfolioInput, ReverseStressRequest, ScenarioRequest, StressRequest, WatchlistInput } from "./types";
 
 export const useMeta = () => useQuery({ queryKey: ["meta"], queryFn: api.meta, staleTime: Infinity });
 
@@ -361,5 +361,25 @@ export const useReviewDecide = () => {
   return useMutation({
     mutationFn: (body: ReviewDecisionInput) => api.reviewDecide(body),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["review-queue"] }),
+  });
+};
+
+/** Tactical index rebalancer (Module A). The what-if query is part of every key, so a changed slider is a different request, never a mutation of the index of record. */
+export const useRebalancerOverview = (enabled = true) => useQuery({ queryKey: ["rb-overview"], queryFn: api.rebalancerOverview, enabled, staleTime: Infinity, retry: false });
+export const useRebalancerTimeline = (q: RebalancerQuery, enabled = true) =>
+  useQuery({ queryKey: ["rb-timeline", q.tilt ?? null, q.half_life_hours ?? null, q.max_turnover ?? null, q.include_live ?? false, q.strategy ?? null], queryFn: () => api.rebalancerTimeline(q), enabled, staleTime: 60_000, retry: false, placeholderData: (prev) => prev });
+export const useRebalancerCycle = (index: number | null, q: RebalancerQuery, enabled = true) =>
+  useQuery({ queryKey: ["rb-cycle", index, q.tilt ?? null, q.half_life_hours ?? null, q.max_turnover ?? null, q.include_live ?? false, q.strategy ?? null], queryFn: () => api.rebalancerCycle(index as number, q), enabled: enabled && index != null, staleTime: 60_000, retry: false, placeholderData: (prev) => prev });
+export const useRebalancerBacktest = (enabled = true) => useQuery({ queryKey: ["rb-backtest"], queryFn: api.rebalancerBacktest, enabled, staleTime: Infinity, retry: false });
+export const useRebalancerDecisions = (index: number | null, q: RebalancerQuery, enabled = true) =>
+  useQuery({ queryKey: ["rb-decisions", index, q.tilt ?? null, q.half_life_hours ?? null, q.max_turnover ?? null, q.include_live ?? false, q.strategy ?? null], queryFn: () => api.rebalancerDecisions(index as number, q), enabled: enabled && index != null, staleTime: 30_000, retry: false, placeholderData: (prev) => prev });
+export const useRebalancerLab = (enabled = true) => useQuery({ queryKey: ["rb-lab"], queryFn: api.rebalancerLab, enabled, staleTime: Infinity, retry: false });
+export const useRebalancerLedger = (enabled = true) => useQuery({ queryKey: ["rb-ledger"], queryFn: api.rebalancerLedger, enabled, staleTime: 10_000, retry: false });
+/** A simulated decision on a proposal. A decision is a note: it never changes a served weight, so only the ledger and the proposal's own `latest_decision` are refreshed. */
+export const useRebalancerDecide = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: DecisionRequest) => api.rebalancerDecide(body),
+    onSuccess: () => Promise.all([qc.invalidateQueries({ queryKey: ["rb-ledger"] }), qc.invalidateQueries({ queryKey: ["rb-decisions"] })]),
   });
 };

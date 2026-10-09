@@ -4034,3 +4034,374 @@
     color: var(--color-warn);
   }
 }
+
+/* ============================================================ Tactical index rebalancer (Module A) ============================================================
+ * Chart colours are the sector tokens (categorical, never gain / loss); a stock's band is always labelled with its ticker, and the table beneath holds the figures. */
+@layer components {
+  .rb-chart {
+    margin: 0;
+  }
+  .rb-svg {
+    display: block;
+    width: 100%;
+    min-width: 38rem; /* below this the tickers would be unreadable, so a phone scrolls the chart sideways instead of shrinking it */
+    height: auto;
+    border-radius: var(--radius-md);
+    cursor: crosshair;
+    touch-action: pan-y;
+  }
+  .rb-svg:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .rb-grid {
+    stroke: var(--color-rule);
+    stroke-width: 1;
+  }
+  .rb-zero {
+    stroke: var(--color-rule-strong);
+    stroke-width: 1;
+  }
+  .rb-tick {
+    font: 500 11px var(--font-mono);
+    fill: var(--color-muted);
+  }
+  .rb-band {
+    stroke: var(--color-paper-2);
+    stroke-width: 0.8;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+  .rb-line {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+  .rb-line[data-focus="true"] {
+    stroke-width: 3;
+  }
+  .rb-line-hit {
+    fill: none;
+    stroke: transparent;
+    stroke-width: 10;
+  }
+  .rb-band[data-dim="true"],
+  .rb-line[data-dim="true"],
+  .rb-label[data-dim="true"] {
+    opacity: 0.28;
+  }
+  .rb-label {
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+  .rb-ticker {
+    font: 600 11px var(--font-mono);
+    fill: var(--color-ink-2);
+    cursor: default;
+  }
+  .rb-leader {
+    stroke-width: 1.4;
+  }
+  .rb-cursor {
+    stroke: var(--color-ink);
+    stroke-width: 1.5;
+    pointer-events: none;
+  }
+  .rb-cursor-dot {
+    fill: var(--color-ink);
+    pointer-events: none;
+  }
+  .rb-hover {
+    stroke: var(--color-muted);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+    pointer-events: none;
+  }
+  .rb-caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    margin-top: 0.5rem;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+  .rb-swatch {
+    display: inline-block;
+    flex: none;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 2px;
+  }
+
+  /* table */
+  .rb-row {
+    transition: background var(--duration-fast) var(--ease-out);
+  }
+  .rb-row:hover,
+  .rb-row-on {
+    background: var(--color-paper-3);
+  }
+  .rb-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2rem;
+    padding: 0 0.25rem;
+    margin-left: -0.25rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .rb-stock:hover {
+    background: var(--color-paper-4);
+  }
+  .rb-stock:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 1px;
+  }
+  .rb-stock[aria-pressed="true"] {
+    background: var(--color-accent-dim);
+  }
+  .rb-name {
+    max-width: 11rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .rb-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .rb-active-track {
+    position: relative;
+    width: 4.5rem;
+    height: 0.5rem;
+    border-radius: 2px;
+    background: var(--color-paper-4);
+  }
+  .rb-active-track::after {
+    content: "";
+    position: absolute;
+    inset-block: -2px;
+    left: 50%;
+    width: 1px;
+    background: var(--color-faint);
+  }
+  .rb-active-fill {
+    position: absolute;
+    inset-block: 0;
+    border-radius: 2px;
+  }
+  .rb-pos {
+    background: var(--color-pos);
+  }
+  .rb-neg {
+    background: var(--color-neg);
+  }
+  .rb-active-n {
+    min-width: 4.5rem;
+    text-align: right;
+    font-size: var(--text-sm);
+  }
+
+  /* small multiples */
+  .rb-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.5rem), 1fr));
+    gap: 0.625rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rb-tile {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.625rem 0.375rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+  }
+  .rb-tile:hover {
+    background: var(--color-paper-3);
+    border-color: var(--color-rule-strong);
+  }
+  .rb-tile:active {
+    transform: translateY(1px);
+  }
+  .rb-tile:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .rb-tile-on,
+  .rb-tile[aria-pressed="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-accent-dim);
+  }
+  .rb-tile-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+  }
+  .rb-spark {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 0.25rem;
+  }
+  .rb-spark-line {
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linejoin: round;
+  }
+
+  /* rule curve + back-test */
+  .rb-curve {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .rb-curve-raw {
+    fill: none;
+    stroke: var(--color-muted);
+    stroke-width: 1.4;
+    stroke-dasharray: 4 3;
+  }
+  .rb-curve-line,
+  .rb-bt-index {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+  .rb-bt-bench {
+    fill: none;
+    stroke: var(--color-muted);
+    stroke-width: 1.6;
+    stroke-dasharray: 4 3;
+  }
+  .rb-key {
+    display: inline-block;
+    width: 1.1rem;
+    height: 0;
+    margin-right: 0.25rem;
+    vertical-align: middle;
+    border-top: 2px solid var(--color-accent);
+  }
+  .rb-key-bench {
+    border-top: 2px dashed var(--color-muted);
+  }
+  .rb-dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem 1.25rem;
+    margin: 0;
+  }
+  .rb-dl dt {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+  .rb-dl dd {
+    margin: 0.125rem 0 0;
+    font-size: var(--text-md);
+  }
+  .rb-dl-wide {
+    grid-column: 1 / -1;
+  }
+  .rb-dl-wide dd {
+    font-size: var(--text-sm);
+    color: var(--color-ink-2);
+  }
+  /* ---- trade decisions, approval, strategy lab ---- */
+  .rb-range {
+    position: relative;
+    display: inline-block;
+    width: 5.5rem;
+    height: 0.5rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-paper-4);
+    border: 1px solid var(--color-rule-strong);
+    vertical-align: middle;
+  }
+  .rb-range > i {
+    position: absolute;
+    top: -0.25rem;
+    width: 2px;
+    height: 0.875rem;
+    margin-left: -1px;
+    background: var(--color-ink);
+  }
+  .rb-decision {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-lg);
+    background: var(--color-paper-2);
+    padding: 1rem 1.125rem;
+  }
+  .rb-decision-on {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+  .rb-decision[data-side="HOLD"] {
+    background: var(--color-paper);
+  }
+  .rb-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.5rem 1.25rem;
+    margin: 0.75rem 0 0;
+  }
+  .rb-facts dt {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+  .rb-facts dd {
+    margin: 0.125rem 0 0;
+    font-size: var(--text-sm);
+  }
+  .rb-approval {
+    border: 1px solid var(--color-rule-strong);
+    border-radius: var(--radius-lg);
+    background: var(--color-paper-2);
+    padding: 1rem 1.125rem;
+  }
+  .rb-grid-table td,
+  .rb-grid-table th {
+    white-space: nowrap;
+  }
+  .rb-grid-table td[data-shipped="true"] {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+  @media (max-width: 30rem) {
+    .rb-dl {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rb-name {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rb-band,
+    .rb-line,
+    .rb-label,
+    .rb-row,
+    .rb-tile {
+      transition: none;
+    }
+  }
+}

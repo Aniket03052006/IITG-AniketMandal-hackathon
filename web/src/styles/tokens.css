@@ -73,6 +73,15 @@
   --color-warn: oklch(50% 0.11 80);
   --color-warn-dim: oklch(94.5% 0.05 90);
 
+  /* Sector hues (the tactical index's stacked bands, tiles and legend). Categorical, so none of them carries gain / loss / severity meaning;
+     a stock's band is also labelled with its ticker, so hue is never the only signal. Within a sector the chart lightens the hue with color-mix. */
+  --color-sector-technology: oklch(50% 0.16 255);
+  --color-sector-financials: oklch(52% 0.1 200);
+  --color-sector-energy: oklch(54% 0.1 62);
+  --color-sector-healthcare: oklch(50% 0.15 295);
+  --color-sector-industrials: oklch(50% 0.035 250);
+  --color-sector-consumer: oklch(54% 0.15 335);
+
   /* Type — Inter for the interface and headings, Plex Mono for computed figures */
   --font-display: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-sans: "Inter Variable", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -164,4 +173,11 @@
   --color-neu: oklch(68% 0.02 252);
   --color-warn: oklch(81% 0.12 88);
   --color-warn-dim: oklch(30% 0.05 88);
+
+  --color-sector-technology: oklch(72% 0.14 250);
+  --color-sector-financials: oklch(75% 0.1 195);
+  --color-sector-energy: oklch(77% 0.1 70);
+  --color-sector-healthcare: oklch(74% 0.14 300);
+  --color-sector-industrials: oklch(72% 0.04 250);
+  --color-sector-consumer: oklch(76% 0.14 340);
 }

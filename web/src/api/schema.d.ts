@@ -844,6 +844,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/rebalancer/backtest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Backtest
+         * @description An illustration of the mechanics over the replay window, built offline from price files that are not redistributed (`make rebalancer-backtest`): returns against the equal-weight benchmark after costs, the rank-IC of the score and a shuffled-score placebo. UNAVAILABLE when it has not been built; STALE when the weights it was built from differ from today's.
+         */
+        get: operations["get_backtest_api_rebalancer_backtest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rebalancer/cycles/{index}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cycle
+         * @description One cycle in full: every stock's score, target weight, weight, change and the named reason, and the reports behind each score (their contributions add up to it).
+         */
+        get: operations["get_cycle_api_rebalancer_cycles__index__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rebalancer/cycles/{index}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Decisions
+         * @description One cycle as a rebalance proposal: for every stock the weight before, the target and the weight after, the trade, est. cost, the reports behind it (headline, time, sentiment, contribution), evidence-quality, freshness and conflict flags, the rules that bound it and a template-written explanation. `latest_decision` is the simulated decision recorded on this exact proposal, if any. `proposal_sha256` identifies the proposal: a decision made on a proposal that later changes is void.
+         */
+        get: operations["get_decisions_api_rebalancer_cycles__index__decisions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rebalancer/lab": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Lab
+         * @description The strategy lab, built offline from price files that are not redistributed (`make rebalancer-lab`): the baseline sentiment rule, the experimental risk-limit and sentiment-x-impact strategies, equal weight and buy-and-hold, on the same window with the same costs and the same shuffled-score placebo; windows, a sensitivity grid (half-life, turnover cap, tilt, position limit) and cost sensitivity. Ten sessions: an illustration, never evidence of skill. UNAVAILABLE when not built; STALE when the weights it was built from differ from today's.
+         */
+        get: operations["get_lab_api_rebalancer_lab_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rebalancer/ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Ledger
+         * @description The simulated trade ledger, newest first: each decision with the allocation before, proposed and approved, the cost, and whether its proposal is stale. `chain_ok` is false if a line was edited or removed. `paper_book` is the allocation after the latest approval.
+         */
+        get: operations["get_ledger_api_rebalancer_ledger_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rebalancer/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Overview
+         * @description The mock index (its stocks, equal-weight benchmark, bounds and the shipped parameters), the cycle clock, the rule drawn as a curve, and the labels and limitations. `available` is false when no company report exists to build a timeline from.
+         */
+        get: operations["get_overview_api_rebalancer_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rebalancer/proposals/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post Decision
+         * @description Record a simulated decision on a proposed rebalance: approve all of it, approve a subset of its trades, or reject it. Nothing is sent anywhere and the served index does not change. `proposal_sha256` must be the digest of the proposal that was on screen (409 if it has changed). A partial approval must still be a fully invested allocation inside the strategy's bounds and sector caps (422 names the broken rule).
+         */
+        post: operations["post_decision_api_rebalancer_proposals_decision_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/rebalancer/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Timeline
+         * @description The weights of every stock at every cycle, with sentiment scores, report counts and turnover. The three optional parameters are a what-if for this request only (`params.is_default` is false); the server's configuration never changes. A pure function of the frozen signals: two calls give the same answer.
+         */
+        get: operations["get_timeline_api_rebalancer_timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reverse-stress": {
         parameters: {
             query?: never;
@@ -2521,6 +2681,12 @@ export interface components {
              */
             propagation: boolean;
             /**
+             * Rebalancer
+             * @description the tactical index rebalancer (Module A: a mock index whose weights follow the engine's sentiment) is served; /api/rebalancer/*
+             * @default false
+             */
+            rebalancer: boolean;
+            /**
              * Review
              * @description the analyst review queue is served; /api/review/queue and /api/review/decisions
              * @default false
@@ -2922,6 +3088,24 @@ export interface components {
             share_none_first_pass: number | null;
         };
         /**
+         * ConstraintCode
+         * @description Which rule held a weight back, in the order the rules are applied (tilt -> bounds -> sector cap -> volatility limit -> liquidity floor -> turnover cap -> minimum trade).
+         * @enum {string}
+         */
+        ConstraintCode: "UPPER_BOUND" | "LOWER_BOUND" | "SECTOR_CAP" | "VOL_LIMIT" | "LIQUIDITY_FLOOR" | "TURNOVER_CAP" | "MIN_TRADE";
+        /**
+         * ConstraintEffect
+         * @description One rule that bound a stock at a cycle, and how far it moved the weight. The effect of adding that rule to the ones before it (an order-defined attribution of a joint projection).
+         */
+        ConstraintEffect: {
+            code: components["schemas"]["ConstraintCode"];
+            /**
+             * Effect
+             * @description signed change in this stock's weight caused by adding this rule, as a fraction of the index (negative = it cut the weight)
+             */
+            effect: number;
+        };
+        /**
          * ContextInput
          * @description One numeric input the impact model saw for this signal, with its family and availability class.
          */
@@ -3154,6 +3338,45 @@ export interface components {
          * @enum {string}
          */
         DataOrigin: "DEMO_FIXTURE" | "REAL_SOURCE_PLACEHOLDER_NLP" | "REAL_SOURCE_MIXED_NLP" | "MODEL_OUTPUT" | "USER_SCENARIO";
+        /**
+         * DecisionRequest
+         * @description A simulated decision on one proposal. ``proposal_sha256`` must be the digest of the proposal the analyst was looking at: a proposal that has changed since is refused, not decided.
+         */
+        DecisionRequest: {
+            /**
+             * Accepted Tickers
+             * @description APPROVE only: the trades accepted; omitted = every trade of the proposal
+             */
+            accepted_tickers?: string[] | null;
+            action: components["schemas"]["LedgerAction"];
+            /** Analyst */
+            analyst: string;
+            /** Cycle Index */
+            cycle_index: number;
+            /** Half Life Hours */
+            half_life_hours?: number | null;
+            /**
+             * Include Live
+             * @default false
+             */
+            include_live?: boolean;
+            /** Max Turnover */
+            max_turnover?: number | null;
+            /**
+             * Note
+             * @default
+             */
+            note?: string;
+            /** Proposal Sha256 */
+            proposal_sha256: string;
+            /**
+             * Strategy
+             * @default sentiment
+             */
+            strategy?: string;
+            /** Tilt */
+            tilt?: number | null;
+        };
         /** DedupAudit */
         DedupAudit: {
             /** Cluster Id */
@@ -4282,6 +4505,11 @@ export interface components {
             /** Unique Domains */
             unique_domains: number;
         };
+        /**
+         * EvidenceQuality
+         * @enum {string}
+         */
+        EvidenceQuality: "NONE" | "THIN" | "OK";
         /** EvidenceQuote */
         EvidenceQuote: {
             /** End */
@@ -5292,6 +5520,27 @@ export interface components {
             /** Where */
             where: string;
         };
+        /** IndexConstituent */
+        IndexConstituent: {
+            /** Benchmark Weight */
+            benchmark_weight: number;
+            /**
+             * Lower
+             * @description the lowest weight the bounds allow
+             */
+            lower: number;
+            /** Name */
+            name: string;
+            /** Sector */
+            sector: string;
+            /** Ticker */
+            ticker: string;
+            /**
+             * Upper
+             * @description the highest weight the bounds allow
+             */
+            upper: number;
+        };
         /**
          * IndicatorBasis
          * @enum {string}
@@ -5592,12 +5841,72 @@ export interface components {
              */
             sends_text_off_machine: boolean;
         };
+        /** LabCell */
+        LabCell: {
+            /** Active Return */
+            active_return: number;
+            /** Half Life Hours */
+            half_life_hours: number;
+            /** Max Active Ratio */
+            max_active_ratio: number;
+            /** Max Turnover */
+            max_turnover: number;
+            /** Mean Daily Turnover */
+            mean_daily_turnover: number;
+            /** Placebo Percentile */
+            placebo_percentile: number;
+            /** Rank Ic */
+            rank_ic: number | null;
+            /** Tilt */
+            tilt: number;
+        };
         /** LabCompareRequest */
         LabCompareRequest: {
             /** Portfolio Id */
             portfolio_id?: string | null;
             /** Scenarios */
             scenarios: components["schemas"]["ScenarioRequest-Input"][];
+        };
+        /** LabCost */
+        LabCost: {
+            /** Active Return */
+            active_return: number;
+            /** Benchmark Return */
+            benchmark_return: number;
+            /** Cost Bps */
+            cost_bps: number;
+            /** Strategy Return */
+            strategy_return: number;
+        };
+        /** LabGrid */
+        LabGrid: {
+            /** Active Max */
+            active_max: number;
+            /** Active Min */
+            active_min: number;
+            /**
+             * Cells Outside Placebo Range
+             * @description cells whose active return is above the 95th or below the 5th percentile of their own shuffled-score runs
+             */
+            cells_outside_placebo_range: number;
+            /**
+             * Cells Positive
+             * @description cells whose active return is above zero
+             */
+            cells_positive: number;
+            /** Cells Total */
+            cells_total: number;
+            /**
+             * Expected Outside By Chance
+             * @description how many of that many cells would be outside the 5th-95th range by chance alone (10 % of them)
+             */
+            expected_outside_by_chance: number;
+            /** Half Life By Turnover */
+            half_life_by_turnover: components["schemas"]["LabCell"][];
+            /** Placebo Runs */
+            placebo_runs: number;
+            /** Tilt By Position Limit */
+            tilt_by_position_limit: components["schemas"]["LabCell"][];
         };
         /** LabIssue */
         LabIssue: {
@@ -5607,6 +5916,39 @@ export interface components {
             index: number | null;
             /** Message */
             message: string;
+        };
+        /** LabMetrics */
+        LabMetrics: {
+            /**
+             * Active Return
+             * @description cumulative return minus the equal-weight benchmark's, in return points
+             */
+            active_return: number;
+            /**
+             * Annualised Vol
+             * @description daily standard deviation x sqrt(252); null with fewer than three sessions
+             */
+            annualised_vol: number | null;
+            /** Benchmark Return */
+            benchmark_return: number;
+            /** Cumulative Return */
+            cumulative_return: number;
+            /**
+             * Hit Rate
+             * @description share of sessions on which the strategy's net return beat the benchmark's; null for the benchmark itself
+             */
+            hit_rate: number | null;
+            /**
+             * Max Drawdown
+             * @description the deepest fall from a previous peak of the cumulative net return (zero or negative)
+             */
+            max_drawdown: number;
+            /** Mean Daily Turnover */
+            mean_daily_turnover: number;
+            /** Rank Ic */
+            rank_ic: number | null;
+            /** Total Cost */
+            total_cost: number;
         };
         /**
          * LabOptions
@@ -5646,6 +5988,21 @@ export interface components {
              * @default lab-v1
              */
             version: string;
+        };
+        /** LabPlacebo */
+        LabPlacebo: {
+            /** Active Return P05 */
+            active_return_p05: number;
+            /** Active Return P50 */
+            active_return_p50: number;
+            /** Active Return P95 */
+            active_return_p95: number;
+            /** Active Return Percentile */
+            active_return_percentile: number;
+            /** Ic Percentile */
+            ic_percentile: number;
+            /** Runs */
+            runs: number;
         };
         /**
          * LabPlan
@@ -5728,6 +6085,68 @@ export interface components {
              */
             version: string;
         };
+        /** LabStrategy */
+        LabStrategy: {
+            /** Cumulative */
+            cumulative: number[];
+            /** Daily Net */
+            daily_net: number[];
+            /** Description */
+            description: string;
+            /** Drawdown */
+            drawdown: number[];
+            /** Experimental */
+            experimental: boolean;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @description TILT (a strategy the service serves) | REFERENCE (equal weight, buy and hold)
+             */
+            kind: string;
+            /** Label */
+            label: string;
+            metrics: components["schemas"]["LabMetrics"];
+            placebo: components["schemas"]["LabPlacebo"] | null;
+            /**
+             * Timeline Sha256
+             * @description digest of the weight path this was built from; a mismatch with today's marks the lab stale
+             */
+            timeline_sha256: string | null;
+            /** Turnover */
+            turnover: number[];
+            /**
+             * Verdict
+             * @description WITHIN_PLACEBO_RANGE | ABOVE_PLACEBO_RANGE | BELOW_PLACEBO_RANGE, computed from the placebo; null for references
+             */
+            verdict: string | null;
+            /** Windows */
+            windows: components["schemas"]["LabWindow"][];
+            /**
+             * Windows Positive
+             * @description of the rolling windows, how many ended ahead of the benchmark
+             */
+            windows_positive: number;
+            /** Windows Total */
+            windows_total: number;
+        };
+        /** LabWindow */
+        LabWindow: {
+            /** Active Return */
+            active_return: number;
+            /** Benchmark Return */
+            benchmark_return: number;
+            /** End */
+            end: string;
+            /** Label */
+            label: string;
+            /** Sessions */
+            sessions: number;
+            /** Start */
+            start: string;
+            /** Strategy Return */
+            strategy_return: number;
+        };
         /**
          * LabelScores
          * @description Accuracy and macro-F1 of one way of turning the output into a label.
@@ -5762,6 +6181,111 @@ export interface components {
             servable: boolean;
             /** Verdict */
             verdict: string;
+        };
+        /**
+         * LedgerAction
+         * @enum {string}
+         */
+        LedgerAction: "APPROVE" | "REJECT";
+        /**
+         * LedgerEntry
+         * @description One simulated decision on a proposed rebalance. A note, never an order: nothing is sent anywhere and the served index does not change.
+         */
+        LedgerEntry: {
+            /** Accepted Tickers */
+            accepted_tickers: string[];
+            action: components["schemas"]["LedgerAction"];
+            /** Analyst */
+            analyst: string;
+            /**
+             * Approved
+             * @description the allocation the analyst accepted: the proposal for a full approval, the previous weights for a rejection
+             */
+            approved: number[];
+            /** Before */
+            before: number[];
+            /**
+             * Cycle At
+             * Format: date-time
+             */
+            cycle_at: string;
+            /** Cycle Index */
+            cycle_index: number;
+            /** Entry Hash */
+            entry_hash: string;
+            /** Est Cost */
+            est_cost: number;
+            /** Id */
+            id: string;
+            /** Include Live */
+            include_live: boolean;
+            /** Note */
+            note: string;
+            params: components["schemas"]["RebalancerParams"];
+            /** Prev Hash */
+            prev_hash: string;
+            /** Proposal Sha256 */
+            proposal_sha256: string;
+            /** Proposed */
+            proposed: number[];
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+            /** Rejected Tickers */
+            rejected_tickers: string[];
+            /** Seq */
+            seq: number;
+            /**
+             * Stale
+             * @description set on read: the proposal for this cycle and strategy is no longer the one that was decided
+             * @default false
+             */
+            stale: boolean;
+            /** Strategy */
+            strategy: string;
+            /** Tickers */
+            tickers: string[];
+            /**
+             * Tracking Difference
+             * @description one-way distance between the approved and the proposed allocation (0 = approved as proposed)
+             */
+            tracking_difference: number;
+            /**
+             * Turnover
+             * @description one-way turnover of before -> approved
+             */
+            turnover: number;
+        };
+        /** LedgerView */
+        LedgerView: {
+            /** Approvals */
+            approvals: number;
+            /**
+             * Broken At
+             * @description the sequence number of the first entry whose hash does not follow from the one before
+             */
+            broken_at: number | null;
+            /**
+             * Chain Ok
+             * @description false when a line of the ledger was edited or removed after it was written
+             */
+            chain_ok: boolean;
+            /**
+             * Entries
+             * @description newest first
+             */
+            entries: components["schemas"]["LedgerEntry"][];
+            /** Labels */
+            labels: string[];
+            paper_book: components["schemas"]["PaperBook"] | null;
+            /** Rejections */
+            rejections: number;
+            /** Total */
+            total: number;
+            /** Version */
+            version: string;
         };
         /**
          * LifecycleState
@@ -6434,6 +6958,25 @@ export interface components {
             version: string;
             /** Window Days */
             window_days: number;
+        };
+        /**
+         * PaperBook
+         * @description The simulated allocation after the latest approval: what an analyst who followed the ledger would hold. A record, not a position at any broker.
+         */
+        PaperBook: {
+            /**
+             * Cycle At
+             * Format: date-time
+             */
+            cycle_at: string;
+            /** Entry Id */
+            entry_id: string;
+            /** Strategy */
+            strategy: string;
+            /** Tickers */
+            tickers: string[];
+            /** Weights */
+            weights: number[];
         };
         /** ParseRequest */
         ParseRequest: {
@@ -7595,6 +8138,448 @@ export interface components {
          */
         ReasonKind: "MODEL_OUTPUT" | "HISTORICAL_OBSERVATION" | "EXTERNAL_MARKET_OBSERVATION" | "SCENARIO_ASSUMPTION" | "PRODUCT_RULE";
         /**
+         * RebalanceCycle
+         * @description One cycle on the timeline, in the order of ``RebalancerTimeline.tickers`` (compact: this is what the chart draws).
+         */
+        RebalanceCycle: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Index */
+            index: number;
+            /**
+             * New Reports
+             * @description company reports that entered the evidence window since the previous cycle
+             */
+            new_reports: number;
+            /** Reports */
+            reports: number[];
+            /** Scores */
+            scores: number[];
+            /**
+             * Status
+             * @description TRADED | LIMITED_BY_TURNOVER | HELD_BELOW_MIN_TRADE | AT_TARGET
+             */
+            status: string;
+            /** Turnover */
+            turnover: number;
+            /** Wanted Turnover */
+            wanted_turnover: number;
+            /** Weights */
+            weights: number[];
+        };
+        /** RebalanceCycleDetail */
+        RebalanceCycleDetail: {
+            /**
+             * Alpha
+             * @description the fraction of the way to the target that was traded (1 = all of it)
+             */
+            alpha: number;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Drivers
+             * @description per ticker, the reports behind its score, largest absolute contribution first
+             */
+            drivers: {
+                [key: string]: components["schemas"]["ScoreDriver"][];
+            };
+            /** Index */
+            index: number;
+            /** Labels */
+            labels: string[];
+            /** Names */
+            names: components["schemas"]["RebalanceName"][];
+            params: components["schemas"]["RebalancerParams"];
+            /** Previous At */
+            previous_at: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Strategy
+             * @default sentiment
+             */
+            strategy: string;
+            /** Turnover */
+            turnover: number;
+            /** Version */
+            version: string;
+            /** Wanted Turnover */
+            wanted_turnover: number;
+        };
+        /** RebalanceDecisions */
+        RebalanceDecisions: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Buys */
+            buys: number;
+            /** Cycles */
+            cycles: number;
+            /** Decisions */
+            decisions: components["schemas"]["TradeDecision"][];
+            /** Est Cost */
+            est_cost: number;
+            /** Est Cost Usd */
+            est_cost_usd: number;
+            /** Holds */
+            holds: number;
+            /** Index */
+            index: number;
+            /** Labels */
+            labels: string[];
+            latest_decision: components["schemas"]["LedgerEntry"] | null;
+            params: components["schemas"]["RebalancerParams"];
+            /** Previous At */
+            previous_at: string | null;
+            /**
+             * Proposal Sha256
+             * @description digest of the proposal (strategy, parameters, cycle and the three weight vectors); a decision on it is void if this changes
+             */
+            proposal_sha256: string;
+            /** Sells */
+            sells: number;
+            /** Status */
+            status: string;
+            /** Strategy */
+            strategy: string;
+            /** Tickers */
+            tickers: string[];
+            /** Turnover */
+            turnover: number;
+            /** Version */
+            version: string;
+            /** Wanted Turnover */
+            wanted_turnover: number;
+        };
+        /** RebalanceName */
+        RebalanceName: {
+            /**
+             * Active
+             * @description weight minus benchmark weight
+             */
+            active: number;
+            /**
+             * Binding
+             * @description every rule that bound this stock at this cycle, in the order the rules apply
+             */
+            binding: components["schemas"]["ConstraintEffect"][];
+            /**
+             * Change
+             * @description weight minus the previous cycle's weight
+             */
+            change: number;
+            /**
+             * Evidence
+             * @description effective evidence behind the score after decay and the one-source-one-vote cap
+             */
+            evidence: number;
+            reason: components["schemas"]["WeightReason"];
+            /** Reports */
+            reports: number;
+            /** Score */
+            score: number;
+            /** Sources */
+            sources: number;
+            /** Target Weight */
+            target_weight: number;
+            /** Ticker */
+            ticker: string;
+            /** Weight */
+            weight: number;
+        };
+        /** RebalancerBacktest */
+        RebalancerBacktest: {
+            /**
+             * Benchmark
+             * @description daily net return of the equal-weight benchmark
+             */
+            benchmark: number[];
+            /** Caveats */
+            caveats: string[];
+            /** Cost Bps */
+            cost_bps: number;
+            /** Cumulative Benchmark */
+            cumulative_benchmark: number[];
+            /** Cumulative Rebalanced */
+            cumulative_rebalanced: number[];
+            /**
+             * Dates
+             * @description the sessions, oldest first
+             */
+            dates: string[];
+            /**
+             * Inputs
+             * @description sha256 of each price file read
+             */
+            inputs: {
+                [key: string]: string;
+            };
+            params: components["schemas"]["RebalancerParams"];
+            placebo: components["schemas"]["RebalancerPlacebo"];
+            rank_ic: components["schemas"]["RebalancerRankIC"];
+            /**
+             * Rebalanced
+             * @description daily net return of the rebalanced index
+             */
+            rebalanced: number[];
+            summary: components["schemas"]["RebalancerBacktestSummary"];
+            /** Tickers */
+            tickers: string[];
+            /**
+             * Timeline Sha256
+             * @description digest of the weight path the result was built from; a mismatch with the live timeline marks the file stale
+             */
+            timeline_sha256: string;
+            /**
+             * Turnover
+             * @description one-way turnover into each session's weights
+             */
+            turnover: number[];
+            /** Version */
+            version: string;
+        };
+        /** RebalancerBacktestSummary */
+        RebalancerBacktestSummary: {
+            /**
+             * Active Return
+             * @description rebalanced minus benchmark, in return points (not compounded active)
+             */
+            active_return: number;
+            /**
+             * Benchmark Return
+             * @description compounded net return of the equal-weight benchmark
+             */
+            benchmark_return: number;
+            /** Daily Active Mean */
+            daily_active_mean: number;
+            /**
+             * Daily Active Std
+             * @description null with fewer than three sessions
+             */
+            daily_active_std: number | null;
+            /** Mean Daily Turnover */
+            mean_daily_turnover: number;
+            /**
+             * Rebalanced Return
+             * @description compounded net return of the rebalanced index over the window
+             */
+            rebalanced_return: number;
+            /**
+             * Total Cost
+             * @description sum of daily costs charged to the rebalanced index, in return points
+             */
+            total_cost: number;
+        };
+        /** RebalancerBacktestView */
+        RebalancerBacktestView: {
+            backtest: components["schemas"]["RebalancerBacktest"] | null;
+            /** Reason */
+            reason: string | null;
+            /**
+             * Status
+             * @description AVAILABLE | STALE | UNAVAILABLE
+             */
+            status: string;
+        };
+        /** RebalancerLab */
+        RebalancerLab: {
+            /** Caveats */
+            caveats: string[];
+            /** Cost Bps */
+            cost_bps: number;
+            /** Cost Sensitivity */
+            cost_sensitivity: components["schemas"]["LabCost"][];
+            /** Dates */
+            dates: string[];
+            grid: components["schemas"]["LabGrid"];
+            /**
+             * Impact Reports
+             * @description reports in the window that carry an impact score
+             */
+            impact_reports: number;
+            /** Inputs */
+            inputs: {
+                [key: string]: string;
+            };
+            params: components["schemas"]["RebalancerParams"];
+            /** Reports Used */
+            reports_used: number;
+            /** Strategies */
+            strategies: components["schemas"]["LabStrategy"][];
+            /** Tickers */
+            tickers: string[];
+            /** Version */
+            version: string;
+        };
+        /** RebalancerLabView */
+        RebalancerLabView: {
+            lab: components["schemas"]["RebalancerLab"] | null;
+            /** Reason */
+            reason: string | null;
+            /**
+             * Status
+             * @description AVAILABLE | STALE | UNAVAILABLE
+             */
+            status: string;
+        };
+        /** RebalancerOverview */
+        RebalancerOverview: {
+            /** Available */
+            available: boolean;
+            /** Benchmark */
+            benchmark: string;
+            /** Bounds */
+            bounds: {
+                [key: string]: number;
+            };
+            /** Constituents */
+            constituents: components["schemas"]["IndexConstituent"][];
+            /**
+             * Curve
+             * @description the rule drawn: for a stock alone at score S and every other at 0, its target weight before bounds
+             */
+            curve: {
+                [key: string]: number;
+            }[];
+            /** Cycle Count */
+            cycle_count: number;
+            /** First Cycle */
+            first_cycle: string | null;
+            /** Half Life Hours Default */
+            half_life_hours_default: number;
+            /** Labels */
+            labels: string[];
+            /** Last Cycle */
+            last_cycle: string | null;
+            /** Limitations */
+            limitations: string[];
+            /** Max Turnover Limit */
+            max_turnover_limit: number;
+            params: components["schemas"]["RebalancerParams"];
+            /** Step Hours */
+            step_hours: number;
+            /** Strategies */
+            strategies: components["schemas"]["StrategyInfo"][];
+            /** Tilt Max */
+            tilt_max: number;
+            /** Version */
+            version: string;
+        };
+        /**
+         * RebalancerParams
+         * @description The three knobs a caller may turn for one request; everything else is the shipped configuration.
+         */
+        RebalancerParams: {
+            /**
+             * Half Life Hours
+             * @description a report's weight halves every this many hours
+             */
+            half_life_hours: number;
+            /**
+             * Is Default
+             * @description false when the caller overrode the shipped configuration (a what-if, not the index of record)
+             */
+            is_default: boolean;
+            /**
+             * Max Turnover
+             * @description most of the index traded in one cycle (one-way: 1/2 sum |new - old|)
+             */
+            max_turnover: number;
+            /**
+             * Tilt
+             * @description tilt strength k in p_i = b_i exp(k S_i) / sum_j b_j exp(k S_j)
+             */
+            tilt: number;
+        };
+        /** RebalancerPlacebo */
+        RebalancerPlacebo: {
+            /** Active Return P05 */
+            active_return_p05: number;
+            /** Active Return P50 */
+            active_return_p50: number;
+            /** Active Return P95 */
+            active_return_p95: number;
+            /**
+             * Active Return Percentile
+             * @description share of placebo runs whose active return is at or below the real one
+             */
+            active_return_percentile: number;
+            /**
+             * Ic Percentile
+             * @description share of placebo runs whose mean IC is at or below the real one
+             */
+            ic_percentile: number;
+            /** Mean Ic P05 */
+            mean_ic_p05: number;
+            /** Mean Ic P50 */
+            mean_ic_p50: number;
+            /** Mean Ic P95 */
+            mean_ic_p95: number;
+            /** Runs */
+            runs: number;
+            /** Seed */
+            seed: number;
+        };
+        /** RebalancerRankIC */
+        RebalancerRankIC: {
+            /**
+             * Daily
+             * @description Spearman correlation of the score at the previous close with the next session's return, across the stocks; null on a day with no variation
+             */
+            daily: (number | null)[];
+            /** Days */
+            days: number;
+            /** Mean */
+            mean: number | null;
+        };
+        /** RebalancerTimeline */
+        RebalancerTimeline: {
+            /** Constituents */
+            constituents: components["schemas"]["IndexConstituent"][];
+            /** Cumulative Turnover */
+            cumulative_turnover: number;
+            /** Cycles */
+            cycles: components["schemas"]["RebalanceCycle"][];
+            /**
+             * Excluded Other
+             * @description reports about these companies that fail another rule (a sentiment that is a placeholder rule, or a company link below the confidence floor)
+             */
+            excluded_other: number;
+            /**
+             * Excluded Untrusted Clock
+             * @description company reports left off the timeline because their time was assigned by the replay
+             */
+            excluded_untrusted_clock: number;
+            /** Include Live */
+            include_live: boolean;
+            /** Labels */
+            labels: string[];
+            /** Limitations */
+            limitations: string[];
+            /** Mean Turnover */
+            mean_turnover: number;
+            params: components["schemas"]["RebalancerParams"];
+            /** Reports Used */
+            reports_used: number;
+            /**
+             * Strategy
+             * @default sentiment
+             */
+            strategy: string;
+            /** Tickers */
+            tickers: string[];
+            /** Version */
+            version: string;
+        };
+        /**
          * ReferenceReading
          * @description The trained market-reaction model's own output, kept next to the severity score as a labelled reference. It is not used by the trigger.
          */
@@ -8743,6 +9728,45 @@ export interface components {
          */
         ScopeType: "COMPANY" | "INDUSTRY" | "SECTOR" | "GEOGRAPHY" | "MACRO" | "MARKET" | "THEME" | "UNRESOLVED";
         /**
+         * ScoreDriver
+         * @description One report behind a company's score. The contributions of every report add up exactly to the score.
+         */
+        ScoreDriver: {
+            /** Age Hours */
+            age_hours: number;
+            /**
+             * Contribution
+             * @description this report's share of the score (signed); the contributions sum to the score
+             */
+            contribution: number;
+            /**
+             * Decayed Weight
+             * @description 0.5 ** (age / half-life)
+             */
+            decayed_weight: number;
+            /** Headline */
+            headline: string;
+            /**
+             * Multiplier
+             * @description the impact multiplier applied to this report's tone (1.0 unless the impact strategy is on)
+             * @default 1
+             */
+            multiplier: number;
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+            /** Sentiment */
+            sentiment: number;
+            /** Signal Id */
+            signal_id: string;
+            /** Source */
+            source: string;
+            /** Url */
+            url: string | null;
+        };
+        /**
          * ScoreStep
          * @description One line of the build-up: starts from the matrix and shows every change on the way to the final score.
          */
@@ -9644,6 +10668,32 @@ export interface components {
              */
             updated_at: string;
         };
+        /** StrategyInfo */
+        StrategyInfo: {
+            /** Available */
+            available: boolean;
+            /** Description */
+            description: string;
+            /** Experimental */
+            experimental: boolean;
+            /** Id */
+            id: string;
+            /** Label */
+            label: string;
+            /** Liquidity Floor */
+            liquidity_floor: boolean;
+            /**
+             * Reason
+             * @description why it cannot be served when available is false
+             */
+            reason: string | null;
+            /** Score */
+            score: string;
+            /** Sector Cap */
+            sector_cap: boolean;
+            /** Vol Limit */
+            vol_limit: boolean;
+        };
         /** Stratum */
         Stratum: {
             /** Dimension */
@@ -10047,6 +11097,114 @@ export interface components {
              */
             pairs: number;
         };
+        /**
+         * TradeDecision
+         * @description One stock at one cycle as a decision: where it was, where the rule wanted it, where it ended up, and what the reports and rules were behind that.
+         */
+        TradeDecision: {
+            /**
+             * After
+             * @description the weight held after the turnover step
+             */
+            after: number;
+            /**
+             * Before
+             * @description the weight held going into this cycle
+             */
+            before: number;
+            /** Binding */
+            binding: components["schemas"]["ConstraintEffect"][];
+            /**
+             * Conflicting
+             * @description both a positive and a negative side hold at least the configured share of the absolute contribution
+             */
+            conflicting: boolean;
+            /** Drivers */
+            drivers: components["schemas"]["ScoreDriver"][];
+            /**
+             * Est Cost
+             * @description |trade| x the one-way cost, as a fraction of the index (illustrative cost model)
+             */
+            est_cost: number;
+            /** Evidence */
+            evidence: number;
+            evidence_quality: components["schemas"]["EvidenceQuality"];
+            /**
+             * Explanation
+             * @description a template-written sentence; every clause is backed by a field of this record, no model wrote it
+             */
+            explanation: string;
+            /**
+             * Liquidity Flag
+             * @description participation above the configured maximum
+             */
+            liquidity_flag: boolean;
+            /** Lower */
+            lower: number;
+            /**
+             * Mean Age Hours
+             * @description decayed-weight mean age of the reports inside the window
+             */
+            mean_age_hours: number | null;
+            /** Name */
+            name: string;
+            /** Negative Share */
+            negative_share: number;
+            /**
+             * Newest Age Hours
+             * @description age of the newest report inside the window
+             */
+            newest_age_hours: number | null;
+            /**
+             * Notional Usd
+             * @description |trade| of an imagined index of mock_aum_usd; display only
+             */
+            notional_usd: number;
+            /**
+             * Participation
+             * @description notional as a share of the stock's average daily dollar volume (None when no volume data is built)
+             */
+            participation: number | null;
+            /** Positive Share */
+            positive_share: number;
+            reason: components["schemas"]["WeightReason"];
+            /** Reports */
+            reports: number;
+            /** Score */
+            score: number;
+            /** Sector */
+            sector: string;
+            side: components["schemas"]["TradeSide"];
+            /** Sources */
+            sources: number;
+            /**
+             * Stale
+             * @description the newest report is older than the configured number of half-lives
+             */
+            stale: boolean;
+            /**
+             * Target
+             * @description what the rule asked for after tilt and every constraint
+             */
+            target: number;
+            /** Ticker */
+            ticker: string;
+            /**
+             * Trade
+             * @description after minus before, as a fraction of the index (positive = buy)
+             */
+            trade: number;
+            /**
+             * Upper
+             * @description the highest weight this strategy's constraints allow this stock
+             */
+            upper: number;
+        };
+        /**
+         * TradeSide
+         * @enum {string}
+         */
+        TradeSide: "BUY" | "SELL" | "HOLD";
         /** TypeStats */
         TypeStats: {
             /**
@@ -10390,6 +11548,12 @@ export interface components {
             /** Watchlists */
             watchlists: components["schemas"]["Watchlist"][];
         };
+        /**
+         * WeightReason
+         * @description Why a stock holds the weight it holds at a cycle (first matching rule wins; this is the order the rules are tried in).
+         * @enum {string}
+         */
+        WeightReason: "AT_UPPER_BOUND" | "AT_LOWER_BOUND" | "LIMITED_BY_TURNOVER" | "HELD_BELOW_MIN_TRADE" | "NO_EVIDENCE" | "NO_CLEAR_SENTIMENT" | "TILT_UP" | "TILT_DOWN";
         /** YearCount */
         YearCount: {
             /**
@@ -11972,6 +13136,243 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortfolioExposureDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_backtest_api_rebalancer_backtest_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RebalancerBacktestView"];
+                };
+            };
+        };
+    };
+    get_cycle_api_rebalancer_cycles__index__get: {
+        parameters: {
+            query?: {
+                /** @description what-if: tilt strength k (default: the shipped configuration) */
+                tilt?: number | null;
+                /** @description what-if: hours for a report's weight to halve */
+                half_life_hours?: number | null;
+                /** @description what-if: the most of the index traded in one cycle (one-way) */
+                max_turnover?: number | null;
+                /** @description also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed */
+                include_live?: boolean;
+                /** @description which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule */
+                strategy?: string | null;
+            };
+            header?: never;
+            path: {
+                index: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RebalanceCycleDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_decisions_api_rebalancer_cycles__index__decisions_get: {
+        parameters: {
+            query?: {
+                /** @description what-if: tilt strength k (default: the shipped configuration) */
+                tilt?: number | null;
+                /** @description what-if: hours for a report's weight to halve */
+                half_life_hours?: number | null;
+                /** @description what-if: the most of the index traded in one cycle (one-way) */
+                max_turnover?: number | null;
+                /** @description also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed */
+                include_live?: boolean;
+                /** @description which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule */
+                strategy?: string | null;
+            };
+            header?: never;
+            path: {
+                index: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RebalanceDecisions"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_lab_api_rebalancer_lab_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RebalancerLabView"];
+                };
+            };
+        };
+    };
+    get_ledger_api_rebalancer_ledger_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerView"];
+                };
+            };
+        };
+    };
+    get_overview_api_rebalancer_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RebalancerOverview"];
+                };
+            };
+        };
+    };
+    post_decision_api_rebalancer_proposals_decision_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerEntry"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_timeline_api_rebalancer_timeline_get: {
+        parameters: {
+            query?: {
+                /** @description what-if: tilt strength k (default: the shipped configuration) */
+                tilt?: number | null;
+                /** @description what-if: hours for a report's weight to halve */
+                half_life_hours?: number | null;
+                /** @description what-if: the most of the index traded in one cycle (one-way) */
+                max_turnover?: number | null;
+                /** @description also read the live feed's reports (never pasted text); off by default so the index of record does not move with the feed */
+                include_live?: boolean;
+                /** @description which strategy (configs/rebalancer.yaml: strategies); default: the baseline `sentiment` rule */
+                strategy?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RebalancerTimeline"];
                 };
             };
             /** @description Validation Error */
