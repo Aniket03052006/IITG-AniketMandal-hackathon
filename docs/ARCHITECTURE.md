@@ -196,7 +196,7 @@ Pinned dependencies (`requirements.txt`, `uv.lock`); artifact and snapshot hashe
 
 | Decision | Chosen | Alternative | Why chosen | Main cost |
 |---|---|---|---|---|
-| Downstream module | **B** (stress tester) | A (index rebalancer) | event → exposure → loss is the story a risk desk needs; A is a sentiment-to-weight map | Module A is not built |
+| Downstream module | **B** (stress tester), plus **A** (index rebalancer) added in Stage 16 as a separate side-car | A only | event → exposure → loss is the story a risk desk needs; A is a sentiment-to-weight map, kept apart so neither contaminates the other | A claims a transparent rule, not a return (`docs/REBALANCER.md`) |
 | NLP approach | classical supervised models + deterministic engine | LLM-first | reproducible, cheap, auditable, runs offline; the LLM is an optional reader | weaker semantic understanding without it |
 | Sentiment model | TF-IDF + LR (tfidf-lr-v2) | FinBERT (frozen or fine-tuned) | CPU-only, byte-reproducible, no torch at run time, trained on in-domain tweet labels. FinBERT was **probed, not served**: on a 30-pair polarity probe finbert-tone and ProsusAI/finbert got 93 % right against 77 % for the shipped model (`docs/evidence/representation_bakeoff.json`, a diagnostic never used to choose), and as frozen features they added nothing to the event model | weak out of domain (≈ 0.44-0.53 macro-F1); a FinBERT sentiment head was never compared with it on a labelled benchmark and is the most obvious open improvement |
 | Event model | hybrid TF-IDF + e5-large + LR with abstention | fine-tuned transformer; zero-shot | won a pre-registered five-way representation comparison; abstains | labels are AI-annotated |
@@ -223,7 +223,7 @@ Pinned dependencies (`requirements.txt`, `uv.lock`); artifact and snapshot hashe
 | Impact 1-10 | implemented (experimental) | `impact-v2` plus the severity-v2 scorecard as headline; neither validated |
 | Expose signals (API/file) | implemented | `/api/signals…`; `make ingest` also exports files to `data/processed` |
 | Module B stress tester | implemented | synthetic book, 4 asset classes, 12 scenarios, generated scenario, attribution, before/after dashboard |
-| Module A rebalancer | not built | out of scope by decision |
+| Module A rebalancer | implemented (Stage 16) | 15-stock mock index, sentiment tilt, bounds, turnover cap, weights-over-time dashboard `/rebalancer`, illustrative back-test with a placebo; `docs/REBALANCER.md` |
 | Entity resolution | partial | 34-issuer dictionary; no NER |
 | Dedup / corroboration | implemented | contradiction detection is closed-lexicon only |
 | Evidence layer | implemented | provenance, evidence tier, novelty, lifecycle; separate from impact |

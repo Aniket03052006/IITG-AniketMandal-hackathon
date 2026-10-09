@@ -10,7 +10,7 @@
 
 **EventShock — an event-driven financial risk engine and portfolio stress lab.** It reads financial text from more than one source,
 turns each report into a structured risk signal (sentiment, event class, 1–10 score), and shows what that signal would do to a
-synthetic wholesale-banking book under an explicit, deterministic stress scenario (Module B of the case study).
+synthetic wholesale-banking book under an explicit, deterministic stress scenario (Module B of the case study). It also drives a **tactical index rebalancer** (Module A): a mock 15-stock index whose weights follow each company's sentiment, with a weights-over-time dashboard at `/rebalancer`.
 
 > **Honesty box.** Sentiment, event type and impact are trained models, but all three are **experimental**: none has passed a
 > pre-registered validation bar. The 1–10 numbers are triage scales, not forecasts. The portfolio is **synthetic** (real issuers,

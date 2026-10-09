@@ -260,6 +260,34 @@ def run_checks(base: str) -> None:
     fb = post(base, "/api/feedback", {"event_id": eid, "type": "RELEVANCE", "value": "RELEVANT", "analyst_id": "smoke"})
     check(fb["event_id"] and get(base, "/api/feedback/statistics")["volume"] >= 1 and "not ground truth" in get(base, "/api/feedback/statistics")["label"].lower(),
           "/api/feedback: an answer is recorded and the statistics say it is not ground truth")
+    rb = get(base, "/api/rebalancer/timeline")
+    n = len(rb["tickers"])
+    check(10 <= n <= 20 and len(rb["cycles"]) > 20 and rb["params"]["is_default"] and all(abs(sum(c["weights"]) - 1) < 1e-9 for c in rb["cycles"]),
+          "/api/rebalancer/timeline: a 10-20 stock index, every cycle fully invested")
+    lo, hi = (min(c["lower"] for c in rb["constituents"]), max(c["upper"] for c in rb["constituents"]))
+    check(all(lo - 1e-9 <= w <= hi + 1e-9 for c in rb["cycles"] for w in c["weights"]), "...and every weight is inside its bounds")
+    check(get(base, "/api/rebalancer/timeline", raw=True) == get(base, "/api/rebalancer/timeline", raw=True), "...and the timeline is identical on repeat")
+    whatif = get(base, "/api/rebalancer/timeline?tilt=4&max_turnover=0.1")
+    check(whatif["params"]["is_default"] is False and get(base, "/api/rebalancer/timeline")["cycles"][-1]["weights"] == rb["cycles"][-1]["weights"],
+          "...a what-if is labelled and leaves the index of record unchanged")
+    det = get(base, f"/api/rebalancer/cycles/{len(rb['cycles']) - 1}")
+    check(len(det["names"]) == n and all(x["reason"] for x in det["names"]), "/api/rebalancer/cycles/{i}: every stock has a named reason")
+    bt = get(base, "/api/rebalancer/backtest")
+    check(bt["status"] == "AVAILABLE" and bt["backtest"]["caveats"] and bt["backtest"]["placebo"]["runs"] >= 100, "/api/rebalancer/backtest: the committed back-test matches the served weights and carries its placebo")
+    cyc = rb["cycles"]
+    busy = max(range(len(cyc)), key=lambda k: (cyc[k]["turnover"], -k))
+    dec = get(base, f"/api/rebalancer/cycles/{busy}/decisions")
+    check(len(dec["decisions"]) == n and abs(sum(x["trade"] for x in dec["decisions"])) < 1e-9 and all(x["explanation"] for x in dec["decisions"]) and len(dec["proposal_sha256"]) == 64,
+          "/api/rebalancer/cycles/{i}/decisions: every stock has before / after / trade and an explanation; the trades net to zero")
+    risk = get(base, f"/api/rebalancer/cycles/{busy}/decisions?strategy=sentiment_risk")
+    check(risk["strategy"] == "sentiment_risk" and abs(sum(x["after"] for x in risk["decisions"]) - 1) < 1e-9, "...the risk-limit strategy is served beside the baseline and stays fully invested")
+    lab = get(base, "/api/rebalancer/lab")
+    check(lab["status"] == "AVAILABLE" and {s["id"] for s in lab["lab"]["strategies"]} >= {"sentiment", "equal_weight", "buy_and_hold"} and lab["lab"]["grid"]["cells_total"] == 21,
+          "/api/rebalancer/lab: the committed lab matches the served weights and compares every strategy on one window")
+    entry = post(base, "/api/rebalancer/proposals/decision", {"strategy": "sentiment", "cycle_index": busy, "action": "APPROVE", "analyst": "smoke", "proposal_sha256": dec["proposal_sha256"]})
+    led = get(base, "/api/rebalancer/ledger")
+    check(entry["seq"] == 1 and led["chain_ok"] and led["total"] == 1 and get(base, "/api/rebalancer/timeline")["cycles"][-1]["weights"] == rb["cycles"][-1]["weights"],
+          "/api/rebalancer/proposals/decision: an approval is recorded in a hash-chained ledger and the served index does not move")
 
     index = get(base, "/", raw=True).decode("utf-8", "replace")
     check("<div id=\"root\"" in index or "id=\"root\"" in index, "the built UI is served at /")
@@ -285,7 +313,8 @@ def main() -> int:
            "EVENTSHOCK_LLM": "0", "EVENTSHOCK_LLM_CACHE_PATH": str(journal.parent / "llm_cache.jsonl"),
            "EVENTSHOCK_PORTFOLIO_STORE_PATH": str(journal.parent / "portfolios"),
            "EVENTSHOCK_OVERRIDES_PATH": str(journal.parent / "overrides.json"),
-           "EVENTSHOCK_DECISION_STORE_PATH": str(journal.parent / "decision")}
+           "EVENTSHOCK_DECISION_STORE_PATH": str(journal.parent / "decision"),
+           "EVENTSHOCK_REBALANCER_LEDGER_PATH": str(journal.parent / "rebalancer_ledger.jsonl")}
     proc = subprocess.Popen([sys.executable, "-m", "eventshock", "--port", str(port)], cwd=ROOT, env=env)
     base = f"http://127.0.0.1:{port}"
     try:

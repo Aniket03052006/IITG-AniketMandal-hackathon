@@ -107,3 +107,15 @@ Start `make run`. Everything below is deterministic on the replay except the Liv
 | 4 | Opens the Hormuz event (`/events/sig_8f79c8bbd6`) and scrolls to *What a scenario does to the portfolio* (the stress chapter). | *Why it matters* and *My exposure: event → risk factor → holdings*, then the **contagion map**: event → risk factors → where it lands → the largest holdings, each line labelled observed / scenario assumption / user assumption. | "Every edge has a rule and a basis. This is a mapping, not a causal model." |
 | 5 | Clicks **Run scenario**, scrolls to the **loss heatmap** in the attribution panel, then opens **Portfolios** for the **exposure heatmap**. | Sector × market factor cells that add up to the total loss; sector × asset class cells that add up to the book. | "Where the book sits, and where the shock landed. Every cell table reconciles to its total or the builder refuses to draw." |
 | 6 | Opens **Adjust** in the top bar, changes one gate, then resets. | The change is labelled *user assumption* and counted on every answer; reset restores every default. | "Every judgement prior is adjustable and visibly yours; the shipped configs are never edited." |
+
+## Module A addendum (Stage 16): the tactical index rebalancer
+
+| # | You do | You see | Say |
+|---|---|---|---|
+| 1 | Open **Rebalancer** (sidebar, *Investigate*). | A 15-stock index, 58 six-hourly cycles, the stacked weights (sector hues, ticker beside every band) and the latest cycle selected. | "Module A: the NLP engine's sentiment score drives the weights. Positive news raises a weight, negative lowers it." |
+| 2 | Click **Active vs benchmark**, hover a ticker at the right edge. | Each stock's weight minus its equal-weight benchmark; the hovered one stays bold. | "Same numbers, as a tilt against the benchmark." |
+| 3 | Drag the **Cycle** slider; read the table. | The table, trades and reasons follow the cycle; each stock names why it holds its weight. | "Every weight has a named reason, and the table holds the exact figures." |
+| 4 | Click **NVDA** in the table. | *Why NVDA holds this weight*: the headlines behind its score with their sentiment and their share of it; the shares add up to the score. | "A reader can check the score by adding up the headlines." |
+| 5 | Open **What-if controls** under *How the rule works*, raise the tilt. | A banner says this is a what-if; the weights move; reset restores the shipped parameters. | "Every number is a judgement prior, and you can see how much each one matters." |
+| 6 | Scroll to **Back-test**. | +0.19 % against the benchmark over 10 sessions, and the control: shuffled scores give -0.33 % to +0.32 %. | "It is inside what chance gives, so we claim a transparent rule, not alpha." |
+
