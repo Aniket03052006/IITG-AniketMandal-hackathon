@@ -196,6 +196,7 @@ class Capabilities(ContractModel):
     explanations: bool = Field(default=False, description="structured 'Why?' explanations are served; /api/events/{id}/explanation, /api/scenarios/explanation, /api/reverse-stress/explanation")
     scenario_lab: bool = Field(default=False, description="the scenario lab is served: build, run and compare scenarios (BASE / ASSESSED / CUSTOM); /api/scenarios, /api/lab/options")
     watchlists: bool = Field(default=False, description="persistent watchlists are served; /api/watchlists")
+    rebalancer: bool = Field(default=False, description="the tactical index rebalancer (Module A: a mock index whose weights follow the engine's sentiment) is served; /api/rebalancer/*")
     monitor: bool = Field(default=False, description="the risk monitor and event memory are served (what changed, per event timeline); /api/monitor/*, /api/events/{id}/timeline")
 
 

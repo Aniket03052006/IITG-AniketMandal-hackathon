@@ -106,5 +106,5 @@ def meta(c: Container = Depends(get_container)) -> Meta:
                                   assessment=c.assessments is not None, llm=llm_info(c),
                                   analogues=bool(c.analogues and c.analogues.available), history_check=c.shock_history is not None, intelligence=c.intelligence is not None,
                                   propagation=c.propagation is not None, adjustments=c.adjust is not None,
-                                  monitor=c.monitor is not None, watchlists=c.watchlists is not None, scenario_lab=c.lab is not None, explanations=c.explain is not None, feedback=c.feedback is not None, review=c.review is not None, external_markets=c.markets is not None, executive_brief=c.brief is not None),
+                                  monitor=c.monitor is not None, watchlists=c.watchlists is not None, scenario_lab=c.lab is not None, explanations=c.explain is not None, feedback=c.feedback is not None, review=c.review is not None, external_markets=c.markets is not None, executive_brief=c.brief is not None, rebalancer=c.rebalancer is not None),
     )

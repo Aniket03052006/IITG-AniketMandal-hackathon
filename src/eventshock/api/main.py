@@ -28,6 +28,7 @@ from .routers import (
     portfolio,
     portfolios,
     propagation,
+    rebalancer,
     review,
     scenarios,
     scope,
@@ -87,7 +88,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     for r in (meta.router, pipeline.router, models.router, evidence.router, signals.router, portfolio.router,
               portfolios.router, scenarios.router, stress.router, analyze.router, live.router, scope.router,
               propagation.router, adjustments.router, monitor.router, events.router, watchlists.router,
-              lab.router, feedback.router, review.router):
+              lab.router, feedback.router, review.router, rebalancer.router):
         app.include_router(r, prefix="/api")
 
     dist = settings.web_dist_dir

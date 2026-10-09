@@ -96,6 +96,10 @@ from ..propagation.mapping import PropagationMapper
 from ..propagation.materiality import MaterialityAssessor
 from ..propagation.scenario_gen import ScenarioGenerator
 from ..propagation.service import PropagationService
+from ..rebalancer.config import load_rebalancer_config
+from ..rebalancer.ledger import LedgerStore
+from ..rebalancer.risk import load_risk_inputs
+from ..rebalancer.service import RebalancerService
 from ..retrieval.config import load_retrieval_config, resolve_floor
 from ..retrieval.index import AnalogueIndex
 from ..retrieval.search import SearchParams
@@ -186,6 +190,9 @@ class Container:
     brief: BriefService | None = None
     feedback: FeedbackService | None = None
     review: ReviewService | None = None
+    # tactical index rebalancer (Module A; a derived side-car, replay profile only): a mock index whose weights follow the engine's sentiment
+    rebalancer: RebalancerService | None = None
+    rebalancer_ledger: LedgerStore | None = None
     sidecar_lock: threading.RLock = field(default_factory=threading.RLock, repr=False)
 
 
@@ -586,6 +593,10 @@ def build_container(settings: Settings | None = None) -> Container:
     rebuild_sidecars(container, overrides_store.values())
     if replay:
         _build_decision(container, settings)
+        rb_cfg = load_rebalancer_config(settings.config_dir)
+        container.rebalancer = RebalancerService(rb_cfg, signals=container.signals, entities=lambda: container.portfolio.entities(),
+                                                 risk=load_risk_inputs(REPO_ROOT / "data" / "rebalancer" / "risk_inputs.json", list(rb_cfg.universe.tickers)))
+        container.rebalancer_ledger = LedgerStore(settings.rebalancer_ledger_path or REPO_ROOT / "data" / "live" / "rebalancer" / "ledger.jsonl")
     return container
 
 
