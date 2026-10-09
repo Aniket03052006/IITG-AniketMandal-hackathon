@@ -24,6 +24,8 @@ os.environ.setdefault("EVENTSHOCK_PORTFOLIO_STORE_PATH", str(Path(tempfile.mkdte
 os.environ.setdefault("EVENTSHOCK_OVERRIDES_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-overrides-")) / "overrides.json"))
 # External market data in tests is the SYNTHETIC fixture (no network, no dependence on whether a snapshot was captured); tests that need another mode build their own settings.
 os.environ["EVENTSHOCK_MARKETS"] = "fixture"
+# The Module A simulated trade ledger lives in a temp file: no test may read or write the developer's real data/live/rebalancer/ledger.jsonl.
+os.environ.setdefault("EVENTSHOCK_REBALANCER_LEDGER_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-ledger-")) / "ledger.jsonl"))
 # The monitor log, watchlists, feedback and saved scenarios live in a temp directory: no test may read or write the developer's real data/live/decision.
 os.environ.setdefault("EVENTSHOCK_DECISION_STORE_PATH", str(Path(tempfile.mkdtemp(prefix="eventshock-test-decision-")) / "decision"))
 

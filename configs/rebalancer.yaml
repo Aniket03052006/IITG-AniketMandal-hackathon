@@ -1,0 +1,101 @@
+# Tactical index rebalancer (Module A, rebalancer-v1): a mock index whose weights tilt toward companies the NLP engine reads positively and away from those it reads
+# negatively. A derived side-car: nothing here is stored on a RiskSignal, and nothing here changes a model, the severity score or the stress formulas.
+#
+# EVERY number below is a JUDGEMENT PRIOR written before any result was looked at: none is fitted, calibrated or validated, and none is claimed to earn a return.
+# The rule is a transparent, bounded, turnover-limited map from sentiment to weight; it is not an alpha signal. The UI and docs/REBALANCER.md say so.
+version: "rebalancer-v1"
+
+# ----------------------------------------------------------------------------------------------------------------------------------- universe
+# The mock index: 10-20 of the 34 issuers EventShock can name (US large caps in the S&P 100, six sectors, each with >= 25 trusted company reports in the replay).
+# Benchmark = equal weight (the repo holds no market-cap data; stated everywhere the benchmark is shown).
+universe:
+  tickers: [AAPL, MSFT, NVDA, GOOGL, AMZN, META, JPM, BAC, GS, XOM, CVX, JNJ, UNH, PFE, WMT]
+  benchmark: EQUAL_WEIGHT
+
+# ------------------------------------------------------------------------------------------------------------------------------------ cycles
+# A fixed grid from the first trusted report to the replay clock. REPLAY never reads the wall clock, so two runs are identical.
+cycles:
+  step_hours: 6
+  max_cycles: 120              # at most this many cycles; if the window is longer the earliest are folded into the benchmark start
+
+# ---------------------------------------------------------------------------------------------------------------------------------- evidence
+# Which reports count toward a company's sentiment at cycle time T. Only reports published at or before T, with a trusted clock (a replay-assigned time is never placed on a timeline).
+evidence:
+  half_life_hours: 36          # a report's weight halves every this many hours (no source measured a news-sentiment half-life; this is a prior)
+  lookback_half_lives: 5       # reports older than this many half-lives (180 h) are ignored
+  source_vote_cap: 1.0         # one source, one vote: all of a source's reports about one company add at most this much evidence
+  prior_pseudo_count: 1.5      # shrinkage: S = sum(evidence * mean sentiment) / (sum(evidence) + this), so thin evidence gives a weak tilt
+  min_link_confidence: 0.5     # entity-resolution confidence below this is not used
+
+# ------------------------------------------------------------------------------------------------------------------------------------- tilt
+# Target weight: p_i = b_i * exp(tilt * S_i) / sum_j b_j * exp(tilt * S_j), S in (-1, 1). Larger tilt = a stronger reaction; 0 = hold the benchmark.
+tilt:
+  strength: 2.0
+  strength_max: 6.0            # the most a caller may ask for (the what-if sliders are bounded by these)
+
+# ---------------------------------------------------------------------------------------------------------------------------------- bounds
+# Every weight stays within [max(floor, b*(1-max_active_ratio)), min(cap, b*(1+max_active_ratio))] (Euclidean projection onto the bounded simplex).
+bounds:
+  max_active_ratio: 0.5        # a stock may be at most half over / half under its benchmark weight
+  floor: 0.01                  # never below 1 % of the index
+  cap: 0.12                    # never above 12 %
+
+# ------------------------------------------------------------------------------------------------------------------------------- turnover
+# Turnover = 1/2 * sum |w_new - w_old| (one-way: the share of the index that is sold and bought again). The step toward the target is shortened to respect the cap.
+turnover:
+  max_per_cycle: 0.04          # at most 4 % of the index traded per cycle
+  max_per_cycle_limit: 0.25    # the most a caller may ask for
+  min_trade: 0.002             # a rebalance smaller than 0.2 % of the index is not traded (held)
+  cost_bps: 5                  # one-way trading cost used in the backtest (illustrative)
+
+# ---------------------------------------------------------------------------------------------------------------------------------- display
+display:
+  top_drivers_per_name: 5      # reports listed as the reason behind a company's score
+  active_epsilon: 0.0005       # an active weight within this of zero is shown as "at benchmark"
+  score_epsilon: 0.02          # |S| below this is shown as "no clear sentiment"
+
+# ------------------------------------------------------------------------------------------------------------------------------- strategies
+# A closed registry of what a request may ask for. `sentiment` is the baseline and is never changed; the others are experiments compared against it in the strategy lab
+# (`make rebalancer-lab`). Two non-tilting references (equal weight, buy-and-hold) exist in the lab only. Every constraint below is OFF unless a strategy turns it on.
+strategies:
+  sentiment:
+    label: "Sentiment tilt (baseline)"
+    description: "The shipped rule: sentiment tilt, per-stock bounds, turnover cap."
+    score: sentiment
+  sentiment_risk:
+    label: "Sentiment tilt + risk limits"
+    description: "The baseline plus a sector cap, a volatility-aware upper bound and a liquidity floor."
+    score: sentiment
+    sector_cap: true
+    vol_limit: true
+    liquidity_floor: true
+  sentiment_impact:
+    label: "Sentiment x impact (experimental)"
+    description: "The baseline, but a report counts in proportion to its impact score. The impact model is experimental and has no measured event-specific skill; impact has no direction."
+    score: sentiment_impact
+
+# ------------------------------------------------------------------------------------------------------------------------------------ risk
+# Used only by strategies that switch them on. Set before the first lab result was looked at; never retune them to a result.
+risk:
+  sector_cap:
+    ratio: 0.25                # a sector may hold at most its benchmark share x 1.25 (sector = the entity master's sector)
+  vol_aware:
+    gamma: 1.0                 # upper bound = b (1 + max_active_ratio * min(1, (median sigma / sigma_i) ** gamma)): a more volatile name may be overweight less
+    reference: median
+  liquidity:
+    min_adv_usd: 500000000     # 60-day average daily dollar volume below $0.5 bn: no overweight (the floor never raises a weight above the benchmark)
+    mock_aum_usd: 1000000000   # an imagined $1 bn index; used only to express a trade as dollars and as a share of a day's volume
+    max_participation: 0.01    # a trade above 1 % of a day's volume is flagged
+
+# ---------------------------------------------------------------------------------------------------------------------------------- impact
+# `sentiment_impact`: a report's tone is multiplied by floor + (1 - floor) * (impact - 1) / 9, so a low-impact report counts less and a report with no impact score counts as the
+# lowest. It can only shrink a tone (never amplify it), so the score stays within (-1, 1) and still decomposes exactly.
+impact:
+  floor: 0.5
+
+# --------------------------------------------------------------------------------------------------------------------------------- explain
+# Flags on a trade decision card. They describe the evidence; none feeds a weight.
+explain:
+  thin_evidence_below: 0.75    # evidence mass (sum of per-source votes) below this = thin: less than one source's worth
+  stale_after_half_lives: 1.0  # newest report older than one half-life (36 h)
+  conflict_min_share: 0.25     # reports disagree when both the positive and the negative side hold >= 25 % of the absolute contribution

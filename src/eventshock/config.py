@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     journal_path: Path | None = None  # overrides configs/live.yaml: journal (tests point it at a temp file)
     portfolio_store_path: Path | None = None  # EVENTSHOCK_PORTFOLIO_STORE_PATH: directory of saved personal portfolios (default data/live/portfolios; tests point it at a temp dir)
     overrides_path: Path | None = None  # EVENTSHOCK_OVERRIDES_PATH: the file of manual adjustments to the side-cars (default data/live/overrides/overrides.json; tests point it at a temp file)
+    rebalancer_ledger_path: Path | None = None  # EVENTSHOCK_REBALANCER_LEDGER_PATH: the simulated trade ledger of Module A (default data/live/rebalancer/ledger.jsonl; tests point it at a temp file)
     decision_store_path: Path | None = None  # EVENTSHOCK_DECISION_STORE_PATH: directory of the monitor log, watchlists, feedback and saved scenarios (default data/live/decision; tests point it at a temp dir)
     markets: Literal["off", "snapshot", "fixture", "live"] | None = None  # EVENTSHOCK_MARKETS: external market data. snapshot (default): the captured, hash-pinned file, no network; fixture: SYNTHETIC test data; live: Kalshi's public API (network, rate limited); off
     kalshi_snapshot_path: Path | None = None  # EVENTSHOCK_KALSHI_SNAPSHOT_PATH overrides configs/external_markets.yaml: snapshot.path

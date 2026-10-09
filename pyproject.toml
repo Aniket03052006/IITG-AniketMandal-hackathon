@@ -72,6 +72,13 @@ ignore = ["B008"]  # FastAPI Depends() in defaults is the framework idiom
 "src/eventshock/services/stress_service.py" = ["E501"]
 "src/eventshock/store.py" = ["E501"]
 # Stage 7 (risk assessment, LLM adapter): dense schemas, vocabulary tables and explanatory field descriptions, like the pipeline modules.
+# Stage 16 (tactical rebalancer): explanatory docstrings and API field descriptions, like the other side-cars.
+"src/eventshock/rebalancer/*.py" = ["E501"]
+"src/eventshock/api/routers/rebalancer.py" = ["E501"]
+"tests/*rebalancer*.py" = ["E501"]
+"tests/unit/test_rebalancer_*.py" = ["E501"]
+"tests/integration/test_rebalancer_api.py" = ["E501"]
+"tests/e2e/test_rebalancer_replay.py" = ["E501"]
 "src/eventshock/assessment/*.py" = ["E501"]
 "src/eventshock/llm/*.py" = ["E501"]
 "src/eventshock/config.py" = ["E501"]

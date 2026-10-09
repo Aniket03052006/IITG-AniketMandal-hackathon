@@ -19,6 +19,7 @@
   "configs/placeholder_enrichment.yaml": "ed6e8a6490521e7f446e944e7a01add79fc2d0392dafdb4f78cee9ac418ad8f2",
   "configs/portfolio.yaml": "ee319d90f5eb3a383f0bb887829892e2fa4b2d6792e66cb8bb769eab06ebe9f0",
   "configs/propagation.yaml": "4125db01477a5c6349c0045dc7fab5755b05b272497a2283220fed5a3a735f53",
+  "configs/rebalancer.yaml": "4ea5f51f2a3ce06110ff72e0873aed11d7468a9804269dce830c35012e5d0f78",
   "configs/retrieval.yaml": "8ec663dedac9a0d8973cc8d9a2510a93d16984e40340a48cd75de52d4a0df71c",
   "configs/scenarios.yaml": "288b3eca4648515893b079fdc29194fabac075ae462462514c1289cef3db75a9",
   "configs/scenarios_multifactor.yaml": "984cd618ca7098234ea9819b95f2dbe25a37889a1eb430e952efcf310900c5c9",
