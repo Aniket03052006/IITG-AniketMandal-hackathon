@@ -1,0 +1,1109 @@
+{
+ "version": "rebalancer-lab-v1",
+ "params": {
+  "tilt": 2.0,
+  "half_life_hours": 36.0,
+  "max_turnover": 0.04,
+  "is_default": true
+ },
+ "cost_bps": 5.0,
+ "tickers": [
+  "AAPL",
+  "MSFT",
+  "NVDA",
+  "GOOGL",
+  "AMZN",
+  "META",
+  "JPM",
+  "BAC",
+  "GS",
+  "XOM",
+  "CVX",
+  "JNJ",
+  "UNH",
+  "PFE",
+  "WMT"
+ ],
+ "dates": [
+  "2026-09-18",
+  "2026-09-21",
+  "2026-09-22",
+  "2026-09-23",
+  "2026-09-24",
+  "2026-09-25",
+  "2026-09-28",
+  "2026-09-29",
+  "2026-09-30",
+  "2026-10-01"
+ ],
+ "strategies": [
+  {
+   "id": "sentiment",
+   "label": "Sentiment tilt (baseline)",
+   "description": "The shipped rule: sentiment tilt, per-stock bounds, turnover cap.",
+   "kind": "TILT",
+   "experimental": false,
+   "daily_net": [
+    -0.0016412840644081958,
+    0.009820017083039222,
+    -0.00549274639636636,
+    -0.002465510227032634,
+    0.0036774969786102373,
+    0.0028892463454672844,
+    -0.005539415999503176,
+    -0.005018377752257695,
+    -0.003954087341021925,
+    -0.0021233606959144115
+   ],
+   "cumulative": [
+    -0.0016412840644082216,
+    0.008162615581080335,
+    0.00262503400739611,
+    0.00015305173217194934,
+    0.0038311115580647037,
+    0.006731426928600293,
+    0.0011547227550694483,
+    -0.0038694498321723003,
+    -0.007808237030596077,
+    -0.009915018022895405
+   ],
+   "drawdown": [
+    -0.0016412840644082216,
+    0.0,
+    -0.0054927463963663214,
+    -0.007944714200984193,
+    -0.004296433884844131,
+    -0.0014196009952770483,
+    -0.006951153234313945,
+    -0.011934647473828108,
+    -0.015841544176354083,
+    -0.017931267560001962
+   ],
+   "turnover": [
+    0.05141124461585491,
+    0.05879338756764323,
+    0.057954708877240066,
+    0.08203289170122427,
+    0.0511314150234893,
+    0.05767717397110224,
+    0.04624056828242018,
+    0.05759241142912523,
+    0.06458105398755297,
+    0.06793570932037851
+   ],
+   "metrics": {
+    "cumulative_return": -0.009915018022895405,
+    "benchmark_return": -0.011780999221418953,
+    "active_return": 0.0018659811985235475,
+    "annualised_vol": 0.07911842960091262,
+    "max_drawdown": -0.017931267560001962,
+    "hit_rate": 0.8,
+    "mean_daily_turnover": 0.059535056477603085,
+    "total_cost": 0.00029767528238801544,
+    "rank_ic": 0.09831914373962646
+   },
+   "windows": [
+    {
+     "label": "full window",
+     "start": "2026-09-18",
+     "end": "2026-10-01",
+     "sessions": 10,
+     "strategy_return": -0.009915018022895405,
+     "benchmark_return": -0.011780999221418953,
+     "active_return": 0.0018659811985235475
+    },
+    {
+     "label": "first half",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.0038311115580647037,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": 0.0008630835753062893
+    },
+    {
+     "label": "second half",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.01369366761269697,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": 0.001011713608518483
+    },
+    {
+     "label": "5-session window from 2026-09-18",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.0038311115580647037,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": 0.0008630835753062893
+    },
+    {
+     "label": "5-session window from 2026-09-21",
+     "start": "2026-09-21",
+     "end": "2026-09-25",
+     "sessions": 5,
+     "strategy_return": 0.00838647558173733,
+     "benchmark_return": 0.009297097821840294,
+     "active_return": -0.0009106222401029651
+    },
+    {
+     "label": "5-session window from 2026-09-22",
+     "start": "2026-09-22",
+     "end": "2026-09-28",
+     "sessions": 5,
+     "strategy_return": -0.006951153234314167,
+     "benchmark_return": -0.00862003326631311,
+     "active_return": 0.0016688800319989427
+    },
+    {
+     "label": "5-session window from 2026-09-23",
+     "start": "2026-09-23",
+     "end": "2026-09-29",
+     "sessions": 5,
+     "strategy_return": -0.006477480233672783,
+     "benchmark_return": -0.007873661498554174,
+     "active_return": 0.001396181264881391
+    },
+    {
+     "label": "5-session window from 2026-09-24",
+     "start": "2026-09-24",
+     "end": "2026-09-30",
+     "sessions": 5,
+     "strategy_return": -0.007960070460195978,
+     "benchmark_return": -0.009148223769862573,
+     "active_return": 0.0011881533096665953
+    },
+    {
+     "label": "5-session window from 2026-09-25",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.01369366761269697,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": 0.001011713608518483
+    }
+   ],
+   "windows_positive": 5,
+   "windows_total": 6,
+   "placebo": {
+    "runs": 200,
+    "active_return_p05": -0.003314839884557807,
+    "active_return_p50": -0.000268183507933617,
+    "active_return_p95": 0.003210726731133638,
+    "active_return_percentile": 0.82,
+    "ic_percentile": 0.85
+   },
+   "verdict": "WITHIN_PLACEBO_RANGE",
+   "timeline_sha256": "65c6b349dde735a5a1eec961bd3b9ff047f7216e7cbd351e16c77437363f680b"
+  },
+  {
+   "id": "sentiment_risk",
+   "label": "Sentiment tilt + risk limits",
+   "description": "The baseline plus a sector cap, a volatility-aware upper bound and a liquidity floor.",
+   "kind": "TILT",
+   "experimental": true,
+   "daily_net": [
+    -0.0016412840644081952,
+    0.009820017083039222,
+    -0.005511524330088271,
+    -0.0025281126249575934,
+    0.0036781239658570147,
+    0.0029001256376824294,
+    -0.00553940065818252,
+    -0.005018377752257694,
+    -0.003972703328113706,
+    -0.0022081620592326883
+   ],
+   "cumulative": [
+    -0.0016412840644082216,
+    0.008162615581080335,
+    0.002606102796619769,
+    0.0000714016502800785,
+    0.0037497882402581784,
+    0.006660788734951906,
+    0.0010844912992669098,
+    -0.003939328839999479,
+    -0.007896382383320022,
+    -0.010087107950568663
+   ],
+   "drawdown": [
+    -0.0016412840644082216,
+    0.0,
+    -0.00551152433008828,
+    -0.008025703200804202,
+    -0.004377098766232934,
+    -0.0014896672649012954,
+    -0.007020816059256196,
+    -0.012003960704399352,
+    -0.01592897585787223,
+    -0.018101964156973183
+   ],
+   "turnover": [
+    0.05141124461585495,
+    0.05879338756764323,
+    0.055576588374349284,
+    0.08053679424778376,
+    0.0498774405299339,
+    0.05753034549720152,
+    0.04620988564110781,
+    0.05759241142912522,
+    0.06355713553778455,
+    0.06711308004308372
+   ],
+   "metrics": {
+    "cumulative_return": -0.010087107950568663,
+    "benchmark_return": -0.011780999221418953,
+    "active_return": 0.0016938912708502896,
+    "annualised_vol": 0.07925231566949817,
+    "max_drawdown": -0.018101964156973183,
+    "hit_rate": 0.8,
+    "mean_daily_turnover": 0.058819831348386795,
+    "total_cost": 0.00029409915674193397,
+    "rank_ic": 0.09831914373962646
+   },
+   "windows": [
+    {
+     "label": "full window",
+     "start": "2026-09-18",
+     "end": "2026-10-01",
+     "sessions": 10,
+     "strategy_return": -0.010087107950568663,
+     "benchmark_return": -0.011780999221418953,
+     "active_return": 0.0016938912708502896
+    },
+    {
+     "label": "first half",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.0037497882402581784,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": 0.000781760257499764
+    },
+    {
+     "label": "second half",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.01378520459275523,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": 0.0009201766284602231
+    },
+    {
+     "label": "5-session window from 2026-09-18",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.0037497882402581784,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": 0.000781760257499764
+    },
+    {
+     "label": "5-session window from 2026-09-21",
+     "start": "2026-09-21",
+     "end": "2026-09-25",
+     "sessions": 5,
+     "strategy_return": 0.008315721260148567,
+     "benchmark_return": 0.009297097821840294,
+     "active_return": -0.000981376561691727
+    },
+    {
+     "label": "5-session window from 2026-09-22",
+     "start": "2026-09-22",
+     "end": "2026-09-28",
+     "sessions": 5,
+     "strategy_return": -0.007020816059255974,
+     "benchmark_return": -0.00862003326631311,
+     "active_return": 0.0015992172070571353
+    },
+    {
+     "label": "5-session window from 2026-09-23",
+     "start": "2026-09-23",
+     "end": "2026-09-29",
+     "sessions": 5,
+     "strategy_return": -0.006528417908450268,
+     "benchmark_return": -0.007873661498554174,
+     "active_return": 0.0013452435901039062
+    },
+    {
+     "label": "5-session window from 2026-09-24",
+     "start": "2026-09-24",
+     "end": "2026-09-30",
+     "sessions": 5,
+     "strategy_return": -0.007967215161289176,
+     "benchmark_return": -0.009148223769862573,
+     "active_return": 0.0011810086085733973
+    },
+    {
+     "label": "5-session window from 2026-09-25",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.01378520459275523,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": 0.0009201766284602231
+    }
+   ],
+   "windows_positive": 5,
+   "windows_total": 6,
+   "placebo": {
+    "runs": 200,
+    "active_return_p05": -0.003701893126329164,
+    "active_return_p50": -0.0003114449068736813,
+    "active_return_p95": 0.0030624575335781363,
+    "active_return_percentile": 0.785,
+    "ic_percentile": 0.85
+   },
+   "verdict": "WITHIN_PLACEBO_RANGE",
+   "timeline_sha256": "1ed3a3d7009cc20851265cbdade86b9519ca61768d8800d4b0d2f8e5db4389ba"
+  },
+  {
+   "id": "sentiment_impact",
+   "label": "Sentiment x impact (experimental)",
+   "description": "The baseline, but a report counts in proportion to its impact score. The impact model is experimental and has no measured event-specific skill; impact has no direction.",
+   "kind": "TILT",
+   "experimental": true,
+   "daily_net": [
+    -0.0016566533471144306,
+    0.010784632528485015,
+    -0.005654656616020416,
+    -0.0029074222320134607,
+    0.0033303560185025836,
+    0.0035340328392373015,
+    -0.005915300274553451,
+    -0.005182422064499757,
+    -0.004418857091958983,
+    -0.002497270301676833
+   ],
+   "cumulative": [
+    -0.0016566533471144007,
+    0.009110112783794921,
+    0.0034039416082489726,
+    0.00048662268072718895,
+    0.003818599326003147,
+    0.007366127220658436,
+    0.0014072540917342558,
+    -0.0037824609574208523,
+    -0.008184603894953124,
+    -0.010661435028392008
+   ],
+   "drawdown": [
+    -0.0016566533471144007,
+    0.0,
+    -0.0056546566160203815,
+    -0.008545638373674058,
+    -0.0052437423733613375,
+    -0.0017282410918719737,
+    -0.007633318301420111,
+    -0.01277618128872926,
+    -0.01713858226139242,
+    -0.01959305289057489
+   ],
+   "turnover": [
+    0.027147995611547494,
+    0.03328808049146827,
+    0.03018509550873832,
+    0.05029371158815871,
+    0.033351356306438776,
+    0.030037088364151397,
+    0.030539437745369147,
+    0.0380210761000547,
+    0.03464599320995593,
+    0.04094909948211145
+   ],
+   "metrics": {
+    "cumulative_return": -0.010661435028392008,
+    "benchmark_return": -0.011780999221418953,
+    "active_return": 0.001119564193026945,
+    "annualised_vol": 0.08523614793845592,
+    "max_drawdown": -0.01959305289057489,
+    "hit_rate": 0.7,
+    "mean_daily_turnover": 0.03484589344079942,
+    "total_cost": 0.0001742294672039971,
+    "rank_ic": 0.10617628659676932
+   },
+   "windows": [
+    {
+     "label": "full window",
+     "start": "2026-09-18",
+     "end": "2026-10-01",
+     "sessions": 10,
+     "strategy_return": -0.010661435028392008,
+     "benchmark_return": -0.011780999221418953,
+     "active_return": 0.001119564193026945
+    },
+    {
+     "label": "first half",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.003818599326003147,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": 0.0008505713432447326
+    },
+    {
+     "label": "second half",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.014424951245292417,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": 0.00028042997592303553
+    },
+    {
+     "label": "5-session window from 2026-09-18",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.003818599326003147,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": 0.0008505713432447326
+    },
+    {
+     "label": "5-session window from 2026-09-21",
+     "start": "2026-09-21",
+     "end": "2026-09-25",
+     "sessions": 5,
+     "strategy_return": 0.009037752991516657,
+     "benchmark_return": 0.009297097821840294,
+     "active_return": -0.00025934483032363786
+    },
+    {
+     "label": "5-session window from 2026-09-22",
+     "start": "2026-09-22",
+     "end": "2026-09-28",
+     "sessions": 5,
+     "strategy_return": -0.007633318301420222,
+     "benchmark_return": -0.00862003326631311,
+     "active_return": 0.0009867149648928875
+    },
+    {
+     "label": "5-session window from 2026-09-23",
+     "start": "2026-09-23",
+     "end": "2026-09-29",
+     "sessions": 5,
+     "strategy_return": -0.007162023456028566,
+     "benchmark_return": -0.007873661498554174,
+     "active_return": 0.0007116380425256086
+    },
+    {
+     "label": "5-session window from 2026-09-24",
+     "start": "2026-09-24",
+     "end": "2026-09-30",
+     "sessions": 5,
+     "strategy_return": -0.008667009012520599,
+     "benchmark_return": -0.009148223769862573,
+     "active_return": 0.0004812147573419745
+    },
+    {
+     "label": "5-session window from 2026-09-25",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.014424951245292417,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": 0.00028042997592303553
+    }
+   ],
+   "windows_positive": 5,
+   "windows_total": 6,
+   "placebo": {
+    "runs": 200,
+    "active_return_p05": -0.001895814531679929,
+    "active_return_p50": -0.00016123197627876396,
+    "active_return_p95": 0.001699297908079832,
+    "active_return_percentile": 0.835,
+    "ic_percentile": 0.895
+   },
+   "verdict": "WITHIN_PLACEBO_RANGE",
+   "timeline_sha256": "d6ec26fdfd11332149cd2236ad4da3deac7bb722db8760f7145dc31c4dd8aa2a"
+  },
+  {
+   "id": "equal_weight",
+   "label": "Equal weight (benchmark)",
+   "description": "Rebalanced to equal weight at every close; pays the cost of the weight drift it has to undo.",
+   "kind": "REFERENCE",
+   "experimental": false,
+   "daily_net": [
+    -0.0017333386457736818,
+    0.011631929804474517,
+    -0.0059206556815843865,
+    -0.0035357250934186465,
+    0.0026173377767682005,
+    0.004566063968730199,
+    -0.0063266494269384015,
+    -0.005172251656479708,
+    -0.004815860213529415,
+    -0.0030058064140616354
+   ],
+   "cumulative": [
+    -0.00173333864577363,
+    0.009878429085245832,
+    0.0038992866263727333,
+    0.00034977472738284554,
+    0.0029680279827584144,
+    0.007547644157118727,
+    0.0011732434315989693,
+    -0.004005076535163243,
+    -0.008801648859954825,
+    -0.011780999221418953
+   ],
+   "drawdown": [
+    -0.00173333864577363,
+    0.0,
+    -0.005920655681584397,
+    -0.009435446964140115,
+    -0.006842804939151792,
+    -0.0023079856554995004,
+    -0.00862003326631311,
+    -0.013747699941452196,
+    -0.018497353153806073,
+    -0.021447560105114838
+   ],
+   "turnover": [
+    0.0,
+    0.003462829336056905,
+    0.00896293935776473,
+    0.005208540294026863,
+    0.005613693465208756,
+    0.004824822185657433,
+    0.004786353385340836,
+    0.006716778307967575,
+    0.0040319007537548066,
+    0.005677011327325614
+   ],
+   "metrics": {
+    "cumulative_return": -0.011780999221418953,
+    "benchmark_return": -0.011780999221418953,
+    "active_return": 0.0,
+    "annualised_vol": 0.0914818060654887,
+    "max_drawdown": -0.021447560105114838,
+    "hit_rate": null,
+    "mean_daily_turnover": 0.004928486841310352,
+    "total_cost": 0.000024642434206551762,
+    "rank_ic": null
+   },
+   "windows": [
+    {
+     "label": "full window",
+     "start": "2026-09-18",
+     "end": "2026-10-01",
+     "sessions": 10,
+     "strategy_return": -0.011780999221418953,
+     "benchmark_return": -0.011780999221418953,
+     "active_return": 0.0
+    },
+    {
+     "label": "first half",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.0029680279827584144,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": 0.0
+    },
+    {
+     "label": "second half",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.014705381221215452,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": 0.0
+    },
+    {
+     "label": "5-session window from 2026-09-18",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.0029680279827584144,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": 0.0
+    },
+    {
+     "label": "5-session window from 2026-09-21",
+     "start": "2026-09-21",
+     "end": "2026-09-25",
+     "sessions": 5,
+     "strategy_return": 0.009297097821840294,
+     "benchmark_return": 0.009297097821840294,
+     "active_return": 0.0
+    },
+    {
+     "label": "5-session window from 2026-09-22",
+     "start": "2026-09-22",
+     "end": "2026-09-28",
+     "sessions": 5,
+     "strategy_return": -0.00862003326631311,
+     "benchmark_return": -0.00862003326631311,
+     "active_return": 0.0
+    },
+    {
+     "label": "5-session window from 2026-09-23",
+     "start": "2026-09-23",
+     "end": "2026-09-29",
+     "sessions": 5,
+     "strategy_return": -0.007873661498554174,
+     "benchmark_return": -0.007873661498554174,
+     "active_return": 0.0
+    },
+    {
+     "label": "5-session window from 2026-09-24",
+     "start": "2026-09-24",
+     "end": "2026-09-30",
+     "sessions": 5,
+     "strategy_return": -0.009148223769862573,
+     "benchmark_return": -0.009148223769862573,
+     "active_return": 0.0
+    },
+    {
+     "label": "5-session window from 2026-09-25",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.014705381221215452,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": 0.0
+    }
+   ],
+   "windows_positive": 0,
+   "windows_total": 6,
+   "placebo": null,
+   "verdict": null,
+   "timeline_sha256": null
+  },
+  {
+   "id": "buy_and_hold",
+   "label": "Buy and hold",
+   "description": "Equal weight at the start of the window, then never traded: no turnover, no cost.",
+   "kind": "REFERENCE",
+   "experimental": false,
+   "daily_net": [
+    -0.0017333386457736818,
+    0.011499593588895737,
+    -0.005922245166836627,
+    -0.003597198282792376,
+    0.0028002442420383437,
+    0.004191267065745073,
+    -0.006548288923014211,
+    -0.005059673170868346,
+    -0.00485751030640498,
+    -0.002964348600758981
+   ],
+   "cumulative": [
+    -0.00173333864577363,
+    0.009746322253143758,
+    0.0037663569764490035,
+    0.0001556103608084669,
+    0.002956290349863666,
+    0.007159948017988915,
+    0.0005647736866791764,
+    -0.004497757054459206,
+    -0.009333419459616521,
+    -0.012270100551460161
+   ],
+   "drawdown": [
+    -0.00173333864577363,
+    0.0,
+    -0.005922245166836593,
+    -0.009498139959484675,
+    -0.006724492829177975,
+    -0.002561409908761636,
+    -0.009092925979642952,
+    -0.014106591916887345,
+    -0.018895579307667942,
+    -0.021803914824345738
+   ],
+   "turnover": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "metrics": {
+    "cumulative_return": -0.012270100551460161,
+    "benchmark_return": -0.011780999221418953,
+    "active_return": -0.0004891013300412084,
+    "annualised_vol": 0.09083306424892021,
+    "max_drawdown": -0.021803914824345738,
+    "hit_rate": 0.3,
+    "mean_daily_turnover": 0.0,
+    "total_cost": 0.0,
+    "rank_ic": null
+   },
+   "windows": [
+    {
+     "label": "full window",
+     "start": "2026-09-18",
+     "end": "2026-10-01",
+     "sessions": 10,
+     "strategy_return": -0.012270100551460161,
+     "benchmark_return": -0.011780999221418953,
+     "active_return": -0.0004891013300412084
+    },
+    {
+     "label": "first half",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.002956290349863666,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": -0.000011737632894748273
+    },
+    {
+     "label": "second half",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.015181509949962146,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": -0.0004761287287466942
+    },
+    {
+     "label": "5-session window from 2026-09-18",
+     "start": "2026-09-18",
+     "end": "2026-09-24",
+     "sessions": 5,
+     "strategy_return": 0.002956290349863666,
+     "benchmark_return": 0.0029680279827584144,
+     "active_return": -0.000011737632894748273
+    },
+    {
+     "label": "5-session window from 2026-09-21",
+     "start": "2026-09-21",
+     "end": "2026-09-25",
+     "sessions": 5,
+     "strategy_return": 0.00890872850716895,
+     "benchmark_return": 0.009297097821840294,
+     "active_return": -0.00038836931467134406
+    },
+    {
+     "label": "5-session window from 2026-09-22",
+     "start": "2026-09-22",
+     "end": "2026-09-28",
+     "sessions": 5,
+     "strategy_return": -0.00909292597964284,
+     "benchmark_return": -0.00862003326631311,
+     "active_return": -0.00047289271332973115
+    },
+    {
+     "label": "5-session window from 2026-09-23",
+     "start": "2026-09-23",
+     "end": "2026-09-29",
+     "sessions": 5,
+     "strategy_return": -0.008233105217633985,
+     "benchmark_return": -0.007873661498554174,
+     "active_return": -0.00035944371907981054
+    },
+    {
+     "label": "5-session window from 2026-09-24",
+     "start": "2026-09-24",
+     "end": "2026-09-30",
+     "sessions": 5,
+     "strategy_return": -0.009487553458808029,
+     "benchmark_return": -0.009148223769862573,
+     "active_return": -0.00033932968894545557
+    },
+    {
+     "label": "5-session window from 2026-09-25",
+     "start": "2026-09-25",
+     "end": "2026-10-01",
+     "sessions": 5,
+     "strategy_return": -0.015181509949962146,
+     "benchmark_return": -0.014705381221215452,
+     "active_return": -0.0004761287287466942
+    }
+   ],
+   "windows_positive": 0,
+   "windows_total": 6,
+   "placebo": null,
+   "verdict": null,
+   "timeline_sha256": null
+  }
+ ],
+ "grid": {
+  "half_life_by_turnover": [
+   {
+    "half_life_hours": 12.0,
+    "max_turnover": 0.02,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0027513139898670547,
+    "rank_ic": 0.07364351846385034,
+    "placebo_percentile": 0.97,
+    "mean_daily_turnover": 0.056035289444017866
+   },
+   {
+    "half_life_hours": 12.0,
+    "max_turnover": 0.04,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.002195328802809149,
+    "rank_ic": 0.07364351846385034,
+    "placebo_percentile": 0.94,
+    "mean_daily_turnover": 0.07725958108890893
+   },
+   {
+    "half_life_hours": 12.0,
+    "max_turnover": 0.08,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0022753986204295806,
+    "rank_ic": 0.07364351846385034,
+    "placebo_percentile": 0.91,
+    "mean_daily_turnover": 0.08512710424981132
+   },
+   {
+    "half_life_hours": 24.0,
+    "max_turnover": 0.02,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0021942588077533687,
+    "rank_ic": 0.08653342945391218,
+    "placebo_percentile": 0.89,
+    "mean_daily_turnover": 0.05507844511513198
+   },
+   {
+    "half_life_hours": 24.0,
+    "max_turnover": 0.04,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0021545212707320127,
+    "rank_ic": 0.08653342945391218,
+    "placebo_percentile": 0.9,
+    "mean_daily_turnover": 0.06877419956616028
+   },
+   {
+    "half_life_hours": 24.0,
+    "max_turnover": 0.08,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.002288759270868912,
+    "rank_ic": 0.08653342945391218,
+    "placebo_percentile": 0.92,
+    "mean_daily_turnover": 0.07160907523433153
+   },
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.02,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0017077880484080987,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.85,
+    "mean_daily_turnover": 0.05048819981776931
+   },
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.04,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0018659811985235475,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.87,
+    "mean_daily_turnover": 0.059535056477603085
+   },
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.08,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0019385473940438658,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.87,
+    "mean_daily_turnover": 0.06093876137111248
+   },
+   {
+    "half_life_hours": 72.0,
+    "max_turnover": 0.02,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0014177485458056749,
+    "rank_ic": 0.07617628659676931,
+    "placebo_percentile": 0.79,
+    "mean_daily_turnover": 0.04336316038894313
+   },
+   {
+    "half_life_hours": 72.0,
+    "max_turnover": 0.04,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0015555034202672235,
+    "rank_ic": 0.07617628659676931,
+    "placebo_percentile": 0.84,
+    "mean_daily_turnover": 0.04920416117716021
+   },
+   {
+    "half_life_hours": 72.0,
+    "max_turnover": 0.08,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0015555034202672235,
+    "rank_ic": 0.07617628659676931,
+    "placebo_percentile": 0.84,
+    "mean_daily_turnover": 0.04920416117716021
+   },
+   {
+    "half_life_hours": 144.0,
+    "max_turnover": 0.02,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0012227082459300709,
+    "rank_ic": 0.06724771516819789,
+    "placebo_percentile": 0.78,
+    "mean_daily_turnover": 0.038366472731065734
+   },
+   {
+    "half_life_hours": 144.0,
+    "max_turnover": 0.04,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.001367102632657935,
+    "rank_ic": 0.06724771516819789,
+    "placebo_percentile": 0.82,
+    "mean_daily_turnover": 0.04349154404636739
+   },
+   {
+    "half_life_hours": 144.0,
+    "max_turnover": 0.08,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.001367102632657935,
+    "rank_ic": 0.06724771516819789,
+    "placebo_percentile": 0.82,
+    "mean_daily_turnover": 0.04349154404636739
+   }
+  ],
+  "tilt_by_position_limit": [
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.04,
+    "tilt": 1.0,
+    "max_active_ratio": 0.25,
+    "active_return": 0.0010149126689616983,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.87,
+    "mean_daily_turnover": 0.031339588815196114
+   },
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.04,
+    "tilt": 2.0,
+    "max_active_ratio": 0.25,
+    "active_return": 0.0011003880593577486,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.79,
+    "mean_daily_turnover": 0.048896209827948414
+   },
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.04,
+    "tilt": 4.0,
+    "max_active_ratio": 0.25,
+    "active_return": 0.00008157611958881095,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.59,
+    "mean_daily_turnover": 0.0544262163197151
+   },
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.04,
+    "tilt": 1.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0010651762567281953,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.89,
+    "mean_daily_turnover": 0.031595678947449524
+   },
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.04,
+    "tilt": 2.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0018659811985235475,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.87,
+    "mean_daily_turnover": 0.059535056477603085
+   },
+   {
+    "half_life_hours": 36.0,
+    "max_turnover": 0.04,
+    "tilt": 4.0,
+    "max_active_ratio": 0.5,
+    "active_return": 0.0018416608396804035,
+    "rank_ic": 0.09831914373962646,
+    "placebo_percentile": 0.75,
+    "mean_daily_turnover": 0.0821445500685007
+   }
+  ],
+  "cells_total": 21,
+  "cells_positive": 21,
+  "cells_outside_placebo_range": 1,
+  "expected_outside_by_chance": 2.1,
+  "active_min": 0.00008157611958881095,
+  "active_max": 0.0027513139898670547,
+  "placebo_runs": 100
+ },
+ "cost_sensitivity": [
+  {
+   "cost_bps": 0.0,
+   "strategy_return": -0.009619942326650088,
+   "benchmark_return": -0.011756598666294749,
+   "active_return": 0.0021366563396446603
+  },
+  {
+   "cost_bps": 5.0,
+   "strategy_return": -0.009915018022895405,
+   "benchmark_return": -0.011780999221418953,
+   "active_return": 0.0018659811985235475
+  },
+  {
+   "cost_bps": 10.0,
+   "strategy_return": -0.010210014824273417,
+   "benchmark_return": -0.011805399246303638,
+   "active_return": 0.0015953844220302216
+  },
+  {
+   "cost_bps": 25.0,
+   "strategy_return": -0.01109453204616695,
+   "benchmark_return": -0.011878596139620501,
+   "active_return": 0.0007840640934535514
+  }
+ ],
+ "impact_reports": 277,
+ "reports_used": 577,
+ "inputs": {
+  "AAPL.csv": "ad4a547a5c8ea282baf13827e93aeff66c1f51a3499af2599764e745c7404c03",
+  "MSFT.csv": "e0cda8a20632b9d3bdd04560e94ed35c265ac32c1cc8ae8bae06bd70cbe91ad9",
+  "NVDA.csv": "0b6ca364ebaf8175a973e22f889b4349104bbbb43f07dc53c296166baa818974",
+  "GOOGL.csv": "a1b6a9773cc43266a3e5b3b9826700e05ade92e17c826e40d978324d167837c9",
+  "AMZN.csv": "a6728306c9fe7ad47edad8576d5f529666d01dff6bd20a2683f5714aa6d6c241",
+  "META.csv": "7623f60b7c9dfbf40517cd2127525e6b8602bcd141429cd5a7174821b7549091",
+  "JPM.csv": "fbfe4f2a9bb971d306e80a87e43fd88619e4700c40571e193206fc963b0e995e",
+  "BAC.csv": "84a89add5439501ec3f449e87f9a6ef8d8134c1ff3132a95e7781a054f73e2a0",
+  "GS.csv": "442c64957161b2f411851f83091bcdc4ad23fac02a99eaf3843ca1c6fba2bdee",
+  "XOM.csv": "217f5339d9a99e7d7ba699ad6a677949c95540c3f72c670b9b4d977c718972af",
+  "CVX.csv": "a5e893a4c1592a35fabf3f16a628bb188a7057e34c031e56ead2df91ba0f8eed",
+  "JNJ.csv": "f3abda7eaa4c8d3bf6741326a200cb1a0ac746286bc94c85103fd91868637baa",
+  "UNH.csv": "29e868e99820946791ac99beeaa32198fcf2bd04abb9674ca6c05f04306f4181",
+  "PFE.csv": "ab29172f746845e8c1bad553ae2652e0872d677d4bb309e9263c97f5694caee2",
+  "WMT.csv": "d427d94d5206157d257bdb2f76058734e4257119c52f202250c3aad76473d6c6",
+  "_GSPC.csv": "072d8059b45a9b1d9df8ae2380dab3247f66fb0e6ecc2410a82966cb00ebd3dc"
+ },
+ "caveats": [
+  "About ten trading sessions: the comparison shows how the mechanics behave, it cannot show that any strategy earns anything. A difference between strategies is not evidence.",
+  "Every verdict is computed from a shuffled-score placebo: 'within the placebo range' means the result is what chance gives for this window.",
+  "Annualised volatility is the ten-day standard deviation scaled by sqrt(252); it is a rough indication only. Costs are an illustrative one-way rate; no spreads, impact or taxes.",
+  "The risk-limit strategy and the impact strategy are experiments with their parameters fixed in configs/rebalancer.yaml before any result existed; the impact model is itself experimental and a report's impact has no direction. They are never promoted to the baseline on the strength of this window.",
+  "The sensitivity grid tries 21 settings. About two of them would fall outside their own 5th-95th placebo range by chance alone, so the best cell is the luckiest cell, not a recommendation: choosing it would be choosing after seeing the result. The shipped parameters were fixed before any result existed and are not changed by this grid.",
+  "The benchmark is equal weight: the repo holds no market-cap data."
+ ]
+}

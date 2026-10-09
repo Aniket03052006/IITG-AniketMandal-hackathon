@@ -255,6 +255,10 @@ train-impact-v2:  ## fit, calibrate, evaluate impact-v2 (document level, Stage 4
 outcomes:  ## export the realised moves after the replay reports -> data/outcomes/replay_outcomes.json (needs impact-table-v2; read by the per-signal context endpoint only)
 	$(PY) scripts/export_outcomes.py
 
+.PHONY: rebalancer-backtest
+rebalancer-backtest:  ## Module A: back-test the mock index against its equal-weight benchmark (reads git-ignored prices; writes derived data/rebalancer/backtest.json only)
+	PYTHONPATH=src $(PY) scripts/build_rebalancer_backtest.py
+
 .PHONY: freeze-check freeze-write smoke run-live run-capture capture-gdelt capture-from-replay scope-eval
 freeze-check:  ## verify the final model state against docs/freeze_manifest.json (models, configs, gold, calendar, replay, evidence)
 	$(PY) scripts/freeze_manifest.py --check
@@ -268,3 +272,11 @@ smoke:  ## start the real server (replay profile), check API, model ids/hashes, 
 .PHONY: portfolio-betas
 portfolio-betas:  ## personal portfolios: single-factor trailing beta of each issuer (Blume-adjusted, derived stats only) -> data/replay/market/betas.json (needs prices; then `make freeze-write`)
 	PYTHONPATH=src $(PY) -m eventshock.modeling portfolio-betas
+
+.PHONY: rebalancer-risk-inputs
+rebalancer-risk-inputs:  ## Module A: volatility and dollar volume per stock at the window start (reads git-ignored prices; writes derived data/rebalancer/risk_inputs.json only)
+	PYTHONPATH=src $(PY) scripts/build_rebalancer_risk_inputs.py
+
+.PHONY: rebalancer-lab
+rebalancer-lab:  ## Module A: compare every strategy on the replay window (reads git-ignored prices; needs rebalancer-risk-inputs; writes derived data/rebalancer/lab.json only)
+	PYTHONPATH=src $(PY) scripts/build_rebalancer_lab.py

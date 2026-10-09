@@ -1,0 +1,61 @@
+{
+ "schema": "rebalancer-risk-inputs-v1",
+ "note": "derived statistics only (no prices, no volumes); measured at one early date so the constraints they define are static and point-in-time safe",
+ "sigma_as_of": "2026-09-10",
+ "adv_as_of": "2026-09-10",
+ "adv_window_sessions": 60,
+ "sigma_60": {
+  "AAPL": 0.0185358,
+  "MSFT": 0.0255262,
+  "NVDA": 0.02013,
+  "GOOGL": 0.0199095,
+  "AMZN": 0.0251033,
+  "META": 0.0286512,
+  "JPM": 0.00666711,
+  "BAC": 0.00701569,
+  "GS": 0.0166652,
+  "XOM": 0.00919812,
+  "CVX": 0.00733532,
+  "JNJ": 0.0128993,
+  "UNH": 0.0145171,
+  "PFE": 0.0124123,
+  "WMT": 0.0171405
+ },
+ "adv_usd_60d": {
+  "AAPL": 16821762228.75,
+  "MSFT": 15246052644.87,
+  "NVDA": 27819094153.7,
+  "GOOGL": 10426514582.5,
+  "AMZN": 11864852306.72,
+  "META": 10903860456.45,
+  "JPM": 2752228418.48,
+  "BAC": 1969113904.37,
+  "GS": 2087791101.83,
+  "XOM": 2309435891.72,
+  "CVX": 1591158397.37,
+  "JNJ": 1989351894.82,
+  "UNH": 2160427843.03,
+  "PFE": 1084630319.87,
+  "WMT": 2708729052.13
+ },
+ "built_from": {
+  "context_sha256": "60fc089f1f1a8f4d07207de4986a1f5cb93631e1da884f8b5e303062ee0af6cf",
+  "price_files_sha256": {
+   "AAPL.csv": "ad4a547a5c8ea282baf13827e93aeff66c1f51a3499af2599764e745c7404c03",
+   "MSFT.csv": "e0cda8a20632b9d3bdd04560e94ed35c265ac32c1cc8ae8bae06bd70cbe91ad9",
+   "NVDA.csv": "0b6ca364ebaf8175a973e22f889b4349104bbbb43f07dc53c296166baa818974",
+   "GOOGL.csv": "a1b6a9773cc43266a3e5b3b9826700e05ade92e17c826e40d978324d167837c9",
+   "AMZN.csv": "a6728306c9fe7ad47edad8576d5f529666d01dff6bd20a2683f5714aa6d6c241",
+   "META.csv": "7623f60b7c9dfbf40517cd2127525e6b8602bcd141429cd5a7174821b7549091",
+   "JPM.csv": "fbfe4f2a9bb971d306e80a87e43fd88619e4700c40571e193206fc963b0e995e",
+   "BAC.csv": "84a89add5439501ec3f449e87f9a6ef8d8134c1ff3132a95e7781a054f73e2a0",
+   "GS.csv": "442c64957161b2f411851f83091bcdc4ad23fac02a99eaf3843ca1c6fba2bdee",
+   "XOM.csv": "217f5339d9a99e7d7ba699ad6a677949c95540c3f72c670b9b4d977c718972af",
+   "CVX.csv": "a5e893a4c1592a35fabf3f16a628bb188a7057e34c031e56ead2df91ba0f8eed",
+   "JNJ.csv": "f3abda7eaa4c8d3bf6741326a200cb1a0ac746286bc94c85103fd91868637baa",
+   "UNH.csv": "29e868e99820946791ac99beeaa32198fcf2bd04abb9674ca6c05f04306f4181",
+   "PFE.csv": "ab29172f746845e8c1bad553ae2652e0872d677d4bb309e9263c97f5694caee2",
+   "WMT.csv": "d427d94d5206157d257bdb2f76058734e4257119c52f202250c3aad76473d6c6"
+  }
+ }
+}

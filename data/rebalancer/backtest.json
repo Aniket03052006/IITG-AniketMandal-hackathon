@@ -1,0 +1,160 @@
+{
+ "version": "rebalancer-backtest-v1",
+ "params": {
+  "tilt": 2.0,
+  "half_life_hours": 36.0,
+  "max_turnover": 0.04,
+  "is_default": true
+ },
+ "cost_bps": 5.0,
+ "tickers": [
+  "AAPL",
+  "MSFT",
+  "NVDA",
+  "GOOGL",
+  "AMZN",
+  "META",
+  "JPM",
+  "BAC",
+  "GS",
+  "XOM",
+  "CVX",
+  "JNJ",
+  "UNH",
+  "PFE",
+  "WMT"
+ ],
+ "dates": [
+  "2026-09-18",
+  "2026-09-21",
+  "2026-09-22",
+  "2026-09-23",
+  "2026-09-24",
+  "2026-09-25",
+  "2026-09-28",
+  "2026-09-29",
+  "2026-09-30",
+  "2026-10-01"
+ ],
+ "rebalanced": [
+  -0.0016412840644081958,
+  0.009820017083039222,
+  -0.00549274639636636,
+  -0.002465510227032634,
+  0.0036774969786102373,
+  0.0028892463454672844,
+  -0.005539415999503176,
+  -0.005018377752257695,
+  -0.003954087341021925,
+  -0.0021233606959144115
+ ],
+ "benchmark": [
+  -0.0017333386457736818,
+  0.011631929804474517,
+  -0.0059206556815843865,
+  -0.0035357250934186465,
+  0.0026173377767682005,
+  0.004566063968730199,
+  -0.0063266494269384015,
+  -0.005172251656479708,
+  -0.004815860213529415,
+  -0.0030058064140616354
+ ],
+ "cumulative_rebalanced": [
+  -0.0016412840644082216,
+  0.008162615581080335,
+  0.00262503400739611,
+  0.00015305173217194934,
+  0.0038311115580647037,
+  0.006731426928600293,
+  0.0011547227550694483,
+  -0.0038694498321723003,
+  -0.007808237030596077,
+  -0.009915018022895405
+ ],
+ "cumulative_benchmark": [
+  -0.00173333864577363,
+  0.009878429085245832,
+  0.0038992866263727333,
+  0.00034977472738284554,
+  0.0029680279827584144,
+  0.007547644157118727,
+  0.0011732434315989693,
+  -0.004005076535163243,
+  -0.008801648859954825,
+  -0.011780999221418953
+ ],
+ "turnover": [
+  0.05141124461585491,
+  0.05879338756764323,
+  0.057954708877240066,
+  0.08203289170122427,
+  0.0511314150234893,
+  0.05767717397110224,
+  0.04624056828242018,
+  0.05759241142912523,
+  0.06458105398755297,
+  0.06793570932037851
+ ],
+ "summary": {
+  "rebalanced_return": -0.009915018022895405,
+  "benchmark_return": -0.011780999221418953,
+  "active_return": 0.0018659811985235475,
+  "daily_active_mean": 0.00018469335124253038,
+  "daily_active_std": 0.0010738964922499359,
+  "mean_daily_turnover": 0.059535056477603085,
+  "total_cost": 0.00029767528238801544
+ },
+ "rank_ic": {
+  "mean": 0.09831914373962646,
+  "daily": [
+   0.05819143739626463,
+   -0.32857142857142857,
+   0.16071428571428573,
+   0.42857142857142855,
+   0.11428571428571428,
+   -0.4392857142857143,
+   0.2357142857142857,
+   0.14285714285714285,
+   0.325,
+   0.2857142857142857
+  ],
+  "days": 10
+ },
+ "placebo": {
+  "runs": 200,
+  "seed": 20260101,
+  "active_return_p05": -0.003314839884557807,
+  "active_return_p50": -0.000268183507933617,
+  "active_return_p95": 0.003210726731133638,
+  "mean_ic_p05": -0.14084393879457732,
+  "mean_ic_p50": 0.0035419074601274227,
+  "mean_ic_p95": 0.12183766816181157,
+  "active_return_percentile": 0.82,
+  "ic_percentile": 0.85
+ },
+ "inputs": {
+  "AAPL.csv": "ad4a547a5c8ea282baf13827e93aeff66c1f51a3499af2599764e745c7404c03",
+  "MSFT.csv": "e0cda8a20632b9d3bdd04560e94ed35c265ac32c1cc8ae8bae06bd70cbe91ad9",
+  "NVDA.csv": "0b6ca364ebaf8175a973e22f889b4349104bbbb43f07dc53c296166baa818974",
+  "GOOGL.csv": "a1b6a9773cc43266a3e5b3b9826700e05ade92e17c826e40d978324d167837c9",
+  "AMZN.csv": "a6728306c9fe7ad47edad8576d5f529666d01dff6bd20a2683f5714aa6d6c241",
+  "META.csv": "7623f60b7c9dfbf40517cd2127525e6b8602bcd141429cd5a7174821b7549091",
+  "JPM.csv": "fbfe4f2a9bb971d306e80a87e43fd88619e4700c40571e193206fc963b0e995e",
+  "BAC.csv": "84a89add5439501ec3f449e87f9a6ef8d8134c1ff3132a95e7781a054f73e2a0",
+  "GS.csv": "442c64957161b2f411851f83091bcdc4ad23fac02a99eaf3843ca1c6fba2bdee",
+  "XOM.csv": "217f5339d9a99e7d7ba699ad6a677949c95540c3f72c670b9b4d977c718972af",
+  "CVX.csv": "a5e893a4c1592a35fabf3f16a628bb188a7057e34c031e56ead2df91ba0f8eed",
+  "JNJ.csv": "f3abda7eaa4c8d3bf6741326a200cb1a0ac746286bc94c85103fd91868637baa",
+  "UNH.csv": "29e868e99820946791ac99beeaa32198fcf2bd04abb9674ca6c05f04306f4181",
+  "PFE.csv": "ab29172f746845e8c1bad553ae2652e0872d677d4bb309e9263c97f5694caee2",
+  "WMT.csv": "d427d94d5206157d257bdb2f76058734e4257119c52f202250c3aad76473d6c6",
+  "_GSPC.csv": "072d8059b45a9b1d9df8ae2380dab3247f66fb0e6ecc2410a82966cb00ebd3dc"
+ },
+ "timeline_sha256": "65c6b349dde735a5a1eec961bd3b9ff047f7216e7cbd351e16c77437363f680b",
+ "caveats": [
+  "About ten trading sessions: this shows how the mechanics behave, it cannot show that sentiment tilting earns anything. Do not read the active return as skill.",
+  "The score at each close is built from news headlines the engine could name; the realised return that follows is one number per stock per day, dominated by market and sector moves.",
+  "Costs are an illustrative one-way rate on turnover; no spreads, impact or taxes. Weights are reset to the target at each close (no intra-day drift)."
+ ]
+}
