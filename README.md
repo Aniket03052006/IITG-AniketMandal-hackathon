@@ -5,8 +5,8 @@
 **Candidate Name:** Aniket Mandal  
 **College Email ID:** [aniket.mandal@iitg.ac.in] *(placeholder: confirm before submitting)*  
 **College / Campus:** Indian Institute of Technology Guwahati (IITG)  
-**Demo Video Link:** *TODO: add the YouTube (unlisted) link once recorded; the scripted path is [`docs/notes/DEMO_SCRIPT.md`](docs/notes/DEMO_SCRIPT.md)*  
-**Slide Deck Link (if hosted externally):** *TODO: `docs/presentation.pdf` is not created yet*  
+**Demo Video Link:** [https://youtu.be/4Tynw6Z3xTM](https://youtu.be/4Tynw6Z3xTM) *(YouTube, unlisted; the scripted path is [`docs/notes/DEMO_SCRIPT.md`](docs/notes/DEMO_SCRIPT.md))*  
+**Slide Deck Link (if hosted externally):** in this repo: [`docs/presentation.pdf`](docs/presentation.pdf)  
 
 **EventShock — an event-driven financial risk engine and portfolio stress lab.** It reads financial text from more than one source,
 turns each report into a structured risk signal (sentiment, event class, 1–10 score), and shows what that signal would do to a
@@ -598,7 +598,7 @@ and checks the served model ids and artifact hashes.
 
 ## 17. Future Work
 
-- **Immediate:** record the demo video and build `docs/presentation.pdf`; pin a demo event with conflicting claims; human adjudication of event labels;
+- **Immediate:** pin a demo event with conflicting claims; human adjudication of event labels;
   a held-out-set LLM recording for the severity benchmark.
 - **Production evolution:** queue + workers for ingestion, a model-serving tier, a signal store (SQLite → Postgres), authentication and per-user portfolios,
   drift monitoring and scheduled retraining, a market-data licence, a real position feed.
