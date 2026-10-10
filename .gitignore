@@ -51,3 +51,6 @@ data/gold_v2/batches/
 
 # Interview preparation: intentionally local, never part of the submission
 docs/interview/
+
+# Local agent instructions (not tracked)
+CLAUDE.md
