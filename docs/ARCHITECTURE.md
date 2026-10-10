@@ -1,9 +1,12 @@
-# EventShock — Architecture (current state: Stage 15, 2026-10-08)
+# EventShock — Architecture (current state: Stage 16, 2026-10-09)
 
 This is the **authoritative technical description of what is implemented**. Sections 1-17 describe the system as it stands today;
 the *Stage-by-stage design record* after them keeps the per-stage rationale, contracts and numbers in the order they were built (each
-stage's story, including what broke, is in [PROJECT_JOURNEY.md](PROJECT_JOURNEY.md)). When the two disagree, sections 1-17 win.
-The picture is [`architecture.png`](architecture.png) (regenerate: `python scripts/make_architecture_diagram.py --png`).
+stage's story, including what broke, is in [PROJECT_JOURNEY.md](notes/PROJECT_JOURNEY.md)). When the two disagree, sections 1-17 win.
+The pictures are [`architecture.png`](architecture.png) (lanes and flow; regenerate: `python scripts/make_architecture_diagram.py --png`),
+[`architecture_detailed.png`](architecture_detailed.png) (every module, model, store and route group; `scripts/make_detailed_diagram.py --png`) and
+[`architecture_simple.png`](architecture_simple.png) (seven plain steps for a non-technical reader; `scripts/make_simple_diagram.py --png`). All three were
+regenerated for Stage 16 and show Module A.
 
 ![EventShock architecture](architecture.png)
 
@@ -27,7 +30,7 @@ RawDocument ─► validate · dedupe · resolve entity ─► sentiment · even
 
 One process (FastAPI) serves the API and the built UI. At start-up it verifies the frozen replay pack, loads three trained model
 artifacts, runs the pack through the pipeline and keeps the result in memory (start-up time is measured in
-[SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md#measured-in-this-repository)). Pasted text and the optional live
+[SUBMISSION_CHECKLIST.md](notes/SUBMISSION_CHECKLIST.md#measured-in-this-repository)). Pasted text and the optional live
 feed enter through the **same** `RiskEngine`, so there is one code path for every source.
 
 Three rules shape everything:
@@ -36,7 +39,7 @@ Three rules shape everything:
    every portfolio number are explicit, deterministic code. With no key the whole app works (rule-based reading, labelled).
 2. **Derived views are side-cars.** Assessment, intelligence, analogues, propagation, monitor, review and the rest are computed from a signal on
    demand and never stored on it, so no replay digest or golden run id moves when a side-car changes. Import rules are enforced by
-   architecture tests (`tests/unit/test_{intel,propagation,decision}_architecture.py`).
+   architecture tests (`tests/unit/test_{intel,propagation,decision,rebalancer}_architecture.py`).
 3. **Never invent a number.** Missing or unscorable input produces `PARTIAL`, `UNAVAILABLE`, `NOT_APPLICABLE` or an abstention with the reason, never a
    placeholder that looks like a result.
 
@@ -55,14 +58,15 @@ Three rules shape everything:
 | Propagation | `propagation/` | event → factor → holdings graph, materiality, generated scenario, attribution, concentration | implemented |
 | Stress | `stress/` + `services/stress_service.py` | scenario catalog, pure revaluation functions, attribution, run id, history check | implemented |
 | Portfolio | `portfolio/` | default synthetic book, personal portfolios, exposure, Wholesale Book v2 preset | implemented |
+| Rebalancer (Module A) | `rebalancer/` + `configs/rebalancer.yaml` | mock 15-stock index whose weights follow `sentiment.score`: decayed, one-source-one-vote score → exponential tilt → exact projection onto bounds → turnover-capped step; trade decisions with a constraint ladder, a closed strategy registry, a point-in-time back-test and lab with a placebo, a simulated hash-chained approval ledger | implemented (a transparent rule, not a claimed return) |
 | Decision side-cars | `decision/ monitor/ watchlist/ lab/ explain/ feedback/ brief/ review/ markets/` | what changed, watchlists, scenario lab + reverse stress, reasons, feedback, executive brief, review queue, external-market observation | implemented |
 | Adjustments | `adjust/` | whitelisted manual overrides of side-car settings, rebuilt under a lock, rolled back on failure | implemented |
-| API | `api/` (20 routers) | thin routers; typed schemas; serves `web/dist` at `/` | implemented |
+| API | `api/` (21 routers, 93 operations) | thin routers; typed schemas; serves `web/dist` at `/` | implemented |
 | Dashboard | `web/` | React 19 SPA, types generated from the OpenAPI schema | implemented |
 | Research code | `modeling/`, `scripts/` | training, leakage guard, evidence studies, data builders (offline, not imported by the server at run time except model loading) | implemented |
 
 **Module boundaries that are tested:** no core package (`assessment pipeline stress modeling domain retrieval portfolio intelligence llm
-ingestion services`) imports a side-car (`propagation adjust decision monitor watchlist lab explain feedback brief review markets`); the
+ingestion services`) imports a side-car (`propagation adjust decision monitor watchlist lab explain feedback brief review markets`), and nothing imports `rebalancer` (`tests/unit/test_rebalancer_architecture.py`); the
 external-market provider is never an input to a score; nothing is stored on a `RiskSignal` by a side-car.
 
 ## 3. Data flow
@@ -113,7 +117,7 @@ There is deliberately **no database** in the MVP: nothing needs durability beyon
 |---|---|---|---|
 | Frozen replay pack | `data/replay/` (JSON/JSONL, NPZ vectors, `manifest.json` with sha256 + counts) | yes | mismatch stops start-up |
 | Model artifacts + cards | `models/{sentiment,event,impact}/<id>/` (`model.joblib`, `model_card.json`) | yes | integrity-checked at load |
-| Configuration | `configs/*.yaml` (29) | yes | all pinned by `docs/freeze_manifest.json` |
+| Configuration | `configs/*.yaml` (30) | yes | all pinned by `docs/freeze_manifest.json` |
 | Signals | in memory (rebuilt at start-up) + bounded live store | no | digest `078a70ae…` for the replay |
 | Live journal, portfolios, overrides, decisions, LLM cache | `data/live/…` (atomic JSON/JSONL files) | git-ignored | `EVENTSHOCK_*_PATH` env redirects; tests redirect all of them |
 | Training / evaluation data | `data/modeling/`, `data/gold*/`, `data/event_labels/`, `data/events/` | partly | large derived tables are git-ignored and rebuildable |
@@ -134,7 +138,7 @@ when no encoder is installed. The impact model scores a report only inside its f
    results; the lifecycle word (`placeholder | experimental | validated`) is derived from the card, not asserted.
 4. Write the card; `make freeze-write` re-pins the manifest only after a deliberate, journalled change.
 
-**What each model may and may not use** is tabulated in [FINAL_MODEL_REPORT.md](FINAL_MODEL_REPORT.md). Current lifecycle: sentiment *experimental* (no bar written),
+**What each model may and may not use** is tabulated in [FINAL_MODEL_REPORT.md](notes/FINAL_MODEL_REPORT.md). Current lifecycle: sentiment *experimental* (no bar written),
 event *experimental* (fails the independent-set check), impact *experimental* (fails C5 calibration coverage and C7 placebo). Nothing is *validated*.
 
 ## 7. Portfolio and stress engine
@@ -149,8 +153,8 @@ an event by `propagation/scenario_gen.py` (gated, labelled *SCENARIO SIMULATION 
 
 ## 8. Dashboard
 
-`web/` (React 19, Vite, TypeScript, Tailwind v4, TanStack Query). Eight pages gated by `/api/meta` capabilities (Desk, Today, Review, Analyze, Event,
-Stress Lab, Portfolios, Evidence), one navigation source (`lib/nav.ts`), a ⌘K palette, light/dark tokens with WCAG pairs enforced by tests
+`web/` (React 19, Vite, TypeScript, Tailwind v4, TanStack Query). Nine pages gated by `/api/meta` capabilities (Desk, Today, Review, Analyze, Event,
+Stress Lab, Portfolios, Rebalancer, Evidence), one navigation source (`lib/nav.ts`), a ⌘K palette, light/dark tokens with WCAG pairs enforced by tests
 (`styles/tokens.test.ts`), hand-drawn CSS/SVG charts (no chart library). Progressive disclosure through drawers addressed by `?open=` and tabs by `?tab=`.
 The UI renders four kinds of number distinctly (model prediction, historical observation, scenario assumption, realised outcome).
 
@@ -196,7 +200,7 @@ Pinned dependencies (`requirements.txt`, `uv.lock`); artifact and snapshot hashe
 
 | Decision | Chosen | Alternative | Why chosen | Main cost |
 |---|---|---|---|---|
-| Downstream module | **B** (stress tester), plus **A** (index rebalancer) added in Stage 16 as a separate side-car | A only | event → exposure → loss is the story a risk desk needs; A is a sentiment-to-weight map, kept apart so neither contaminates the other | A claims a transparent rule, not a return (`docs/REBALANCER.md`) |
+| Downstream module | **B** (stress tester), plus **A** (index rebalancer) added in Stage 16 as a separate side-car | A only | event → exposure → loss is the story a risk desk needs; A is a sentiment-to-weight map, kept apart so neither contaminates the other | A claims a transparent rule, not a return (`docs/notes/REBALANCER.md`) |
 | NLP approach | classical supervised models + deterministic engine | LLM-first | reproducible, cheap, auditable, runs offline; the LLM is an optional reader | weaker semantic understanding without it |
 | Sentiment model | TF-IDF + LR (tfidf-lr-v2) | FinBERT (frozen or fine-tuned) | CPU-only, byte-reproducible, no torch at run time, trained on in-domain tweet labels. FinBERT was **probed, not served**: on a 30-pair polarity probe finbert-tone and ProsusAI/finbert got 93 % right against 77 % for the shipped model (`docs/evidence/representation_bakeoff.json`, a diagnostic never used to choose), and as frozen features they added nothing to the event model | weak out of domain (≈ 0.44-0.53 macro-F1); a FinBERT sentiment head was never compared with it on a labelled benchmark and is the most obvious open improvement |
 | Event model | hybrid TF-IDF + e5-large + LR with abstention | fine-tuned transformer; zero-shot | won a pre-registered five-way representation comparison; abstains | labels are AI-annotated |
@@ -223,7 +227,7 @@ Pinned dependencies (`requirements.txt`, `uv.lock`); artifact and snapshot hashe
 | Impact 1-10 | implemented (experimental) | `impact-v2` plus the severity-v2 scorecard as headline; neither validated |
 | Expose signals (API/file) | implemented | `/api/signals…`; `make ingest` also exports files to `data/processed` |
 | Module B stress tester | implemented | synthetic book, 4 asset classes, 12 scenarios, generated scenario, attribution, before/after dashboard |
-| Module A rebalancer | implemented (Stage 16) | 15-stock mock index, sentiment tilt, bounds, turnover cap, weights-over-time dashboard `/rebalancer`, illustrative back-test with a placebo; `docs/REBALANCER.md` |
+| Module A rebalancer | implemented (Stage 16) | 15-stock mock index, sentiment tilt, bounds, turnover cap, weights-over-time dashboard `/rebalancer`, illustrative back-test with a placebo; `docs/notes/REBALANCER.md` |
 | Entity resolution | partial | 34-issuer dictionary; no NER |
 | Dedup / corroboration | implemented | contradiction detection is closed-lexicon only |
 | Evidence layer | implemented | provenance, evidence tier, novelty, lifecycle; separate from impact |
@@ -244,7 +248,7 @@ and a real position source. None of this is required for the MVP's single-proces
 
 ## 17. API reference
 
-Generated from the exported OpenAPI (`web/src/api/openapi.json`, 85 operations under `/api`; live docs at `/api/docs`).
+Generated from the exported OpenAPI (`web/src/api/openapi.json`, 93 operations under `/api`; live docs at `/api/docs`).
 
 | Method | Endpoint | Purpose | Request | Response |
 |---|---|---|---|---|
@@ -296,6 +300,14 @@ Generated from the exported OpenAPI (`web/src/api/openapi.json`, 85 operations u
 | PUT | `/api/portfolios/{portfolio_id}` | update | path: portfolio_id; body: PortfolioInput-Input | PortfolioView |
 | POST | `/api/portfolios/{portfolio_id}/duplicate` | duplicate | path: portfolio_id | – |
 | GET | `/api/portfolios/{portfolio_id}/exposure` | exposure of one portfolio | path: portfolio_id | PortfolioExposureDetail |
+| GET | `/api/rebalancer/backtest` | derived back-test of the weight path (point-in-time, 5 bp cost, shuffled-score placebo); STALE if the served weights differ | – | RebalancerBacktestView |
+| GET | `/api/rebalancer/cycles/{index}` | one cycle: weights, scores, per-stock reason, contributing reports | path: index; query: tilt, half_life_hours, max_turnover, include_live, strategy | RebalanceCycleDetail |
+| GET | `/api/rebalancer/cycles/{index}/decisions` | the cycle as a proposed rebalance: before / target / after, trade, evidence, the rules that bound each stock, `proposal_sha256` | path: index; query: tilt, half_life_hours, max_turnover, include_live, strategy | RebalanceDecisions |
+| GET | `/api/rebalancer/lab` | every strategy plus equal weight and buy-and-hold on one window, sensitivity grid, placebo verdict | – | RebalancerLabView |
+| GET | `/api/rebalancer/ledger` | simulated approvals (append-only, hash-chained; `chain_ok`) | – | LedgerView |
+| POST | `/api/rebalancer/proposals/decision` | approve all, approve a subset, or reject a proposal (simulated; 409 if the proposal changed) | body: DecisionRequest | LedgerEntry |
+| GET | `/api/rebalancer/overview` | the index, its parameters, universe and latest cycle | – | RebalancerOverview |
+| GET | `/api/rebalancer/timeline` | weights over time for the stacked chart | query: tilt, half_life_hours, max_turnover, include_live, strategy | RebalancerTimeline |
 | POST | `/api/reverse-stress` | bounded-grid search for the mildest shock combination reaching a loss target | body: ReverseStressRequest | ReverseStressResult |
 | POST | `/api/reverse-stress/explanation` | explain a reverse-stress result | body: ReverseStressRequest | Explanation |
 | GET | `/api/review/decisions` | decision history | query: event_id, limit | ReviewDecisionList |
@@ -353,7 +365,7 @@ snapshot (hash-verified) → normalise → validate/quarantine → entity resolu
 * **Train/serve parity.** The user-facing event stage serves the hybrid, but both impact models were fitted on the *TF-IDF* event model's probabilities. `ImpactModelEnricher` therefore re-decides each text with `tfidf-lr-event-v1` (`impact_event_model`) and feeds that, not the hybrid, to the impact stage. Feeding it the hybrid would silently change the model's inputs. The reference is announced in `/api/meta` and pinned by `tests/e2e/test_replay_served.py`.
 * **Lifecycle** is derived, never asserted: each card carries its pre-registered acceptance result; `services/evidence.py` turns that into `validated | experimental | placeholder` for `/api/evidence`, and the UI reads the same objects. All three trained stages are currently *experimental*.
 * **Fallbacks are labelled.** A missing hybrid or pinned vectors falls back to the TF-IDF reference; a missing impact-v2 falls back to impact-v1, then to the placeholder rule; every signal says which one ran. A *modified* artifact or snapshot file always stops start-up.
-* **Frozen state.** `docs/freeze_manifest.json` pins every model, config, gold, calendar, replay and evidence file (`make freeze-check`); `make smoke` runs the real server and checks that the API serves those same artifacts. See [FINAL_MODEL_REPORT.md](FINAL_MODEL_REPORT.md).
+* **Frozen state.** `docs/freeze_manifest.json` pins every model, config, gold, calendar, replay and evidence file (`make freeze-check`); `make smoke` runs the real server and checks that the API serves those same artifacts. See [FINAL_MODEL_REPORT.md](notes/FINAL_MODEL_REPORT.md).
 * The diagram and tables below describe the Stage 1-2 skeleton that these stages plug into.
 
 ## Stage 2: real sources through one pipeline
@@ -389,14 +401,14 @@ flowchart LR
 | Validation | closed set of reject codes; every record ends in exactly one bucket (quarantined / folded duplicate / report inside a signal) |
 | Entity resolution | cashtag → legal name → alias → bare ticker → *weak alias* (ordinary words like Apple/Visa/Target: case-sensitive and only with finance context or another strong mention) → restrained fuzzy; multiple issuers cap confidence; anything uncertain is `UNKNOWN_ENTITY`; the audit records what was considered and refused |
 | Dedup | blocked by entity; star clustering against the earliest report (no single-link chaining); exact duplicates are folded and not counted, syndicated/near/same-event reports become `Evidence.corroborating` |
-| Enrichment | `Enricher` port. `ModelEnricher` (served) = trained sentiment model (`pipeline/sentiment_model.py`) + trained event model (`pipeline/event_model.py`, 9-way: 8 classes + `NONE`, calibrated, one 0.5 commit threshold) + the `placeholder-v0` impact heuristic. `ImpactModelEnricher` (served when `models/impact/` and `data/replay/market/context.json` exist) replaces the heuristic **per signal, after novelty**, with the trained impact model (`pipeline/impact_model.py`, [IMPACT_MODEL.md](IMPACT_MODEL.md)); a signal it cannot score keeps the labelled heuristic with the reason in `provenance.impact_note`. Artifacts in `models/sentiment/`, `models/event/` and `models/impact/` are integrity-checked at load and never fall back to rules (a *missing* impact artifact degrades to the labelled heuristic unless `configs/impact_model.yaml` says `require: true`). An event the model judges a non-event (`NO_EVENT`) or will not type (`UNCERTAIN`) gets **no impact**: the signal is `PARTIAL` with a reason and the stress engine reports it unavailable. `ModelSentimentEnricher` and `PlaceholderEnricher` remain as regression anchors. Documents a model cannot score are quarantined (`UNSCORABLE_TEXT`). Every stage is labelled in `SignalProvenance.stage_origins` and `ModelVersions`; `SignalProvenance.sentiment` / `.event` / `.impact` carry model id, artifact sha256, calibrated confidence and `seen_in_training`; `data_origin = REAL_SOURCE_MIXED_NLP` |
+| Enrichment | `Enricher` port. `ModelEnricher` (served) = trained sentiment model (`pipeline/sentiment_model.py`) + trained event model (`pipeline/event_model.py`, 9-way: 8 classes + `NONE`, calibrated, one 0.5 commit threshold) + the `placeholder-v0` impact heuristic. `ImpactModelEnricher` (served when `models/impact/` and `data/replay/market/context.json` exist) replaces the heuristic **per signal, after novelty**, with the trained impact model (`pipeline/impact_model.py`, [IMPACT_MODEL.md](notes/IMPACT_MODEL.md)); a signal it cannot score keeps the labelled heuristic with the reason in `provenance.impact_note`. Artifacts in `models/sentiment/`, `models/event/` and `models/impact/` are integrity-checked at load and never fall back to rules (a *missing* impact artifact degrades to the labelled heuristic unless `configs/impact_model.yaml` says `require: true`). An event the model judges a non-event (`NO_EVENT`) or will not type (`UNCERTAIN`) gets **no impact**: the signal is `PARTIAL` with a reason and the stress engine reports it unavailable. `ModelSentimentEnricher` and `PlaceholderEnricher` remain as regression anchors. Documents a model cannot score are quarantined (`UNSCORABLE_TEXT`). Every stage is labelled in `SignalProvenance.stage_origins` and `ModelVersions`; `SignalProvenance.sentiment` / `.event` / `.impact` carry model id, artifact sha256, calibrated confidence and `seen_in_training`; `data_origin = REAL_SOURCE_MIXED_NLP` |
 | Profiles | `data.profile: replay` (default, real pack) or `demo` (Stage-1 fixtures); same container, same contracts |
 | Dependencies | ingestion is stdlib (`urllib`, `difflib`, `hashlib`); the sentiment model adds numpy, scikit-learn, joblib (pinned in `requirements.txt`; the artifact is refused if the scikit-learn version differs) |
 | Impact stage | Two scopes in one artifact: `ISSUER` (one resolved listed company; target its abnormal return) and `MARKET` (no company named; target the S&P 500's own move), each with its own lifecycle `NOT_AVAILABLE → DATASET → BASELINE → TRAINED → CALIBRATED → PRODUCTION` (UI: placeholder rule / experimental model / validated model). Event-time price features come from a frozen, hash-pinned **market context** (derived statistics, no prices) so the server stays offline. The 1-10 score is rank-calibrated (no hand thresholds) with an empirical uncertainty interval and exact-or-labelled attributions. The stress engine is unchanged: it reads the integer score, and its audit records which stage produced it |
 | Model cards | `GET /api/models/sentiment`, `/event` and `/impact` serve the typed model cards (`SentimentModelCard`, `EventModelCard`, `ImpactModelCard`); the Data pipeline page renders all three. The event card adds the pre-registered acceptance verdict, per-class reliability and the abstention policy |
 
 What is real: ingestion, validation, entity resolution, deduplication, corroboration counts, provenance, the sentiment
-model, the event model (weak, flagged per class, see EVENT_MODEL.md), the impact model (experimental: market-state skill, no measurable event skill, see IMPACT_MODEL.md), the stress engine. What is a stand-in: the placeholder impact rule for signals the model cannot score, the portfolio (synthetic positions on real issuers), scenario magnitudes.
+model, the event model (weak, flagged per class, see notes/EVENT_MODEL.md), the impact model (experimental: market-state skill, no measurable event skill, see notes/IMPACT_MODEL.md), the stress engine. What is a stand-in: the placeholder impact rule for signals the model cannot score, the portfolio (synthetic positions on real issuers), scenario magnitudes.
 
 ## What existed at the end of Stage 1 (historical skeleton)
 
@@ -510,8 +522,8 @@ A well-formed stress request always returns 200; `status` says whether numbers w
 | ~~Validation + dedup~~ **done**; contradiction detection still open | `pipeline/validate.py`, `dedup.py` | between adapter and NLP | `Evidence.corroborating`, `contradicted_by` |
 | ~~Entity resolution~~ **done** (dictionary); NER/market-wide pseudo-entities open | `pipeline/entities.py` | fills `EntityMention` incl. `UNKNOWN_ENTITY` | `EntityMention` |
 | ~~Sentiment~~ **done in Stage 3** (TF-IDF + LR); a domain-adapted model is open | `pipeline/sentiment_model.py` | fills `SentimentResult`; `model_versions.sentiment` | `SentimentResult` |
-| ~~Event classification~~ **done in Stage 3b** (`pipeline/event_model.py`, [EVENT_MODEL.md](EVENT_MODEL.md)); embeddings and human-adjudicated labels next | `pipeline/event_model.py` | fills `EventClassification` incl. `status` | taxonomy in `event_taxonomy.yaml` |
-| ~~Calibrated impact~~ **done in Stage 3c** as an experimental model (`pipeline/impact_model.py`, `modeling/impact_*.py`, [IMPACT_MODEL.md](IMPACT_MODEL.md)); scikit-learn boosting, exact-or-labelled attributions instead of SHAP; earnings-calendar features and 2023-25 news next | `ImpactModelEnricher`; `ImpactAssessment` (+ prediction, range, p_extreme), `ImpactAudit` | `ImpactAssessment` |
+| ~~Event classification~~ **done in Stage 3b** (`pipeline/event_model.py`, [EVENT_MODEL.md](notes/EVENT_MODEL.md)); embeddings and human-adjudicated labels next | `pipeline/event_model.py` | fills `EventClassification` incl. `status` | taxonomy in `event_taxonomy.yaml` |
+| ~~Calibrated impact~~ **done in Stage 3c** as an experimental model (`pipeline/impact_model.py`, `modeling/impact_*.py`, [IMPACT_MODEL.md](notes/IMPACT_MODEL.md)); scikit-learn boosting, exact-or-labelled attributions instead of SHAP; earnings-calendar features and 2023-25 news next | `ImpactModelEnricher`; `ImpactAssessment` (+ prediction, range, p_extreme), `ImpactAudit` | `ImpactAssessment` |
 | ~~Evidence / corroboration~~ **done** (dedup corroboration in Stage 2; independent sources, evidence tier, novelty, lifecycle in Stage 10) | `pipeline/dedup.py`, `intelligence/evidence.py` | fills `Evidence`; the side-car reports the tier | `Evidence` |
 | Signal store | **deferred**: SQLite repository (pipeline output is still rebuilt in memory at start-up; the live overlay is bounded memory + a git-ignored journal) | would implement `SignalRepository` | `RiskSignal` |
 | ~~Exposure mapping~~ **done** (synthetic book from a public card-transaction spend mix, Stage 2; personal portfolios, Stage 9; event → holdings graph, Stage 11) | `portfolio/`, `propagation/` | `PortfolioRepository`, `PortfolioAsset` | `PortfolioAsset` |
@@ -526,7 +538,7 @@ The stage rule from `CLAUDE.md` still holds: implement one stage, test it, freez
 1. **React instead of Streamlit.** The architecture doc picks Streamlit as the fastest demo path and
    names React as the alternative. This project needs a product-grade UI (three linked screens, designed
    components, accessibility, mobile) that Streamlit cannot deliver. The API is unchanged either way.
-2. **No SQLite.** (Still true at Stage 15.) Nothing built so far needs persistence beyond atomic files; repositories sit behind Protocols so SQLite
+2. **No SQLite.** (Still true at Stage 16.) Nothing built so far needs persistence beyond atomic files; repositories sit behind Protocols so SQLite
    is a drop-in. (Stress runs are kept in memory for `GET /stress-runs/{id}`.)
 3. **No model code in Stage 1** (superseded by Stages 3-4, 7). Signals were fixtures with an explicit `data_origin`; building NLP now
    would pre-empt later stages. The deterministic stress engine is the only computed component.
@@ -621,7 +633,7 @@ and returns a change counter `seq`; each row carries scope, channel and relevanc
         └─► StressService(severity_provider): trigger + scaling + scenario class + sector, then the deterministic engine
 ```
 
-`docs/RISK_ASSESSMENT.md` is the reference: why the headline changed (the severity-v1 average compressed the scale), the scorecard, what the AI may and may not do, evidence classes, market freshness, the temporal rule, the fallback, the measured benchmark
+`docs/notes/RISK_ASSESSMENT.md` is the reference: why the headline changed (the severity-v1 average compressed the scale), the scorecard, what the AI may and may not do, evidence classes, market freshness, the temporal rule, the fallback, the measured benchmark
 and its limits. Modules: `llm/` (client, cache, schema, prompt, config), `assessment/` (config, vocab, cues, rules, grounding, extractor, rubric, severity, freshness, service, views, model, benchmark). Configs: `semantics.yaml` (the closed vocabulary
 and indicator levels), `severity.yaml` (anchors, offsets, factors, AI bound, market policy), `llm.yaml` (all in the freeze manifest). Benchmark: `data/benchmarks/`, `scripts/severity_benchmark.py`, `scripts/severity_ablation.py`.
 
@@ -642,20 +654,20 @@ scenarios ─► shock_history.json (quantiles only) ─► GET /scenarios/{id}/
 - **Nothing existing changed in behaviour:** `RiskSignal`, the replay digests, `GOLDEN_RUN_ID`, the trained artifacts, `severity.yaml`, the stress engine and the scenario catalogue are untouched. The analogue service is never stored on a signal (like the assessment) and has no path into the severity score or the stress trigger (a test asserts the assessment and the signal are identical before and after an analogue request).
 - **Experimental vs production:** the experiments (`make outcome-audit severity-validity analogue-*`) run offline against git-ignored data and write committed evidence; the server only reads the committed pack and evidence. A missing index, unrun floor rule or absent encoder is a labelled `UNAVAILABLE`.
 - **Provenance:** `Origin.RETRIEVED` / `Kind.RETRIEVED` (a past report found by similarity: precedent about other events, never a reading of this one) join AI, DATA, RULES, HYBRID, ASSUMPTION; the realised outcome of an analogue is hindsight and is labelled so.
-- **Why retrieval is not a score input:** the pre-registered test (`docs/ANALOGUES.md` section 5) found no improvement in predicting the realised move; the earlier "runtime RAG is excluded" rule stays true in spirit: nothing generative reads the retrieved text, and retrieval runs over a static, hash-pinned index.
+- **Why retrieval is not a score input:** the pre-registered test (`docs/notes/ANALOGUES.md` section 5) found no improvement in predicting the realised move; the earlier "runtime RAG is excluded" rule stays true in spirit: nothing generative reads the retrieved text, and retrieval runs over a static, hash-pinned index.
 
 ## Stage 9: optional personal portfolios (additive; the synthetic book stays the default)
 - `src/eventshock/portfolio/`: `models` (stored input vs resolved result, issues with levels, field sources), `resolve` (pure input -> engine `Portfolio`; quick-text parser), `store` (one JSON file per portfolio, atomic, git-ignored `data/live/portfolios/`, `EVENTSHOCK_PORTFOLIO_STORE_PATH`), `service` (default + saved, `None`/`"default"` = the synthetic book), `exposure`, `chain` (event -> shock -> exposure -> modeled change, regrouped from a finished run), `compare`, `betas`/`catalog` (single-factor trailing betas, reference instruments).
 - Seam: `StressService.run(..., portfolio=)` and `RelevanceService.assess(..., portfolio=)`; the engine is unchanged except `CASH` / `OTHER` asset classes and a bond `spread_sensitivity` (omitted from serialisation at its default, so the default book's `content_hash` and every run id are unchanged).
 - API: `/api/portfolios` (+ `/parse`, `/validate`, `/compare`, `/{id}`, `/{id}/duplicate`, `/{id}/exposure`), optional `portfolio_id` on `/stress-test`, `/stress-runs`, `/signals`, `/signals/{id}/relevance`, `/portfolio/*`; `GET /stress-runs/{id}/exposure-chain`. Active selection is client state; the server holds none.
-- Full rationale, validation rules, methodology table and limits: `docs/PORTFOLIOS.md`.
+- Full rationale, validation rules, methodology table and limits: `docs/notes/PORTFOLIOS.md`.
 
 ## Stage 10: multi-scope event intelligence (additive side-car; no signal, model or digest changed)
 - `src/eventshock/intelligence/`: `scope` (COMPANY / INDUSTRY / SECTOR / GEOGRAPHY / MACRO / MARKET / THEME / UNRESOLVED, path, evidence, status), `grouping` (report clusters -> events, star-anchored, trusted clocks only), `evidence` (independent sources, strength tier, model confidence kept apart), `novelty` (NEW / CONTINUATION / UPDATE / RECURRING / UNKNOWN), `velocity`, `claims` (closed-lexicon claims and contradiction), `lifecycle` (rule-driven state machine with a timeline), `service` (assembles one `EventIntelligence`, memoised on the repository counter, `as_of`-aware, every section able to abstain).
 - Seam: a pure function of the signal and the combined repository (replay, live and pasted alike). It reads the assessment (reading), the relevance service and the stress engine; none of them imports it (`tests/unit/test_intel_architecture.py`). Nothing is stored on a `RiskSignal`, so the replay digest (`70478b2d...`) and `GOLDEN_RUN_ID` hold.
 - Unified ingestion: `RawDocument` is the normalised observation; replay (batch) and live / pasted (engine) share every stage function, proven by a parity test. A pasted `url` attributes the outlet and is never fetched.
 - API: `GET /api/signals/{id}/intelligence?as_of=`, `intelligence` on `POST /api/analyze` (+ optional `headline`, `url`), `scope_type` on the feed and its filter, `capabilities.intelligence`. Config: `configs/intelligence.yaml` (judgement priors, in the freeze manifest).
-- Full rationale, rules and limits: `docs/EVENT_INTELLIGENCE.md`.
+- Full rationale, rules and limits: `docs/notes/EVENT_INTELLIGENCE.md`.
 
 ## Stage 11: event to portfolio propagation and adjustable side-cars (additive; no signal, model, severity or digest changed)
 - `src/eventshock/propagation/`: `mapping` (event -> scope -> risk factor -> holdings graph; every edge a rule, a basis and OBSERVED / SCENARIO_ASSUMPTION / USER_ASSUMPTION), `materiality` (LOW..CRITICAL by an explicit exposure x severity lookup with a bump and two named caps; abstains), `scenario_gen` (deterministic: the catalog scenario of the event class plus propagated sector shocks; gated; SCENARIO UNAVAILABLE with the reason otherwise; labelled a simulation), `attribution` (a completed run regrouped by shock kind, issuer, sector, industry, market factor, risk factor, asset class and position; every table reconciles to the total or the builder raises), `concentration` (flags only meaningful concentration; overlapping events on one risk factor and the same holdings), `service` (`PropagationService`, memoised).
@@ -663,4 +675,25 @@ scenarios ─► shock_history.json (quantiles only) ─► GET /scenarios/{id}/
 - Seam: nothing in `assessment/ pipeline/ stress/ modeling/ domain/ retrieval/ portfolio/ intelligence/ llm/ ingestion/ services/` imports `propagation` or `adjust` (`tests/unit/test_propagation_architecture.py`). Reuses the Stage 10 scope, the assessment's severity / class / direction, the Stage 9 portfolio and relevance, and the unchanged stress engine (`StressService.run_scenario` runs a generated `Scenario` through `_evaluate`). The only engine edit is additive: a SECTOR shock may name its sector (`ShockSpec.sector`), regression-tested; catalog scenarios name none, so `GOLDEN_RUN_ID` and the replay digest hold.
 - API: `GET /api/signals/{id}/propagation|materiality`, `POST /api/signals/{id}/portfolio-stress`, `GET /api/stress-runs/{id}/attribution`, `GET /api/concentration`, `/api/concentration/overlaps`, `GET|PUT|DELETE /api/adjustments`, `POST /api/adjustments/validate|reset`; `capabilities.propagation|adjustments`. Config: `configs/propagation.yaml` (judgement priors, in the freeze manifest).
 - UI: `web/src/components/propagation/*` inside the Event page's Stress chapter (why it matters, my exposure, scenario, portfolio impact, why it moved, concentration and blind spots), the Stress page, the portfolio editor; `web/src/components/adjust/*` (one drawer in the shell, `?open=adjust`).
-- Full rationale, rules and limits: `docs/PORTFOLIO_PROPAGATION.md`.
+- Full rationale, rules and limits: `docs/notes/PORTFOLIO_PROPAGATION.md`.
+
+## Stage 12: decision intelligence and external market observation (additive side-cars; no model, severity or digest changed)
+- `src/eventshock/{decision,monitor,watchlist,lab,explain,feedback,markets,brief}/` + `configs/decision.yaml`, `configs/external_markets.yaml` (judgement priors, in the freeze manifest). Monitor and event memory (`EventState`, pure `diff_states` → `RiskChange` by named rule; REPLAY is a pure function on a fixed 12 h cycle grid), watchlists matched on the resolved scope, scenario lab (BASE / ASSESSED / CUSTOM, every user value a labelled scenario assumption), bounded-grid reverse stress, structured reasons, append-only feedback, a sixteen-section template-written executive brief, and Kalshi observation that is never an input to a score.
+- Seam: no core package imports any of them (`tests/unit/test_decision_architecture.py`); derived views never store stress runs (`store=False`), a regression found and fixed in this stage.
+- Full rationale and limits: `docs/notes/DECISION_INTELLIGENCE.md`, `docs/notes/EXTERNAL_MARKETS.md`.
+
+## Stage 13: model and stress-engine improvements (one deliberate re-pin, journalled)
+- Sentiment is served from `tfidf-lr-v2` (class-balanced); v1 stays the reference the impact models were trained on (`ImpactModelEnricher(impact_sentiment_model=…)`), so train/serve parity holds. The served digest moved `70478b2d…` → `078a70ae…`; a test proves v1 still reproduces the old run.
+- Stress engine, all opt-in per position and omitted from the JSON when unset: convexity, spread-to-PD link, gamma, counterparty CVA, descriptive rating / spread. Read-only Wholesale Book v2 preset and four multi-factor scenarios. A real bug fixed: the event-driven path dropped `currency` from catalog FX shocks.
+- See `docs/notes/SENTIMENT_MODEL.md` "v2" and `docs/notes/PORTFOLIOS.md` "Wholesale Book v2".
+
+## Stages 14-15: judge-first UI, re-skin, live switch, second live source, review queue
+- Frontend and live service only: no model, config or digest change. Desk with a six-station signal trace, Stress Lab, ⌘K palette, sidebar shell on the "Harbour" tokens (Inter + IBM Plex Mono, light and dark, WCAG pairs enforced by tests).
+- Runtime Live ON/OFF switch (`PUT /api/live/state`; OFF at every start), a committed simulated-live capture, SEC EDGAR 8-K as the second live source, exposure and loss heatmaps, the contagion map, and the analyst review queue (`src/eventshock/review/`, append-only decisions that reopen when an event's own evidence changes).
+
+## Stage 16: Module A, the tactical index rebalancer (additive side-car; no model, severity, scenario, replay or digest change)
+- `src/eventshock/rebalancer/` (`scoring`, `weights`, `service`, `decisions`, `risk`, `lab`, `backtest`, `ledger`, `models`, `config`) + `configs/rebalancer.yaml` (judgement priors, in the freeze manifest) + `data/rebalancer/{backtest,lab,risk_inputs}.json` (derived, committed, no prices).
+- Rule: per company a decayed, one-source-one-vote, shrunk mean of `sentiment.score` → exponential tilt of the equal-weight benchmark (k = 2) → exact Euclidean projection onto per-stock bounds (and, for `sentiment_risk`, a sector cap) → turnover-capped step (4 % one-way per cycle). Every cycle self-checks (Σw = 1, bounds, cap) or raises. Only sentiment is read; replay-assigned clocks are excluded and counted.
+- Second pass: trade decisions with a constraint ladder (the effect of each rule telescopes to the target), a closed strategy registry (`sentiment` baseline, `sentiment_risk`, `sentiment_impact`), a lab with equal-weight and buy-and-hold references, a sensitivity grid and a placebo-based verdict, and a simulated approval ledger (append-only hash chain, 409 on a changed proposal, nothing sent anywhere).
+- Seam: nothing imports `rebalancer` (`tests/unit/test_rebalancer_architecture.py`); the baseline's weight-path digest equals `data/rebalancer/backtest.json`'s (`tests/e2e/test_rebalancer_replay.py`).
+- Honest result: +0.19 % against equal weight over 10 sessions, at the 82nd percentile of a 200-shuffle placebo, i.e. within chance; every strategy in the lab is inside its placebo range. No skill is claimed. Full rule, research notes and limits: `docs/notes/REBALANCER.md`.

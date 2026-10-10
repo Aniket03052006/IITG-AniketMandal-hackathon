@@ -98,7 +98,7 @@ class EventModel:
 
     @classmethod
     def load(cls, model_dir: Path) -> EventModel:
-        hint = "run `make train-event` to rebuild it (needs data/modeling/event_train.jsonl, see docs/EVENT_MODEL.md)"
+        hint = "run `make train-event` to rebuild it (needs data/modeling/event_train.jsonl, see docs/notes/EVENT_MODEL.md)"
         card_path, art_path = model_dir / CARD_FILE, model_dir / ARTIFACT_FILE
         for p in (card_path, art_path):
             if not p.is_file():

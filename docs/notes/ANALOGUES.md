@@ -1,6 +1,6 @@
 # Historical analogues (Stage 8)
 
-"Find past reports that look like this one, and show what the market did after them." A retrieval layer for *context and explanation*. It is **not** a score input: the pre-registered test found that it does not improve the prediction of the realised move (section 5), so it is display evidence and is labelled `RETRIEVED` / hindsight everywhere. Theory and method choices: `docs/FINANCE_THEORY.md`. Pre-registration: `configs/evidence_v3.yaml`.
+"Find past reports that look like this one, and show what the market did after them." A retrieval layer for *context and explanation*. It is **not** a score input: the pre-registered test found that it does not improve the prediction of the realised move (section 5), so it is display evidence and is labelled `RETRIEVED` / hindsight everywhere. Theory and method choices: `docs/notes/FINANCE_THEORY.md`. Pre-registration: `configs/evidence_v3.yaml`.
 
 ## 1. What is indexed
 
@@ -17,7 +17,7 @@
 | pack | `data/replay/analogues/`: vectors (12.3 MB) + rows (3.5 MB) + manifest with both sha256 (a modified pack stops start-up). Derived only: headline, reaction session, outcome, VIX; **no prices** |
 | outcome shown | company: `outcome-v3` abnormal return (CAR in percent) and its size in own-volatility units; market-wide: the S&P 500's excess move over the reaction window |
 
-Licences: the headlines are GDELT titles and CC0/MIT datasets (`docs/DATA_LICENSES.md`); the non-commercial PhraseBank derivative is never used.
+Licences: the headlines are GDELT titles and CC0/MIT datasets (`docs/notes/DATA_LICENSES.md`); the non-commercial PhraseBank derivative is never used.
 
 ## 2. How search works (`retrieval/search.py`; every rule has a test)
 

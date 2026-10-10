@@ -52,7 +52,7 @@ def build_dataset_v2(*, repo_root: Path, config_dir: Path, history_signals: Path
     prices = repo_root / "data" / "raw" / "prices"
     for p in (history_signals, prices / "_GSPC.csv", prices / f"{file_stem(icfg.rates_symbol)}.csv"):
         if not p.is_file():
-            raise ConfigError(f"missing input {p}: see docs/EVIDENCE_V2.md (`make fetch-prices`, `make ingest-history-v2`)")
+            raise ConfigError(f"missing input {p}: see docs/notes/EVIDENCE_V2.md (`make fetch-prices`, `make ingest-history-v2`)")
     events_dir = repo_root / scfg.data["calendar_dir"]
     sf = scfg.structured_features
     calendar = EventCalendar.load(events_dir, repo_root / scfg.data["sec_items"], recent_hours=float(sf["recent_filing_hours"]),

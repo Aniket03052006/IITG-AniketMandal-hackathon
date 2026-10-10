@@ -189,7 +189,7 @@ class SentimentEvalConfig(_Strict):
 
 
 # valid_log_loss_after_temperature: v1 (calibrated probabilities first). valid_macro_f1: v2, declared after v1's out-of-domain
-# results were known (docs/SENTIMENT_MODEL.md, "v2"): a disclosed, not a blind, choice.
+# results were known (docs/notes/SENTIMENT_MODEL.md, "v2"): a disclosed, not a blind, choice.
 SENTIMENT_SELECTION_RULES = frozenset({"valid_log_loss_after_temperature", "valid_macro_f1"})
 
 
@@ -379,7 +379,7 @@ class ImpactScopeGate(_Strict):
 
 
 class ImpactAcceptance(_Strict):
-    """The pre-registered bar. Field names carry the check id; see docs/IMPACT_MODEL.md for the wording of each."""
+    """The pre-registered bar. Field names carry the check id; see docs/notes/IMPACT_MODEL.md for the wording of each."""
 
     c1_spearman_ci_lower_above: float
     c2_mae_improvement_vs_constant_ci_upper_below: float

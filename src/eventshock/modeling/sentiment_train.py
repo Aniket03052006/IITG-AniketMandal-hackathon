@@ -62,7 +62,7 @@ SPLITS = ("train", "valid", "test")
 def load_training_table(path: Path, *, gold_origin_ids: set[str] | None = None) -> list[dict[str, Any]]:
     """Read the audit's sentiment table and refuse anything that is not human-labelled, leak-free TFN sentiment."""
     if not path.is_file():
-        raise ConfigError(f"{path} missing: it is built by `make audit` (and committed); see docs/SENTIMENT_MODEL.md")
+        raise ConfigError(f"{path} missing: it is built by `make audit` (and committed); see docs/notes/SENTIMENT_MODEL.md")
     rows = read_jsonl(path)
     if not rows:
         raise ConfigError(f"{path} is empty")

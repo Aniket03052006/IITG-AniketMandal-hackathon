@@ -95,6 +95,6 @@ def test_every_signal_names_the_served_models_and_their_artifacts(replay_contain
 
 
 def test_impact_reads_the_tfidf_event_model_not_the_hybrid(replay_container):
-    """Intentional and documented (docs/FINAL_MODEL_REPORT.md): both impact models were fitted on the TF-IDF event model's probabilities."""
+    """Intentional and documented (docs/notes/FINAL_MODEL_REPORT.md): both impact models were fitted on the TF-IDF event model's probabilities."""
     assert replay_container.impact_event_reference == "tfidf-lr-event-v1"
     assert "TF-IDF event model" in card("models/impact/impact-v2/model_card.json")["output_definition"]

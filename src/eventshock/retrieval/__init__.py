@@ -2,5 +2,5 @@
 
 Everything here is a read-only evidence layer. It never feeds the severity score unless the pre-registered test in
 ``configs/evidence_v3.yaml`` (``retrieval.outcome_value.enter_score_if``) says so, and a retrieved outcome is always labelled as hindsight.
-See ``docs/ANALOGUES.md``.
+See ``docs/notes/ANALOGUES.md``.
 """

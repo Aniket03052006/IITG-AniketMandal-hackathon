@@ -159,7 +159,7 @@ types:  ## regenerate frontend API types from the FastAPI schema
 logo:  ## rebuild SVG logos (needs fonttools + brotli via uv)
 	uv run --with fonttools --with brotli python scripts/build_logo.py
 
-# ---- Stage 4: structured events, 2023-25 news, representation study (see docs/EVIDENCE_V2.md)
+# ---- Stage 4: structured events, 2023-25 news, representation study (see docs/notes/EVIDENCE_V2.md)
 .PHONY: fetch-edgar fetch-fomc events-calendar fetch-gkg-2023 bakeoff-texts bakeoff-embed bakeoff
 fetch-edgar:  ## SEC filing index for the 34 issuers (needs EVENTSHOCK_SEC_CONTACT in .env) -> data/raw/edgar
 	PYTHONPATH=src $(PY) -m eventshock.ingestion.edgar --symbols-file data/raw/prices/symbols.json --out data/raw/edgar

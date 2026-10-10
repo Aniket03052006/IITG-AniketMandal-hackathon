@@ -131,7 +131,7 @@ def reaction_dates(context: MarketContext, key: str) -> tuple[str, str]:
     """ISO dates of the reaction session s0 and the session after it, as the training table has them.
 
     Inside the frozen calendar both are real sessions. For a report after the last known close (``NEXT``) or on the last session, the unknown dates are the next
-    weekdays: a holiday could make that off by a day, which can only move a scheduled-FOMC flag (stated in docs/EVIDENCE_V2.md).
+    weekdays: a holiday could make that off by a day, which can only move a scheduled-FOMC flag (stated in docs/notes/EVIDENCE_V2.md).
     """
     from bisect import bisect_left
 
@@ -217,7 +217,7 @@ class ImpactModel:
 
     @classmethod
     def load(cls, model_dir: Path, min_link_confidence: float = 0.8, calendar: EventCalendar | None = None) -> ImpactModel:
-        hint = "run `make train-impact` to rebuild it (needs data/modeling/impact_table.jsonl via `make impact-table`, see docs/IMPACT_MODEL.md)"
+        hint = "run `make train-impact` to rebuild it (needs data/modeling/impact_table.jsonl via `make impact-table`, see docs/notes/IMPACT_MODEL.md)"
         card_path, art_path = model_dir / CARD_FILE, model_dir / ARTIFACT_FILE
         for p in (card_path, art_path):
             if not p.is_file():

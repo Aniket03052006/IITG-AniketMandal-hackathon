@@ -6,7 +6,7 @@
 What is frozen: model artifacts and cards, configs, the gold sets and their adjudication queues, the structured-event calendar,
 the replay snapshot (manifest, sources, pinned embeddings, market context) and the committed evidence files.
 Offline and deterministic; nothing is retrained or fetched. Human labels, when they exist, change the gold files and therefore
-require a deliberate `--write` and a line in docs/PROJECT_JOURNEY.md.
+require a deliberate `--write` and a line in docs/notes/PROJECT_JOURNEY.md.
 """
 
 from __future__ import annotations

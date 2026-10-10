@@ -72,7 +72,7 @@ documents (weighted), because it never says "not an event".
 - `configs/topic_mapping.yaml` v3 and `pipeline/topics.py`: per-topic `tier` and `rationale`, `trainable()`; tiers demoted after the gold review.
 - Prices refetched from 2014-01-01 (`Makefile`: `PRICES_START`). `Makefile`: `audit`, `probe`, `gold-sample`, `gold-validate`, `gold-score`.
 - `requirements-ml.in/.txt` and an `ml` extra (numpy, scikit-learn; probes only). `pyproject.toml`: ruff E501 relaxed for `modeling/`.
-- Gold set in `data/gold/` (400 rows, blind, deterministic, labelled; adjudication and consistency sheets), `docs/GOLD_LABELING_GUIDE.md`.
+- Gold set in `data/gold/` (400 rows, blind, deterministic, labelled; adjudication and consistency sheets), `docs/notes/GOLD_LABELING_GUIDE.md`.
 - Docs: `DATA_LICENSES.md` (derived data), `PROJECT_JOURNEY.md`, this report, `CLAUDE.md` repo state.
 - Not changed: the pipeline, the `RiskSignal` contract, the API, the UI.
 

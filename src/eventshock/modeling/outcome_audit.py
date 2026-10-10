@@ -347,7 +347,7 @@ def build_store(repo_root: Path, config_dir: Path) -> PriceStore:
     if not ents.is_file():
         ents = repo_root / "data" / "history" / "entities.json"
     if not ents.is_file():
-        raise ConfigError("missing entities.json: see docs/EVIDENCE_V2.md (`make history-v2`)")
+        raise ConfigError("missing entities.json: see docs/notes/EVIDENCE_V2.md (`make history-v2`)")
     sectors = {e["ticker"]: e["sector"] for e in json.loads(ents.read_text(encoding="utf-8")) if e.get("ticker")}
     symbols = [*sectors, mcfg.impact.market_symbol, mcfg.impact.volatility_symbol, icfg.rates_symbol]
     return PriceStore.from_dir(repo_root / "data" / "raw" / "prices", symbols, sectors, mcfg.impact)
@@ -359,7 +359,7 @@ def run_audit(repo_root: Path, config_dir: Path, out_path: Path, *, log=print) -
     table = repo_root / pre["data"]["impact_table"]
     for p in (table, repo_root / pre["data"]["filings"]):
         if not p.is_file():
-            raise ConfigError(f"missing input {p}: `make impact-table-v2 events-calendar` (docs/EVIDENCE_V2.md)")
+            raise ConfigError(f"missing input {p}: `make impact-table-v2 events-calendar` (docs/notes/EVIDENCE_V2.md)")
     store = build_store(repo_root, config_dir)
     window = store.cfg.window_sessions
     lam = 0.94

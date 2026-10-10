@@ -154,7 +154,7 @@ def run_probe(modeling_dir: Path, enrichment_cfg: EnrichmentConfig, out_path: Pa
     e = probe_event(modeling_dir, enrichment_cfg)
     models = {"sentiment": s.pop("_model"), "event": e.pop("_model")}
     res = {"sentiment": s, "event": e, "impact": probe_impact(modeling_dir),
-           "note": "audit probes, not product models; see docs/MODELING_READINESS.md"}
+           "note": "audit probes, not product models; see docs/notes/MODELING_READINESS.md"}
     res["_models"] = models  # for the gold check; stripped before writing
     clean = {k: v for k, v in res.items() if k != "_models"}
     atomic_write_text(out_path, json.dumps(clean, indent=1, sort_keys=True) + "\n")

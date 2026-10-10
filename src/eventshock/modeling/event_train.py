@@ -69,7 +69,7 @@ ANNOTATOR = "ai:claude"
 def load_training_table(path: Path, *, gold_origin_ids: set[str] | None = None) -> list[dict[str, Any]]:
     """Read the event table and refuse anything that could leak an evaluation row or a weak label into training."""
     if not path.is_file():
-        raise ConfigError(f"{path} missing: build it with `python -m eventshock.modeling event-table` (see docs/EVENT_MODEL.md)")
+        raise ConfigError(f"{path} missing: build it with `python -m eventshock.modeling event-table` (see docs/notes/EVENT_MODEL.md)")
     rows = read_jsonl(path)
     if not rows:
         raise ConfigError(f"{path} is empty")
@@ -173,7 +173,7 @@ LIMITATIONS = [
     "annotated by the same family: shared bias is possible and is not measured. The annotator's self-consistency (training "
     "labels) bounds noise only. A human adjudication of the 60 queued gold rows is still outstanding.",
     "The abstention policy was changed once after a first full evaluation (from two tuned thresholds to one fixed commit threshold). "
-    "The first run's numbers are kept in docs/evidence/ and discussed in docs/EVENT_MODEL.md; the gold and replay-check sets are therefore "
+    "The first run's numbers are kept in docs/evidence/ and discussed in docs/notes/EVENT_MODEL.md; the gold and replay-check sets are therefore "
     "not perfectly untouched by design choices.",
     "Roughly 3,000 annotated rows. Rare classes (GEOPOLITICAL, CREDIT_FUNDING, ...) have few examples: see the per-class "
     "reliability table. A class flagged unreliable is never asserted; its documents are shown as UNCERTAIN.",
@@ -317,7 +317,7 @@ def run(cfg: EventModelConfig, *, repo_root: Path, enrichment_cfg: EnrichmentCon
         add("gold_history", "Gold set, our own sources (AI-annotated)", "indicative",
             "280 tweets, headlines and GDELT titles from the sources EventShock ingests, inclusion-weighted to the population. Frozen before "
             "this model existed; no training or model-selection choice used it. One serving-policy change (two tuned abstention thresholds "
-            "replaced by one fixed 0.5 commit threshold) was made after a first full run: see docs/EVENT_MODEL.md. Labels are AI-annotated.", t_, y_, w_, secondary=s_, k=ev.confident_errors)
+            "replaced by one fixed 0.5 commit threshold) was made after a first full run: see docs/notes/EVENT_MODEL.md. Labels are AI-annotated.", t_, y_, w_, secondary=s_, k=ev.confident_errors)
         t_, y_, w_, s_ = g["tfn"]
         add("gold_tfn", "Gold set, TFN-style news tweets (AI-annotated)", "indicative",
             "120 TFN topic tweets from the gold sample (weighted within the TFN population). Near-duplicates of them were removed from training.",

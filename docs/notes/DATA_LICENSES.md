@@ -73,7 +73,7 @@ Not obtained, and said so: consensus earnings estimates (so no realised earnings
 | `data/event_labels/` | the annotator's event labels, blind-pool manifest and answer files (`make event-pools`, `make event-merge`) | yes |
 | `data/events/` | SEC filing acceptance times and 8-K item codes, FOMC decisions, manifest with hashes and known gaps (`make fetch-edgar fetch-fomc events-calendar`) | yes |
 | `data/outcomes/` | realised two-session moves after the replay reports (derived statistics from our own impact table: scope, issuer, session, |z|, score; no prices, no text), read only by the per-signal context endpoint (`make outcomes`) | yes |
-| `data/rebalancer/` | the tactical rebalancer's back-test: derived daily returns, cumulative curves, turnover, a placebo summary and the sha256 of each (git-ignored, not redistributed) price file it read; no prices, no text (`make rebalancer-backtest`) | yes |
+| `data/rebalancer/` | the tactical rebalancer's derived outputs: `backtest.json` (daily returns, cumulative curves, turnover, a placebo summary), `lab.json` (every strategy on the same window, sensitivity grid, cost sensitivity) and `risk_inputs.json` (one volatility and one average dollar volume per stock at the window start), each with the sha256 of the (git-ignored, not redistributed) price files it read; no prices, no text (`make rebalancer-backtest rebalancer-risk-inputs rebalancer-lab`) | yes |
 | `data/gold_v2/`, `data/probes/` | the 2023-2025 doubly annotated evaluation set; the polarity probe | yes |
 | `data/history_v2/`, `data/processed/history_v2/` | history v1 plus the 2023-2025 GKG sample, and its pipeline output | no |
 | `data/gold/` | the gold set: blind sheet, manifest, adjudication, consistency | yes |

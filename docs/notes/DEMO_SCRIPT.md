@@ -1,5 +1,7 @@
 # EventShock: the 3 minute 40 second demo
 
+> **For the recorded video use [DEMO_VIDEO_SCRIPT.md](DEMO_VIDEO_SCRIPT.md)** (page by page, feature by feature, a 4:55 cut and a 9:40 full tour, re-checked against the running app on 2026-10-10). This file keeps the shorter per-stage flows.
+
 One deterministic path from an unstructured headline to a portfolio result, on real replay data. Nothing is typed, nothing calls out
 to a live API, and every number below is reproduced exactly on every start (the replay clock is pinned to 2026-10-01 12:00 UTC).
 
@@ -118,4 +120,6 @@ Start `make run`. Everything below is deterministic on the replay except the Liv
 | 4 | Click **NVDA** in the table. | *Why NVDA holds this weight*: the headlines behind its score with their sentiment and their share of it; the shares add up to the score. | "A reader can check the score by adding up the headlines." |
 | 5 | Open **What-if controls** under *How the rule works*, raise the tilt. | A banner says this is a what-if; the weights move; reset restores the shipped parameters. | "Every number is a judgement prior, and you can see how much each one matters." |
 | 6 | Scroll to **Back-test**. | +0.19 % against the benchmark over 10 sessions, and the control: shuffled scores give -0.33 % to +0.32 %. | "It is inside what chance gives, so we claim a transparent rule, not alpha." |
-
+| 7 | Open the **Trade decisions** tab (`?tab=decisions`). | The cycle as a proposed rebalance: weight before, the target the rule asked for, weight after the turnover limit, the trade, headlines with their times, and the rule that held each stock back. | "This is what a portfolio manager would be asked to approve, with the reason for every line. The sentence on each card is a template, not a model." |
+| 8 | Open the **Lab** tab; switch `?strategy=` to the risk-aware variant. | Every strategy against equal weight, buy-and-hold and a shuffled-score placebo, with the verdict computed from the placebo. | "Every strategy is inside its placebo range, so the page says *within chance*. The sensitivity grid is not a tuning surface." |
+| 9 | Open the **Ledger** tab and approve a subset of one proposal. | An append-only, hash-chained entry marked simulated; the served index does not change. | "Nothing is sent anywhere. If the proposal changed, the server answers 409 instead of recording an approval of something the analyst did not see." |

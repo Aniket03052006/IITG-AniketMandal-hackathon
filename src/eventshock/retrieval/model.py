@@ -1,5 +1,5 @@
 """The analogue contract. A retrieved analogue is RETRIEVED evidence about the past, never evidence about the new report, and its realised outcome is
-hindsight: it can be shown, it can never be an input to the severity score (unless the pre-registered test says so; see ``docs/ANALOGUES.md``)."""
+hindsight: it can be shown, it can never be an input to the severity score (unless the pre-registered test says so; see ``docs/notes/ANALOGUES.md``)."""
 
 from __future__ import annotations
 

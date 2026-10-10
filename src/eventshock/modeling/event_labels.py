@@ -1,6 +1,6 @@
 """Event-label pools: the in-domain training and evaluation data for event classification.
 
-Why this exists (docs/EVENT_MODEL.md): the only event labels in the repo were the Twitter-Financial-News *topics*, mapped to the
+Why this exists (docs/notes/EVENT_MODEL.md): the only event labels in the repo were the Twitter-Financial-News *topics*, mapped to the
 taxonomy by a crosswalk. A topic is not an event type; a classifier trained on it scores 0.89 macro-F1 on TFN and 0.16-0.30 on the
 gold set, cannot say "not an event", and has no data for GEOPOLITICAL or PRODUCT_OPERATIONS. So we label text from our own sources.
 
@@ -12,7 +12,7 @@ Design:
 * Nothing drawn here may overlap the gold set (by id or near-duplicate text) or the replay check set: the model must never have seen
   an evaluation row. ``check_disjoint`` re-verifies that on the finished table.
 * The sheets are blind (id, source, ticker, text). Strata, weights and weak labels live in the manifest, which an annotator does not open.
-* Labels are produced by an AI annotator (``ai:claude``) following docs/GOLD_LABELING_GUIDE.md and are never described as human truth.
+* Labels are produced by an AI annotator (``ai:claude``) following docs/notes/GOLD_LABELING_GUIDE.md and are never described as human truth.
 """
 
 from __future__ import annotations

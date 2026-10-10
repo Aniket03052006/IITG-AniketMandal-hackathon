@@ -60,7 +60,7 @@ def test_the_rules_fallback_is_measured_on_the_heldout_set_and_does_not_generali
     assert ev["n"] == 32 and ev["spearman"] > 0.2, "the fallback should still rank better than chance"
     assert ev["spearman"] < 0.70, (
         "if the held-out rules result now meets the dev bar, check that the held-out set did not leak into the vocabulary (data/benchmarks/README.md) "
-        "before celebrating, then update this test and docs/RISK_ASSESSMENT.md"
+        "before celebrating, then update this test and docs/notes/RISK_ASSESSMENT.md"
     )
 
 

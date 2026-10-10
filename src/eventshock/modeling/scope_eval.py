@@ -10,7 +10,7 @@ strength tier and by sector, with the confusion matrix.
 Honest limits, written into the output: these documents also name the company, so sector words co-occur with the name far
 more than they would in a text that names no company at all. The agreement is therefore an optimistic proxy for the
 no-company case, not a measurement of it. There is no labelled set of no-company documents to measure on.
-Nothing here changes the vocabulary; edits made after seeing this output are disclosed in docs/PROJECT_JOURNEY.md.
+Nothing here changes the vocabulary; edits made after seeing this output are disclosed in docs/notes/PROJECT_JOURNEY.md.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ LIMITS = [
     "Documents used here also name their company, so sector words co-occur with it more than in a text that names none: "
     "the agreement is an optimistic proxy for the no-company case, not a measurement of it.",
     "Titles are short (GDELT supplies a headline only), so the vocabulary often finds nothing; coverage is reported beside precision.",
-    "The vocabulary was written before this run. Any later edit is disclosed in docs/PROJECT_JOURNEY.md.",
+    "The vocabulary was written before this run. Any later edit is disclosed in docs/notes/PROJECT_JOURNEY.md.",
 ]
 
 

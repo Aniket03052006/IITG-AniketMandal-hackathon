@@ -157,7 +157,8 @@
 <text x="1296" y="1188" class="body">A “Why?” button behind every</text>
 <text x="1296" y="1219" class="body">number</text>
 <circle cx="1278" cy="1251" r="5" fill="#3f9a5c"/>
-<text x="1296" y="1259" class="body">What was known at each moment</text>
+<text x="1296" y="1259" class="body">A second page: a 15-stock index</text>
+<text x="1296" y="1290" class="body">whose weights follow sentiment</text>
 <rect x="1260" y="1344" width="480" height="104" rx="14" fill="#f3f6fb"/>
 <text x="1276" y="1372" class="exh">REAL EXAMPLE</text>
 <text x="1276" y="1400" class="ex">News in, portfolio consequence out, on</text>

@@ -1,6 +1,6 @@
 """The final lifecycle verdicts of the three served models, derived from their committed cards by the existing rules.
 
-If a card is retrained or edited, one of these fails and the change must be justified in docs/FINAL_MODEL_REPORT.md. Nothing
+If a card is retrained or edited, one of these fails and the change must be justified in docs/notes/FINAL_MODEL_REPORT.md. Nothing
 here promotes a model: the verdicts are the ones the pre-registered bars produce today.
 """
 from __future__ import annotations

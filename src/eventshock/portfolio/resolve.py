@@ -1,6 +1,6 @@
 """Turn what a user typed into the engine's ``Portfolio`` - deterministically, with every guess labelled and every defect named.
 
-Rules (all of them deliberate; see ``docs/PORTFOLIOS.md``):
+Rules (all of them deliberate; see ``docs/notes/PORTFOLIOS.md``):
 - Reject or label, never guess silently. An ERROR blocks saving; a WARNING is saved and shown; an INFO says what EventShock did.
 - WEIGHT mode: weights must sum to 100% (within a small rounding tolerance they are rescaled and the portfolio says so). Weights summing to
   less than 100% need an explicit "treat the remainder as cash"; more than 100% is always an error. Value = weight x total value.

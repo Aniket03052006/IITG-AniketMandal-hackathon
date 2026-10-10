@@ -29,7 +29,7 @@ It is a weak-but-honest v1: real model, real evaluation, explicit abstention, an
 
 - **The only event labels in the repo were Twitter Financial News topics**, mapped to our 8 classes by a crosswalk. A topic is not an event
   type. The audit's TF-IDF probe scored 0.89 macro-F1 on TFN's own test split and **0.16–0.30 on the gold set**. It cannot say "not an
-  event", and `GEOPOLITICAL` / `PRODUCT_OPERATIONS` had **no** trainable rows at all (`docs/MODELING_READINESS.md`).
+  event", and `GEOPOLITICAL` / `PRODUCT_OPERATIONS` had **no** trainable rows at all (`docs/notes/MODELING_READINESS.md`).
 - **Most real text is not an event**: the gold set labels 55–90% of our sources' documents `NONE` (population estimate 68% for history).
   The taxonomy contract could not express that.
 - **The gold set** (400 rows) is AI-annotated, frozen, evaluation-only. No human labels exist.
@@ -53,7 +53,7 @@ normalised text, C = 10, balanced weights, T = 0.84. Reasons: ~2.3k labels do no
 and pinned to wheels that already exist for Python 3.14.
 
 **Labels: an AI annotator, committed and disclosed.** There is no cheaper path to in-domain event labels. A Claude annotator (`ai:claude`,
-blind subagents, one batch of ≤ 200 rows each) labelled 3,270 documents by the project's `docs/GOLD_LABELING_GUIDE.md` rules (including
+blind subagents, one batch of ≤ 200 rows each) labelled 3,270 documents by the project's `docs/notes/GOLD_LABELING_GUIDE.md` rules (including
 "when unsure between a class and NONE choose NONE"). The labels, the batches' blind input and the answer files are committed
 (`data/event_labels/`); the model at runtime is purely classical, so replay stays offline and deterministic. **An LLM is not called by the
 product.** A second blind pass over 200 rows gives self-agreement 92% (κ 0.88): a bound on label *noise*, not on shared bias with the gold set

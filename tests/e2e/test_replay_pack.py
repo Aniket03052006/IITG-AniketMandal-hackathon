@@ -124,7 +124,7 @@ GOLDEN_COUNTS = dict(records_read=3455, quarantined=244, exact_duplicates_folded
                      entity_unknown=1148, syndicated=612, near_duplicates=59,
                      same_event=26)
 # Anchors for the stages the event model was added on top of. The pack grew when the four rate-limited GDELT queries were
-# re-fetched (3087 -> 3455 records), so these were re-pinned once; docs/PROJECT_JOURNEY.md records that the placeholder enricher
+# re-fetched (3087 -> 3455 records), so these were re-pinned once; docs/notes/PROJECT_JOURNEY.md records that the placeholder enricher
 # still reproduces its pre-refetch Stage-2 digest (b8074b43...) byte for byte on the old pack.
 SENTIMENT_ONLY_DIGEST = "1532effe5cb61634fdb36d9fd355363418e25cb986513a48c3eefd6efc08d905"
 PLACEHOLDER_DIGEST = "fbe26c47f94912cec4dd73ff85659bce308a3b8b78accc8fb7c25c07ef81fab1"
@@ -132,7 +132,7 @@ PLACEHOLDER_DIGEST = "fbe26c47f94912cec4dd73ff85659bce308a3b8b78accc8fb7c25c07ef
 
 def test_golden_replay():
     """Pins the shipped pack's output. A deliberate change to rules, configs, data or a model artifact must
-    update these values (and say why in docs/PROJECT_JOURNEY.md); an accidental one fails here."""
+    update these values (and say why in docs/notes/PROJECT_JOURNEY.md); an accidental one fails here."""
     got = RESULT.report.counts.model_dump()
     assert {k: got[k] for k in GOLDEN_COUNTS} == GOLDEN_COUNTS
     assert _legacy_digest(RESULT.signals) == GOLDEN_DIGEST
@@ -240,7 +240,7 @@ CONTEXT = MarketContext.load(SNAP.market_context_path())
 IMPACT_ENRICHER = ImpactModelEnricher(ENR, MODEL, EVENT, IMPACT_MODEL, CONTEXT)
 IMPACTED = run_snapshot(SNAP, CFG, ENR, IMPACT_ENRICHER)  # what the app serves
 
-# Re-pinned deliberately: impact became a trained model (docs/IMPACT_MODEL.md). The artifact, the market context and the
+# Re-pinned deliberately: impact became a trained model (docs/notes/IMPACT_MODEL.md). The artifact, the market context and the
 # replay pack are all hash-pinned, so this changes only when one of them is changed on purpose.
 GOLDEN_IMPACT_DIGEST = "aeedb4cd4ff0981d6c7236c547da00a4ac362594e5d6a6d268fc9b2c0512d3c8"
 GOLDEN_IMPACT_MIX = {("PARTIAL", "PLACEHOLDER_RULES", None): 1574, ("COMPLETE", "MODEL", "ISSUER"): 309,

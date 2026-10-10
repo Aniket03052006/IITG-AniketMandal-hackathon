@@ -79,7 +79,7 @@ log-loss falls by 0.237, pooled ECE rises 0.036 → 0.055 (+0.019, inside the pr
 * **Affect and lexicon channels did not earn their place.** The lexicon and the three affect classifiers added no measurable improvement on top of early fusion. On a 30-pair probe of finance-in-context polarity ("crushing earnings" against "a crushing debt load") the finance tone and FinBERT models get 93% right, the emotion model 90%, the shipped sentiment model 77% and the lexicon 60% (a diagnostic, never used to choose).
 * **Late fusion is weaker than early fusion**, and the strongest dense-only model (bge-base, +0.073) does not generalise across every set.
 
-**Integrated** as `hybrid-event-v2` (see `docs/EVENT_MODEL.md`): same temperature, same fixed 0.5 commit rule, same unreliable-class routing; torch is an optional dependency; impact-v1 keeps reading the TF-IDF event model's probabilities (it was trained on them) and the notices say so.
+**Integrated** as `hybrid-event-v2` (see `docs/notes/EVENT_MODEL.md`): same temperature, same fixed 0.5 commit rule, same unreliable-class routing; torch is an optional dependency; impact-v1 keeps reading the TF-IDF event model's probabilities (it was trained on them) and the notices say so.
 On the replay pack it classifies 41% of signals (TF-IDF: 32%), says "not an event" for 45% and abstains on 14% (29%). **It stays experimental:** gold v1, gold v2 and the replay check all fed the adoption statistic, so passing the TF-IDF model's old bar (gold history lower bound 0.417 against 0.332; replay check 0.655 against 0.251) is not independent evidence, and its card carries an explicit failing check for that.
 
 ## 6. The incremental-value study (impact)
@@ -185,7 +185,7 @@ share every input.
 
 **The 20 queued rows** (two blind AI passes gave different classes; strata: 12 random, 5 geopolitical-keyword, 1 each credit-keyword, earnings-keyword, filing): V0007, V0029, V0032, V0048, V0065, V0077, V0096, V0100, V0102, V0175, V0182, V0184, V0198, V0203, V0214, V0218, V0229, V0234, V0252, V0275. The other 280 agreed rows fed the adoption statistic; only these 20 took no part in it, and they are hard by construction.
 
-**Rule a human adjudicator follows** (`docs/GOLD_LABELING_GUIDE.md` applies unchanged): see only the text, not `label_a`/`label_b` or the model output when possible; label the *event the text reports*, not the price reaction; fill `human_event_class` with one of the eight classes or `NONE`; leave a row blank if undecidable, and say why in `human_notes`. A human label never overwrites `label_a`/`label_b`; the effective label is derived at scoring time and both originals stay in the file. Human labels are evaluation-only and must never enter training.
+**Rule a human adjudicator follows** (`docs/notes/GOLD_LABELING_GUIDE.md` applies unchanged): see only the text, not `label_a`/`label_b` or the model output when possible; label the *event the text reports*, not the price reaction; fill `human_event_class` with one of the eight classes or `NONE`; leave a row blank if undecidable, and say why in `human_notes`. A human label never overwrites `label_a`/`label_b`; the effective label is derived at scoring time and both originals stay in the file. Human labels are evaluation-only and must never enter training.
 
 **What would still have to be built before filling the file has any effect** (no code reads `adjudication_v2.csv` today):
 1. a loader that validates the vocabulary and records who labelled and when (the v2 queue has no such columns yet);

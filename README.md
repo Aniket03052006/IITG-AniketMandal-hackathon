@@ -5,7 +5,7 @@
 **Candidate Name:** Aniket Mandal  
 **College Email ID:** [aniket.mandal@iitg.ac.in] *(placeholder: confirm before submitting)*  
 **College / Campus:** Indian Institute of Technology Guwahati (IITG)  
-**Demo Video Link:** *TODO: add the YouTube (unlisted) link once recorded; the scripted path is [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)*  
+**Demo Video Link:** *TODO: add the YouTube (unlisted) link once recorded; the scripted path is [`docs/notes/DEMO_SCRIPT.md`](docs/notes/DEMO_SCRIPT.md)*  
 **Slide Deck Link (if hosted externally):** *TODO: `docs/presentation.pdf` is not created yet*  
 
 **EventShock — an event-driven financial risk engine and portfolio stress lab.** It reads financial text from more than one source,
@@ -17,7 +17,102 @@ synthetic wholesale-banking book under an explicit, deterministic stress scenari
 > invented positions). Scenario shocks are **assumptions**. The demo runs on a **frozen replay** of real public data, not a live feed
 > (a live switch exists and is OFF at every start). Details: [Limitations](#13-limitations).
 
-Contents: [1 Overview](#1-project-overview--problem-statement--approach) · [2 Architecture](#2-architecture--tech-stack) · [3 Dataset](#3-dataset-used) ·
+## Run it
+
+**You need:** [Python](https://www.python.org/downloads/) **3.14** (3.12+ is declared but untested), [Node.js](https://nodejs.org/) **22** (20+ expected; used once, to build the UI) and Git. No API key, account or network access is needed for the demo: it runs on the committed replay data in `data/`.
+
+The steps are the same everywhere: clone, create a virtual environment, install the Python packages, build the UI once, start the server. Only the shell syntax differs.
+
+<details open>
+<summary><b>macOS</b> (Terminal, zsh)</summary>
+
+```bash
+git clone https://github.com/Aniket03052006/IITG-AniketMandal-hackathon.git
+cd IITG-AniketMandal-hackathon
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+(cd web && npm ci && npm run build)      # build the UI once
+
+python src/main.py                        # then open http://127.0.0.1:8000
+```
+
+Python and Node are easiest to get with Homebrew: `brew install python@3.14 node@22`.
+</details>
+
+<details>
+<summary><b>Linux</b> (bash)</summary>
+
+```bash
+git clone https://github.com/Aniket03052006/IITG-AniketMandal-hackathon.git
+cd IITG-AniketMandal-hackathon
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+(cd web && npm ci && npm run build)
+
+python src/main.py                        # then open http://127.0.0.1:8000
+```
+
+On Debian/Ubuntu, `python3 -m venv` needs `sudo apt install python3-venv`.
+</details>
+
+<details>
+<summary><b>Windows</b> (PowerShell)</summary>
+
+```powershell
+git clone https://github.com/Aniket03052006/IITG-AniketMandal-hackathon.git
+cd IITG-AniketMandal-hackathon
+
+py -3.14 -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+
+cd web
+npm ci
+npm run build
+cd ..
+
+python src\main.py                        # then open http://127.0.0.1:8000
+```
+
+- If activation is blocked ("running scripts is disabled"), run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` once in that window, then activate again. In **Command Prompt** use `.venv\Scripts\activate.bat` instead.
+- `py -3.14` is the Python launcher that ships with the python.org installer; if you installed another version, use `py -3.12` (or `python -m venv .venv`).
+- `make` is not installed on Windows by default. Everything in this README works with the plain commands above; the `make ...` shortcuts are optional (install them with `winget install GnuWin32.Make`, or run the commands listed in the [`Makefile`](Makefile) by hand).
+- **WSL** also works: follow the Linux steps inside the Linux distribution and open the same URL in your Windows browser.
+</details>
+
+<details>
+<summary><b>With <code>uv</code> and <code>make</code></b> (macOS / Linux, or Windows with make)</summary>
+
+```bash
+make setup      # creates .venv, installs Python deps and the web deps
+make run        # builds the UI and serves UI + API on http://127.0.0.1:8000
+```
+</details>
+
+**Then:** open **http://127.0.0.1:8000**. The dashboard opens on the Desk; the three-minute guided path is [`docs/notes/DEMO_SCRIPT.md`](docs/notes/DEMO_SCRIPT.md). The interactive API docs are at `/api/docs`, and the Module A rebalancer is at `/rebalancer`. Press `Ctrl+C` in the terminal to stop the server.
+
+**Options and troubleshooting**
+
+| Situation | What to do |
+|---|---|
+| Port 8000 is busy | `python src/main.py --port 8010`, then open that port |
+| Reach it from another device on your network | `python src/main.py --host 0.0.0.0` (the app has no login; use a trusted network only) |
+| Skip Node entirely | Run `python src/main.py` without building the UI: the API still works at `/api/docs`, the dashboard is not served |
+| `pip install` fails on Python 3.12 / 3.13 | `requirements.txt` was resolved for Python 3.14 with binary wheels only; use 3.14, or `pip install -r requirements.in` to let pip resolve versions for your Python |
+| `python` not found (macOS / Linux) | Use `python3`; once the virtual environment is active, `python` works |
+| Command not found after a restart | Re-activate the environment (`source .venv/bin/activate` / `.venv\Scripts\Activate.ps1`) in each new terminal |
+| Hot-reload development (API :8000, Vite :5173) | `make dev` (macOS / Linux) |
+| Run the tests | `make test` or `python -m pytest` and `cd web && npm test` |
+
+The live feed and the language-model reader are **off by default**; the full list of run modes and environment variables is in [§4](#4-quickstart--installation).
+
+Contents: [Run it](#run-it) · [1 Overview](#1-project-overview--problem-statement--approach) · [2 Architecture](#2-architecture--tech-stack) · [3 Dataset](#3-dataset-used) ·
 [4 Quickstart](#4-quickstart--installation) · [5 Results](#5-key-results--domain-impact) · [6 ML](#6-ml-approach) · [7 Stress](#7-portfolio-stress-testing) ·
 [8 API](#8-api) · [9 Dashboard](#9-dashboard) · [10 Structure](#10-project-structure) · [11 Evaluation](#11-evaluation) · [12 Failures](#12-failure-handling) ·
 [13 Limitations](#13-limitations) · [14 Secrets](#14-security-and-secrets) · [15 Reproducibility](#15-reproducibility) · [16 Links](#16-submission-checklist-and-project-journey) · [17 Future](#17-future-work)
@@ -49,19 +144,19 @@ revaluation). The defensible contribution is the **complete, honest chain**: *ev
 stress*, with an availability class on every input (look-ahead is refused), pre-registered acceptance bars that were never edited after
 results, abstention instead of invented numbers, and four kinds of number — model prediction, historical observation, scenario
 assumption, realised outcome — that are never blurred. The pain-point-by-pain-point rationale is in
-[`docs/FEATURES_AND_PAIN_POINTS.md`](docs/FEATURES_AND_PAIN_POINTS.md).
+[`docs/notes/FEATURES_AND_PAIN_POINTS.md`](docs/notes/FEATURES_AND_PAIN_POINTS.md).
 
 ## 2. Architecture & Tech Stack
 
 ![EventShock architecture](docs/architecture.png)
 
-*([`docs/architecture.png`](docs/architecture.png), 2400 × 1420; regenerate with `python scripts/make_architecture_diagram.py --png`.)*
+*([`docs/architecture.png`](docs/architecture.png), 2400 × 1600, Stage 16 with the Module A lane; regenerate with `python scripts/make_architecture_diagram.py --png`.)*
 
 **New to the technology?** Start with the plain-language version, [`docs/architecture_simple.png`](docs/architecture_simple.png): the same flow in seven steps, with one real headline followed through to the portfolio loss.
 
 ![EventShock in seven plain steps](docs/architecture_simple.png)
 
-**Every component, module by module:** [`docs/architecture_detailed.png`](docs/architecture_detailed.png) (3600 × 2578; regenerate with `python scripts/make_detailed_diagram.py --png`) shows ingestion, pipeline, models, signal core, side-cars, stress and portfolio, API routers and dashboard with the real module names.
+**Every component, module by module:** [`docs/architecture_detailed.png`](docs/architecture_detailed.png) (3600 × 2644; regenerate with `python scripts/make_detailed_diagram.py --png`) shows ingestion, pipeline, models, signal core, side-cars, stress and portfolio, API routers and dashboard with the real module names.
 
 ```
 sources ─► adapters ─► normalise/validate ─► entity resolution ─► dedup ─► [sentiment · event · scope · novelty] ─► impact post-pass
@@ -87,7 +182,7 @@ The authoritative description, with contracts, module boundaries, failure behavi
 | Storage | hash-pinned JSON/JSONL/NPZ files, `joblib` artifacts, in-memory repositories, git-ignored local state in `data/live/` | no SQL/DuckDB/Parquet in the MVP; nothing needs persistence beyond files |
 | Config | YAML in `configs/`, validated by strict Pydantic models, `EVENTSHOCK_*` env | product rules live outside code; a bad config stops start-up |
 | Frontend | **React 19 + Vite + TypeScript + Tailwind v4 + TanStack Query** | product-grade, accessible, light/dark UI; no charting library (CSS/SVG) |
-| Tests | pytest (≈ 139 test files), Vitest + Testing Library (38 test files) | contracts, formulas, golden replay, leakage invariants, UI states |
+| Tests | pytest (2,368 tests in 152 files), Vitest + Testing Library (782 tests in 42 files) | contracts, formulas, golden replay, leakage invariants, UI states |
 
 ### Key components
 
@@ -106,7 +201,7 @@ The authoritative description, with contracts, module boundaries, failure behavi
 | Assessment (`assessment/`, `llm/`) | explainable severity → four anchored answers, fixed matrix, two bounded data adjustments → transparent triage → `RiskAssessment` (severity 1–10, scorecard, provenance, sensitivity range) |
 | Scenario mapper (`stress/scenarios.py`, `propagation/scenario_gen.py`) | pick the shocks → catalog templates (8 single-factor + 4 multi-factor) or a generated, gated scenario → shocks are assumptions, labelled → `Scenario` or `SCENARIO UNAVAILABLE` with the failed gate |
 | Stress engine (`stress/engine.py`) | revalue the book → pure functions per asset class → deterministic → `StressResult` with a formula per position |
-| FastAPI (`api/`) | expose everything → thin routers over services → one contract for UI and other consumers → 85 operations under `/api` |
+| FastAPI (`api/`) | expose everything → thin routers over services → one contract for UI and other consumers → 93 operations under `/api` |
 | Storage | frozen replay pack, model artifacts, configs, local state → files → reproducible clone-and-run → see [ARCHITECTURE §Storage](docs/ARCHITECTURE.md#5-storage) |
 | Dashboard (`web/`) | tell the story from news to book → React → see [§9](#9-dashboard) |
 | Replay mode | the same inputs give the same numbers → clock pinned to 2026-10-01 12:00 UTC, content-derived ids, golden digests → a demo that cannot drift → `output_digest` `078a70ae…` |
@@ -121,11 +216,11 @@ questions and disagree (this is visible in the UI and is deliberate). Severity �
 scaled for this event; the engine re-values the 103-position synthetic book from
 **$860.1M to $822.8M (−$37.3M, −4.33 %)** and attributes the loss to equities, bonds, derivatives and loans. Only **one** independent
 source reported it, so the evidence tier is *insufficient*, and the dashboard says so next to the loss. The numbers are reproduced in
-[§5](#5-key-results--domain-impact) from the running server (see `docs/SUBMISSION_CHECKLIST.md`).
+[§5](#5-key-results--domain-impact) from the running server (see `docs/notes/SUBMISSION_CHECKLIST.md`).
 
 ## 3. Dataset Used
 
-No proprietary S&P Global or Crisil data is used. Licence notes and removal procedures: [`docs/DATA_LICENSES.md`](docs/DATA_LICENSES.md).
+No proprietary S&P Global or Crisil data is used. Licence notes and removal procedures: [`docs/notes/DATA_LICENSES.md`](docs/notes/DATA_LICENSES.md).
 
 **Sources actually used**
 
@@ -140,7 +235,7 @@ No proprietary S&P Global or Crisil data is used. Licence notes and removal proc
 | Kaggle card transactions (`computingvictor`) | 13.3M retail card transactions | **only the merchant-category spend mix** that tilts the synthetic book by sector | aggregate only (`sector_mix.json`) | Apache-2.0 |
 | Kalshi public markets | prediction-market prices | *observation* beside an event, never an input to any score | captured snapshot (default); live opt-in | public API, no key |
 
-Other Kaggle/HF datasets are used only for local training or evaluation and are never committed (listed in `DATA_LICENSES.md`). Not obtained:
+Other Kaggle/HF datasets are used only for local training or evaluation and are never committed (listed in `notes/DATA_LICENSES.md`). Not obtained:
 NewsAPI, Alpha Vantage (need personal keys) and Salad Money Open Banking (not an open download).
 
 **Committed data** (the `data/` folder is what the prototype runs on): `data/replay/` (21 MB, hash-pinned snapshot with
@@ -178,7 +273,7 @@ on `http://127.0.0.1:8000`). Without the UI build, `python src/main.py` still se
 |---|---|
 | Run backend + dashboard (one process) | `python src/main.py` or `make run` |
 | Hot-reload development (API :8000, Vite :5173) | `make dev` |
-| Replay / demo path (default; no network) | `make run`, then follow [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) (3 min 40 s) |
+| Replay / demo path (default; no network) | `make run`, then follow [`docs/notes/DEMO_SCRIPT.md`](docs/notes/DEMO_SCRIPT.md) (3 min 40 s) |
 | Serve the Stage-1 fictional fixtures instead | `EVENTSHOCK_PROFILE=demo make run` |
 | Language model reads new text (needs a key; sends pasted text to the provider, and says so) | `make run-llm` |
 | Live feed (network; GDELT, optionally SEC filings) | the Live switch in the UI, or `make run-live`; **off by default** |
@@ -187,7 +282,7 @@ on `http://127.0.0.1:8000`). Without the UI build, `python src/main.py` still se
 | Lint / types | `make lint` (ruff + `tsc`) |
 | Verify the frozen model, config, data hashes | `make freeze-check` |
 | Smoke test the real server (API, model ids/hashes, stress, UI; ~2 min) | `make smoke` |
-| Retrain / re-evaluate | `make train-sentiment-v2`, `make train-event-hybrid`, `make train-impact-v2` (long; need local data, see [`docs/FINAL_MODEL_REPORT.md`](docs/FINAL_MODEL_REPORT.md)) |
+| Retrain / re-evaluate | `make train-sentiment-v2`, `make train-event-hybrid`, `make train-impact-v2` (long; need local data, see [`docs/notes/FINAL_MODEL_REPORT.md`](docs/notes/FINAL_MODEL_REPORT.md)) |
 
 All `make` targets are listed in the [`Makefile`](Makefile). **Environment variables:** copy `.env.example` to `.env` (git-ignored). Every key
 is optional; defaults work for the demo. Provider keys (`GROQ_API_KEY`, `ANTHROPIC_API_KEY`) and `EVENTSHOCK_SEC_CONTACT` are read from the
@@ -206,6 +301,7 @@ severity ≥ 7 and so suggest a scenario):
 - Honest failure handling: partial signals are never given invented scores; below-trigger events report *not triggered*; unresolved
   entities receive only market-wide shocks; positions a scenario cannot reach are listed as uncovered, never as safe.
 - Deterministic replay: the same inputs give the same run id and numbers, pinned by golden tests and a served-output digest.
+- **Module A, the tactical index rebalancer** (`/rebalancer`): 15 mock stocks, equal-weight benchmark, weights tilted by decayed, one-source-one-vote sentiment inside per-stock bounds and a 4 % turnover cap, a self-check on every cycle and a named reason for every stock. Honest result: +0.19 % against equal weight over 10 sessions, at the 82nd percentile of a 200-shuffle placebo, i.e. within chance; no skill is claimed (`docs/notes/REBALANCER.md`).
 - Analyst tooling on top of the signal: what changed since the last cycle (**Today**), a rule-queued **Review** page, watchlists,
   a scenario lab with reverse stress, an executive brief, and a **Live** switch.
 
@@ -234,7 +330,7 @@ return the severity 8/10 scorecard and a `COMPLETED` run with the before/after s
 ## 6. ML Approach
 
 Every number in this section is read from a committed model card or `docs/evidence/*.json`; `tests/unit/test_final_report.py` fails if a
-quoted figure stops matching its source. The consolidated table is [`docs/FINAL_MODEL_REPORT.md`](docs/FINAL_MODEL_REPORT.md).
+quoted figure stops matching its source. The consolidated table is [`docs/notes/FINAL_MODEL_REPORT.md`](docs/notes/FINAL_MODEL_REPORT.md).
 
 ### Sentiment — `tfidf-lr-v2`
 Input: the headline or post text only. Pipeline: TF-IDF (word 1–2-grams + character 2–5-grams) → class-balanced logistic regression →
@@ -242,7 +338,7 @@ temperature scaling. Output: P(negative / neutral / positive) and `score = P(pos
 human-labelled finance tweets. Same-source test macro-F1 is **0.778** (v1, 95 % CI [0.749, 0.805]); on the out-of-domain Financial
 PhraseBank v2 improves macro-F1 from 0.466 to 0.525, and on news-style gold sets it stays weak (≈ 0.44) with poor calibration. Sentiment
 never moves a stress number (tested). FinBERT variants were **probed, not served**: on a 30-pair finance-polarity probe they got 93 % right against 77 % for this model
-(a diagnostic, never used to choose; no FinBERT sentiment head was compared with it on a labelled benchmark, so that is the most obvious open improvement). Details: [`docs/SENTIMENT_MODEL.md`](docs/SENTIMENT_MODEL.md).
+(a diagnostic, never used to choose; no FinBERT sentiment head was compared with it on a labelled benchmark, so that is the most obvious open improvement). Details: [`docs/notes/SENTIMENT_MODEL.md`](docs/notes/SENTIMENT_MODEL.md).
 
 ### Event classification — `hybrid-event-v2`
 Taxonomy: the eight classes above plus `NONE` ("not a market event"); the model abstains to `UNCERTAIN` below P = 0.5. TF-IDF features and
@@ -250,7 +346,7 @@ a frozen e5-large vector feed one 9-way logistic regression with temperature sca
 Served macro-F1 (an abstention counts as wrong): **0.54** [0.42, 0.66] on gold v1, **0.60** [0.51, 0.67] on gold v2 and **0.78** on the
 replay check, against 0.33 / 0.38 / 0.25 for the keyword rules. It passes three of four pre-registered checks and **fails the fourth**
 (an evaluation set that took no part in adopting it; human adjudication was not done), so it is *experimental*. Weak classes remain
-(Geopolitical F1 ≈ 0.28 on one set). Details: [`docs/EVENT_MODEL.md`](docs/EVENT_MODEL.md).
+(Geopolitical F1 ≈ 0.28 on one set). Details: [`docs/notes/EVENT_MODEL.md`](docs/notes/EVENT_MODEL.md).
 
 ### Impact — `impact-v2` (experimental)
 - **What it predicts:** the *size* (not the direction) of the market's reaction over the following two sessions, as
@@ -270,7 +366,7 @@ replay check, against 0.33 / 0.38 / 0.25 for the keyword rules. It passes three 
   incremental-value study attributes the skill to the **calendar and the volatility regime**; text-model outputs add none, and a
   pre-event placebo window scores *higher* than the real one. Hence **experimental, not validated**.
 - **What the score does not mean:** not a forecast of direction, not a probability of loss, not causal, and not evidence that the model
-  "read" the headline. Details: [`docs/IMPACT_MODEL.md`](docs/IMPACT_MODEL.md), [`docs/EVIDENCE_V2.md`](docs/EVIDENCE_V2.md).
+  "read" the headline. Details: [`docs/notes/IMPACT_MODEL.md`](docs/notes/IMPACT_MODEL.md), [`docs/notes/EVIDENCE_V2.md`](docs/notes/EVIDENCE_V2.md).
 
 ### Severity — `severity-v2` (the headline number and the stress trigger)
 A transparent scorecard, not a learned model: four anchored answers (**intensity**, **reach**, **certainty**, **direction**) → a fixed matrix
@@ -279,12 +375,12 @@ model confidence, outlet count and source reliability are not inputs. Each answe
 may move one answer by at most one step with a verbatim quote, and the app works identically without a key (labelled *rule-based*). The
 language model **reads**, code **decides**. Against realised market moves the scale is `HEURISTIC_UNCALIBRATED` (2025 test +0.007
 [−0.025, +0.039]), shown on the Evidence page's *Outcome check* tab: it is a triage scale, not an outcome-calibrated one. The threshold of
-7 is a **product routing rule**. Details: [`docs/RISK_ASSESSMENT.md`](docs/RISK_ASSESSMENT.md), [`docs/FINANCE_THEORY.md`](docs/FINANCE_THEORY.md).
+7 is a **product routing rule**. Details: [`docs/notes/RISK_ASSESSMENT.md`](docs/notes/RISK_ASSESSMENT.md), [`docs/notes/FINANCE_THEORY.md`](docs/notes/FINANCE_THEORY.md).
 
 ## 7. Portfolio Stress Testing
 
 The default book is synthetic and read-only; a personal portfolio is used only when a request carries `portfolio_id`
-([`docs/PORTFOLIOS.md`](docs/PORTFOLIOS.md)). The engine is **deterministic**: no randomness, no model, and shock sizes are
+([`docs/notes/PORTFOLIOS.md`](docs/notes/PORTFOLIOS.md)). The engine is **deterministic**: no randomness, no model, and shock sizes are
 **assumptions, not forecasts**. A read-only *Wholesale Book v2* preset adds ratings, spreads, convexity and counterparty data (synthetic
 illustrative values).
 
@@ -308,7 +404,7 @@ only where a position carries that exposure, and not a regulatory-grade (FRTB/CC
 
 ## 8. API
 
-Base path `/api`; interactive docs at `/api/docs`, schema at `/api/openapi.json`; **85 operations** (the table lists the core ones; the full
+Base path `/api`; interactive docs at `/api/docs`, schema at `/api/openapi.json`; **93 operations** (the table lists the core ones; the full
 list is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#17-api-reference)). A well-formed stress request always returns 200 and `status`
 says whether numbers were produced; 404 for unknown ids, 422 for invalid input.
 
@@ -333,10 +429,12 @@ says whether numbers were produced; 404 for unknown ids, 422 for invalid input.
 | GET/PUT/POST | `/api/live/{status,state,refresh}` | live switch | `{enabled, kind}` | status |
 | GET | `/api/monitor/{digest,changes,cycles,status}` | what changed, ranked | – | digest |
 | GET | `/api/review/queue` · POST `/api/review/decisions` | analyst review queue | decision | queue / decision |
+| GET | `/api/rebalancer/{overview,timeline,backtest,lab,ledger}` · `/cycles/{i}` · `/cycles/{i}/decisions` | Module A: index weights over time, trade decisions, back-test, strategy lab, simulated ledger | `tilt?`, `half_life_hours?`, `max_turnover?`, `strategy?`, `include_live?` | weights / decisions / views |
+| POST | `/api/rebalancer/proposals/decision` | approve, partially approve or reject a proposed rebalance (simulated; 409 if the proposal changed) | `{proposal_sha256, …}` | ledger entry |
 
 ## 9. Dashboard
 
-Eight screens, light theme by default with a dark toggle, phone to desktop; screenshots of every screen are in
+Nine screens, light theme by default with a dark toggle, phone to desktop; screenshots of every screen are in
 [`docs/screenshots/`](docs/screenshots/README.md).
 
 | Screen | What it shows |
@@ -348,6 +446,7 @@ Eight screens, light theme by default with a dark toggle, phone to desktop; scre
 | **Event** `/events/{id}` | one event's full story: understanding, severity (*Why?*, *Show inputs*, *How calculated?*), evidence and timeline of what was known when, propagation, contagion map, stress |
 | **Stress Lab** `/stress` | scenario cards, before → after, value bridge, loss heatmap, drill-down, what-if severity, scenario lab and reverse stress |
 | **Portfolios** `/portfolios` | your own holdings, exposure heatmap, comparison, watchlists |
+| **Rebalancer** `/rebalancer` | Module A: a mock 15-stock index whose weights follow sentiment: stacked weights over time, trade decisions with the rule that bound each stock, strategy lab against equal weight and a placebo, simulated approval ledger |
 | **Evidence** `/evidence` | "how much evidence supports EventShock?": verdict tiles, pre-registered checks, outcome check, how it is built |
 
 ## 10. Project Structure
@@ -373,9 +472,9 @@ Eight screens, light theme by default with a dark toggle, phone to desktop; scre
 ├── configs/                       # 29 YAML files: taxonomy, scenarios, thresholds, model and evidence pre-registrations
 ├── data/                          # replay/ (frozen, hash-pinned), fixtures/, events/, portfolio/, benchmarks/, gold*/, live/sample_capture.jsonl
 ├── models/                        # sentiment/ event/ impact/: joblib artifacts + model_card.json
-├── tests/                         # unit/ (105 files), integration/ (19), e2e/ (15)
+├── tests/                         # unit/ (116 files), integration/ (20), e2e/ (16)
 ├── scripts/                       # data builders, freeze manifest, smoke test, severity benchmark, diagram generator
-└── docs/                          # ARCHITECTURE.md, architecture.png, PROJECT_JOURNEY.md, SUBMISSION_CHECKLIST.md, model reports, screenshots/
+└── docs/                          # ARCHITECTURE.md, architecture.png, notes/PROJECT_JOURNEY.md, notes/SUBMISSION_CHECKLIST.md, model reports, screenshots/
 ```
 
 ## 11. Evaluation
@@ -383,15 +482,15 @@ Eight screens, light theme by default with a dark toggle, phone to desktop; scre
 | What | Result | Source |
 |---|---|---|
 | Sentiment (v1, same-source test, n = 1,169) | macro-F1 0.778 [0.749, 0.805] vs 0.528 for the lexicon rule it replaced | `models/sentiment/*/model_card.json` |
-| Sentiment (v2, Financial PhraseBank) | macro-F1 0.466 → 0.525; positive recall still 0.20 | [`docs/SENTIMENT_MODEL.md`](docs/SENTIMENT_MODEL.md) |
-| Event (served, abstention counts as wrong) | 0.54 / 0.60 / 0.78 on gold v1 / gold v2 / replay check; **fails the independent-set check** | [`docs/EVENT_MODEL.md`](docs/EVENT_MODEL.md), `docs/FINAL_MODEL_REPORT.md` |
-| Impact (issuer, 9,897 held-out episodes) | Spearman +0.168 [+0.148, +0.187]; passes 9 of 11 pre-registered checks, **fails calibration coverage (C5) and the placebo check (C7)** | `docs/FINAL_MODEL_REPORT.md`, `docs/evidence/impact_study.json` |
+| Sentiment (v2, Financial PhraseBank) | macro-F1 0.466 → 0.525; positive recall still 0.20 | [`docs/notes/SENTIMENT_MODEL.md`](docs/notes/SENTIMENT_MODEL.md) |
+| Event (served, abstention counts as wrong) | 0.54 / 0.60 / 0.78 on gold v1 / gold v2 / replay check; **fails the independent-set check** | [`docs/notes/EVENT_MODEL.md`](docs/notes/EVENT_MODEL.md), `docs/notes/FINAL_MODEL_REPORT.md` |
+| Impact (issuer, 9,897 held-out episodes) | Spearman +0.168 [+0.148, +0.187]; passes 9 of 11 pre-registered checks, **fails calibration coverage (C5) and the placebo check (C7)** | `docs/notes/FINAL_MODEL_REPORT.md`, `docs/evidence/impact_study.json` |
 | Severity vs realised moves | `HEURISTIC_UNCALIBRATED` (+0.007 [−0.025, +0.039], 2025 test) | `docs/evidence/severity_validity.json` |
-| Severity benchmark (rules-only fallback, held-out 32 headlines) | Spearman 0.39 (weak, documented) | [`docs/RISK_ASSESSMENT.md`](docs/RISK_ASSESSMENT.md) |
-| Analogue retrieval (e5 vs TF-IDF, P@5) | 0.504 vs 0.443; adds no information about the realised move | [`docs/ANALOGUES.md`](docs/ANALOGUES.md) |
+| Severity benchmark (rules-only fallback, held-out 32 headlines) | Spearman 0.39 (weak, documented) | [`docs/notes/RISK_ASSESSMENT.md`](docs/notes/RISK_ASSESSMENT.md) |
+| Analogue retrieval (e5 vs TF-IDF, P@5) | 0.504 vs 0.443; adds no information about the realised move | [`docs/notes/ANALOGUES.md`](docs/notes/ANALOGUES.md) |
 | Stress engine | per-class formulas checked against hand-computed values; positions reconcile to the P&L; golden run id pinned | `tests/unit/test_stress_*.py`, `tests/e2e/test_replay_golden.py` |
 | Replay reliability | served output digest `078a70ae…` reproduced; `make freeze-check` verifies model, config, data and evidence hashes | `docs/freeze_manifest.json` |
-| System metrics | see [`docs/SUBMISSION_CHECKLIST.md`](docs/SUBMISSION_CHECKLIST.md#measured-in-this-repository) | measured in the final validation pass |
+| System metrics | see [`docs/notes/SUBMISSION_CHECKLIST.md`](docs/notes/SUBMISSION_CHECKLIST.md#measured-in-this-repository) | measured in the final validation pass |
 
 An LLM arm of the severity validity study and human adjudication of the event labels are **pending** (provider quota; skipped by decision).
 
@@ -420,6 +519,7 @@ An LLM arm of the severity validity study and human adjudication of the event la
   titles-only sample; the earnings calendar is inferred from past filings.
 - **Domain shift**: sentiment is trained on tweets and is weak on news headlines; the entity resolver is a 34-issuer dictionary.
 - **Replay, not live**: the demo is a frozen 14-day window; live GDELT is rate-limited from some networks and was not observed end to end.
+- **Rebalancer (Module A)**: a 14-day window and 10 trading sessions, an equal-weight benchmark (no market-cap data in the repository), a headline naming several companies can credit the wrong one; the back-test illustrates the mechanics and is not evidence of skill.
 - **Simplified stress**: first-order revaluation; shock sizes, transmission weights and thresholds are unvalidated judgement priors; no curve
   twist, liquidity factor or regulatory-grade modelling.
 - **Prototype scope**: no authentication, in-memory state rebuilt at start-up, single process. No autonomous trading or investment decisions.
@@ -440,9 +540,9 @@ and checks the served model ids and artifact hashes.
 
 ## 16. Submission Checklist and Project Journey
 
-- Requirement-by-requirement status (with open TODOs): [`docs/SUBMISSION_CHECKLIST.md`](docs/SUBMISSION_CHECKLIST.md)
-- What was built, what broke, how it was fixed, stage by stage: [`docs/PROJECT_JOURNEY.md`](docs/PROJECT_JOURNEY.md)
-- Authoritative architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Demo script: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) · Final model report: [`docs/FINAL_MODEL_REPORT.md`](docs/FINAL_MODEL_REPORT.md)
+- Requirement-by-requirement status (with open TODOs): [`docs/notes/SUBMISSION_CHECKLIST.md`](docs/notes/SUBMISSION_CHECKLIST.md)
+- What was built, what broke, how it was fixed, stage by stage: [`docs/notes/PROJECT_JOURNEY.md`](docs/notes/PROJECT_JOURNEY.md)
+- Authoritative architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Demo script: [`docs/notes/DEMO_SCRIPT.md`](docs/notes/DEMO_SCRIPT.md) · Final model report: [`docs/notes/FINAL_MODEL_REPORT.md`](docs/notes/FINAL_MODEL_REPORT.md)
 
 ## 17. Future Work
 

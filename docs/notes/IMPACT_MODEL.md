@@ -4,7 +4,7 @@ Stage 3c, 2026-10-03. Every number below is read from `models/impact/impact-v1/m
 `docs/evidence/embedding_experiment.json` (the representation experiment), or from `data/modeling/impact_dataset.json` (the table's manifest).
 
 > **Stage 4 update (2026-10-03): the product now serves `impact-v2`.** This document describes impact-v1 (trained on 2015-2022, 347 held-out issuer episodes), which remains in the repository as the reference and the fallback.
-> impact-v2 (`models/impact/impact-v2/`, `docs/EVIDENCE_V2.md` section 8) adds the event calendar (earnings timing known in advance, filings published at event time), is trained on 2015-2023 and tested on 2024-2025
+> impact-v2 (`models/impact/impact-v2/`, `docs/notes/EVIDENCE_V2.md` section 8) adds the event calendar (earnings timing known in advance, filings published at event time), is trained on 2015-2023 and tested on 2024-2025
 > (9,897 held-out issuer episodes), beats v1 on the issuer scope by a paired interval (error −0.0036 [−0.0052, −0.0018]; 2026 news −0.0047 [−0.0080, −0.0016]) and is slightly *worse* in error on the market scope (+0.0042 [+0.0013, +0.0070], rank skill unchanged).
 > It is still **experimental**: C5 (interval coverage) and C7 (placebo) fail for issuers, and the main finding of v1 stands: most of the skill is volatility regime. What is new and measured is that the calendar is a real event-specific signal and the text-model outputs add nothing once it is known.
 > The v1 sections below are unchanged and still describe how the model class is built, calibrated and evaluated.
@@ -38,7 +38,7 @@ acceptance checks fail on the issuer scope, and one cannot be evaluated; nothing
 
 ## 3. Target (decided, not assumed)
 
-`docs/MODELING_READINESS.md` has the evidence; the decisions, restated:
+`docs/notes/MODELING_READINESS.md` has the evidence; the decisions, restated:
 
 * **Event time `s0`** is the first session whose close is after publication (America/New_York, DST-aware). Weekends, holidays and after-close reports go to the next session; date-only stamps use that date;
   GDELT first-seen stamps are flagged. `pipeline/market_context.py::anchor_session` is the single implementation, used by training and serving (a test pins them equal).

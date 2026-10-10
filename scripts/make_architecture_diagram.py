@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-W, H = 2400, 1420
+W, H = 2400, 1600
 
 # lane colours: (fill, stroke, label)
 LANE = {
@@ -27,6 +27,7 @@ LANE = {
     "api": ("#e8f1fb", "#3b78c9", "API"),
     "str": ("#fbeaea", "#c95a5a", "STRESS"),
     "ui": ("#eaf6ee", "#3f9a5c", "UI"),
+    "reb": ("#e7f4f8", "#3a97ad", "MODULE A: TACTICAL INDEX REBALANCER (Stage 16; a derived side-car, nothing imports it)"),
 }
 
 out: list[str] = []
@@ -84,7 +85,7 @@ def build() -> str:
     out.append('<text x="30" y="58" class="h1">EventShock: architecture</text>')
     out.append(
         '<text x="30" y="94" class="h2">news + social + filings → trained NLP risk signal → deterministic, portfolio-aware stress test → dashboard. '
-        "Numbers 1-8 give the order a report takes through the pipeline; arrows between lanes show data flow.</text>"
+        "Module B (stress) and Module A (index rebalancer) both read the signal. Numbers 1-8: the order a report takes.</text>"
     )
 
     # ===== row 1: the signal pipeline (y 120..730) =====
@@ -130,14 +131,21 @@ def build() -> str:
     box(50, 1081, 810, 92, "Personal portfolios (opt-in)", ["portfolio/: resolver, atomic file store, exposure chain, comparison;", "used only when a request carries portfolio_id; default stays the synthetic book"], "str")
     box(50, 1187, 810, 92, "Honest abstention", ["no scenario reaches a position -> NOT_APPLICABLE, never a zero P&L;", "uncovered exposure is listed, not treated as safe"], "str")
 
-    box(920, 805, 860, 130, "FastAPI /api: 85 operations, OpenAPI at /api/docs", ["signals · assessment · intelligence · propagation · analogues · scenarios · stress-test ·", "portfolios · monitor · watchlists · lab · review · evidence · models · live · analyze", "typed contracts shared with the UI (make types)"], "api", bold=True)
+    box(920, 805, 860, 130, "FastAPI /api: 93 operations, OpenAPI at /api/docs", ["signals · assessment · intelligence · propagation · analogues · scenarios · stress-test ·", "portfolios · rebalancer · monitor · watchlists · lab · review · evidence · models · live", "typed contracts shared with the UI (make types)"], "api", bold=True)
     box(920, 949, 860, 118, "Stress service: the only door to the engine", ["trigger rule severity >= 7 (a product rule), severity scaling clamp(I/7, 0.5, 1.5),", "run id = hash of inputs (same request -> same result), audit block with the origin of the score"], "api")
     box(920, 1081, 860, 92, "Error contract", ["valid stress request -> 200 + status (COMPLETED, NOT_TRIGGERED, NO_SCENARIO,", "NOT_APPLICABLE, UNAVAILABLE); 404 unknown id; 422 invalid input"], "api")
     box(920, 1187, 860, 92, "Configuration and secrets", ["configs/*.yaml validated by strict Pydantic models; EVENTSHOCK_* env; keys only from the", "environment or the git-ignored .env; the language model is OFF unless EVENTSHOCK_LLM=1"], "api")
 
-    box(1840, 805, 510, 160, "React 19 + Vite + TypeScript", ["Desk: wire traced from news to book", "Today · Review · Analyze · Event", "Stress Lab · Portfolios · Evidence", "light/dark, phone to desktop"], "ui", bold=True)
-    box(1840, 979, 510, 200, "What it shows", ["portfolio value before vs after,", "value bridge, loss heatmap, contagion", "map; sentiment, event class, severity", "with Why? and provenance; timeline of", "what was known when; model evidence"], "ui")
+    box(1840, 805, 510, 160, "React 19 + Vite + TypeScript", ["Desk: wire traced from news to book", "Today · Review · Analyze · Event", "Stress Lab · Portfolios · Evidence", "Rebalancer · light/dark, phone to desktop"], "ui", bold=True)
+    box(1840, 979, 510, 200, "What it shows", ["portfolio value before vs after,", "value bridge, loss heatmap, contagion", "map; index weights over time; severity", "with Why? and provenance; timeline of", "what was known when; model evidence"], "ui")
     box(1840, 1193, 510, 86, "Served by the same process", ["python src/main.py (API + built web/dist)"], "ui")
+
+    # ===== row 3: Module A (y 1310..1500) =====
+    lane(30, 1310, 2340, 190, "reb")
+    box(50, 1355, 540, 120, "Sentiment to weight", ["15 stocks, equal-weight benchmark; one source, one vote;", "36 h decay, shrunk score S in [-1, 1], exponential tilt,", "bounds, 4 % turnover cap; self-checked every cycle"], "reb", bold=True)
+    box(610, 1355, 540, 120, "Trade decisions and strategies", ["constraint ladder names the rule that bound each stock;", "closed registry: sentiment (baseline), sentiment_risk", "(sector, volatility, liquidity), sentiment_impact"], "reb")
+    box(1170, 1355, 540, 120, "Back-test, lab and simulated ledger", ["make rebalancer-backtest / -lab: 5 bp cost, placebo;", "approval ledger: append-only, hash-chained, 409 on a", "changed proposal; nothing is sent anywhere"], "reb")
+    box(1730, 1355, 620, 120, "Honest result (10 sessions)", ["+0.19 % vs equal weight, 82nd placebo percentile: within chance,", "so no skill is claimed. Reads only sentiment.score of the", "RiskSignal; severity and impact are not inputs."], "reb")
 
     # ===== arrows =====
     # sources -> ingestion lanes, ingestion -> ML, ML <-> storage
@@ -153,12 +161,13 @@ def build() -> str:
     line([(920, 1020), (880, 1020)], both=True)
     line([(1800, 1020), (1820, 1020)])
     line([(450, 870), (470, 870)])
+    line([(1350, 1294), (1350, 1308)], both=True, label="/api/rebalancer", lx=1366, ly=1306)
 
     out.append(
-        '<text x="30" y="1325" class="h2">Cross-cutting: fail loudly (a modified artifact or snapshot file stops start-up; no silent fallback) · deterministic replay (fixed clock, content-derived ids, pinned digests) ·</text>'
+        '<text x="30" y="1535" class="h2">Cross-cutting: fail loudly (a modified artifact or snapshot file stops start-up; no silent fallback) · deterministic replay (fixed clock, content-derived ids, pinned digests) ·</text>'
     )
     out.append(
-        '<text x="30" y="1355" class="h2">four kinds of number never blurred (model prediction, historical observation, scenario assumption, realised outcome).</text>'
+        '<text x="30" y="1565" class="h2">four kinds of number never blurred (model prediction, historical observation, scenario assumption, realised outcome).</text>'
     )
     out.append("</svg>")
     return "\n".join(out)

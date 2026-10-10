@@ -1,8 +1,8 @@
 # Features and the pain points they answer
 
-> **Status (2026-10-08, Stage 15).** Sections 1-9 were written for the Stage 5 interface and have been corrected where later stages changed them
+> **Status (2026-10-09, Stage 16).** Sections 1-9 were written for the Stage 5 interface and have been corrected where later stages changed them
 > (the Risk Feed became the **Desk**, severity became the headline number, analogues now exist, the layout has a sidebar). Sections 10-15 cover what
-> Stages 6-15 added. Every "how we know it works" names a test or file that exists in the repository.
+> Stages 6-15 added; section 16 covers Module A, the tactical index rebalancer (Stage 16). Every "how we know it works" names a test or file that exists in the repository.
 
 Every feature in the final UI exists because of a specific frustration an analyst, a risk manager or a hackathon judge has with
 event-driven risk tools. This page maps each feature to the pain point it removes, shows where to see it, and says how we know it
@@ -25,7 +25,7 @@ works (a test, a rule, or a file you can open). Features that are honest limits 
 | **Featured event** with *Open the event story* | "Where do I start?" A judge should not have to hunt for the one event that shows everything. | Judge | Desk (opens on `sig_8f79c8bbd6`, the Hormuz report) | `lib/featured.ts` names the hero, with a deterministic fallback; `featured.test.ts` |
 | **Flow tracker** (Event → Understand → Impact → Evidence → Stress) | Pages built at different times feel unrelated; the user mentally stitches them together and loses track of which stage they are viewing. | Judge, analyst | Sticky bar on the Event and Stress pages | `story.test.tsx` (current stage, links, scroll in place) |
 | **Chain graphic** on the event page | The relationship text → NLP → impact → scenario → portfolio lived only in documentation. | Judge | Event page, under the hero | Rendered from the signal itself; `pages.test.tsx` ("tells the story in chapters") |
-| **One scripted demo path** (`docs/DEMO_SCRIPT.md`) | A live demo that wanders through unrelated pages, or that depends on a live feed that may fail. | Judge, presenter | `docs/DEMO_SCRIPT.md` | Walked from a fresh server; every figure read back from the page |
+| **One scripted demo path** (`docs/notes/DEMO_SCRIPT.md`) | A live demo that wanders through unrelated pages, or that depends on a live feed that may fail. | Judge, presenter | `docs/notes/DEMO_SCRIPT.md` | Walked from a fresh server; every figure read back from the page |
 | **Deterministic replay clock** | Demos that change between runs, or break offline. | Presenter | Rail: "Clock pinned to 01 Oct 12:00" | `tests/e2e/test_replay_served.py` pins the output digest |
 
 ## 2. "A sentiment score is not an answer"
@@ -180,6 +180,19 @@ works (a test, a rule, or a file you can open). Features that are honest limits 
 | **Simulated live** from a committed capture of 216 real, previously unseen pack articles | A live demo that fails when the news feed rate-limits. | Presenter | Live switch → Simulated | `tests/unit/test_sample_capture.py` (the file equals its derivation from the pack) |
 | **SEC EDGAR 8-K as a second live source**, with keep rules shown as judgement priors | Only one news source. | Judge (two-source requirement) | Live switch | `tests/unit/test_edgar_live.py`; needs `EVENTSHOCK_SEC_CONTACT` |
 | **Replay vs live labelled on every signal** (channel and timestamp origin) | Mixing frozen and live data. | Skeptic | Feed rows, event hero | `tests/e2e/test_replay_served.py` pins the replay digest |
+
+## 16. "What would sentiment do to an index, and who signed off on the trade?" (Stage 16, Module A)
+
+| Feature | Pain point it removes | Who | See it | How we know it works |
+|---|---|---|---|---|
+| **Sentiment-to-weight index**: 15 stocks, equal-weight benchmark, decayed one-source-one-vote score, exponential tilt, bounds, turnover cap | "Sentiment up, weight up" implemented naively swings an index on one headline, or copies one outlet's near-duplicates five times. | Portfolio manager | Rebalancer → *Index* | `tests/unit/test_rebalancer_{scoring,weights,service}.py`; every cycle self-checks (sum 1, bounds, cap) or raises |
+| **Named reason per stock** (`TILT_UP`, `AT_UPPER_BOUND`, `LIMITED_BY_TURNOVER`, `NO_EVIDENCE` …) | A weight that moved with no explanation. | Analyst | Rebalancer → *Index* | reasons are part of the cycle record; contributions of every report add up to the score exactly |
+| **Weights over time** (stacked, sector hues, ticker beside each band) with tilt, half-life and turnover as a what-if | A static table of weights; no way to ask "what if it reacted faster?". | Judge, analyst | Rebalancer → *Index* | `components/rebalancer/*`, `pages/rebalancer.test.tsx`; the what-if is marked `params.is_default = false` |
+| **Trade decisions**: before → target → after, trade, evidence with times, *thin / stale / conflict* flags, the rules that bound each stock, a template-written sentence | A rebalance with no audit trail. | Analyst, risk manager | Rebalancer → *Trade decisions* | `tests/unit/test_rebalancer_decisions.py`; the constraint-ladder effects telescope exactly to the final target |
+| **Risk-aware strategies** (sector cap, volatility bound, liquidity floor; tone × impact) behind a closed registry | A tilt that ignores concentration and liquidity, or a hidden variant. | Risk manager | `?strategy=` | `tests/unit/test_rebalancer_{grouped,strategies}.py`; the baseline's weight-path digest is pinned unchanged |
+| **Strategy lab against equal weight, buy-and-hold and a placebo** with a sensitivity grid | Back-tests that show the winner only. | Skeptic | Rebalancer → *Lab* | `tests/unit/test_rebalancer_{backtest,lab}.py`; verdict is computed from the placebo; every strategy is *within chance* (baseline: 82nd percentile) and the page says so |
+| **Simulated approval ledger**: approve, partly approve or reject; append-only, hash-chained; 409 on a changed proposal | "Who approved this?" and approving something that has since changed. | Risk manager | Rebalancer → *Ledger* | `tests/unit/test_rebalancer_ledger.py`; a broken chain refuses new entries; nothing is sent anywhere and the served index never moves |
+| **Isolation**: nothing imports the rebalancer; only `sentiment.score` is read | A downstream module contaminating the core signal. | Skeptic | tests | `tests/unit/test_rebalancer_architecture.py`, `tests/e2e/test_rebalancer_replay.py` (signal digest unchanged) |
 
 ---
 

@@ -21,7 +21,7 @@ MARGIN, GAP = 30, 28
 ARROW = "#3a4655"
 COL = {
     "src": "#5f7fb5", "ing": "#2f9a82", "pipe": "#2f9a82", "ml": "#c4811f", "core": "#7a63b8",
-    "side": "#b8567a", "str": "#c94f4f", "api": "#2f74c8", "ui": "#2f9a55", "qa": "#6b7a8c",
+    "side": "#b8567a", "reb": "#2f93a8", "str": "#c94f4f", "api": "#2f74c8", "ui": "#2f9a55", "qa": "#6b7a8c",
 }
 out: list[str] = []
 PROBLEMS: list[str] = []
@@ -158,9 +158,9 @@ def build() -> tuple[str, int]:
     F = Group("OFFLINE RESEARCH AND QA", "qa", [
         ("modeling/ + make train-*", "tables, training, impact study, outcome audit, evidence studies; deterministic"),
         ("docs/evidence/*.json", "committed results the Evidence page reads"),
-        ("configs/ (29 YAML)", "taxonomy, scenarios, severity, live, decision, propagation; pre-registered bars never edited after results"),
+        ("configs/ (30 YAML)", "taxonomy, scenarios, severity, live, decision, propagation; pre-registered bars never edited after results"),
         ("docs/freeze_manifest.json", "sha256 of models, configs, gold sets, replay, evidence; make freeze-check"),
-        ("tests/", "pytest 2,174 (unit 105 files, integration 19, e2e 15); Vitest 668; architecture tests enforce import rules"),
+        ("tests/", "pytest 2,368 (unit 117 files, integration 21, e2e 17); Vitest 782; architecture tests enforce import rules"),
         ("scripts/smoke_e2e.py", "make smoke: real server, API, model hashes, stress, UI"),
     ], 590)
     row1 = [A, B, C, D, E, F]
@@ -176,7 +176,7 @@ def build() -> tuple[str, int]:
         ("severity.py · freshness.py", "fixed matrix, certainty x direction scaling, VIX-regime and novelty adjustments; market data at most one session old"),
         ("views.py · benchmark.py · reference.py", "provenance AI / DATA / RULES / HYBRID / ASSUMPTION; 64 + 32 headline benchmark; impact-v2 as labelled reference"),
         ("llm/ client · cache · schema · prompt · config", "urllib only; 30 s budget, 30 calls/min; cached by text + model + prompt"),
-    ], 700)
+    ], 640)
     S2 = Group("EVENT INTELLIGENCE  intelligence/", "side", [
         ("scope.py", "COMPANY, INDUSTRY, SECTOR, GEOGRAPHY, MACRO, MARKET, THEME, UNRESOLVED path"),
         ("grouping.py", "report clusters to events; first report of each outlet is independent"),
@@ -184,29 +184,36 @@ def build() -> tuple[str, int]:
         ("novelty.py · velocity.py", "NEW / CONTINUATION / UPDATE / RECURRING; narrative velocity; unavailable on replay-assigned clocks"),
         ("claims.py", "closed-lexicon claims and contradiction, never from tone"),
         ("lifecycle.py · service.py", "rule-driven state machine with timeline; every section may abstain"),
-    ], 560)
+    ], 520)
     S3 = Group("ANALOGUES AND CONTEXT", "side", [
         ("retrieval/ index · search · corpus", "6,531 trusted-clock episodes as pinned e5 vectors; point-in-time, story-collapsed"),
         ("retrieval/ relevance_eval · outcome_value", "pre-registered tests; similarity floor read from evidence, not typed"),
         ("services/analogues.py", "display-only: no analogue quantity enters any score"),
         ("services/signal_context.py", "model inputs by availability class; filings before / after; realised outcome"),
         ("services/outcome_check.py · relevance.py", "severity vs realised moves; what the event means for the book"),
-    ], 520)
+    ], 480)
     S4 = Group("PROPAGATION  propagation/ + adjust/", "side", [
         ("mapping.py", "event, scope, risk factor, holdings graph; each edge has a rule and a basis"),
         ("materiality.py", "LOW..CRITICAL by exposure x severity lookup; abstains"),
         ("scenario_gen.py", "catalog scenario of the class plus propagated sector shocks; gated"),
         ("attribution.py · concentration.py", "loss by shock, issuer, sector, factor, class, position; concentration and overlaps"),
         ("adjust/ registry · store · service", "whitelisted manual overrides, patched into raw YAML before validation, rolled back on failure"),
-    ], 620)
+    ], 560)
     S5 = Group("DECISION INTELLIGENCE", "side", [
         ("monitor/", "EventState, diff_states to RiskChange by named rule, digest, event memory; replay is a pure function over frozen signals"),
         ("watchlist/ · review/", "watchlists matched on resolved scope; review queue by named rules, append-only decisions"),
         ("lab/", "scenario lab (base, assessed, custom) and bounded-grid reverse stress"),
         ("explain/ · brief/", "structured reasons; 16-section executive brief, template-written, every statement sourced"),
         ("feedback/ · markets/", "append-only feedback; Kalshi observation, never an input to a score"),
-    ], 1030)
-    row2 = [S1, S2, S3, S4, S5]
+    ], 700)
+    R = Group("REBALANCER (Module A)  rebalancer/", "reb", [
+        ("scoring.py · config.py", "shrunk, decayed, one-source-one-vote sentiment score per company; strict YAML, every number a judgement prior"),
+        ("weights.py", "exponential tilt, exact projection onto bounds (and a sector cap), turnover-capped step; pure functions"),
+        ("service.py · decisions.py", "6 h cycle grid, self-check (sum 1, bounds, cap), constraint ladder, named reasons, proposal sha256"),
+        ("risk.py · lab.py · backtest.py", "sentiment_risk and sentiment_impact strategies; point-in-time back-test, 5 bp cost, 200-shuffle placebo"),
+        ("ledger.py", "simulated approval: append-only, hash-chained JSONL; 409 on a changed proposal; nothing is sent anywhere"),
+    ], 500)
+    row2 = [S1, S2, S3, S4, S5, R]
     end2 = band(row2, y2)
     # band-2 frame
     frame_y = y2 - 62
@@ -224,18 +231,19 @@ def build() -> tuple[str, int]:
         ("portfolio/ book_v2 · betas · catalog", "read-only Wholesale Book v2 preset; Vasicek-shrunk betas; instrument catalog"),
         ("data/replay/portfolio.json", "synthetic book: 103 positions, USD 860.1M, 34 real issuers (34 equities, 41 bonds, 19 loans, 9 derivatives)"),
     ], 1180)
-    P = Group("API  api/ (FastAPI, 85 operations)", "api", [
+    P = Group("API  api/ (FastAPI, 93 operations)", "api", [
         ("main.py · deps.py · schemas.py", "app factory, CORS, serves web/dist; builds the service container and rebuilds side-cars after an override; typed Pydantic responses"),
         ("routers: signals · analyze · stress · scenarios · propagation · events", "feed, paste, stress-test, scenario catalog and lab, event-to-portfolio, brief/analogues/timeline"),
         ("routers: portfolio · portfolios · adjustments · scope · pipeline", "default book, personal portfolios, overrides, scope vocabulary, ingestion report"),
+        ("router: rebalancer", "overview, timeline, cycles and decisions, back-test, lab, simulated approval and ledger (Module A)"),
         ("routers: monitor · watchlists · lab · review · feedback", "digest and changes, watchlists, reverse stress, review queue, feedback"),
         ("routers: evidence · models · live · meta", "model cards and lifecycle, outcome check, live switch, capabilities that gate the UI"),
         ("contract", "valid stress request always 200 with a status (COMPLETED, NOT_TRIGGERED, NO_SCENARIO, NOT_APPLICABLE, UNAVAILABLE); 404 unknown id; 422 invalid input"),
         ("OpenAPI → web/src/api/schema.d.ts", "make types: the UI and API cannot drift silently"),
     ], 1170)
     U = Group("DASHBOARD  web/ (React 19, Vite, TypeScript, Tailwind v4)", "ui", [
-        ("pages/", "Desk · Today · Review · Analyze · Event · Stress Lab · Portfolios · Portfolio editor · Evidence · Pipeline"),
-        ("components/", "trace (six-station wire), desk, event, assessment, intelligence, propagation (contagion map), portfolio (heatmaps, value bridge), lab, monitor, watchlist, markets, brief, adjust, live switch, review"),
+        ("pages/", "Desk · Today · Review · Analyze · Event · Stress Lab · Portfolios · Portfolio editor · Rebalancer · Evidence · Pipeline"),
+        ("components/", "trace (six-station wire), desk, event, assessment, intelligence, propagation (contagion map), portfolio (heatmaps, value bridge), lab, monitor, watchlist, markets, brief, adjust, live switch, review, rebalancer (weights, decisions, lab, ledger)"),
         ("lib/", "pure, tested view-models: timeline (no future fact in an earlier state), contagion layout, severity, formulas, nav"),
         ("api/", "TanStack Query hooks over generated types"),
         ("styles/tokens.css", "Harbour tokens, light and dark, WCAG pairs checked by tests"),
@@ -265,7 +273,7 @@ def build() -> tuple[str, int]:
 
     # legend / footer
     ly = end3 + 80
-    out.append(f'<text x="{MARGIN}" y="{ly}" class="foot">Solid arrow: data flow. Dashed: optional or read-only. Colours: grey-blue inputs, green ingestion and UI, amber models, purple signal core, pink side-cars, red stress, blue API.</text>')
+    out.append(f'<text x="{MARGIN}" y="{ly}" class="foot">Solid arrow: data flow. Dashed: optional or read-only. Colours: grey-blue inputs, green ingestion and UI, amber models, purple signal core, pink side-cars, teal rebalancer, red stress, blue API.</text>')
     out.append(f'<text x="{MARGIN}" y="{ly + 34}" class="foot">Storage: no SQL database; files (JSON, JSONL, NPZ, joblib) and in-memory repositories behind Protocols (ports.py).</text>')
     out.append(f'<text x="{MARGIN}" y="{ly + 68}" class="foot">All trained models are experimental; the portfolio is synthetic; scenario shocks are assumptions. Plainer views: docs/architecture.png and docs/architecture_simple.png.</text>')
     height = ly + 110

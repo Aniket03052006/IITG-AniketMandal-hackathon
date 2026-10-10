@@ -111,7 +111,7 @@ LIMITATIONS = [
     "data/gold_v2/agreement.json) which bound noise, not shared bias. Human adjudication of the queued rows is still outstanding.",
     "Chosen by a pre-registered rule from a fixed list of designs on pooled held-out sets, but after a dry run on gold v1 and the replay check had shown a large early-fusion gain. "
     "Two guards were added afterwards and only make adoption harder: evaluation rows within cosine 0.90 of a training text (e5-large) are removed, and the gain must hold on what remains; and a "
-    "cost rule picks the cheapest candidate within 0.02 of the best. Both are disclosed in configs/evidence_v2.yaml and docs/EVIDENCE_V2.md.",
+    "cost rule picks the cheapest candidate within 0.02 of the best. Both are disclosed in configs/evidence_v2.yaml and docs/notes/EVIDENCE_V2.md.",
     "It needs a sentence encoder (intfloat/multilingual-e5-large, 560M parameters, about 105 ms per text on CPU at batch 32, 2.7 GB resident) for any text that is not in the pinned replay "
     "embeddings. The frozen replay pack is covered by hash-pinned float16 vectors so the default run needs no torch; a new document needs `pip install -r requirements-embed.txt`.",
     "Dev rows select the hyper-parameters, fit the temperature and decide which classes are flagged unreliable: scores on dev are optimistic.",
@@ -242,7 +242,7 @@ def run(root: Path = REPO_ROOT, out_dir: Path | None = None, log=print) -> Event
     if g:
         t_, y_, w_, s_ = g["history"]
         add("gold_history", "Gold set, our own sources (AI-annotated)", "indicative",
-            "The frozen gold v1 history rows, inclusion-weighted. No training or selection choice used them (the representation dry run read them once; see docs/EVIDENCE_V2.md).",
+            "The frozen gold v1 history rows, inclusion-weighted. No training or selection choice used them (the representation dry run read them once; see docs/notes/EVIDENCE_V2.md).",
             t_, y_, w_, secondary=s_, k=ev.confident_errors)
         t_, y_, w_, s_ = g["tfn"]
         add("gold_tfn", "Gold set, TFN-style news tweets (AI-annotated)", "indicative", "The frozen gold v1 TFN-style rows.", t_, y_, w_, secondary=s_)

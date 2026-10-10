@@ -1,7 +1,7 @@
 """The hybrid event model (keywords + semantics), serving side. Same contract as ``EventModel``, so the pipeline, the evaluation and the card do not change.
 
 What it is: ``[TF-IDF (word + char n-grams) || alpha * frozen sentence embedding]`` -> one multinomial logistic regression -> temperature scaling -> the same fixed 0.5 commit
-rule and unreliable-class routing as ``tfidf-lr-event-v1``. It was adopted by the pre-registered rule of ``configs/evidence_v2.yaml`` (see ``docs/EVIDENCE_V2.md``): early fusion beat the
+rule and unreliable-class routing as ``tfidf-lr-event-v1``. It was adopted by the pre-registered rule of ``configs/evidence_v2.yaml`` (see ``docs/notes/EVIDENCE_V2.md``): early fusion beat the
 TF-IDF model on every held-out set and on the pooled set with semantic near-duplicates of training text removed, while dense vectors alone and late fusion did not.
 
 What is different at serving time: a text needs a vector. ``embeddings`` supplies it (pinned for the frozen replay pack, the live encoder otherwise, or a clear
@@ -61,7 +61,7 @@ class HybridEventModel(EventModel):
 
     @classmethod
     def load(cls, model_dir: Path, embeddings: EmbeddingSource | None = None) -> HybridEventModel:  # type: ignore[override]
-        hint = "run `make train-event-hybrid` to rebuild it (needs data/modeling/embeddings, see docs/EVIDENCE_V2.md)"
+        hint = "run `make train-event-hybrid` to rebuild it (needs data/modeling/embeddings, see docs/notes/EVIDENCE_V2.md)"
         card_path, art_path = model_dir / CARD_FILE, model_dir / ARTIFACT_FILE
         for p in (card_path, art_path):
             if not p.is_file():

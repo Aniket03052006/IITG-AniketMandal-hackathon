@@ -1,6 +1,6 @@
 """Gold set: a stratified, blind sample built to find where the automatic labels are wrong, plus validate/score tooling.
 
-Design (docs/GOLD_LABELING_GUIDE.md):
+Design (docs/notes/GOLD_LABELING_GUIDE.md):
 * Two populations. ``tfn``: news tweets from the Twitter-Financial-News topic corpus, ~6 per topic, to measure the
   precision of the 20-topic -> 8-class crosswalk. ``history``: documents from our own sources (the deployment
   distribution).

@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1420" width="2400" height="1420" font-family="Helvetica Neue, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1600" width="2400" height="1600" font-family="Helvetica Neue, Arial, sans-serif">
 <defs><marker id='ah' viewBox='0 0 10 10' refX='8' refY='5' markerWidth='5.5' markerHeight='5.5' orient='auto-start-reverse'><path d='M0,0 L10,5 L0,10 z' fill='#44505f'/></marker></defs><style>.t{font:700 23px 'Helvetica Neue',Arial,sans-serif;fill:#14202e}.s{font:400 19px 'Helvetica Neue',Arial,sans-serif;fill:#3a4756}.lane{font:800 21px 'Helvetica Neue',Arial,sans-serif;letter-spacing:3px}.l{font:700 18px 'Helvetica Neue',Arial,sans-serif;fill:#2c3a4a}.h1{font:800 44px 'Helvetica Neue',Arial,sans-serif;fill:#0f1c2e}.h2{font:400 22px 'Helvetica Neue',Arial,sans-serif;fill:#44505f}</style>
-<rect width="2400" height="1420" fill="#fbfcfe"/>
+<rect width="2400" height="1600" fill="#fbfcfe"/>
 <text x="30" y="58" class="h1">EventShock: architecture</text>
-<text x="30" y="94" class="h2">news + social + filings → trained NLP risk signal → deterministic, portfolio-aware stress test → dashboard. Numbers 1-8 give the order a report takes through the pipeline; arrows between lanes show data flow.</text>
+<text x="30" y="94" class="h2">news + social + filings → trained NLP risk signal → deterministic, portfolio-aware stress test → dashboard. Module B (stress) and Module A (index rebalancer) both read the signal. Numbers 1-8: the order a report takes.</text>
 <rect x="30" y="120" width="390" height="610" rx="22" fill="#eef3fb" stroke="#6b86b8" stroke-width="2.5" stroke-dasharray="10 7"/>
 <text x="52" y="156" class="lane" fill="#6b86b8">SOURCES</text>
 <rect x="440" y="120" width="440" height="610" rx="22" fill="#e9f5f1" stroke="#3f9a84" stroke-width="2.5" stroke-dasharray="10 7"/>
@@ -167,9 +167,9 @@
 <text x="74" y="1271" class="s">uncovered exposure is listed, not treated as safe</text>
 <rect x="920" y="805" width="860" height="130" rx="14" fill="#ffffff" stroke="#3b78c9" stroke-width="3.5"/>
 <rect x="920" y="805" width="9" height="130" rx="4" fill="#3b78c9"/>
-<text x="944" y="839" class="t">FastAPI /api: 85 operations, OpenAPI at /api/docs</text>
+<text x="944" y="839" class="t">FastAPI /api: 93 operations, OpenAPI at /api/docs</text>
 <text x="944" y="865" class="s">signals · assessment · intelligence · propagation · analogues · scenarios · stress-test ·</text>
-<text x="944" y="889" class="s">portfolios · monitor · watchlists · lab · review · evidence · models · live · analyze</text>
+<text x="944" y="889" class="s">portfolios · rebalancer · monitor · watchlists · lab · review · evidence · models · live</text>
 <text x="944" y="913" class="s">typed contracts shared with the UI (make types)</text>
 <rect x="920" y="949" width="860" height="118" rx="14" fill="#ffffff" stroke="#3b78c9" stroke-width="2"/>
 <rect x="920" y="949" width="9" height="118" rx="4" fill="#3b78c9"/>
@@ -192,19 +192,45 @@
 <text x="1864" y="865" class="s">Desk: wire traced from news to book</text>
 <text x="1864" y="889" class="s">Today · Review · Analyze · Event</text>
 <text x="1864" y="913" class="s">Stress Lab · Portfolios · Evidence</text>
-<text x="1864" y="937" class="s">light/dark, phone to desktop</text>
+<text x="1864" y="937" class="s">Rebalancer · light/dark, phone to desktop</text>
 <rect x="1840" y="979" width="510" height="200" rx="14" fill="#ffffff" stroke="#3f9a5c" stroke-width="2"/>
 <rect x="1840" y="979" width="9" height="200" rx="4" fill="#3f9a5c"/>
 <text x="1864" y="1013" class="t">What it shows</text>
 <text x="1864" y="1039" class="s">portfolio value before vs after,</text>
 <text x="1864" y="1063" class="s">value bridge, loss heatmap, contagion</text>
-<text x="1864" y="1087" class="s">map; sentiment, event class, severity</text>
+<text x="1864" y="1087" class="s">map; index weights over time; severity</text>
 <text x="1864" y="1111" class="s">with Why? and provenance; timeline of</text>
 <text x="1864" y="1135" class="s">what was known when; model evidence</text>
 <rect x="1840" y="1193" width="510" height="86" rx="14" fill="#ffffff" stroke="#3f9a5c" stroke-width="2"/>
 <rect x="1840" y="1193" width="9" height="86" rx="4" fill="#3f9a5c"/>
 <text x="1864" y="1227" class="t">Served by the same process</text>
 <text x="1864" y="1253" class="s">python src/main.py (API + built web/dist)</text>
+<rect x="30" y="1310" width="2340" height="190" rx="22" fill="#e7f4f8" stroke="#3a97ad" stroke-width="2.5" stroke-dasharray="10 7"/>
+<text x="52" y="1346" class="lane" fill="#3a97ad">MODULE A: TACTICAL INDEX REBALANCER (Stage 16; a derived side-car, nothing imports it)</text>
+<rect x="50" y="1355" width="540" height="120" rx="14" fill="#ffffff" stroke="#3a97ad" stroke-width="3.5"/>
+<rect x="50" y="1355" width="9" height="120" rx="4" fill="#3a97ad"/>
+<text x="74" y="1389" class="t">Sentiment to weight</text>
+<text x="74" y="1415" class="s">15 stocks, equal-weight benchmark; one source, one vote;</text>
+<text x="74" y="1439" class="s">36 h decay, shrunk score S in [-1, 1], exponential tilt,</text>
+<text x="74" y="1463" class="s">bounds, 4 % turnover cap; self-checked every cycle</text>
+<rect x="610" y="1355" width="540" height="120" rx="14" fill="#ffffff" stroke="#3a97ad" stroke-width="2"/>
+<rect x="610" y="1355" width="9" height="120" rx="4" fill="#3a97ad"/>
+<text x="634" y="1389" class="t">Trade decisions and strategies</text>
+<text x="634" y="1415" class="s">constraint ladder names the rule that bound each stock;</text>
+<text x="634" y="1439" class="s">closed registry: sentiment (baseline), sentiment_risk</text>
+<text x="634" y="1463" class="s">(sector, volatility, liquidity), sentiment_impact</text>
+<rect x="1170" y="1355" width="540" height="120" rx="14" fill="#ffffff" stroke="#3a97ad" stroke-width="2"/>
+<rect x="1170" y="1355" width="9" height="120" rx="4" fill="#3a97ad"/>
+<text x="1194" y="1389" class="t">Back-test, lab and simulated ledger</text>
+<text x="1194" y="1415" class="s">make rebalancer-backtest / -lab: 5 bp cost, placebo;</text>
+<text x="1194" y="1439" class="s">approval ledger: append-only, hash-chained, 409 on a</text>
+<text x="1194" y="1463" class="s">changed proposal; nothing is sent anywhere</text>
+<rect x="1730" y="1355" width="620" height="120" rx="14" fill="#ffffff" stroke="#3a97ad" stroke-width="2"/>
+<rect x="1730" y="1355" width="9" height="120" rx="4" fill="#3a97ad"/>
+<text x="1754" y="1389" class="t">Honest result (10 sessions)</text>
+<text x="1754" y="1415" class="s">+0.19 % vs equal weight, 82nd placebo percentile: within chance,</text>
+<text x="1754" y="1439" class="s">so no skill is claimed. Reads only sentiment.score of the</text>
+<text x="1754" y="1463" class="s">RiskSignal; severity and impact are not inputs.</text>
 <polyline points="420,425 440,425" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
 <polyline points="880,425 900,425" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
 <polyline points="1800,425 1820,425" fill="none" stroke="#44505f" stroke-width="3.5" marker-start='url(#ah)' marker-end="url(#ah)"/>
@@ -213,6 +239,8 @@
 <polyline points="920,1020 880,1020" fill="none" stroke="#44505f" stroke-width="3.5" marker-start='url(#ah)' marker-end="url(#ah)"/>
 <polyline points="1800,1020 1820,1020" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
 <polyline points="450,870 470,870" fill="none" stroke="#44505f" stroke-width="3.5" marker-end="url(#ah)"/>
-<text x="30" y="1325" class="h2">Cross-cutting: fail loudly (a modified artifact or snapshot file stops start-up; no silent fallback) · deterministic replay (fixed clock, content-derived ids, pinned digests) ·</text>
-<text x="30" y="1355" class="h2">four kinds of number never blurred (model prediction, historical observation, scenario assumption, realised outcome).</text>
+<polyline points="1350,1294 1350,1308" fill="none" stroke="#44505f" stroke-width="3.5" marker-start='url(#ah)' marker-end="url(#ah)"/>
+<text x="1366" y="1306" class="l">/api/rebalancer</text>
+<text x="30" y="1535" class="h2">Cross-cutting: fail loudly (a modified artifact or snapshot file stops start-up; no silent fallback) · deterministic replay (fixed clock, content-derived ids, pinned digests) ·</text>
+<text x="30" y="1565" class="h2">four kinds of number never blurred (model prediction, historical observation, scenario assumption, realised outcome).</text>
 </svg>

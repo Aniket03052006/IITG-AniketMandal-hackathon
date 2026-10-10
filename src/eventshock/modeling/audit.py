@@ -1,7 +1,7 @@
 """Builds the modeling tables and the audit that justifies them. Writes under ``data/modeling/`` (git-ignored).
 
 ``run_audit`` is the single entry point: profile -> impact table (+ leakage checks) -> text tables (+ leakage checks).
-Every number in ``docs/MODELING_READINESS.md`` comes from the ``audit.json`` this produces.
+Every number in ``docs/notes/MODELING_READINESS.md`` comes from the ``audit.json`` this produces.
 """
 
 from __future__ import annotations
@@ -284,7 +284,7 @@ def run_audit(cfg: ModelingConfig, *, repo_root: Path, config_dir: Path, mapping
     signals = history_signals or repo_root / "data" / "processed" / "history" / "signals.jsonl"
     for p in (signals, raw / "prices" / "_GSPC.csv", raw / "tfn" / "train.jsonl"):
         if not p.exists():
-            raise ConfigError(f"missing input {p}: run `make ingest-history` / `make fetch-*` first (see docs/DATA_LICENSES.md)")
+            raise ConfigError(f"missing input {p}: run `make ingest-history` / `make fetch-*` first (see docs/notes/DATA_LICENSES.md)")
     docs = list(iter_history_docs(signals))
     tfn = load_tfn_sentiment(raw)
     result: dict[str, Any] = {

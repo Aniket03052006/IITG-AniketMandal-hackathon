@@ -1,6 +1,6 @@
 """Impact target and event-time features from daily prices. Pure standard library, point-in-time by construction.
 
-Target (see ``docs/MODELING_READINESS.md`` for the reasoning and measured evidence)::
+Target (see ``docs/notes/MODELING_READINESS.md`` for the reasoning and measured evidence)::
 
     AR_k = r_k - a - b*m_k - c*p_k          market m (^GSPC) and sector-peer p (equal weight, ex-self)
     CAR  = sum of AR over sessions s0 .. s0+W-1

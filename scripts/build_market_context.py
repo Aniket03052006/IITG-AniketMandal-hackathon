@@ -4,7 +4,7 @@ Input  (git-ignored): data/raw/prices/*.csv   (`make fetch-prices`)
 Output (committed, derived statistics only): data/replay/market/context.json, hash-pinned in data/replay/manifest.json
 
 The server reads this file instead of prices: Yahoo data is licensed for personal/research use and is not redistributed,
-while trailing volatility, betas and returns computed from it are derived statistics (see docs/DATA_LICENSES.md).
+while trailing volatility, betas and returns computed from it are derived statistics (see docs/notes/DATA_LICENSES.md).
 Usage:  python scripts/build_market_context.py
 """
 

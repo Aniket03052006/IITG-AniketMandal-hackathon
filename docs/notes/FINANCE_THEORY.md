@@ -8,7 +8,7 @@ What financial quantity should EventShock estimate, which established methods be
 - **[H]** engineering heuristic
 - **[A]** assumption
 
-Pre-registration: `configs/evidence_v3.yaml` (sha256 recorded in every Stage 8 evidence file). Journal: `docs/PROJECT_JOURNEY.md`, Stage 8.
+Pre-registration: `configs/evidence_v3.yaml` (sha256 recorded in every Stage 8 evidence file). Journal: `docs/notes/PROJECT_JOURNEY.md`, Stage 8.
 
 ## 1. The question: what should "severity" be?
 
@@ -16,11 +16,11 @@ Candidates considered: expected abnormal return; volatility-adjusted expected mo
 
 **Decision [P].** Severity stays a transparent *ordinal consequence scale* (how serious a kind of development usually is, and how far it reaches), not a price forecast. Three reasons, in order of weight:
 
-1. **The data cannot support a text-to-move forecast.** [E] `docs/evidence/outcome_audit.json`: news episodes about the 34 large caps are barely distinguishable from ordinary days (stratified AUC of |z| 0.523 [0.512, 0.532]; 0.508 [0.500, 0.517] once episodes with an earnings reaction in the window are excluded; P(|z| >= 2) 5.1% vs 4.9% on quiet days). Earnings is the one clear exception (AUC about 0.80 with earnings in the window). A forecast trained on these labels would reproduce the volatility regime and the earnings calendar and call it "event impact" (Stage 4 already found placebo skill >= real skill for `impact-v2`: `docs/EVIDENCE_V2.md`).
+1. **The data cannot support a text-to-move forecast.** [E] `docs/evidence/outcome_audit.json`: news episodes about the 34 large caps are barely distinguishable from ordinary days (stratified AUC of |z| 0.523 [0.512, 0.532]; 0.508 [0.500, 0.517] once episodes with an earnings reaction in the window are excluded; P(|z| >= 2) 5.1% vs 4.9% on quiet days). Earnings is the one clear exception (AUC about 0.80 with earnings in the window). A forecast trained on these labels would reproduce the volatility regime and the earnings calendar and call it "event impact" (Stage 4 already found placebo skill >= real skill for `impact-v2`: `docs/notes/EVIDENCE_V2.md`).
 2. **The downstream consumer needs a scale, not a point forecast.** The stress engine uses severity to decide whether a scenario triggers and how hard its (assumed) shocks are applied, `scale = clamp(severity / reference, 0.5, 1.5)`. [P]
 3. **Honesty about what the score is.** [E] `docs/evidence/severity_validity.json`: the text-only scorecard does not rank realised moves out of sample (2025 test rank correlation +0.007 [-0.025, +0.039]; 2026 live -0.021 [-0.086, +0.040]). The label is therefore `HEURISTIC_UNCALIBRATED`: a transparent triage scale, not an outcome-calibrated one. See §8.
 
-What the realised outcome *is* used for: as hindsight evidence next to retrieved historical analogues (`docs/ANALOGUES.md`), never as a score input.
+What the realised outcome *is* used for: as hindsight evidence next to retrieved historical analogues (`docs/notes/ANALOGUES.md`), never as a score input.
 
 ## 2. Event studies [T]
 
@@ -78,9 +78,9 @@ Co-movement and connectedness measures (Billio, Getmansky, Lo and Pelizzon 2012)
 
 ## 7. Text, embeddings and retrieval
 
-- Financial text and returns (Tetlock 2007; Loughran and McDonald 2011): tone has a weak, short-lived relation with returns in aggregate and in curated corpora [T]. Here sentiment matches the realised sign about 53% of the time [E] (`docs/IMPACT_MODEL.md`), so tone is not a severity input [P].
-- **Embeddings** (Reimers and Gurevych 2019; E5, Wang et al. 2022) help *finding similar text*, not predicting returns [E]: they improved event-type classification when fused with TF-IDF (`docs/EVIDENCE_V2.md`), never lowered held-out impact error (`docs/IMPACT_MODEL.md` section 11), and in Stage 8 they beat TF-IDF at retrieving same-event-type reports on unseen wording (P@5 0.504 vs 0.443; non-NONE queries 0.389 vs 0.255; `docs/evidence/analogue_relevance.json`).
-- **Retrieval of historical analogues** is therefore an *explanation and context* layer, with the outcome shown as hindsight and an explicit "no reliable analogue" state. Method and results: `docs/ANALOGUES.md`.
+- Financial text and returns (Tetlock 2007; Loughran and McDonald 2011): tone has a weak, short-lived relation with returns in aggregate and in curated corpora [T]. Here sentiment matches the realised sign about 53% of the time [E] (`docs/notes/IMPACT_MODEL.md`), so tone is not a severity input [P].
+- **Embeddings** (Reimers and Gurevych 2019; E5, Wang et al. 2022) help *finding similar text*, not predicting returns [E]: they improved event-type classification when fused with TF-IDF (`docs/notes/EVIDENCE_V2.md`), never lowered held-out impact error (`docs/notes/IMPACT_MODEL.md` section 11), and in Stage 8 they beat TF-IDF at retrieving same-event-type reports on unseen wording (P@5 0.504 vs 0.443; non-NONE queries 0.389 vs 0.255; `docs/evidence/analogue_relevance.json`).
+- **Retrieval of historical analogues** is therefore an *explanation and context* layer, with the outcome shown as hindsight and an explicit "no reliable analogue" state. Method and results: `docs/notes/ANALOGUES.md`.
 
 ## 8. Evaluation integrity
 

@@ -141,7 +141,7 @@ def build_dataset(*, repo_root: Path, config_dir: Path, history_signals: Path | 
     prices = repo_root / "data" / "raw" / "prices"
     for p in (signals, prices / "_GSPC.csv", prices / f"{file_stem(icfg.rates_symbol)}.csv"):
         if not p.is_file():
-            raise ConfigError(f"missing input {p}: see docs/DATA_LICENSES.md (`make fetch-prices`, `python -m eventshock.pipeline ...`)")
+            raise ConfigError(f"missing input {p}: see docs/notes/DATA_LICENSES.md (`make fetch-prices`, `python -m eventshock.pipeline ...`)")
     out_table = out_table or repo_root / icfg.table
     out_manifest = out_manifest or repo_root / icfg.manifest_file
 

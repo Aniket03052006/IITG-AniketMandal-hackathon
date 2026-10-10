@@ -1,4 +1,4 @@
-"""docs/FINAL_MODEL_REPORT.md quotes numbers from the committed cards; each must still match its source."""
+"""docs/notes/FINAL_MODEL_REPORT.md quotes numbers from the committed cards; each must still match its source."""
 from __future__ import annotations
 
 import json
@@ -6,7 +6,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from eventshock.config import REPO_ROOT
 
-REPORT = (REPO_ROOT / "docs/FINAL_MODEL_REPORT.md").read_text(encoding="utf-8")
+REPORT = (REPO_ROOT / "docs/notes/FINAL_MODEL_REPORT.md").read_text(encoding="utf-8")
 
 
 def card(rel: str) -> dict:
@@ -24,7 +24,7 @@ def evals(c: dict) -> dict:
 
 def quoted(*values: str) -> None:
     missing = [v for v in values if v not in REPORT]
-    assert not missing, f"not in docs/FINAL_MODEL_REPORT.md (card changed?): {missing}"
+    assert not missing, f"not in docs/notes/FINAL_MODEL_REPORT.md (card changed?): {missing}"
 
 
 def test_sentiment_numbers():

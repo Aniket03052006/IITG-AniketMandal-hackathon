@@ -103,7 +103,7 @@ class SentimentModel:
 
     @classmethod
     def load(cls, model_dir: Path) -> SentimentModel:
-        hint = "run `make train-sentiment` to rebuild it (needs data/modeling/sentiment.jsonl, see docs/SENTIMENT_MODEL.md)"
+        hint = "run `make train-sentiment` to rebuild it (needs data/modeling/sentiment.jsonl, see docs/notes/SENTIMENT_MODEL.md)"
         card_path, art_path = model_dir / CARD_FILE, model_dir / ARTIFACT_FILE
         for p in (card_path, art_path):
             if not p.is_file():

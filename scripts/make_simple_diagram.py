@@ -42,7 +42,7 @@ ROW2 = [
      ["103 pretend holdings: shares, bonds, loans, derivatives", "Same inputs always give the same answer", "Shows which holdings lose the most"],
      "$860.1M becomes $822.8M  (−$37.3M, −4.3%)"),
     ("7", "SHOW THE RESULT", "A dashboard anyone can read", "#3f9a5c", "WEB DASHBOARD",
-     ["Value before and after", "Where the loss comes from", "A “Why?” button behind every number", "What was known at each moment"],
+     ["Value before and after", "Where the loss comes from", "A “Why?” button behind every number", "A second page: a 15-stock index whose weights follow sentiment"],
      "News in, portfolio consequence out, on one screen"),
 ]
 SAFETY = [
