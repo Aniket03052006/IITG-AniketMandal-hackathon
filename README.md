@@ -112,7 +112,59 @@ make run        # builds the UI and serves UI + API on http://127.0.0.1:8000
 
 The live feed and the language-model reader are **off by default**; the full list of run modes and environment variables is in [§4](#4-quickstart--installation).
 
-Contents: [Run it](#run-it) · [1 Overview](#1-project-overview--problem-statement--approach) · [2 Architecture](#2-architecture--tech-stack) · [3 Dataset](#3-dataset-used) ·
+## Reproduce the results
+
+Everything below runs from a fresh clone after the install steps above (virtual environment active), without `make`, so the commands are the same on macOS, Linux and Windows. Each step says what it needs and what you should see. Steps 1 to 3 need no download and no network.
+
+**1. Verify the frozen state (seconds).** Every served model, config, gold set, calendar, replay file and evidence file is checked against its recorded sha256.
+
+```bash
+python scripts/freeze_manifest.py --check
+```
+
+Expected: `freeze check passed: 88 files, 6 models, snapshot replay-2026-09-30-v1`. A mismatch names the file that changed.
+
+**2. Re-run the pipeline on the replay data (about a minute).** Raw documents are normalised, validated, de-duplicated, entity-resolved and enriched, then exported to `data/processed/` (git-ignored).
+
+```bash
+python -m eventshock.pipeline --export data/processed
+```
+
+Expected: `snapshot replay-2026-09-30-v1: read=3455 quarantined=240 folded=184 kept=3031 signals=2334 (resolved=1184 unknown=1150)`. The `digest` line it prints is the digest of this plain pipeline with placeholder enrichment. It is **not** the served digest: the served signals use the three trained models, and their digest (`078a70ae...`) is pinned by the next step.
+
+**3. Run the tests that pin the served output.**
+
+```bash
+python -m pytest tests/e2e/test_replay_served.py -q       # served digest, scope/status/impact mixes, model ids
+python -m pytest -q                                        # whole backend suite
+(cd web && npm test)                                       # frontend suite
+python scripts/smoke_e2e.py                                # starts the real server and checks API, hashes, stress and UI (~2 min)
+```
+
+Expected for the first command: all tests pass. It recomputes the served signals from the replay pack and compares them with the pinned digest and class mixes, so a change in any model, config or scoring rule fails it by name.
+
+**4. Retrain the sentiment model (about a minute).** Training data is committed (`data/modeling/sentiment.jsonl`), and seeds are fixed.
+
+```bash
+python -m eventshock.modeling train-sentiment --config sentiment_model_v2.yaml
+```
+
+Expected: `model tfidf-lr-v2: ... C=3.0, class_weight=balanced, T=0.99`, artifact sha256 starting `d8b694c1363d`, TFN-test macro-F1 0.783, PhraseBank 0.525. The retrained `model.joblib` is byte-identical to the committed one. One field in the regenerated `model_card.json`, `config_digest`, differs from the committed card (the committed value predates a config edit, a pre-existing drift that does not affect the model). `freeze-check` will then report that card as changed; restore it with `git checkout models/sentiment/tfidf-lr-v2/model_card.json`. Training overwrites files under `models/`, so check `git status` afterwards.
+
+**5. What needs data you download yourself.** These are reproducible in principle but not from a bare clone, because the inputs are large or licensed and are git-ignored (see [Dataset Used](#3-dataset-used) and `docs/notes/DATA_LICENSES.md`).
+
+| What | Needs | Command |
+|---|---|---|
+| Event model (`tfidf-lr-event-v1`) | committed `data/modeling/event_train.jsonl` | `python -m eventshock.modeling train-event` |
+| Hybrid event model, impact models | e5 embeddings (optional `.venv-emb`), daily prices, the impact tables; impact takes about 45 min to 1 h | `make fetch-prices`, then `make impact-table-v2 train-event-hybrid train-impact-v2` |
+| Module A back-test and strategy lab | daily prices (`make fetch-prices`, Yahoo, no key) | `make rebalancer-backtest rebalancer-risk-inputs rebalancer-lab` |
+| A fresh replay pack | network; GDELT rate-limits, so a re-fetch will not match the frozen pack | `make fetch-gdelt fetch-tfn replay-pack` |
+
+Re-fetched data is not expected to reproduce the committed numbers: the frozen pack in `data/replay/` is the authoritative input, which is why steps 1 to 3 are the supported check. Re-running a Module A build against newly downloaded prices will report the committed `data/rebalancer/*.json` as stale if the result differs.
+
+**What was verified for this section.** Steps 1, 2 and the `test_replay_served.py` run in step 3 and step 4 were executed on macOS (Apple Silicon, Python 3.14) while writing it. The full backend and frontend suites, the smoke test, the Windows and Linux runs, the event-model retrain and everything in step 5 were not re-run here.
+
+Contents: [Run it](#run-it) · [Reproduce](#reproduce-the-results) · [1 Overview](#1-project-overview--problem-statement--approach) · [2 Architecture](#2-architecture--tech-stack) · [3 Dataset](#3-dataset-used) ·
 [4 Quickstart](#4-quickstart--installation) · [5 Results](#5-key-results--domain-impact) · [6 ML](#6-ml-approach) · [7 Stress](#7-portfolio-stress-testing) ·
 [8 API](#8-api) · [9 Dashboard](#9-dashboard) · [10 Structure](#10-project-structure) · [11 Evaluation](#11-evaluation) · [12 Failures](#12-failure-handling) ·
 [13 Limitations](#13-limitations) · [14 Secrets](#14-security-and-secrets) · [15 Reproducibility](#15-reproducibility) · [16 Links](#16-submission-checklist-and-project-journey) · [17 Future](#17-future-work)

@@ -1329,3 +1329,20 @@ After the first pass the question was whether every file under `docs/` was curre
 **What.** Added a `## Run it` section right after the honesty box in `README.md`: prerequisites, then clone / venv / `pip install` / UI build / `python src/main.py` for macOS, Linux, Windows (PowerShell, with the execution-policy, `cmd` and WSL notes) and the `uv` + `make` route, plus a short troubleshooting table (busy port, `--host`, no-Node API-only run, wheels pinned for Python 3.14). It is added to the Contents line; Section 4 is unchanged and remains the full list of run modes.
 
 **How it was checked.** The commands were compared against the `Makefile`, `src/main.py`, `__main__.py` (`--host`, `--port`) and `requirements*.in`. The Windows and Linux steps were **not executed**; only macOS has been run on this project.
+
+### README: "Reproduce the results" section (2026-10-10)
+
+**What.** Added `## Reproduce the results` to `README.md` (after "Run it"): freeze check, pipeline re-run with its counts, the tests that pin the served digest, a sentiment-v2 retrain, and a table of what needs self-downloaded data (prices, embeddings, a fresh GDELT pack). Commands are plain `python` so they work on Windows without `make`.
+
+**How it was checked.** Executed: `scripts/freeze_manifest.py --check` (passed, 88 files, 6 models); `python -m eventshock.pipeline --export` (read=3455, kept=3031, signals=2334); `tests/e2e/test_replay_served.py` (7 passed); `train-sentiment --config sentiment_model_v2.yaml`.
+
+**What broke.** The sentiment retrain reproduced `model.joblib` byte for byte (sha256 `d8b694c1363d...`) but rewrote `models/sentiment/tfidf-lr-v2/model_card.json` with a different `config_digest` (`2aadfa13c8cdc549` vs the committed `5ee18fcdde96b9a7`), which made `freeze-check` fail. Computing the digest from the unchanged config at the previous commit (`391ea7b`) also gives `2aadfa...`, so the committed card's digest was already stale (the config was edited after the card was written); it is not a result of the docs move. The card was restored with `git checkout` and `freeze-check` passes again. Not fixed on purpose: the model is frozen, and re-pinning the card needs `make freeze-write` and its own journal entry. Also noted: the plain pipeline digest (`915f967b...`) differs from the served digest (`078a70ae...`) because the served path uses the trained models; the README says so to avoid a false "mismatch".
+
+**Not run:** full pytest, vitest, smoke, Windows/Linux, event-model retrain, anything needing prices or embeddings.
+
+### Docs folder: markdown moved to `docs/notes/` (2026-10-10)
+**What changed.** Every Markdown file directly under `docs/` moved to `docs/notes/`, except `docs/ARCHITECTURE.md`, which stays put. Path references were rewritten in the README, the docs, `src/`, `scripts/`, `tests/`, the Makefile and `web/`, and the relative links were fixed in both directions.
+
+**What broke and how it was handled.** The freeze manifest hashes `configs/`, the model cards and `docs/evidence/`, and several of those mention doc paths. The first pass changed 14 frozen files, including the annotator prompts `data/gold_v2/prompts/passA.md` and `passB.md`. That would have changed the gold protocol and the evidence files pinned by sha256. All 14 were reverted to their committed content, so `make freeze-check` passes with the same 88 files and 6 models. The consequence is that those frozen files still name the old `docs/*.md` paths. Those mentions are stale and point at files that no longer exist there. Fixing them means a deliberate, journaled `make freeze-write`, which I have not done.
+
+**Checked:** the full pytest suite passed (exit 0, no failures); the targeted tests for the edited references also passed (`test_final_report`, `test_final_lifecycle`, `test_freeze`, `test_severity_benchmark`, `test_stage8_evidence`, the two architecture tests, `test_replay_pack`, `test_replay_served`). **Not run:** vitest, the smoke test and the link audit.
